@@ -90,6 +90,7 @@ import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettin
 import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettingsObserver;
 import org.chromium.chrome.browser.profiles.Profile;
 import org.chromium.chrome.browser.rewards.BraveRewardsPanel;
+import org.chromium.chrome.browser.rewards.onboarding.RepSocialPanel;
 import org.chromium.chrome.browser.rewards.onboarding.RewardsOnboarding;
 import org.chromium.chrome.browser.shields.BraveShieldsHandler;
 import org.chromium.chrome.browser.shields.BraveShieldsMenuObserver;
@@ -278,12 +279,12 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mHomeButton.setOnLongClickListener(this);
         }
 
-        if (mBraveShieldsButton != null) {
-            mBraveShieldsButton.setClickable(true);
-            mBraveShieldsButton.setOnClickListener(this);
-            mBraveShieldsButton.setOnLongClickListener(this);
-            BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
-        }
+        // if (mBraveShieldsButton != null) {
+        //     mBraveShieldsButton.setClickable(true);
+        //     mBraveShieldsButton.setOnClickListener(this);
+        //     mBraveShieldsButton.setOnLongClickListener(this);
+        //     BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
+        // }
 
         if (mBraveRewardsButton != null) {
             mBraveRewardsButton.setClickable(true);
@@ -453,11 +454,11 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 && mBraveRewardsNativeWorker.isTermsOfServiceUpdateRequired()) {
             showOrHideRewardsBadge(true);
         }
-        if (mShieldsLayout != null) {
-            updateShieldsLayoutBackground(
-                    !(mRewardsLayout != null && mRewardsLayout.getVisibility() == View.VISIBLE));
-            mShieldsLayout.setVisibility(View.VISIBLE);
-        }
+        // if (mShieldsLayout != null) {
+        //     updateShieldsLayoutBackground(
+        //             !(mRewardsLayout != null && mRewardsLayout.getVisibility() == View.VISIBLE));
+        //     mShieldsLayout.setVisibility(View.GONE);
+        // }
         if (mBraveRewardsNativeWorker != null) {
             mBraveRewardsNativeWorker.addObserver(this);
             mBraveRewardsNativeWorker.addPublisherObserver(this);
@@ -605,6 +606,20 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             panel.showLikePopDownMenu();
         } catch (BraveActivity.BraveActivityNotFoundException e) {
             Log.e(TAG, "RewardsOnboarding failed " + e);
+        }
+    }
+
+    private void showRepSocial(String url) {
+        try {
+            BraveActivity activity = BraveActivity.getBraveActivity();
+            int deviceWidth = ConfigurationUtils.getDisplayMetrics(activity).get("width");
+            boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
+            deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
+            Log.e(TAG, "RepSocialModal " + url.toString());
+            RepSocialPanel panel = new RepSocialPanel(mBraveRewardsButton, deviceWidth, url);
+            panel.showLikePopDownMenu();
+        } catch (BraveActivity.BraveActivityNotFoundException e) {
+            Log.e(TAG, "RepSocialModal failed " + e);
         }
     }
 
@@ -1167,20 +1182,40 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         if (mBraveShieldsButton == v && mBraveShieldsButton != null) {
             showShieldsMenu(mBraveShieldsButton);
         } else if (mBraveRewardsButton == v && mBraveRewardsButton != null) {
-            if (null != mRewardsPopup) {
+            Tab currentTab = getToolbarDataProvider().getTab();
+            if (currentTab == null) {
                 return;
             }
-            hideRewardsOnboardingIcon();
-            OnboardingPrefManager.getInstance().setOnboardingShown(true);
-            mRewardsPopup = new BraveRewardsPanel(v);
-            mRewardsPopup.showLikePopDownMenu();
-            if (mBraveRewardsNotificationsCount.isShown()) {
-                ChromeSharedPreferences.getInstance()
-                        .writeBoolean(
-                                BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
-                mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
-                mIsInitialNotificationPosted = false;
+            try {
+                URL url = new URL(currentTab.getUrl().getSpec());
+                // Don't show shields popup if protocol is not valid for shields.
+                if (!isValidProtocolForShields(url.getProtocol())) {
+                    return;
+                }
+//                mBraveShieldsHandler.show(mBraveShieldsButton, currentTab);
+
+                // Toast.showAnchoredToast(getContext(), v, "clicked" + url.toString());
+                Log.e(TAG, "showRepSocial " +  url.toString());
+                showRepSocial(url.toString());
+            } catch (Exception e) {
+                // Do nothing if url is invalid.
+                // Just return w/o showing shields popup.
+                return;
             }
+//            if (null != mRewardsPopup) {
+//                return;
+//            }
+//            hideRewardsOnboardingIcon();
+//            OnboardingPrefManager.getInstance().setOnboardingShown(true);
+//            mRewardsPopup = new BraveRewardsPanel(v);
+//            mRewardsPopup.showLikePopDownMenu();
+//            if (mBraveRewardsNotificationsCount.isShown()) {
+//                ChromeSharedPreferences.getInstance()
+//                        .writeBoolean(
+//                                BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+//                mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
+//                mIsInitialNotificationPosted = false;
+//            }
         } else if (mHomeButton == v) {
             // Helps Brave News know how to behave on home button action
             try {

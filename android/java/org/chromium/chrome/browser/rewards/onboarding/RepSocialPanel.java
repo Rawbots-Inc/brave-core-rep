@@ -18,8 +18,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.PopupWindow;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
@@ -37,19 +35,10 @@ public class RepSocialPanel implements BraveRewardsObserver {
     private final PopupWindow mPopupWindow;
     private View mPopupView;
 
-    private ViewGroup mMainLayout;
-    private ViewGroup mLocationChooseLayout;
-    private ViewGroup mAllSetLayout;
-    private ViewGroup mErrorLayout;
-
-    private Spinner mCountrySpinner;
-    private TextView mContinueButton;
-
     private BraveRewardsNativeWorker mBraveRewardsNativeWorker;
     private WebView modalWebView;
     private String url = "";
 
-    private static final String SUCCESS = "success";
     private static final String TAG = "RepSocialPanel";
 
     // Primary constructor with URL
@@ -128,5 +117,4 @@ public class RepSocialPanel implements BraveRewardsObserver {
         mPopupWindow.dismiss();
         TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
     }
-
 }

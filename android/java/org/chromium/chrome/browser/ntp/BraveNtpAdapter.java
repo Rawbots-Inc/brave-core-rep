@@ -428,12 +428,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                            .inflate(R.layout.ntp_image_credit, parent, false);
             return new ImageCreditViewHolder(view);
 
-        } else if (viewType == TYPE_NEWS_OPTIN) {
-            view = LayoutInflater.from(parent.getContext())
-                           .inflate(R.layout.optin_layout, parent, false);
-            return new NewsOptinViewHolder(view);
-
-        } else if (viewType == TYPE_NEWS_LOADING) {
+        }  else if (viewType == TYPE_NEWS_LOADING) {
             view = LayoutInflater.from(parent.getContext())
                            .inflate(R.layout.news_loading, parent, false);
             return new NewsLoadingViewHolder(view);

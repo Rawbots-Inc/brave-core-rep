@@ -154,6 +154,8 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             } else {
                 menu.findItem(R.id.request_vpn_location_row_menu_id).setVisible(false);
             }
+            menu.findItem(R.id.request_brave_vpn_row_menu_id).setVisible(false);
+            menu.findItem(R.id.request_vpn_location_row_menu_id).setVisible(false);
         } else {
             menu.findItem(R.id.request_brave_vpn_row_menu_id).setVisible(false);
             menu.findItem(R.id.request_vpn_location_row_menu_id).setVisible(false);
@@ -197,10 +199,11 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                         AppCompatResources.getDrawable(mContext, R.drawable.brave_menu_rewards));
             }
         }
+        rewards.setVisible(false);
         MenuItem braveWallet = menu.findItem(R.id.brave_wallet_id);
         if (braveWallet != null) {
             if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
-                braveWallet.setVisible(true);
+                braveWallet.setVisible(false);
                 if (shouldShowIconBeforeItem()) {
                     braveWallet.setIcon(
                             AppCompatResources.getDrawable(mContext, R.drawable.ic_crypto_wallets));
@@ -208,12 +211,13 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             } else {
                 braveWallet.setVisible(false);
             }
+            braveWallet.setVisible(false);
         }
         MenuItem braveLeo = menu.findItem(R.id.brave_leo_id);
         if (braveLeo != null) {
             Tab tab = mActivityTabProvider.get();
             if (BraveLeoPrefUtils.isLeoEnabled() && tab != null && !tab.isIncognito()) {
-                braveLeo.setVisible(true);
+                braveLeo.setVisible(false);
                 if (shouldShowIconBeforeItem()) {
                     braveLeo.setIcon(
                             AppCompatResources.getDrawable(mContext, R.drawable.ic_brave_ai));
@@ -221,6 +225,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             } else {
                 braveLeo.setVisible(false);
             }
+            braveLeo.setVisible(false);
         }
 
         MenuItem bravePlaylist = menu.findItem(R.id.brave_playlist_id);
@@ -261,6 +266,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         if (shouldShowIconBeforeItem()) {
             braveNews.setIcon(AppCompatResources.getDrawable(mContext, R.drawable.ic_news));
         }
+        braveNews.setVisible(false);
 
         MenuItem braveSpeedReader = menu.findItem(R.id.brave_speedreader_id);
         braveSpeedReader.setVisible(false);
@@ -276,6 +282,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                 }
             }
         }
+        braveSpeedReader.setVisible(false);
 
         MenuItem exit = menu.add(Menu.NONE, R.id.exit_id, 0, R.string.menu_exit);
         if (shouldShowIconBeforeItem()) {

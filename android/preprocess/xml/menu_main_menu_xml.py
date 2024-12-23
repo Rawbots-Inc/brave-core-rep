@@ -52,18 +52,18 @@ def _ProcessXML(root):
     idx = list(parent).index(add_to_playlist_child)
     parent.insert(idx + 1, add_to_playlist_node)
 
-    brave_leo_node_str = '<item xmlns:android='\
-        '"http://schemas.android.com/apk/res/android" '\
-          'android:id="@+id/brave_leo_id" ' \
-          'android:title="@string/menu_brave_leo" />'
-    brave_leo_node = ET.fromstring(brave_leo_node_str,
-                                   parser=ET.XMLParser(encoding="utf-8"))
+    # brave_leo_node_str = '<item xmlns:android='\
+    #     '"http://schemas.android.com/apk/res/android" '\
+    #       'android:id="@+id/brave_leo_id" ' \
+    #       'android:title="@string/menu_brave_leo" />'
+    # brave_leo_node = ET.fromstring(brave_leo_node_str,
+    #                                parser=ET.XMLParser(encoding="utf-8"))
 
-    parent = root.find('group/[@android:id="@+id/PAGE_MENU"]', namespaces=ns)
-    leo_child = parent.find('item/[@android:id="@+id/add_to_playlist_id"]',
-                            namespaces=ns)
-    idx = list(parent).index(leo_child)
-    parent.insert(idx + 1, brave_leo_node)
+    # parent = root.find('group/[@android:id="@+id/PAGE_MENU"]', namespaces=ns)
+    # leo_child = parent.find('item/[@android:id="@+id/add_to_playlist_id"]',
+    #                         namespaces=ns)
+    # idx = list(parent).index(leo_child)
+    # parent.insert(idx + 1, brave_leo_node)
 
     set_as_default_node_str = '<item xmlns:android='\
     '"http://schemas.android.com/apk/res/android" '\

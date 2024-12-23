@@ -26,6 +26,7 @@ import org.chromium.chrome.browser.BraveRewardsNativeWorker;
 import org.chromium.chrome.browser.BraveRewardsObserver;
 import org.chromium.chrome.browser.rewards.BraveRewardsPanel;
 import org.chromium.chrome.browser.util.TabUtils;
+import android.webkit.WebChromeClient;
 
 /**
  * This class is used to show rewards onboarding UI
@@ -64,48 +65,106 @@ public class RepSocialPanel implements BraveRewardsObserver {
         this(anchorView, deviceWidth, "");
     }
 
+    // private void setUpViews(int deviceWidth) {
+    //     Log.e(TAG, "URL in setUpViews: " + this.url);
+    //     LayoutInflater inflater = (LayoutInflater) mAnchorView.getContext().getSystemService(
+    //             Context.LAYOUT_INFLATER_SERVICE);
+    //     mPopupView = inflater.inflate(R.layout.brave_rewards_rep_social_layout, null);
+    //     modalWebView = (WebView) mPopupView.findViewById(R.id.modalWebView);
+
+    //     // Configure WebView
+    //     WebSettings webSettings = modalWebView.getSettings();
+    //     webSettings.setJavaScriptEnabled(true);
+    //     webSettings.setDomStorageEnabled(true);
+    //     webSettings.setUserAgentString(System.getProperty("http.agent"));
+
+    //     CookieManager cookieManager = CookieManager.getInstance();
+    //     cookieManager.setAcceptCookie(true);
+    //     cookieManager.setAcceptThirdPartyCookies(modalWebView, true);
+    //     modalWebView.setWebViewClient(new WebViewClient());
+
+    //     Log.e(TAG, "URL before loading: " + this.url);
+
+    //     // Load the URL if it's not empty
+    //     if (this.url != null && !this.url.isEmpty()) {
+    //         modalWebView.loadUrl("https://dev.rep.run?currentTabUrl=" + this.url);
+    //     } else {
+    //         modalWebView.loadUrl("https://dev.rep.run?currentTabUrl=new_tab");
+    //     }
+
+    //     mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+    //         @Override
+    //         public void onDismiss() {
+    //             if (mBraveRewardsNativeWorker != null) {
+    //                 mBraveRewardsNativeWorker.removeObserver(RepSocialPanel.this);
+    //             }
+    //         }
+    //     });
+
+    //     mPopupWindow.setWidth(deviceWidth);
+    //     mPopupWindow.setContentView(mPopupView);
+
+    //     mBraveRewardsNativeWorker = BraveRewardsNativeWorker.getInstance();
+    //     mBraveRewardsNativeWorker.addObserver(this);
+    // }
+
     private void setUpViews(int deviceWidth) {
-        Log.e(TAG, "URL in setUpViews: " + this.url);
-        LayoutInflater inflater = (LayoutInflater) mAnchorView.getContext().getSystemService(
-                Context.LAYOUT_INFLATER_SERVICE);
-        mPopupView = inflater.inflate(R.layout.brave_rewards_rep_social_layout, null);
-        modalWebView = (WebView) mPopupView.findViewById(R.id.modalWebView);
+    Log.e(TAG, "URL in setUpViews: " + this.url);
+    LayoutInflater inflater = (LayoutInflater) mAnchorView.getContext().getSystemService(
+            Context.LAYOUT_INFLATER_SERVICE);
+    mPopupView = inflater.inflate(R.layout.brave_rewards_rep_social_layout, null);
+    modalWebView = (WebView) mPopupView.findViewById(R.id.modalWebView);
 
-        // Configure WebView
-        WebSettings webSettings = modalWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setDomStorageEnabled(true);
-        webSettings.setUserAgentString(System.getProperty("http.agent"));
+    // Thiết lập WebView
+    WebSettings webSettings = modalWebView.getSettings();
+    webSettings.setJavaScriptEnabled(true);
+    webSettings.setDomStorageEnabled(true);
+    webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+    webSettings.setAllowFileAccess(false); // Tăng cường bảo mật
+    webSettings.setAllowContentAccess(false);
+    webSettings.setUserAgentString(System.getProperty("http.agent"));
 
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        cookieManager.setAcceptThirdPartyCookies(modalWebView, true);
-        modalWebView.setWebViewClient(new WebViewClient());
-
-        Log.e(TAG, "URL before loading: " + this.url);
-
-        // Load the URL if it's not empty
-        if (this.url != null && !this.url.isEmpty()) {
-            modalWebView.loadUrl("https://dev.rep.run?currentTabUrl=" + this.url);
-        } else {
-            modalWebView.loadUrl("https://dev.rep.run?currentTabUrl=new_tab");
+    modalWebView.setWebChromeClient(new WebChromeClient());
+    modalWebView.setWebViewClient(new WebViewClient() {
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            Log.e(TAG, "Page loaded: " + url);
         }
 
-        mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                if (mBraveRewardsNativeWorker != null) {
-                    mBraveRewardsNativeWorker.removeObserver(RepSocialPanel.this);
-                }
+        @Override
+        public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+            Log.e(TAG, "Error loading page: " + description);
+        }
+    });
+
+    // Cho phép cookie cho trang
+    CookieManager cookieManager = CookieManager.getInstance();
+    cookieManager.setAcceptCookie(true);
+    cookieManager.setAcceptThirdPartyCookies(modalWebView, true);
+
+    Log.e(TAG, "URL before loading: " + this.url);
+
+    // Load URL
+    String targetUrl = (this.url != null && !this.url.isEmpty())
+            ? "https://dev.rep.run?currentTabUrl=" + this.url
+            : "https://dev.rep.run?currentTabUrl=new_tab";
+    modalWebView.loadUrl(targetUrl);
+
+    mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        @Override
+        public void onDismiss() {
+            if (mBraveRewardsNativeWorker != null) {
+                mBraveRewardsNativeWorker.removeObserver(RepSocialPanel.this);
             }
-        });
+        }
+    });
 
-        mPopupWindow.setWidth(deviceWidth);
-        mPopupWindow.setContentView(mPopupView);
+    mPopupWindow.setWidth(deviceWidth);
+    mPopupWindow.setContentView(mPopupView);
 
-        mBraveRewardsNativeWorker = BraveRewardsNativeWorker.getInstance();
-        mBraveRewardsNativeWorker.addObserver(this);
-    }
+    mBraveRewardsNativeWorker = BraveRewardsNativeWorker.getInstance();
+    mBraveRewardsNativeWorker.addObserver(this);
+}
 
     public void showLikePopDownMenu() {
         mPopupWindow.setTouchable(true);

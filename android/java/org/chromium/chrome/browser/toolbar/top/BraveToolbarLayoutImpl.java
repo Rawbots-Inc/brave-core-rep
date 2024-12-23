@@ -1184,12 +1184,16 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         } else if (mBraveRewardsButton == v && mBraveRewardsButton != null) {
             Tab currentTab = getToolbarDataProvider().getTab();
             if (currentTab == null) {
+                 Log.e(TAG, "showRepSocial empty ");
+                showRepSocial("");
                 return;
             }
             try {
                 URL url = new URL(currentTab.getUrl().getSpec());
                 // Don't show shields popup if protocol is not valid for shields.
                 if (!isValidProtocolForShields(url.getProtocol())) {
+                    Log.e(TAG, "showRepSocial empty ");
+                    showRepSocial("");
                     return;
                 }
 //                mBraveShieldsHandler.show(mBraveShieldsButton, currentTab);
@@ -1200,6 +1204,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             } catch (Exception e) {
                 // Do nothing if url is invalid.
                 // Just return w/o showing shields popup.
+                    showRepSocial("");
+
                 return;
             }
 //            if (null != mRewardsPopup) {

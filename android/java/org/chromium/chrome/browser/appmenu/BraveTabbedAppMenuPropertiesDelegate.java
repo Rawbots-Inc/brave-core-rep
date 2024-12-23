@@ -199,8 +199,8 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                 rewards.setIcon(
                         AppCompatResources.getDrawable(mContext, R.drawable.brave_menu_rewards));
             }
+            rewards.setVisible(false);
         }
-        rewards.setVisible(false);
         MenuItem braveWallet = menu.findItem(R.id.brave_wallet_id);
         if (braveWallet != null) {
             // if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {

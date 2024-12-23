@@ -75,6 +75,7 @@ public class RepSocialPanel implements BraveRewardsObserver {
         WebSettings webSettings = modalWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setUserAgentString(System.getProperty("http.agent"));
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptCookie(true);

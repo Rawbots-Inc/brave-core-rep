@@ -96,7 +96,7 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
     private static final String PREF_HOME_SCREEN_WIDGET = "home_screen_widget";
 
     private final HashMap<String, Preference> mRemovedPreferences = new HashMap<>();
-    private Preference mVpnCalloutPreference;
+    // private Preference mVpnCalloutPreference;
     private boolean mNotificationClicked;
 
     @Override

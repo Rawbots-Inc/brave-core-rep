@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-This file contains all "about" strings.  It is set to NOT be translated, in translation_expectations.pyl.  en-US only.
--->
+<?xml version='1.0' encoding='utf-8'?>
 <grit current_release="1" latest_public_release="0" output_all_resource_defines="false">
   <outputs>
     <output filename="values-af/android_brave_strings.xml" lang="af" type="android" />
@@ -143,40 +140,40 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
   </translations>
   <release seq="1" allow_pseudo="false">
     <messages fallback_to_english="true">
-      <message name="IDS_CONTEXTMENU_COPY_CLEAN_LINK"  desc="Text for Copy clean link">
+      <message name="IDS_CONTEXTMENU_COPY_CLEAN_LINK" desc="Text for Copy clean link">
         Copy clean link
       </message>
-      <message name="IDS_NOTIFICATIONS_ARE_DISABLED"  desc="Text for Notifications are disabled">
+      <message name="IDS_NOTIFICATIONS_ARE_DISABLED" desc="Text for Notifications are disabled">
         Notifications are disabled
       </message>
-      <message name="IDS_SELECT_YOUR_COUNTRY"  desc="Text for Select your country">
+      <message name="IDS_SELECT_YOUR_COUNTRY" desc="Text for Select your country">
         Select your country
       </message>
-      <message name="IDS_SELECT_YOUR_COUNTRY_DESCRIPTION"  desc="Text for Select your country so we can show you the right options and ads for your region.">
+      <message name="IDS_SELECT_YOUR_COUNTRY_DESCRIPTION" desc="Text for Select your country so we can show you the right options and ads for your region.">
         Select your country so we can show you the right options and ads for your region.
       </message>
-      <message name="IDS_REWARDS_ONBOARDING_ALL_SET_DESCRIPTION"  desc="Text for Now you can get rewarded for viewing ads. You’re helping make the web a better place for everyone. And that’s awesome!">
+      <message name="IDS_REWARDS_ONBOARDING_ALL_SET_DESCRIPTION" desc="Text for Now you can get rewarded for viewing ads. You’re helping make the web a better place for everyone. And that’s awesome!">
         Now you can get rewarded for viewing ads. You’re helping make the web a better place for everyone. And that’s awesome!
       </message>
-      <message name="IDS_REWARDS_ONBOARDING_ALL_SET_TITLE"  desc="Woohoo You’re all set!">
+      <message name="IDS_REWARDS_ONBOARDING_ALL_SET_TITLE" desc="Woohoo You’re all set!">
         Woohoo! You’re all set!
       </message>
-      <message name="IDS_LOADING"  desc="Text for loading text for progressbar">
+      <message name="IDS_LOADING" desc="Text for loading text for progressbar">
         Loading...
       </message>
-      <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_TITLE"  desc="Text for Earn tokens for private ads you see in Brave">
-        Earn tokens for private ads you see in Brave
+      <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_TITLE" desc="Text for Earn tokens for private ads you see in Brave">
+        Earn tokens for private ads you see in Rep Social
       </message>
-      <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_DESCRIPTION"  desc="Text for Use tokens to buy gift cards, exchange for other currencies, support content creators, and more.">
+      <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_DESCRIPTION" desc="Text for Use tokens to buy gift cards, exchange for other currencies, support content creators, and more.">
         Use tokens to buy gift cards, exchange for other currencies, support content creators, and more.
       </message>
-      <message name="IDS_HOW_DOES_IT_WORK"  desc="Text for How does it work">
+      <message name="IDS_HOW_DOES_IT_WORK" desc="Text for How does it work">
         How does it work?
       </message>
-      <message name="IDS_HOW_DOES_BRAVE_REWARDS_WORK"  desc="Text for How does Brave Rewards work?">
-        How does Brave Rewards work?
+      <message name="IDS_HOW_DOES_BRAVE_REWARDS_WORK" desc="Text for How does Brave Rewards work?">
+        How does Rep Social Rewards work?
       </message>
-      <message name="IDS_START_USING_REWARDS"  desc="Text for Start using Rewards">
+      <message name="IDS_START_USING_REWARDS" desc="Text for Start using Rewards">
         Start using Rewards
       </message>
       <message name="IDS_STILL_RECEIVE_CONTRIBUTIONS_FROM_WEB3" desc="Text for still send crypto contributions">
@@ -221,113 +218,113 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_REWARDS_TIP_DEFAULT_CREATOR_DESCRIPTION" desc="Text for tipping default description">
         Welcome! Users can support this content creator by sending them contributions. It’s a way of thanking them for making great content.
       </message>
-      <message name="IDS_TITLE_ON_PROVIDER"  desc="Text for Tipping title with provider">
+      <message name="IDS_TITLE_ON_PROVIDER" desc="Text for Tipping title with provider">
         <ph name="TITLE">%1$s</ph> on <ph name="PROVIDER">%2$s</ph>
       </message>
-      <message name="IDS_LOGGED_OUT_OF_CUSTODIAN"  desc="Text for logged out message">
+      <message name="IDS_LOGGED_OUT_OF_CUSTODIAN" desc="Text for logged out message">
         Logged out of <ph name="CUSTODIAN">%1$s</ph>
       </message>
-      <message name="IDS_LOGIN_TO_CUSTODIAN"  desc="Text for Log in to custodian">
+      <message name="IDS_LOGIN_TO_CUSTODIAN" desc="Text for Log in to custodian">
         Log in to <ph name="CUSTODIAN">%1$s</ph>
       </message>
       <message name="IDS_THANKS_FOR_SUPPORTING_YOUR_FAVORITE_CREATORS" desc="Text for Thanks for supporting your favorite creators">
         Thanks for supporting your favorite creators
       </message>
-      <message name="IDS_LOGGED_OUT_OF_CUSTODIAN_DESCRIPTION"  desc="Text for logged out message description">
+      <message name="IDS_LOGGED_OUT_OF_CUSTODIAN_DESCRIPTION" desc="Text for logged out message description">
         It looks like you're logged out of <ph name="CUSTODIAN">%1$s</ph> for Brave Rewards. Log in again to continue.
       </message>
-      <message name="IDS_INFO_CREATOR_NOT_VERIFIED"  desc="Text for This creator is not verified description">
-        This creator is not yet verified with Brave Creators. You'll be able to send them contributions once they're verified. <ph name="LEARN_MORE">%1$s</ph>
+      <message name="IDS_INFO_CREATOR_NOT_VERIFIED" desc="Text for This creator is not verified description">
+        This creator is not yet verified with Rep Social Creators. You'll be able to send them contributions once they're verified. <ph name="LEARN_MORE">%1$s</ph>
       </message>
-      <message name="IDS_SEND_CONTRIBUTION"  desc="Text for Send contribution">
+      <message name="IDS_SEND_CONTRIBUTION" desc="Text for Send contribution">
         Send Contribution
       </message>
-      <message name="IDS_CAN_NOT_SEND_YOUR_CONTRIBUTION"  desc="Text for Can't send your contribution">
+      <message name="IDS_CAN_NOT_SEND_YOUR_CONTRIBUTION" desc="Text for Can't send your contribution">
         Can't send your contribution
       </message>
-      <message name="IDS_USE_BRAVE_REWARDS"  desc="Text for Use Brave Rewards">
-        Use Brave Rewards
+      <message name="IDS_USE_BRAVE_REWARDS" desc="Text for Use Brave Rewards">
+        Use Rep Social Rewards
       </message>
-      <message name="IDS_USE_WEB3_WALLET"  desc="Text for Use Web3 wallet">
+      <message name="IDS_USE_WEB3_WALLET" desc="Text for Use Web3 wallet">
         Use Web3 wallet
       </message>
-      <message name="IDS_BRAVE_REWARDS_BALANCE"  desc="Text for Brave Rewards balance">
-        Brave Rewards balance
+      <message name="IDS_BRAVE_REWARDS_BALANCE" desc="Text for Brave Rewards balance">
+        Rep Social Rewards balance
       </message>
-      <message name="IDS_SET_AS_MONTHLY_CONTRIBUTION"  desc="Text for Set as monthly contribution">
+      <message name="IDS_SET_AS_MONTHLY_CONTRIBUTION" desc="Text for Set as monthly contribution">
         Set as monthly contribution
       </message>
-      <message name="IDS__10"  desc="Text for 10" translateable="false">
+      <message name="IDS__10" desc="Text for 10" translateable="false">
         10
       </message>
-      <message name="IDS__5"  desc="Text for 5" translateable="false">
+      <message name="IDS__5" desc="Text for 5" translateable="false">
         5
       </message>
-      <message name="IDS__1"  desc="Text for 1" translateable="false">
+      <message name="IDS__1" desc="Text for 1" translateable="false">
         1
       </message>
-      <message name="IDS_CUSTOM"  desc="Text for custom">
+      <message name="IDS_CUSTOM" desc="Text for custom">
         Custom
       </message>
-      <message name="IDS_THERE_WAS_A_PROBLEM_SENDING_YOUR_CONTRIBUTION"  desc="Text for There was a problem sending your contribution">
+      <message name="IDS_THERE_WAS_A_PROBLEM_SENDING_YOUR_CONTRIBUTION" desc="Text for There was a problem sending your contribution">
         There was a problem sending your contribution
       </message>
-      <message name="IDS_PLEASE_TRY_AGAIN"  desc="Text for Please try again">
+      <message name="IDS_PLEASE_TRY_AGAIN" desc="Text for Please try again">
         Please try again.
       </message>
-      <message name="IDS_TIPPING_TOOLTIP_DESCRIPTION"  desc="Text for tipping tooltip description">
-        This creator has registered with Brave and can receive contributions from Brave Rewards users. <ph name="LEARN_MORE">%1$s</ph>
+      <message name="IDS_TIPPING_TOOLTIP_DESCRIPTION" desc="Text for tipping tooltip description">
+        This creator has registered with Rep Social and can receive contributions from Rep Social Rewards users. <ph name="LEARN_MORE">%1$s</ph>
       </message>
-      <message name="IDS_BRAVE_REWARDS_MAY_NOT_WORK_WHILE_NOTIFICATIONS_ARE_DISABLED"  desc="Text for Brave Rewards may not work while notifications are disabled.">
-        Brave Rewards may not work while notifications are disabled.
+      <message name="IDS_BRAVE_REWARDS_MAY_NOT_WORK_WHILE_NOTIFICATIONS_ARE_DISABLED" desc="Text for Brave Rewards may not work while notifications are disabled.">
+        Rep Social Rewards may not work while notifications are disabled.
       </message>
-      <message name="IDS_BLOCK_SWITCH_TO_APP_NOTICES"  desc="Text for Block 'Switch to App' Notices">
+      <message name="IDS_BLOCK_SWITCH_TO_APP_NOTICES" desc="Text for Block 'Switch to App' Notices">
         Block 'Switch to App' Notices
       </message>
-      <message name="IDS_TELL_US_WHAT_YOU_THINK"  desc="Text for Tell us what you think!">
+      <message name="IDS_TELL_US_WHAT_YOU_THINK" desc="Text for Tell us what you think!">
         Tell us what you think!
       </message>
-      <message name="IDS_RATE_BRAVE"  desc="Text for Rate Brave">
-        Rate Brave
+      <message name="IDS_RATE_BRAVE" desc="Text for Rate Brave">
+        Rate Rep Social
       </message>
-      <message name="IDS_BRAVE_RATING_THANKS"  desc="Text for Brave Rating Thanks">
+      <message name="IDS_BRAVE_RATING_THANKS" desc="Text for Brave Rating Thanks">
         Thanks!
       </message>
-      <message name="IDS_ADD_YOUR_SUGGESTIONS"  desc="Text for Add your suggestions">
+      <message name="IDS_ADD_YOUR_SUGGESTIONS" desc="Text for Add your suggestions">
         Add your suggestions
       </message>
-      <message name="IDS_BRAVE_OPTIONAL"  desc="Text for Optional">
+      <message name="IDS_BRAVE_OPTIONAL" desc="Text for Optional">
         Optional
       </message>
-      <message name="IDS_IN_ONE_EMOJI_EXPERIENCE_WITH_BRAVE"  desc="Text for In one emoji, how's your experience with Brave?">
-        In one emoji, how's your experience with Brave?
+      <message name="IDS_IN_ONE_EMOJI_EXPERIENCE_WITH_BRAVE" desc="Text for In one emoji, how's your experience with Brave?">
+        In one emoji, how's your experience with Rep Social?
       </message>
-      <message name="IDS_RATE_NOW"  desc="Text for Rate now">
+      <message name="IDS_RATE_NOW" desc="Text for Rate now">
         Rate now
       </message>
-      <message name="IDS_LIKING_BRAVE"  desc="Text for Liking Brave?">
-        Liking Brave?
+      <message name="IDS_LIKING_BRAVE" desc="Text for Liking Brave?">
+        Liking Rep Social?
       </message>
-      <message name="IDS_HAPPY"  desc="Text for happy">
+      <message name="IDS_HAPPY" desc="Text for happy">
         Happy
       </message>
-      <message name="IDS_SAD"  desc="Text for sad">
+      <message name="IDS_SAD" desc="Text for sad">
         Sad
       </message>
-      <message name="IDS_LEAVE_A_PLAY_STORE_RATING"  desc="Text for Leave a Play Store rating?">
+      <message name="IDS_LEAVE_A_PLAY_STORE_RATING" desc="Text for Leave a Play Store rating?">
         Leave a Play Store rating?
       </message>
-      <message name="IDS_THANKS_FOR_YOUR_FEEDBACK"  desc="Text for Thanks for your feedback!">
+      <message name="IDS_THANKS_FOR_YOUR_FEEDBACK" desc="Text for Thanks for your feedback!">
         Thanks for your feedback!
       </message>
-      <message name="IDS_LET_US_KNOW_HOW_WE_CAN_IMPROVE_BRAVE"  desc="Text for Let us know how we can improve Brave.">
-        Let us know how we can improve Brave.
+      <message name="IDS_LET_US_KNOW_HOW_WE_CAN_IMPROVE_BRAVE" desc="Text for Let us know how we can improve Brave.">
+        Let us know how we can improve Rep Social.
       </message>
-      <message name="IDS_SUPPORT_THIS_CREATOR"  desc="Text for Support this creator">
+      <message name="IDS_SUPPORT_THIS_CREATOR" desc="Text for Support this creator">
         Support this creator
       </message>
       <message name="IDS_BRAVE_NOTIFICATION_PERMISSION_RATIONALE_DIALOG_TITLE" desc="The title of a dialog shown to users before asking for notification permission.">
-        Brave notifications make it easier
+        Rep Social notifications make it easier
       </message>
       <message name="IDS_BRAVE_NOTIFICATION_PERMISSION_RATIONALE_DIALOG_MESSAGE" desc="The body text of a dialog explaining the benefits of enabling Brave notifications.">
         Manage downloads, earn tokens, see weekly usage stats, and more.
@@ -336,7 +333,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         You're not earning Rewards or receiving Privacy Reports
       </message>
       <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_ONLY_REWARDS" desc="Text header for When ONLY Brave Rewards is TURNED ON.">
-        You're not earning Brave Rewards
+        You're not earning Rep Social Rewards
       </message>
       <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_ONLY_PRIVACY" desc="Text header for When ONLY Privacy Report is TURNED ON.">
         You're not receiving Privacy Reports
@@ -360,34 +357,34 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         You're not receiving Privacy Reports
       </message>
       <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_BOTH_REWARDS_PRIVACY" desc="Text description for When BOTH Brave Rewards and Privacy Report are TURNED ON.">
-        Enable device notifications to earn Brave Rewards and see Privacy Reports.
+        Enable device notifications to earn Rep Social Rewards and see Privacy Reports.
       </message>
       <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_ONLY_REWARDS" desc="Text description for When ONLY Brave Rewards is TURNED ON.">
-        Enable device notifications to earn Brave Rewards.
+        Enable device notifications to earn Rep Social Rewards.
       </message>
       <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_ONLY_PRIVACY" desc="Text description for When ONLY Privacy Report is TURNED ON.">
-        Enable device notifications to get Brave Privacy Reports.
+        Enable device notifications to get Rep Social Privacy Reports.
       </message>
       <message name="IDS_ENABLE_NOTIFICATIONS_FROM_BRAVE_TO_EARN_BRAVE_REWARDS" desc="Text description for Enable notifications from Brave to earn Brave Rewards.">
-        Enable notifications from Brave to earn Brave Rewards.
+        Enable notifications from Rep Social to earn Rep Social Rewards.
       </message>
       <message name="IDS_OPEN_SETTINGS_AND_TURN_ON_DEVICE_NOTIFICATIONS_FOR_BRAVE_ADS" desc="Text description for Open Settings and turn on device notifications for Brave Ads.">
-        Open Settings and turn on device notifications for Brave Ads.
+        Open Settings and turn on device notifications for Rep Social Ads.
       </message>
       <message name="IDS_TURN_ON_BRAVE_NOTIFICATIONS" desc="Text for button Turn on Brave notifications">
-        Turn on Brave notifications
+        Turn on Rep Social notifications
       </message>
       <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_SHIELDS" desc="Content description for the button that is enable, disable Brave Shields.">
-        Enable/Disable Brave Shields
+        Enable/Disable Rep Social Shields
       </message>
-      <message name="IDS_STATS_NOTIFICATION_PRIVACY_UPDATES_DESCRIPTION"  desc="Text for Notification on description">
+      <message name="IDS_STATS_NOTIFICATION_PRIVACY_UPDATES_DESCRIPTION" desc="Text for Notification on description">
         Get weekly privacy updates on tracker &amp; ad blocking.
       </message>
-      <message name="IDS_STATS_NOTIFICATION_ON"  desc="Text for Turn on notifications">
+      <message name="IDS_STATS_NOTIFICATION_ON" desc="Text for Turn on notifications">
         Turn on notifications
       </message>
-      <message name="IDS_PROCESSING_FEE"  desc="Text for Brave collects 5% of the tip amount as a processing fee">
-        Brave collects 5% of the sent amount as a processing fee.
+      <message name="IDS_PROCESSING_FEE" desc="Text for Brave collects 5% of the tip amount as a processing fee">
+        Rep Social collects 5% of the sent amount as a processing fee.
       </message>
       <message name="IDS_BAT" desc="Text for BAT" translateable="false">
         BAT
@@ -456,7 +453,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Allow LinkedIn embedded posts
       </message>
       <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_REWARDS" desc="Content description for the button that is enable, disable Brave Rewards.">
-        Manage Brave Rewards
+        Manage Rep Social Rewards
       </message>
       <message name="IDS_PREFS_SECTION_AUTOFILL_BRAVE" desc="Title for Autofill section">
         Autofill
@@ -474,7 +471,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Features
       </message>
       <message name="IDS_BRAVE_SHIELDS_AND_PRIVACY" desc="Label for the settings related to shields and privacy">
-        Brave Shields &amp; privacy
+        Rep Social Shields &amp; privacy
       </message>
       <message name="IDS_BRAVE_SEARCH_ENGINES" desc="Label for the settings related to the search engines">
         Search engines
@@ -621,16 +618,16 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Today’s top stories in a private feed, just for you.
       </message>
       <message name="IDS_BRAVE_NEWS_SETTINGS_OPTIN_TITLE" desc="Text for opt in card title in settings">
-        Turn on Brave News, and never miss a story
+        Turn on Rep Social News, and never miss a story
       </message>
       <message name="IDS_BRAVE_NEWS_OPTIN_SUBTITLE" desc="Text for opt in card subtitle">
-        Brave News is ad-supported with private and anonymized ads matched on your device.
+        Rep Social News is ad-supported with private and anonymized ads matched on your device.
       </message>
       <message name="IDS_BRAVE_NEWS_SETTINGS_OPTIN_SUBTITLE" desc="Text for opt in card subtitle in settings">
-        Follow your favorite sources, in a single feed. Just open a tab in Brave, scroll down, and... voila!\nBrave News is ad-supported with private, anonymized ads.
+        Follow your favorite sources, in a single feed. Just open a tab in Rep Social, scroll down, and... voila!\nRep Social News is ad-supported with private, anonymized ads.
       </message>
       <message name="IDS_TURN_ON_BRAVE_NEWS" desc="Text for opt in card button in settings">
-        Turn on Brave News
+        Turn on Rep Social News
       </message>
       <message name="IDS_BRAVE_NEWS_SETTINGS_SEARCH" desc="Text for Brave News settings search">
         Search for site, topic, or RSS feed
@@ -681,7 +678,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Ad
       </message>
       <message name="IDS_BRAVE_NEWS_OPTIN_BUTTON" desc="Text for opt in card subtitle">
-        Show Brave News
+        Show Rep Social News
       </message>
       <message name="IDS_BRAVE_NEWS_SHARE" desc="Text for share option in the long press menu">
         Share
@@ -708,16 +705,16 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Promoted
       </message>
       <message name="IDS_BRAVE_NEWS_MORE_OFFERS_TITLE" desc="Text for more offers for the Brave News Deals card ">
-        More Brave Offers
+        More Rep Social Offers
       </message>
       <message name="IDS_NEWS_SHOW" desc="Text for news source">
-        Show Brave News
+        Show Rep Social News
       </message>
       <message name="IDS_NO_CONTENT_TITLE" desc="Text for no source card title">
         No content
       </message>
       <message name="IDS_NO_CONTENT_SUBTITLE" desc="Text for no source card subtitle">
-        Brave News has no content to show.
+        Rep Social News has no content to show.
       </message>
       <message name="IDS_CHOOSE_CONTENT_SOURCES" desc="Text for no source card button">
         Choose content sources
@@ -765,13 +762,13 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Allow privacy-preserving product analytics (P3A)
       </message>
       <message name="IDS_SEND_P3A_ANALYTICS_SUMMARY" desc="Summary for checkbox of send p3a analytics.">
-        Anonymized P3A info helps Brave estimate overall usage, and ensure we’re improving popular features.
+        Anonymized P3A info helps Rep Social estimate overall usage, and ensure we’re improving popular features.
       </message>
       <message name="IDS_SEND_CRASH_REPORTS_TITLE" desc="Title for checkbox enable/disable sending diagnostic reports (crashes, hangs).">
         Automatically send diagnostic reports
       </message>
       <message name="IDS_SEND_CRASH_REPORTS_SUMMARY" desc="Summary for checkbox enable/disable sending diagnostic reports (crashes, hangs).">
-        Help improve Brave\u2019s product stability by automatically sending diagnostic reports when the Brave Browser crashes or freezes.
+        Help improve Rep Social\u2019s product stability by automatically sending diagnostic reports when the Rep Social Browser crashes or freezes.
       </message>
       <message name="IDS_BRAVE_STATS_TEXT_DATA_SAVED" desc="Title for the data saved stats">
         Est. Data\nSaved
@@ -779,7 +776,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_STATS_TEXT_TIME" desc="Title for the estimated saved time">
         Est. Time\nSaved
       </message>
-      <!-- AUTOPLAY SITE SETTING-->
+      
       <message name="IDS_AUTOPLAY_TITLE" desc="Title for the Autoplay settings screen [CHAR-LIMIT=32]">
         Autoplay
       </message>
@@ -789,7 +786,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_WEBSITE_SETTINGS_ADD_SITE_DESCRIPTION_AUTOPLAY" desc="The description for the allow autoplay of muted videos for website dialog.">
         Allow autoplay of muted videos for a specific site.
       </message>
-      <!-- GOOGLE SIGN IN SITE SETTING -->
+      
       <message name="IDS_GOOGLE_SIGN_IN_TITLE" desc="Label for G sign-in site settings.">
         Google Sign-In
       </message>
@@ -802,7 +799,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_WEBSITE_SETTINGS_GOOGLE_SIGN_IN_ALLOW_EXCEPTIONS" desc="Label for G sign-in site settings.">
         Allowed to use third-party cookies for legacy Google Sign-In
       </message>
-      <!-- LOCALHOST SIGN IN SITE SETTING -->
+      
       <message name="IDS_LOCALHOST_TITLE" desc="Label for localhost site settings.">
         Localhost access
       </message>
@@ -817,7 +814,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       </message>
 
       <message name="IDS_PREFS_SECTION_BRAVE_SHIELDS_GLOBALS" desc="Title for Brave shields global defaults section in the privacy preferences screen">
-        Brave shields global defaults
+        Rep Social shields global defaults
       </message>
       <message name="IDS_PREFS_SECTION_OTHER_PRIVACY_SETTINGS" desc="Title for Other privacy settings section in the privacy preferences screen">
         Other privacy settings
@@ -829,15 +826,15 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Background play
       </message>
       <message name="IDS_PREFS_CLOSING_ALL_TABS_CLOSES_BRAVE" desc="Title for closing all tabs closes brave in controls section">
-        Closing all tabs closes Brave
+        Closing all tabs closes Rep Social
       </message>
       <message name="IDS_PREFS_BACKGROUND_VIDEO_PLAYBACK_ON" desc="Text for background video playback is on">
-        Allows audio to play when you switch to another tab in Brave or another app or your device screen is off.
+        Allows audio to play when you switch to another tab in Rep Social or another app or your device screen is off.
       </message>
       <message name="IDS_PREFS_OPEN_YOUTUBE_LINKS_BRAVE" desc="Text for open youtube links in brave">
-        Open YouTube links in Brave
+        Open YouTube links in Rep Social
       </message>
-      <message name="IDS_PREFS_SECTION_DISPLAY" desc='Title of "Display" section of preferences. [CHAR-LIMIT=32]'>
+      <message name="IDS_PREFS_SECTION_DISPLAY" desc="Title of &quot;Display&quot; section of preferences. [CHAR-LIMIT=32]">
         Display
       </message>
       <message name="IDS_PREFS_MEDIA" desc="Title of Media settings, which allows the user to change media settings. [CHAR-LIMIT=32]">
@@ -862,16 +859,16 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Appearance
       </message>
       <message name="IDS_SHOW_BRAVE_REWARDS_ICON_TITLE" desc="Title for preference that hides or shows Brave Rewards icon.">
-        Brave Rewards icon
+        Rep Social Rewards icon
       </message>
       <message name="IDS_SHOW_BRAVE_REWARDS_ICON_SUMMARY" desc="Summary for preference that hides or shows Brave Rewards icon.">
-        Show Brave Rewards icon in address bar
+        Show Rep Social Rewards icon in address bar
       </message>
       <message name="IDS_BOTTOM_TOOLBAR_ENABLE" desc="Menu item for enabling the bottom toolbar.">
         Enable bottom toolbar
       </message>
       <message name="IDS_SETTINGS_REQUIRE_RELAUNCH_NOTICE" desc="Text for message asked about browser relaunch to apply new settings">
-        Your changes will take effect the next time you relaunch Brave
+        Your changes will take effect the next time you relaunch Rep Social
       </message>
       <message name="IDS_SETTINGS_REQUIRE_RELAUNCH_NOW" desc="Text on the button causes relaunch browser now">
         RELAUNCH NOW
@@ -880,45 +877,45 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         LATER
       </message>
 
-      <!-- Onboarding strings -->
+      
       <message name="IDS_WELCOME_TO_BRAVE" desc="Text for welcome onboarding">
-        Welcome to Brave
+        Welcome to Rep Social
       </message>
       <message name="IDS_PRIVACY_ONBOARDING" desc="Text for privacy onboarding">
         Privacy. Made simple.
       </message>
       <message name="IDS_ONBOARDING_SET_DEFAULT" desc="Text for set default onboarding">
-        With Brave as default, every link you tap opens with Brave's privacy protections.
+        With Rep Social as default, every link you tap opens with Rep Social's privacy protections.
       </message>
       <message name="IDS_PRIVACY_ONBOARDING_INDIA" desc="Text for privacy onboarding for india">
         Block ads. Save data. Every single day.
       </message>
       <message name="IDS_ONBOARDING_SET_DEFAULT_INDIA" desc="Text for set default onboarding for india">
-        With Brave as default, every link you tap gets Brave's ad-block protection. Every page, video, and stream.
+        With Rep Social as default, every link you tap gets Rep Social's ad-block protection. Every page, video, and stream.
       </message>
       <message name="IDS_P3A_TITLE" desc="Text for p3a title onboarding">
-        Help make Brave better.
+        Help make Rep Social better.
       </message>
       <message name="IDS_P3A_CRASH" desc="Text for p3a crash onboarding">
         Send diagnostic reports if you experience a crash or freeze.
       </message>
       <message name="IDS_P3A_INSIGHTS" desc="Text for p3a insights onboarding">
-        Share private and anonymous product insights about what features are being used by Brave's users.
+        Share private and anonymous product insights about what features are being used by Rep Social's users.
       </message>
       <message name="IDS_TYPE_WEBSITE" desc="Text for searhbox tooltip title onboarding">
         Type a website name or URL
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING" desc="Text for searhbox tooltip onboarding">
-        See the Brave difference: No ads. No trackers. Way faster page load.
+        See the Rep Social difference: No ads. No trackers. Way faster page load.
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING_INDIA" desc="Text for searhbox tooltip onboarding for india">
-        See the Brave difference: Block ads. Save data. Stream faster.
+        See the Rep Social difference: Block ads. Save data. Stream faster.
       </message>
       <message name="IDS_SHIELD_ONBOARDING" desc="Text for shield tooltip onboarding">
-        Tap to view Brave Shields
+        Tap to view Rep Social Shields
       </message>
       <message name="IDS_SHIELD_TOOLTIP_DESC" desc="Text for shield tooltip description onboarding">
-        See all the bad stuff Brave blocked, on every page, with Shields.
+        See all the bad stuff Rep Social blocked, on every page, with Shields.
       </message>
       <message name="IDS_SHIELD_BIGTECH_TRACKER_BLOCKED" desc="Text for shield tracker big tech blocked tooltip onboarding">
         <ph name="BIG_TECH">%1$s<ex>google</ex></ph> and <ph name="TRACKER">%2$s<ex>1</ex></ph> other ads &amp; trackers blocked
@@ -948,19 +945,19 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         You can always change your preference later in app settings.
       </message>
       <message name="IDS_BRAVE_SHIELDS_ONBOARDING_TITLE" desc="Title for brave shield page">
-        Brave Shields
+        Rep Social Shields
       </message>
       <message name="IDS_EARN_TOKENS" desc="Partial Text for brave rewards page">
         Earn <ph name="TOKEN">%1$s<ex>token</ex></ph>s
       </message>
       <message name="IDS_BRAVE_REWARDS_ONBOARDING_TITLE" desc="Title for brave rewards page">
-        Brave Rewards
+        Rep Social Rewards
       </message>
       <message name="IDS_BRAVE_REWARDS_ONBOARDING_TEXT" desc="Text for brave rewards page">
         by viewing privacy-respecting ads and support your favorite sites and creators by default.
       </message>
       <message name="IDS_TERMS_TEXT" desc="Text for terms of service page">
-        By tapping Start using Brave Rewards, you agree to the
+        By tapping Start using Rep Social Rewards, you agree to the
       </message>
       <message name="IDS_TERMS_OF_SERVICE" desc="Text for terms of service">
         Terms of Service
@@ -969,19 +966,19 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Start browsing
       </message>
       <message name="IDS_I_DIDNT_SEE" desc="Text for i didt see it button">
-        I didn&apos;t see an ad
+        I didn't see an ad
       </message>
       <message name="IDS_BRAVE_ADS_ONBOARDING_TITLE" desc="Title for brave ads page">
-        Brave will show your first ad in
+        Rep Social will show your first ad in
       </message>
       <message name="IDS_BRAVE_ADS_ONBOARDING_TEXT" desc="Text for brave ads page">
-        Now you'll earn token from Brave Ads.
+        Now you'll earn token from Rep Social Ads.
       </message>
       <message name="IDS_THIS_IS_YOUR_FIRST_AD" desc="Text brave rewards notification.">
-        This is your first Brave ad. Tap to learn more.
+        This is your first Rep Social ad. Tap to learn more.
       </message>
       <message name="IDS_EARN_AND_GIVE" desc="Button text for rewards onboarding.">
-        Start using Brave Rewards
+        Start using Rep Social Rewards
       </message>
       <message name="IDS_CONTINUE_TO_WALLET" desc="Text for continue to wallet button">
         Continue to wallet
@@ -999,10 +996,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Set as Default Browser
       </message>
       <message name="IDS_BRAVE_SET_DEFAULT_BROWSER_DIALOG_TEXT" desc="Dialog for setting default browser">
-        Select Brave Browser and tap 'Always'
+        Select Rep Social Browser and tap 'Always'
       </message>
       <message name="IDS_BRAVE_ALREADY_SET_AS_DEFAULT_BROWSER" desc="Toast message for those whom have already set Brave as default browser">
-        Brave is already set as your default browser.
+        Rep Social is already set as your default browser.
       </message>
       <message name="IDS_BRAVE_DEFAULT_BROWSER_GO_TO_SETTINGS" desc="Toast message for those without 7.0 to go to settings to change default browser">
         You've already set a default browser. You may change the default browser in your app settings.
@@ -1017,7 +1014,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         To search by QR Code, align the QR Code in the center of frame.
       </message>
       <message name="IDS_MENU_BRAVE_REWARDS" desc="Title for brave rewards menu item">
-        Brave Rewards
+        Rep Social Rewards
       </message>
       <message name="IDS_LOGGED_OUT_STATE_DIALOG_TEXT" desc="Rewards logged out state text">
         Log in to <ph name="WALLET_PROVIDER">%1$s</ph> to see your balance
@@ -1029,10 +1026,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Next
       </message>
       <message name="IDS_BRAVE_PRIVACY_SET_DEFAULT_BROWSER" desc="Set default browser modal title">
-        To improve your privacy, set Brave as your default Browser
+        To improve your privacy, set Rep Social as your default Browser
       </message>
       <message name="IDS_BRAVE_CHOOSE" desc="Set default browser modal text">
-        Choose Brave on the next screen.
+        Choose Rep Social on the next screen.
       </message>
       <message name="IDS_BRAVE_DONT_ASK_AGAIN" desc="Set default browser modal text">
         Don't ask again
@@ -1041,10 +1038,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Independent search with better privacy
       </message>
       <message name="IDS_BRAVE_OMNIBOX_SEARCH_PROMO_DESC" desc="Omnibox brave search banner promo description">
-        Brave Search doesn't profile you.
+        Rep Social Search doesn't profile you.
       </message>
       <message name="IDS_TRY_BRAVE_SEARCH" desc="Omnibox brave search promo button text">
-        Try Brave Search
+        Try Rep Social Search
       </message>
       <message name="IDS_DISMISS_SEARCH_PROMO" desc="Omnibox brave search promo dismiss button text">
         Dismiss
@@ -1062,13 +1059,13 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_UI_MONTH_NOV" desc="Name of a month">NOVEMBER</message>
       <message name="IDS_BRAVE_UI_MONTH_DEC" desc="Name of a month">DECEMBER</message>
       <message name="IDS_BRAVE_UI_BRAVE_REWARDS" desc="Menu item and title for Brave Rewards Settings. [CHAR-LIMIT=27]">
-        Brave Rewards
+        Rep Social Rewards
       </message>
       <message name="IDS_BRAVE_VPN" desc="Title for Brave vpn settings">
-        Brave VPN
+        Rep Social VPN
       </message>
       <message name="IDS_BRAVE_NEWS_TITLE" desc="Title for Brave news settings">
-        Brave News
+        Rep Social News
       </message>
       <message name="IDS_BRAVE_UI_USD" desc="USD value of tokens">
         ≈ <ph name="VALUE">%1$s<ex>0.0</ex></ph> USD
@@ -1101,7 +1098,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         on Twitch
       </message>
       <message name="IDS_BRAVE_ADS_EXISTING_USER_OFFER_TITLE" desc="Title for Brave Ads offer.">
-        Brave Ads are here!
+        Rep Social Ads are here!
       </message>
       <message name="IDS_BRAVE_SYNC_THIS_DEVICE_TEXT" desc="Text for Brave Sync this device.">
         (this device)
@@ -1125,7 +1122,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Wrong sync QR code
       </message>
       <message name="IDS_BRAVE_SYNC_CODE_FROM_DEPRECATED_VERSION" desc="Text for error when trying to use old version sync code after v1 sunset date.">
-        This code was generated by a deprecated version of Brave, please upgrade your other device first
+        This code was generated by a deprecated version of Rep Social, please upgrade your other device first
       </message>
       <message name="IDS_BRAVE_SYNC_CODE_EXPIRED" desc="Text for error when trying to use the sync code which has expired.">
         This code has expired. Please generate a new one on your other device and try again.
@@ -1134,13 +1131,13 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         This code is invalid. Please check that the time and timezone are set correctly on your device.
       </message>
       <message name="IDS_BRAVE_SYNC_OFFICIAL" desc="Text for Brave Sync preference.">
-        Brave Sync
+        Rep Social Sync
       </message>
       <message name="IDS_BRAVE_SYNC_DESCRIPTION_PAGE_1" desc="Text for Brave Sync description.">
-        Brave Sync allows you to sync bookmarks data privately between your Brave Browsers on your various devices.\n\nSimply scan the code from your sync chain that you created on another device. Or start a new sync chain.
+        Rep Social Sync allows you to sync bookmarks data privately between your Rep Social Browsers on your various devices.\n\nSimply scan the code from your sync chain that you created on another device. Or start a new sync chain.
       </message>
       <message name="IDS_BRAVE_SYNC_QRCODE_MESSAGE_V2" desc="Text for Brave Sync QR code message.">
-        Using existing synced device, open Brave Settings and navigate to Settings > Sync. Choose "Add New Device" and scan the QR Code displayed on the screen.
+        Using existing synced device, open Rep Social Settings and navigate to Settings &gt; Sync. Choose "Add New Device" and scan the QR Code displayed on the screen.
       </message>
       <message name="IDS_BRAVE_SYNC_COPIED_TEXT" desc="Text for Brave Sync copied text message.">
         Copied to Clipboard
@@ -1155,7 +1152,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Delete Sync account
       </message>
       <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_MESSAGE" desc="Text for confirmation message for permanently delete Brave Sync account">
-        Deleting your account will remove your encrypted data from Brave servers and disable Sync on all of your connected devices. It will not however delete the data that is stored locally on those devices.\n\nThis deletion is permanent and there is no way to recover the data. Should you decide to start using Sync again, you will need to create a new account and re-add each device one by one.
+        Deleting your account will remove your encrypted data from Rep Social servers and disable Sync on all of your connected devices. It will not however delete the data that is stored locally on those devices.\n\nThis deletion is permanent and there is no way to recover the data. Should you decide to start using Sync again, you will need to create a new account and re-add each device one by one.
       </message>
       <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_BUTTON" desc="Text for the confirmation button which deletes all sync chain data on the server">
         Permanently delete account
@@ -1185,10 +1182,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Add a Computer
       </message>
       <message name="IDS_BRAVE_SYNC_ADD_MOBILE_DEVICE_TEXT" desc="Text for Brave Sync add a mobile device description part 1.">
-        Using a second phone or tablet, navigate to Brave Settings > Sync > Scan.\n\nOn your mobile device, navigate to Brave Sync in the Settings panel and click the button "Scan Sync Code". Use your camera to scan the QR Code below.
+        Using a second phone or tablet, navigate to Rep Social Settings &gt; Sync &gt; Scan.\n\nOn your mobile device, navigate to Rep Social Sync in the Settings panel and click the button "Scan Sync Code". Use your camera to scan the QR Code below.
       </message>
       <message name="IDS_BRAVE_SYNC_ADD_LAPTOP_TEXT" desc="Text for Brave Sync add a laptop description.">
-        On your computer, navigate to Brave Settings > Sync. Choose "Enter a Sync Chain Code".\n\nOn your target computer, navigate to Brave Sync in settings and click the button "I have a Sync Code".\nEnter the sync chain code words shown below.
+        On your computer, navigate to Rep Social Settings &gt; Sync. Choose "Enter a Sync Chain Code".\n\nOn your target computer, navigate to Rep Social Sync in settings and click the button "I have a Sync Code".\nEnter the sync chain code words shown below.
       </message>
       <message name="IDS_BRAVE_SYNC_SCAN_SYNC_CODE" desc="Text for Brave Sync scan sync code message.">
         Scan this sync code
@@ -1224,7 +1221,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Enter code words
       </message>
       <message name="IDS_BRAVE_SYNC_CODEWORDS_MESSAGE" desc="Text for Brave Sync code words message.">
-        Using existing synced device, open Brave Settings and navigate to Settings > Sync. Choose "Add New Device" then "Display code words instead".
+        Using existing synced device, open Rep Social Settings and navigate to Settings &gt; Sync. Choose "Add New Device" then "Display code words instead".
       </message>
       <message name="IDS_BRAVE_SYNC_CONFIRM_CODE_WORDS_TEXT" desc="Text for Brave Sync confirm code words message.">
         Confirm
@@ -1248,34 +1245,34 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Settings exit
       </message>
       <message name="IDS_BRAVE_ADS_NEW_USER_OFFER_TITLE" desc="Title for Brave Ads offer.">
-        Enable Brave Rewards
+        Enable Rep Social Rewards
       </message>
       <message name="IDS_BRAVE_ADS_OFFER_POSITIVE" desc="Positive button text for Brave Ads offer.">
         I'm in!
       </message>
       <message name="IDS_BRAVE_ADS_OFFER_TEXT" desc="Text for Brave Ads offer.">
-        Earn Basic Attention Token for viewing privacy preserving Brave Rewards ads.
+        Earn Basic Attention Token for viewing privacy preserving Rep Social Rewards ads.
       </message>
       <message name="IDS_RESET_BRAVE_REWARDS_ERROR_TITLE" desc="Title for Brave Rewards reset error dialog.">
         Reset Error
       </message>
       <message name="IDS_RESET_BRAVE_REWARDS_ERROR_DESCRIPTION" desc="Description for Brave Rewards reset error dialog.">
-        There was an error resetting Brave Rewards. Please relaunch Brave and try again.
+        There was an error resetting Rep Social Rewards. Please relaunch Rep Social and try again.
       </message>
       <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_TITLE" desc="Title for Show Ads when Brave is not in use option in Brave rewards settings.">
-        Brave Ads
+        Rep Social Ads
       </message>
       <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_SUMMARY" desc="Summary for Show Ads when Brave is not in use option in Brave rewards settings.">
-        Show notification ads when Brave is not in use
+        Show notification ads when Rep Social is not in use
       </message>
       <message name="IDS_RESET_BRAVE_REWARDS_OPTION_DESCRIPTION" desc="Description for preference to reset Brave Rewards.">
-        This will delete your Brave Rewards and reset all of your Brave Rewards data
+        This will delete your Rep Social Rewards and reset all of your Rep Social Rewards data
       </message>
       <message name="IDS_RESET_BRAVE_REWARDS_DATA" desc="Description for preference to reset 'Brave Rewards' data.">
-        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Reset Brave Rewards data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
+        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Reset Brave Rewards data…<ph name="END_LINK1">&lt;/link1&gt;</ph>
       </message>
       <message name="IDS_CLEAR_BRAVE_ADS_DATA" desc="Description for preference to clear 'Brave Ads' data.">
-        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Clear Brave Ads data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
+        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Clear Brave Ads data…<ph name="END_LINK1">&lt;/link1&gt;</ph>
       </message>
       <message name="IDS_ADD_BOOKMARK_MENU" desc="Add Bookmark menu item text for the bookmark button.">
         Add Bookmark
@@ -1325,7 +1322,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_OPEN_FOLDER" desc="Open folder button text for export bookmarks success.">
         Open folder
       </message>
-      <!-- P3A Android Infobar -->
+      
       <message name="IDS_SYNC_DEVICE_FAILURE" desc="The message for the dialog where the user notified about sync setup failure.">
         Sync could not be setup
       </message>
@@ -1333,7 +1330,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Open Settings
       </message>
       <message name="IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_MESSAGE" desc="Message text shown to users who's Sync account was deleted. Is used along with IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_LINK_TEXT">
-        This Brave Sync account was deleted from another device. If you didn’t mean to disable Sync,<ph name="LINK_TEXT">%1$s<ex>re-create the account</ex></ph>
+        This Rep Social Sync account was deleted from another device. If you didn’t mean to disable Sync,<ph name="LINK_TEXT">%1$s<ex>re-create the account</ex></ph>
       </message>
       <message name="IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_LINK_TEXT" desc="Link text shown to users who's Sync account was deleted. When user clicks the link, Sync Setup page is opened. Is used along with IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_MESSAGE">
         <ph name="INFOBAR_TEXT">%1$s<ex>This Brave Sync account was deleted from another device. If you didn’t mean to disable Sync,</ex></ph>re-create the account
@@ -1351,12 +1348,12 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Yes
       </message>
       <message name="IDS_SYNC_FINAL_WARNING_TEXT_QR_CODE" desc="Sync final warning alert dialog text">
-  This will share your Brave data, including potentially your passwords, with the device that generated this QR code.
+  This will share your Rep Social data, including potentially your passwords, with the device that generated this QR code.
 Please double check that this QR code was generated by a device that you own.
 Are you sure you want to do this?
       </message>
       <message name="IDS_SYNC_FINAL_WARNING_TEXT_CODE_WORDS" desc="Sync final warning alert dialog text">
-  This will share your Brave data, including potentially your passwords, with the device that generated these code words.
+  This will share your Rep Social data, including potentially your passwords, with the device that generated these code words.
 Please double check that these code words were generated by a device that you own.
 Are you sure you want to do this?
       </message>
@@ -1382,7 +1379,7 @@ Are you sure you want to do this?
         https://brave.com/terms_of_use
       </message>
       <message name="IDS_BRAVE_LICENSE_TEXT" desc="Title for Brave License">
-        Brave License
+        Rep Social License
       </message>
       <message name="IDS_BRAVE_NEW_PRIVATE_TAB" desc="Text for 'New private tab'">
         New private tab
@@ -1403,20 +1400,18 @@ Are you sure you want to do this?
         Note that, even in private windows, your browsing activity may still be visible to your ISP, network observers, or your employer (if you're using a work device/network).
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN" desc="VPN title shown when a user opens a private tab explaining private mode">
-        Brave VPN
+        Rep Social VPN
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN_DESCRIPTION" desc="VPN description shown when a user opens a private tab explaining private mode">
-        Brave VPN encrypts and protects anything you do online, even outside the Brave browser.
+        Rep Social VPN encrypts and protects anything you do online, even outside the Rep Social browser.
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN_CTA" desc="VPN call to action text shown when a user opens a private tab explaining private mode">
         Try free for 7 days
       </message>
       <message name="IDS_NOTIFICATION_CATEGORY_BRAVE_ADS_BACKGROUND" desc="Label for Brave Ads in background.">
-        Brave Ads sent when browser is in the background
+        Rep Social Ads sent when browser is in the background
       </message>
-      <!-- <message name="IDS_CLEAR_DOWNLOADS_TITLE" desc="Title for Clear download in Clear Browsing Data dialog">
-        Download history
-      </message> -->
+      
       <message name="IDS_BRAVE_UI_CONTRIBUTION_TIPS" desc="Title for monthly tips processed notification">
         Contributions
       </message>
@@ -1427,7 +1422,7 @@ Are you sure you want to do this?
         Turn on Ads
       </message>
       <message name="IDS_BRAVE_UI_BRAVE_ADS_LAUNCH_TITLE" desc="Message used in notification to let users know Ads is available">
-        Brave Ads has arrived!
+        Rep Social Ads has arrived!
       </message>
       <message name="IDS_BRAVE_UI_PENDING_CONTRIBUTION_TITLE" desc="Notification title for pending contribution type">
         Pending Contribution
@@ -1441,32 +1436,32 @@ Are you sure you want to do this?
       <message name="IDS_PREFS_NEW_TAB_PAGE" desc="Title of New Tab Page settings.">
         New Tab Page
       </message>
-      <message name="IDS_BACKGROUND_IMAGES" desc= "Category title of background images option.">
+      <message name="IDS_BACKGROUND_IMAGES" desc="Category title of background images option.">
         Background Images
       </message>
-      <message name="IDS_SHOW_BACKGROUND_IMAGES" desc= "Title of show background images option.">
+      <message name="IDS_SHOW_BACKGROUND_IMAGES" desc="Title of show background images option.">
         Show Background Images
       </message>
-      <message name="IDS_SHOW_SPONSORED_IMAGES" desc ="Title of show sponsored images option.">
+      <message name="IDS_SHOW_SPONSORED_IMAGES" desc="Title of show sponsored images option.">
         Show Sponsored Images
       </message>
-      <message name="IDS_WIDGETS" desc ="Categary of Widget option.">
+      <message name="IDS_WIDGETS" desc="Categary of Widget option.">
         Widgets
       </message>
       <message name="IDS_SHOW_TOP_SITES" desc="New tab page settings title">
         Show Top Sites
       </message>
       <message name="IDS_SHOW_BRAVE_STATS" desc="New tab page settings title">
-        Show Brave Stats
+        Show Rep Social Stats
       </message>
       <message name="IDS_PHOTO_BY" desc="Text for image credit for background images on NTP">
         Photo by <ph name="PHOTO_BY">%1$s</ph>
       </message>
       <message name="IDS_PREFS_USE_CUSTOM_TABS_TITLE" desc="Title for use custom tabs section">
-        Open external links in Brave
+        Open external links in Rep Social
       </message>
       <message name="IDS_PREFS_USE_CUSTOM_TABS_TEXT" desc="Text for use custom tabs section">
-        Opens links from other apps in a Brave webview. Note: Brave must be set as your default browser.
+        Opens links from other apps in a Rep Social webview. Note: Rep Social must be set as your default browser.
       </message>
       <message name="IDS_BRAVE_UI_WALLET_BUTTON_LOGGED_OUT" desc="Brave rewards panel logged out state text">
         Logged out
@@ -1499,16 +1494,16 @@ Are you sure you want to do this?
         Not connected
       </message>
       <message name="IDS_BRAVE_DEFAULT" desc="Text for brave default settings option.">
-        Brave Default
+        Rep Social Default
       </message>
       <message name="IDS_SHARE_BRAVE_WITH_YOUR_FRIENDS" desc="Title text for share dialog.">
-        Share Brave with your friends!
+        Share Rep Social with your friends!
       </message>
       <message name="IDS_BRAVE_REWARDS_LOCAL_GENERAL_GRANT_ERROR_TITLE" desc="">
         Oops, something is wrong. Please try again later.
       </message>
       <message name="IDS_PREFS_RATE_BRAVE" desc="Title for rate brave settings option.">
-        Rate Brave
+        Rate Rep Social
       </message>
       <message name="IDS_PREFS_SECTION_GENERAL" desc="Title for the general section in settings.">
         General
@@ -1616,10 +1611,10 @@ Are you sure you want to do this?
         Ads and other creepy things blocked
       </message>
       <message name="IDS_SHIELDS_ABOUT_TEXT" desc="About Text for shields option.">
-        Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web, tracking what you do on every site.\n\nBrave blocks these things so that you can browse without being followed around.
+        Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web, tracking what you do on every site.\n\nRep Social blocks these things so that you can browse without being followed around.
       </message>
       <message name="IDS_ABOUT_BRAVE_SHIELDS_TEXT" desc="About Title for shields option.">
-        About Brave Shields
+        About Rep Social Shields
       </message>
       <message name="IDS_UP" desc="Text for brave shields switch.">
         UP
@@ -1628,7 +1623,7 @@ Are you sure you want to do this?
         DOWN
       </message>
       <message name="IDS_BRAVE_SHIELDS_DOWN_TEXT" desc="Text for brave shields down.">
-        You're browsing this site without Brave's privacy protections. Does it not work right with Shields up?
+        You're browsing this site without Rep Social's privacy protections. Does it not work right with Shields up?
       </message>
       <message name="IDS_BRAVE_ETHEREUM_NETWORKS" desc="Text Ethereum networks label.">
         Ethereum networks
@@ -1652,10 +1647,10 @@ Are you sure you want to do this?
         Report a broken site
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_1" desc="Shields text for broken text warning message.">
-        Let Brave's developers know that this site doesn't work properly with Shields:
+        Let Rep Social's developers know that this site doesn't work properly with Shields:
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_2" desc="Shields text for broken text warning message.">
-        Thank you for helping make Brave better for all. This report will only contain information necessary for us to fix this site. <ph name="LEARN_MORE">%1$s</ph>
+        Thank you for helping make Rep Social better for all. This report will only contain information necessary for us to fix this site. <ph name="LEARN_MORE">%1$s</ph>
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_LINK" desc="Text for link to webcompat report wiki page.">
         Learn more.
@@ -1682,7 +1677,7 @@ Are you sure you want to do this?
         Thank you!
       </message>
       <message name="IDS_THANK_YOU_TEXT" desc="Text for thank you UI for shields.">
-        Thanks for letting Brave's developers know that there's something wrong with this site. We'll do our best to fix it!
+        Thanks for letting Rep Social's developers know that there's something wrong with this site. We'll do our best to fix it!
       </message>
       <message name="IDS_ADVANCED_CONTROLS" desc="Title for toggle section.">
         Advanced controls
@@ -1691,16 +1686,16 @@ Are you sure you want to do this?
         Save Data Online
       </message>
       <message name="IDS_UPDATE_NOTIFICATION_TEXT" desc="Text of notification on application update.">
-        Browse faster and block ads with Brave
+        Browse faster and block ads with Rep Social
       </message>
       <message name="IDS_BRAVE_STATS_SHARE_TEXT" desc="Text sent when sharing the stats">
-        Every day I save data by browsing the Web with Brave.
+        Every day I save data by browsing the Web with Rep Social.
       </message>
       <message name="IDS_WATCH_YOUTUBE_NOT_ADS" desc="Open youtube in brave modal title">
         Watch YouTube, not Ads.
       </message>
       <message name="IDS_WATCH_YOUTUBE_NOT_ADS_TEXT" desc="Open youtube in brave modal text">
-        Open YouTube links in Brave to block ads.
+        Open YouTube links in Rep Social to block ads.
       </message>
       <message name="IDS_TURN_ON_NOW" desc="Open youtube in brave modal positive action text">
         Turn on now
@@ -1709,16 +1704,16 @@ Are you sure you want to do this?
         No, thank you
       </message>
       <message name="IDS_BRAVE_WORKS_EVERYWHERE" desc="Cross promotional modal title text">
-        Brave works everywhere
+        Rep Social works everywhere
       </message>
       <message name="IDS_DOWNLOAD_BRAVE" desc="Cross promotional modal text">
-        Download Brave at brave.com on your laptop or tablet for a faster and more private web
+        Download Rep Social at brave.com on your laptop or tablet for a faster and more private web
       </message>
       <message name="IDS_PRIVACY_PROTECTION" desc="Title for onboading bottomsheet.">
         Privacy protection
       </message>
       <message name="IDS_PRIVACY_PROTECTION_TEXT" desc="Text for onboading bottomsheet.">
-        Brave stops ads &amp; trackers from collecting information about you without your consent.
+        Rep Social stops ads &amp; trackers from collecting information about you without your consent.
       </message>
       <message name="IDS_SAVE_DATA_AND_BATTERY" desc="Title for onboading bottomsheet.">
         Save data and battery
@@ -1730,13 +1725,13 @@ Are you sure you want to do this?
         Websites load faster
       </message>
       <message name="IDS_WEBSITES_LOAD_FASTER_TEXT" desc="Text for onboading bottomsheet.">
-        Loading less data means websites in Brave load faster - up to 8x faster than other browsers.
+        Loading less data means websites in Rep Social load faster - up to 8x faster than other browsers.
       </message>
       <message name="IDS_GET_WEEKLY_UPDATES" desc="Title for onboading bottomsheet.">
         Get weekly updates
       </message>
       <message name="IDS_GET_WEEKLY_UPDATES_TEXT" desc="Text for onboading bottomsheet.">
-        Be informed about which websites you visit are the most privacy-invasive.\n\nOnly you can see these privacy statistics. No personal data or browsing history ever leaves the Brave browser on your device.
+        Be informed about which websites you visit are the most privacy-invasive.\n\nOnly you can see these privacy statistics. No personal data or browsing history ever leaves the Rep Social browser on your device.
       </message>
       <message name="IDS_TURN_ON_PRIVACY_STATS" desc="Button text for onboading bottomsheet.">
         Turn on privacy reports
@@ -1790,7 +1785,7 @@ Are you sure you want to do this?
         You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Brave browser in the past 3 hours.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_2" desc="3_hours notification text">
-        Browse up to 6x faster on major news sites in Brave by blocking trackers &amp; ads.
+        Browse up to 6x faster on major news sites in Rep Social by blocking trackers &amp; ads.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_3" desc="3_hours notification text">
         Turn on Privacy Reports to see how many trackers &amp; ads have been blocked in the past 3 hours.
@@ -1802,7 +1797,7 @@ Are you sure you want to do this?
         Turn on Privacy Reports to see how much data you've saved.
       </message>
       <message name="IDS_NOTIFICATION_MARKETING" desc="Marketing notification text">
-        Brave browser uses 40% less battery on average.🔋
+        Rep Social browser uses 40% less battery on average.🔋
       </message>
       <message name="IDS_NOTIFICATION_WEEKLY_STATS" desc="Weekly stats notification text">
         You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Brave browser last week.
@@ -1814,10 +1809,10 @@ Are you sure you want to do this?
         Start browsing to see privacy reporting
       </message>
       <message name="IDS_SET_BRAVE_AS_YOUR" desc="Deafult browser notification text">
-        Set Brave as your default browser for private and secure browsing.
+        Set Rep Social as your default browser for private and secure browsing.
       </message>
       <message name="IDS_ALLOWS_BRAVE_TO_SHOW" desc="Brave stats pref summary text">
-        Allows Brave to show your privacy statistics
+        Allows Rep Social to show your privacy statistics
       </message>
       <message name="IDS_SENDS_A_WEEKLY" desc="Brave stats pref summary text">
         Sends a weekly privacy report
@@ -1859,7 +1854,7 @@ Are you sure you want to do this?
         Summary
       </message>
       <message name="IDS_START_USING_BRAVE_REWARDS" desc="Brave rewards enable ads text">
-        Start using Brave Rewards
+        Start using Rep Social Rewards
       </message>
       <message name="IDS_EARN_TOKENS_AND_GIVE_BACK" desc="Brave rewards title text">
         Earn Tokens &amp; Give Back
@@ -1880,16 +1875,16 @@ Are you sure you want to do this?
         Let’s take a quick tour
       </message>
       <message name="IDS_WELCOME_TO_BRAVE_REWARDS" desc="Brave rewards onboarding title">
-        Welcome to Brave Rewards!
+        Welcome to Rep Social Rewards!
       </message>
       <message name="IDS_WELCOME_TO_BRAVE_REWARDS_TEXT" desc="Brave rewards onboarding title">
-        Brave Private Ads reward you with tokens to support content creators unlike traditional ads, all while keeping your personal information private.
+        Rep Social Private Ads reward you with tokens to support content creators unlike traditional ads, all while keeping your personal information private.
       </message>
       <message name="IDS_WHERE_DO_ADS_SHOW_UP" desc="Brave rewards onboarding title">
         Where do ads show up?
       </message>
       <message name="IDS_WHERE_DO_ADS_SHOW_UP_TEXT" desc="Brave rewards onboarding title">
-        Brave Private Ads appear as notifications on your screen. You control how often you see these ads.
+        Rep Social Private Ads appear as notifications on your screen. You control how often you see these ads.
       </message>
       <message name="IDS_GIVING_BACK_MADE_EFFORTLESS" desc="Brave rewards onboarding title">
         Giving back made effortless
@@ -1925,7 +1920,7 @@ Are you sure you want to do this?
         Woohoo, you’re all set!
       </message>
       <message name="IDS_YOU_ARE_DONE_TEXT" desc="Brave rewards onboarding title">
-        By using Brave Rewards, you are protecting your privacy and helping make the web a better place for everyone. And that’s awesome!
+        By using Rep Social Rewards, you are protecting your privacy and helping make the web a better place for everyone. And that’s awesome!
       </message>
       <message name="IDS_GO_BACK" desc="Go back button text">
         Go Back
@@ -1988,7 +1983,7 @@ Are you sure you want to do this?
         Not now
       </message>
       <message name="IDS_SETTINGS_APP_LINKS_LABEL" desc="App Links setting label">
-        Allow app links to open in apps outside of Brave
+        Allow app links to open in apps outside of Rep Social
       </message>
       <message name="IDS_SETTINGS_DEFAULT_ETHEREUM_WALLET_LABEL" desc="Default Ethereum wallet label">
         Default Ethereum wallet
@@ -2000,7 +1995,7 @@ Are you sure you want to do this?
         None
       </message>
       <message name="IDS_SETTINGS_DEFAULT_WALLET_OPTION_2" desc="Brave Wallet as default wallet">
-        Brave Wallet
+        Rep Social Wallet
       </message>
       <message name="IDS_SETTINGS_WEBRTC_POLICY_LABEL" desc="WebRTC policy setting label">
         WebRTC IP handling policy
@@ -2030,19 +2025,19 @@ Are you sure you want to do this?
       Browser native.\nSelf-custody.\nAnd multi-chain.
     </message>
     <message name="IDS_DEFI_SECURE_STORAGE_TEXT" desc="Brave Wallet onboarding text">
-      Take control of your crypto and NFTs. Brave Wallet supports Ethereum, EVM chains, Solana, Filecoin, and more.
+      Take control of your crypto and NFTs. Rep Social Wallet supports Ethereum, EVM chains, Solana, Filecoin, and more.
     </message>
     <message name="IDS_SETUP_CRYPTO" desc="Brave Wallet onboarding new wallet title">
       Need a new wallet?
     </message>
     <message name="IDS_SETUP_CRYPTO_DESCRIPTION" desc="Brave Wallet onboarding new wallet description">
-      Get started with Brave Wallet within minutes
+      Get started with Rep Social Wallet within minutes
     </message>
     <message name="IDS_ENTER_PASSWORD_TO_CONTINUE_TITLE" desc="Brave Wallet enter password text">
       Enter a password to continue
     </message>
     <message name="IDS_ENTER_PASSWORD_TO_CONTINUE" desc="Brave Wallet enter password to back up wallet text">
-      Enter your Brave Wallet password to start backing up wallet.
+      Enter your Rep Social Wallet password to start backing up wallet.
     </message>
     <message name="IDS_CONTINUE_TEXT" desc="Brave Wallet onboarding text">
       Continue
@@ -2057,7 +2052,7 @@ Are you sure you want to do this?
       Choose which blockchains to use in your wallet.
     </message>
     <message name="IDS_UNDERSTAND_SELF_CUSTODY" desc="Brave Wallet self-custody explaination text">
-      I understand this is a self-custody wallet, and that I alone am responsible for any associated funds, assets, or accounts, and for taking appropriate action to secure, protect and backup my wallet. I understand that Brave cannot access my wallet or reverse transactions on my behalf, and that my recovery phrase is the ONLY way to regain access in the event of a lost password, stolen device, or similar circumstance.
+      I understand this is a self-custody wallet, and that I alone am responsible for any associated funds, assets, or accounts, and for taking appropriate action to secure, protect and backup my wallet. I understand that Rep Social cannot access my wallet or reverse transactions on my behalf, and that my recovery phrase is the ONLY way to regain access in the event of a lost password, stolen device, or similar circumstance.
     </message>
     <message name="IDS_ACCEPT_TERMS_OF_USE" desc="Brave Wallet terms of use text">
       I have read and agree to the <ph name="CLICK_START">%1$s</ph>Terms of Use<ph name="CLICK_END">%2$s</ph>.
@@ -2132,7 +2127,7 @@ Are you sure you want to do this?
       Show recovery phrase
     </message>
     <message name="IDS_RESTORE_LEGACY_WALLET_RECOVERY_PHRASE" desc="Brave Wallet onboarding legacy import text">
-      Import from legacy Brave crypto wallets?
+      Import from legacy Rep Social crypto wallets?
     </message>
     <message name="IDS_RESTORE" desc="Brave Wallet restore text">
       Restore
@@ -2227,12 +2222,12 @@ Are you sure you want to do this?
     <message name="IDS_ACCOUNTS" desc="Brave Wallet section text">
       Accounts
     </message>
-    <!-- Stats -->
+    
     <message name="IDS_BRAVE_STATS_USAGE_PING_TITLE" desc="Description that shows in settings for toggling stats usage pings">
-      Automatically send daily usage ping to Brave
+      Automatically send daily usage ping to Rep Social
     </message>
     <message name="IDS_BRAVE_STATS_USAGE_PING_SUMMARY" desc="Description that shows under main toggle setting for usage pings">
-      This private ping lets Brave estimate active users.
+      This private ping lets Rep Social estimate active users.
     </message>
     <message name="IDS_ACCOUNT_NAME" desc="Brave wallet accounts text">
       Account Name
@@ -2256,7 +2251,7 @@ Are you sure you want to do this?
       Details
     </message>
     <message name="IDS_BRAVE_UI_BRAVE_WALLET" desc="Title for Brave Wallet Settings. [CHAR-LIMIT=27]">
-      Brave Wallet
+      Rep Social Wallet
     </message>
     <message name="IDS_BRAVE_WALLET_TOOLBAR_LOCK" desc="Title for brave wallet toolbar lock option.">
       Lock
@@ -2265,16 +2260,16 @@ Are you sure you want to do this?
       Help center
     </message>
     <message name="IDS_BRAVE_WALLET_SETTINGS_AUTOLOCK_OPTION" desc="Title for brave wallet automatically lock.">
-      Automatically lock Brave Wallet
+      Automatically lock Rep Social Wallet
     </message>
     <message name="IDS_BRAVE_WALLET_SETTINGS_AUTOLOCK_HOW_MANY_MINUTES" desc="Brave wallet autolock dialog text">
-      The number of minutes to wait until the Brave Wallet is automatically locked
+      The number of minutes to wait until the Rep Social Wallet is automatically locked
     </message>
     <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_OPTION" desc="Title for preference to reset Brave Wallet.">
       Reset and clear wallet data
     </message>
     <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION" desc="Confirmation for Brave Wallet reset.">
-      Are you sure you want to reset your Brave Wallet? If your wallet is not backed up, resetting will cause you to lose all account data (including any associated funds). Type "<ph name="CONFIRMATION_PHRASE">%1$s<ex>Yes</ex></ph>" to confirm.
+      Are you sure you want to reset your Rep Social Wallet? If your wallet is not backed up, resetting will cause you to lose all account data (including any associated funds). Type "<ph name="CONFIRMATION_PHRASE">%1$s<ex>Yes</ex></ph>" to confirm.
     </message>
     <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION_PHRASE" desc="The phrase users should type to reset Brave Wallet">
       Yes
@@ -2313,7 +2308,7 @@ Are you sure you want to do this?
       Search for videos
     </message>
     <message name="IDS_BRAVE_FIREWALL_VPN" desc="VPN title text">
-      Brave Firewall + VPN
+      Rep Social Firewall + VPN
     </message>
     <message name="IDS_VPN_SETTINGS_CALLOUT_TEXT" desc="Vpn settings callout text">
         Upgrade to a VPN to protect your connection and block invasive trackers everywhere.
@@ -2337,7 +2332,7 @@ Are you sure you want to do this?
       Choose your geo/country location
     </message>
     <message name="IDS_PLAN_TEXT_5" desc="Brave VPN plan text">
-      Brave never logs your activity
+      Rep Social never logs your activity
     </message>
     <message name="IDS_PLAN_TEXT_6" desc="Brave VPN plan text">
       Protect 5 devices on 1 subscription
@@ -2388,7 +2383,7 @@ Are you sure you want to do this?
       <ph name="YEARLY_AMOUNT">%1$s</ph> /year
     </message>
     <message name="IDS_BRAVE_VPN_RENEWAL_TEXT" desc="Brave VPN plan text">
-      Subscriptions will be charged via your Google account. Any unused portion of the free trial, if offered, is forfeited when you buy a subscription.\n\nYour subscription will renew automatically unless it is canceled at least 24 hours before the end of the current period.\n\nYou can manage your subscriptions in Settings.\n\nBy using Brave, you agree to the Terms of Use and Privacy Policy.
+      Subscriptions will be charged via your Google account. Any unused portion of the free trial, if offered, is forfeited when you buy a subscription.\n\nYour subscription will renew automatically unless it is canceled at least 24 hours before the end of the current period.\n\nYou can manage your subscriptions in Settings.\n\nBy using Rep Social, you agree to the Terms of Use and Privacy Policy.
     </message>
     <message name="IDS_ALREADY_PURCHASED" desc="Brave subscription plan page already purchased text">
       Already purchased on brave.com?
@@ -2409,12 +2404,12 @@ Are you sure you want to do this?
       Install VPN Profile
     </message>
     <message name="IDS_BRAVE_VPN_PROFILE_TITLE" desc="Brave VPN plan text">
-      Brave will now install a VPN profile.
+      Rep Social will now install a VPN profile.
     </message>
     <message name="IDS_BRAVE_VPN_PROFILE_TEXT" desc="Brave VPN plan text">
       This profile allows the VPN to automatically connect and secure traffic across your device — in every app, all the time. This VPN connection will be encrypted and routed through Guardian's intelligent firewall to block ads and trackers.
     </message>
-    <message name="IDS_CONTACT_SUPPORT_VPN" desc = "Brave VPN profile text">
+    <message name="IDS_CONTACT_SUPPORT_VPN" desc="Brave VPN profile text">
       Contact Technical Support
     </message>
     <message name="IDS_VPN_IS_ENABLED" desc="Brave VPN profile text">
@@ -2614,11 +2609,9 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_TRANSACTION_DETAILS" desc="Brave crypto wallet transaction details section">
       Details
     </message>
-    <!-- <message name="IDS_APPS" desc="Brave crypto wallet section Apps">
-      Apps
-    </message> -->
-    <message name="IDS_CRYPTO_WALLET_FROM_TO" desc="From address -> to address" translateable="false">
-      <ph name="FROM_NAME">%1$s<ex>Account1</ex></ph>\n <ph name="FROM_ADDRESS">%2$s<ex>0xabcd...</ex></ph> <ph name="SEPARATOR">%3$s<ex>-></ex></ph>\n<ph name="TO">%4$s<ex>0xabcd...</ex></ph>
+    
+    <message name="IDS_CRYPTO_WALLET_FROM_TO" desc="From address -&gt; to address" translateable="false">
+      <ph name="FROM_NAME">%1$s<ex>Account1</ex></ph>\n <ph name="FROM_ADDRESS">%2$s<ex>0xabcd...</ex></ph> <ph name="SEPARATOR">%3$s<ex>-&gt;</ex></ph>\n<ph name="TO">%4$s<ex>0xabcd...</ex></ph>
     </message>
     <message name="IDS_CRYPTO_WALLET_AMOUNT_ASSET" desc="Amount Asset" translateable="false">
       <ph name="AMOUNT">%1$s<ex>0.0001</ex></ph> <ph name="ASSET">%2$s<ex>ETH</ex></ph>
@@ -2735,34 +2728,34 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Are you using the fastest web browser?
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_1" desc="Dormant users engagement notification body">
-      3x faster internet is already on your phone. Use Brave for all your web browsing.
+      3x faster internet is already on your phone. Use Rep Social for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_1" desc="Dormant users engagement text">
-      Brave = 3x faster web browsing
+      Rep Social = 3x faster web browsing
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_TEXT_2" desc="Dormant users engagement notification text">
       Get more battery life on every charge
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_2" desc="Dormant users engagement notification body">
-      Battery savings is just a step away. Use Brave for all your web browsing.
+      Battery savings is just a step away. Use Rep Social for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_2" desc="Dormant users engagement text">
-      Brave = more life on every charge
+      Rep Social = more life on every charge
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_TEXT_3" desc="Dormant users engagement notification text">
       Top up your mobile data less often
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_3" desc="Dormant users engagement notification body">
-      Fewer ads = less data on every page you load. Use Brave for all your web browsing.
+      Fewer ads = less data on every page you load. Use Rep Social for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_3" desc="Dormant users engagement text">
-      Brave = less mobile data on every page
+      Rep Social = less mobile data on every page
     </message>
     <message name="IDS_BETTER_PRIVACY" desc="Dormant users engagement bullet text">
-      &#8226; Better privacy
+      • Better privacy
     </message>
     <message name="IDS_NO_ANNOYING_ADS" desc="Dormant users engagement bullet text">
-      &#8226; No annoying ads
+      • No annoying ads
     </message>
     <message name="IDS_WALLET_EDIT_GAS_TITLE" desc="Brave wallet edit gas dialog title">
       Edit gas
@@ -2921,7 +2914,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       New tab
     </message>
     <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_WALLET" desc="Content description for the button that allows an access to Brave Wallet.">
-      Access Brave Wallet
+      Access Rep Social Wallet
     </message>
     <message name="IDS_DAPP_WALLET_PANEL_CONNECTIVITY_STATUS" desc="Brave wallet Dapp wallet connectivity status">
       Connect
@@ -2957,7 +2950,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Sign in
     </message>
     <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_TITLE" desc="Title text for a request to connect a wallet.">
-      Connect With Brave Wallet
+      Connect With Rep Social Wallet
     </message>
     <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_SUB_TITLE" desc="Sub title text for a request to connect a wallet.">
       Select account(s)
@@ -2999,7 +2992,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       View on block explorer
     </message>
     <message name="IDS_BRAVE_WALLET_DAPPS_CONNECTION_REQUEST_MSG" desc="A message shown to user when a DApp site request to connect with Brave wallet">
-    This page wants to interact with Brave Wallet
+    This page wants to interact with Rep Social Wallet
     </message>
     <message name="IDS_VPN_CONNECTION_ERROR" desc="Vpn connection error message">
       Connection error
@@ -3014,7 +3007,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Unable to set network to <ph name="NETWORK_NAME">'%1$s'</ph>
     </message>
     <message name="IDS_ALWAYS_ON_DIALOG_TEXT" desc="Always on vpn text">
-      It appears you have other VPNs on this device set to “Always on”. To enable Brave Firewall + VPN, first disable this “Always on” setting for other VPNs before connecting again. If the problem persists, try uninstalling other VPNs.
+      It appears you have other VPNs on this device set to “Always on”. To enable Rep Social Firewall + VPN, first disable this “Always on” setting for other VPNs before connecting again. If the problem persists, try uninstalling other VPNs.
     </message>
     <message name="IDS_OPEN_VPN_SETTINGS" desc="Always on vpn text">
       Open VPN Settings
@@ -3077,7 +3070,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Network
     </message>
     <message name="IDS_BRAVE_WALLET_ALLOW_ADD_NETWORK_DESCRIPTION" desc="Add network panel description">
-      This will allow this network to be used within Brave Wallet. <ph name="CLICK_START">%1$s</ph>Learn more<ph name="CLICK_END">%2$s</ph>.
+      This will allow this network to be used within Rep Social Wallet. <ph name="CLICK_START">%1$s</ph>Learn more<ph name="CLICK_END">%2$s</ph>.
     </message>
     <message name="IDS_BRAVE_WALLET_ALLOW_ADD_NETWORK_HEADING" desc="Add network panel title">
       Allow this site to add a network?
@@ -3104,10 +3097,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Importing database, please wait...
     </message>
     <message name="IDS_BRAVE_BROWSER" desc="Brave browser title text">
-      Brave Browser
+      Rep Social Browser
     </message>
     <message name="IDS_BRAVE_BROWSER_NOTIFICATION_CHANNEL_DESCRIPTION" desc="Brave broswer notification channel creation information for user">
-      Notification channel for Brave Browser
+      Notification channel for Rep Social Browser
     </message>
     <message name="IDS_BRAVE_WALLET_ACCOUNT_SELECTOR_ACTIVITY_TITLE" desc="Account Selector activity toolbar title">
       Change Connected Account
@@ -3149,7 +3142,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Trial
     </message>
     <message name="IDS_DISABLE_BRAVE_VPN" desc="Brave VPN timer bottom sheet title">
-      Disable Brave VPN
+      Disable Rep Social VPN
     </message>
     <message name="IDS_PAUSE_FOR_15_MINUTES" desc="Brave VPN timer action text">
       Pause for 15 minutes
@@ -3164,7 +3157,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Display Web3 notifications
     </message>
     <message name="IDS_SUPPORT_EMAIL_TEXT" desc="Vpn support email text">
-      \n\n\n\n#### Brave doesn’t track you or know how you use our app, so we don’t know how you’ve set up VPN. Please share info about the issue you’re experiencing and we’ll do our best to resolve it as soon as we can. ####\n\n
+      \n\n\n\n#### Rep Social doesn’t track you or know how you use our app, so we don’t know how you’ve set up VPN. Please share info about the issue you’re experiencing and we’ll do our best to resolve it as soon as we can. ####\n\n
     </message>
     <message name="IDS_VPN_HOST_TEXT" desc="Vpn support email text">
       \n\nVPN Hostname\n <ph name="VALUE">%1$s</ph>
@@ -3251,7 +3244,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Updating VPN Profile ...
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_WARNING" desc="Sign panel warning message">
-      Note that Brave can't verify what will happen if you sign. A signature could authorize nearly any operation in your account or on your behalf, including (but not limited to) giving total control of your account and crypto assets to the site making the request. Only sign if you're sure you want to take this action, and trust the requesting site.
+      Note that Rep Social can't verify what will happen if you sign. A signature could authorize nearly any operation in your account or on your behalf, including (but not limited to) giving total control of your account and crypto assets to the site making the request. Only sign if you're sure you want to take this action, and trust the requesting site.
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_WARNING_TITLE" desc="Sign panel risk title">
       Sign at your own risk
@@ -3269,10 +3262,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       System Program
     </message>
     <message name="IDS_BRAVE_WALLET_FINGERPRINT_UNLOCK_TITLE" desc="Title for Fingerprint unlock onboarding screen">
-      Unlock Brave Wallet with biometric authentication
+      Unlock Rep Social Wallet with biometric authentication
     </message>
     <message name="IDS_BRAVE_WALLET_FINGERPRINT_UNLOCK_CONTENT" desc="Content for Fingerprint unlock onboarding screen">
-      Would you like to use biometric authentication to unlock your Brave Wallet?
+      Would you like to use biometric authentication to unlock your Rep Social Wallet?
     </message>
     <message name="IDS_BRAVE_WALLET_USE_FINGERPRINT_UNLOCK" desc="Text of Fingerprint unlock onboarding button">
       Use Fingerprint Unlock
@@ -3290,7 +3283,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       You’re all set!
     </message>
     <message name="IDS_BRAVE_WALLET_READY_TO_USE" desc="Text to communicate the Wallet is ready to use">
-      Your Brave Wallet is ready to use
+      Your Rep Social Wallet is ready to use
     </message>
     <message name="IDS_BRAVE_WALLET_SOLANA_CONFIG_PROGRAM" desc="Name of Solana Config program">
       Config Program
@@ -3425,10 +3418,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Select your country
     </message>
     <message name="IDS_DECLARE_GEO_SUCCESS_RESPONSE_TEXT" desc="Declare geo success modal text">
-      Your Brave Rewards region has been set to <ph name="COUNTRY_NAME">%1$s</ph>.
+      Your Rep Social Rewards region has been set to <ph name="COUNTRY_NAME">%1$s</ph>.
     </message>
     <message name="IDS_DECLARE_GEO_FAILED_RESPONSE_TEXT" desc="Declare geo failed modal text">
-      Unfortunately, there was an error while trying to set up Brave Rewards. Please try again.
+      Unfortunately, there was an error while trying to set up Rep Social Rewards. Please try again.
     </message>
     <message name="IDS_SOMETHING_WENT_WRONG_TEXT" desc="Declare geo failed modal title">
       Something went wrong
@@ -3455,7 +3448,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Top Visited Site
     </message>
     <message name="IDS_SEARCH_WITH_BRAVE" desc="String used in QuickActionSearchAndBookmarkWidget's search bar">
-      Search with Brave
+      Search with Rep Social
     </message>
     <message name="IDS_SEARCH_WITH_SEARCH_ENGINE" desc="Dynamic string used in QuickActionSearchAndBookmarkWidget's search bar. Placeholder is replaced by default search engine.">
       Search with <ph name="DEFAULT_SEARCH_ENGINE">%1$s</ph>
@@ -3467,7 +3460,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Widget added to the home screen
     </message>
     <message name="IDS_TRY_BRAVE_SEARCH_WIDGET" desc="Title of Brave search widget promo">
-      Try the Brave search widget
+      Try the Rep Social search widget
     </message>
     <message name="IDS_TRY_BRAVE_SEARCH_WIDGET_DESCRIPTION" desc="Description of Brave search widget promo">
       Access private, independent search right from your home screen.
@@ -3476,10 +3469,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Add widget
     </message>
     <message name="IDS_BRAVE_QUICK_ACTION_SEARCH" desc="Description for Brave QuickActionSearchAndBookmarkWidget preview">
-      Brave quick action search
+      Rep Social quick action search
     </message>
     <message name="IDS_USE_BRAVE_TRANSLATE" desc="The label of the check-box that enables the prompt to translate a page.">
-      Use Brave Translate
+      Use Rep Social Translate
     </message>
     <message name="IDS_WALLET_NON_ASCII_CHARACTERS" desc="A warning about Non-ASCII characters detected in a message">
       NON-ASCII characters detected!
@@ -3524,19 +3517,19 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Security risk detected
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_TITLE" desc="Brave vpn link subscription settings title text">
-      Link purchase to your Brave account
+      Link purchase to your Rep Social account
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_TEXT" desc="Brave vpn link subscription settings text">
-      Link your Play Store purchase to your Brave account to use Brave VPN on other devices.
+      Link your Play Store purchase to your Rep Social account to use Rep Social VPN on other devices.
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_DIALOG_ACTION_TEXT" desc="Brave vpn link subscription dialog action text">
       Link your VPN subscription
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TITLE" desc="Brave vpn link subscription dialog title">
-      Extend your Brave Firewall + VPN protection
+      Extend your Rep Social Firewall + VPN protection
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TEXT" desc="Brave vpn link subscription dialog text">
-      Your Brave VPN subscription can protect up to 5 devices, across Android, iOS, and desktop. Just link your Google Play subscription to your Brave account.
+      Your Rep Social VPN subscription can protect up to 5 devices, across Android, iOS, and desktop. Just link your Google Play subscription to your Rep Social account.
     </message>
     <message name="IDS_SAFE_BROWSING_NO_GOOGLE_PLAY_SERVICES_DIALOG_TITLE" desc="Brave no Google Play Services dialog title">
       Cannot enable Safe Browsing
@@ -3548,10 +3541,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Turn on to help support content creators
     </message>
     <message name="IDS_REWARDS_PANEL_UNVERIFIED_SWITCH_ON_SUB_TEXT" desc="A sub title for brave rewards panel unverified state when rewards is on">
-      You are helping support Brave and the BAT community
+      You are helping support Rep Social and the BAT community
     </message>
     <message name="IDS_REWARDS_PANEL_UNVERIFIED_OFF_SECTION_TEXT" desc="Rewards panel unverified state section text when rewards is disabled">
-      Using Brave Rewards helps support content creators, and lets you earn BAT.
+      Using Rep Social Rewards helps support content creators, and lets you earn BAT.
     </message>
     <message name="IDS_READY_TO_START_EARNING_TEXT" desc="Rewards panel unverified state section text when rewards is enabled">
       Ready to start earning?
@@ -3608,13 +3601,13 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       According to Uphold, there are currently some limitations on your Uphold account. Please log in to your Uphold account and check whether there are any notices or remaining account requirements to complete, then try again.
     </message>
     <message name="IDS_BRAVE_ADS_TEXT" desc="Brave ads text">
-      Brave Ads
+      Rep Social Ads
     </message>
     <message name="IDS_WALLET_GENERATION_DISABLED_ERROR_TITLE" desc="wallet generation disabled error title">
-      Brave Rewards not available
+      Rep Social Rewards not available
     </message>
     <message name="IDS_WALLET_GENERATION_DISABLED_ERROR_TEXT" desc="wallet generation disabled error text">
-      New signups for Brave Rewards are currently disabled in your region. However, you can always try again later. <ph name="LEARN_MORE">%1$s</ph>
+      New signups for Rep Social Rewards are currently disabled in your region. However, you can always try again later. <ph name="LEARN_MORE">%1$s</ph>
     </message>
     <message name="IDS_BRAVE_WALLET_NETWORK_FILTER_PRIMARY" desc="Network filter title for primary networks">
       Primary Networks
@@ -3671,7 +3664,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Leo
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET" desc="Sign in with Brave Wallet Title">
-      Sign in with Brave Wallet
+      Sign in with Rep Social Wallet
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET_MESSAGE" desc="Sign in with Brave Wallet Message">
       You are signing into <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>. Brave wallet will share your wallet address with <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>.
@@ -3713,10 +3706,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Confirm
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_TITLE_LEO" desc="Brave Leo link subscription settings title text">
-      Link purchase to your Brave account
+      Link purchase to your Rep Social account
     </message>
     <message name="IDS_LINK_SUBSCRIPTION_SUMMARY_LEO" desc="Brave Leo link subscription settings summary">
-      Link your Play Store purchase to your Brave account to use Brave Leo on other devices.
+      Link your Play Store purchase to your Rep Social account to use Rep Social Leo on other devices.
     </message>
     <message name="IDS_MANAGE_SUBSCRIPTION_LEO" desc="Brave Leo settings section text">
       Manage Subscription
@@ -3736,7 +3729,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_ASK_LEO_AUTO_SUGGESTION" desc="Omnibox Brave Leo auto suggestion description">
       Ask Leo
     </message>
-    <!-- Start of Playlist strings -->
+    
     <message name="IDS_REMEMBER_FILE_PLAYBACK_POSITION" desc="Remember file playback position title for playlist settings">
       Remember file playback position
     </message>
@@ -3756,7 +3749,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Automatically plays the next items in your playlist
     </message>
     <message name="IDS_BRAVE_PLAYLIST" desc="Playlist menu item text">
-      Brave Playlist
+      Rep Social Playlist
     </message>
     <message name="IDS_VIEW_ACTION" desc="View action text">
       View
@@ -3837,7 +3830,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Add media
     </message>
     <message name="IDS_PLAYLIST_ONBOARDING_TITLE_1" desc="Playlist onboarding text">
-      Add videos to Brave Playlist. Playback anytime. Even offline.
+      Add videos to Rep Social Playlist. Playback anytime. Even offline.
     </message>
     <message name="IDS_PLAYLIST_ONBOARDING_TEXT_1" desc="Playlist onboarding text">
       Make playlists of your favorite content. Save mobile data. And playback ad-free.
@@ -3917,7 +3910,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_PLAYLIST_UP_NEXT" desc="Up next text">
       Up next
     </message>
-    <!-- End of Playlist strings -->
+    
     <message name="IDS_LEO_UNLEASH_POWER" desc="Title for Brave Leo subscription purchase">
       Unleash Leo's full powers with Premium:
     </message>
@@ -3969,7 +3962,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_LEO_GO_PREMIUM_PREF" desc="Title for Leo Go premium settings.">
       Go Premium
     </message>
-    <!-- Secure DNS settings -->
+    
     <message name="IDS_SETTINGS_AUTOMATIC_MODE_WITH_QUAD9_LABEL" desc="Text of the radio button that puts secure DNS in auto-upgrade mode">
       Use your current service provider or Quad9
     </message>
@@ -3980,10 +3973,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Use your current service provider or Cloudflare
     </message>
     <message name="IDS_SETTINGS_AUTOMATIC_MODE_DESCRIPTION_FALLBACK" desc="Descriptive text that appears below IDS_SETTINGS_AUTOMATIC_MODE_LABEL.">
-      If your current service provider is insecure, Brave uses a secure alternative DNS provider
+      If your current service provider is insecure, Rep Social uses a secure alternative DNS provider
     </message>
-    <!-- End of Secure DNS Settings -->
-    <!-- Autofill Service strings -->
+    
+    
     <message name="IDS_CITY" desc="Autofill field for city">
       city
     </message>
@@ -4059,7 +4052,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_ZIP" desc="Autofill field for zip code">
       zip
     </message>
-    <!-- End of Autofill Service strings -->
+    
     <message name="IDS_I_AGREE_ACTION" desc="CTA text for tos rewards panel">
       I agree
     </message>
@@ -4067,7 +4060,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Updated Terms of Service
     </message>
     <message name="IDS_REWARDS_TOS_UPDATE_TEXT" desc="Terms of service text for rewards panel">
-      We’ve updated the Terms of Service for Brave Rewards. We’ve made these updates to clarify our terms and ensure they cover new features. If you continue to use Brave Rewards, you are agreeing to the updated Terms of Service. If you do not agree, you can <ph name="RESET_START">&lt;reset&gt;</ph>reset<ph name="RESET_END">&lt;/reset&gt;</ph> Brave Rewards, which will disable the feature.
+      We’ve updated the Terms of Service for Rep Social Rewards. We’ve made these updates to clarify our terms and ensure they cover new features. If you continue to use Rep Social Rewards, you are agreeing to the updated Terms of Service. If you do not agree, you can <ph name="RESET_START">&lt;reset&gt;</ph>reset<ph name="RESET_END">&lt;/reset&gt;</ph> Brave Rewards, which will disable the feature.
     </message>
     <message name="IDS_REWARDS_TOS_UPDATE_LINK_TEXT" desc="Terms of service text for rewards panel">
       See <ph name="TOS_START">&lt;tos&gt;</ph>Brave Rewards Terms of Service<ph name="TOS_END">&lt;/tos&gt;</ph>
@@ -4082,7 +4075,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Multiple windows detected
     </message>
     <message name="IDS_MULTI_WINDOWS_DIALOG_SUMMARY" desc="Summary for multiwindows detected dialog.">
-      Please merge tabs to another Brave window, or close other Brave windows, before disabling the multiple-windows feature.
+      Please merge tabs to another Rep Social window, or close other Rep Social windows, before disabling the multiple-windows feature.
     </message>
     <message name="IDS_MERGE_WINDOWS" desc="Button text of merge windows for multiwindows dialog">
       Merge windows
@@ -4091,7 +4084,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Close windows
     </message>
     <message name="IDS_MERGE_WINDOWS_SNACKBAR" desc="Text for merge windows snackbar">
-      Please merge other tabs to another Brave window.
+      Please merge other tabs to another Rep Social window.
     </message>
     <message name="IDS_ALWAYS_ON_VPN" desc="Vpn setting title for always on">
       Always-on VPN
@@ -4103,7 +4096,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       1. Open your device's settings from your app drawer or tapping the button below.
     </message>
     <message name="IDS_KILL_SWITCH_TUTORIAL_TEXT_2" desc="Vpn kill switch tutorial text">
-      2. Find Brave VPN and tap on the settings icon to the right.
+      2. Find Rep Social VPN and tap on the settings icon to the right.
     </message>
     <message name="IDS_KILL_SWITCH_TUTORIAL_TEXT_3" desc="Vpn kill switch tutorial text">
       3. Toggle <ph name="ALWAYS_ON_TUTORIAL_START">&lt;always_on_tutorial&gt;</ph>Always-on VPN<ph name="ALWAYS_ON_TUTORIAL_END">&lt;/always_on_tutorial&gt;</ph> to enable it.
@@ -4124,7 +4117,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Show undo button when tabs are closed
     </message>
     <message name="IDS_BRAVE_EXIT_CONFIRMATION" desc="A confirmation shown on Exit Brave">
-      Are you sure you want to exit Brave?
+      Are you sure you want to exit Rep Social?
     </message>
   </messages>
   </release>

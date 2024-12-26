@@ -5,6 +5,7 @@
      You can obtain one at https://mozilla.org/MPL/2.0/.
 -->
 <lint>
+    <!-- Existing Rules -->
     <issue id="ExportedService" severity="ignore" />
     <issue id="DuplicateDefinition">
         <ignore regexp="chrome/android/java/res/values/brave_colors.xml" />
@@ -16,10 +17,15 @@
         <ignore regexp="wallet_swap_fees_notice" />
         <ignore regexp="processing_fee" />
     </issue>
+    <issue id="IconDuplicatesConfig">
+        <ignore path="res/drawable-mdpi/ic_chrome.png" />
+    </issue>
     <issue id="WrongConstant">
         <ignore regexp="ContentSettingsType.BRAVE_CONTENT_SETTINGS_TYPES_LIST" />
     </issue>
     <issue id="UnusedResources">
+        <ignore path="res/values/strings.xml" />
+        <ignore path="res/layout/optin_layout.xml" />
         <ignore regexp="The resource `R.string.playlist_.*` appears to be unused" />
         <ignore regexp="The resource `R.string.new_tab_otr.*` appears to be unused" />
         <ignore regexp="The resource `R.dimen.md_incognito_ntp.*` appears to be unused" />
@@ -34,4 +40,28 @@
     <issue id="UnsafeOptInUsageError">
         <ignore regexp='(markerClass = androidx.media3.common.util.UnstableApi.class)' />
     </issue>
+
+    <!-- New Rules -->
+    <!-- Suppress Unused Resources for Brave News -->
+    <issue id="UnusedResources">
+        <ignore regexp="R.string.brave_news_optin_title" />
+        <ignore regexp="R.string.brave_news_optin_subtitle" />
+        <ignore regexp="R.string.brave_news_optin_button" />
+        <ignore regexp="R.drawable.brave_rewards_ads_month_background" />
+        <ignore regexp="R.drawable.news_button_bg" />
+        <ignore regexp="R.drawable.tooltip_arrow" />
+    </issue>
+
+    <!-- Suppress Icon Size and Duplication Issues -->
+    <issue id="IconDipSize">
+        <ignore path="res/drawable-hdpi/chromelogo16.png" />
+    </issue>
+    <issue id="IconDuplicatesConfig">
+        <ignore path="res/drawable-mdpi/chromelogo16.png" />
+        <ignore path="res/drawable-mdpi/search_engine_brave.png" />
+    </issue>
+    <issue id="IconDuplicates">
+        <ignore path="res/drawable-mdpi/search_engine_brave.png" />
+    </issue>
+
 </lint>

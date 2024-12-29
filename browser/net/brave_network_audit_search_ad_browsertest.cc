@@ -47,7 +47,7 @@ namespace {
 constexpr int kMaxTimeoutForAdsServiceInit = 10;
 constexpr int kMaxTimeoutPerLoadedURL = 30;
 constexpr char kEmbeddedTestServerDirectory[] = "brave_ads";
-constexpr char kDomain[] = "search.brave.com";
+constexpr char kDomain[] = "google.com";
 constexpr char kBraveSearchPath[] = "/search_result_ad_click.html";
 
 void WaitForTimeout(int timeout) {
@@ -121,10 +121,10 @@ class BraveNetworkAuditSearchAdTest : public InProcessBrowserTest {
     std::vector<std::string> allowed_prefixes;
 
     // Brave search
-    // The test simulation has a pattern https://search.brave.com:<port>
+    // The test simulation has a pattern https://google.com:<port>
     // port is changed dynamically
     static constexpr char kAllowedBraveSearchTemplate[] =
-        "https://search.brave.com:%s/";
+        "https://google.com:%s/";
     allowed_prefixes.push_back(
         base::StringPrintf(kAllowedBraveSearchTemplate, port.c_str()));
     VerifyNetworkAuditLog(net_log_path_, audit_results_path_, allowed_prefixes);

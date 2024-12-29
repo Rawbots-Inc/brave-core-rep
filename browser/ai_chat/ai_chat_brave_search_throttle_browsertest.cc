@@ -32,7 +32,7 @@
 
 namespace {
 
-constexpr char kBraveSearchHost[] = "search.brave.com";
+constexpr char kBraveSearchHost[] = "google.com";
 constexpr char kLeoPath[] = "/leo";
 constexpr char kOpenAIChatButtonValidPath[] = "/open_ai_chat_button_valid.html";
 constexpr char kOpenAIChatButtonInvalidPath[] =

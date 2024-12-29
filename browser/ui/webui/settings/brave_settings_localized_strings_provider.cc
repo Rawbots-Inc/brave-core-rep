@@ -49,7 +49,7 @@ namespace settings {
 namespace {
 
 constexpr char16_t kBraveAccountSelfCustodyLearnMoreURL[] =
-    u"https://search.brave.com";
+    u"https://google.com";
 constexpr char16_t kBraveAccountTermsOfServiceURL[] =
     u"https://brave.com/terms-of-use/";
 constexpr char16_t kBraveAccountPrivacyAgreementURL[] =

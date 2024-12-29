@@ -1185,7 +1185,7 @@ class SettingsViewController: TableViewController {
         Row(
           text: "Create 1000 Tabs",
           selection: { [unowned self] in
-            let urls = (0..<1000).map { URL(string: "https://search.brave.com/search?q=\($0)")! }
+            let urls = (0..<1000).map { URL(string: "https://google.com/search?q=\($0)")! }
             self.settingsDelegate?.settingsOpenURLs(urls, loadImmediately: false)
             self.dismiss(animated: true)
           },

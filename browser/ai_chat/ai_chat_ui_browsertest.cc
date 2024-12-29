@@ -323,7 +323,7 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, PrintPreviewDisabled) {
 
 IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, FetchSearchQuerySummary_NoMetaTag) {
   // Test when meta tag is not present, should return null result.
-  NavigateURL(https_server_.GetURL("search.brave.com", "/search?q=query"));
+  NavigateURL(https_server_.GetURL("google.com", "/search?q=query"));
   FetchSearchQuerySummary(FROM_HERE, std::nullopt);
 }
 
@@ -342,7 +342,7 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
 IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
                        FetchSearchQuerySummary_EmptyMetaTag) {
   // Test empty summarizer-key meta tag, should return null result.
-  NavigateURL(https_server_.GetURL("search.brave.com", "/search?q=query"));
+  NavigateURL(https_server_.GetURL("google.com", "/search?q=query"));
   ASSERT_TRUE(content::ExecJs(GetActiveWebContents()->GetPrimaryMainFrame(),
                               "var meta = document.createElement('meta');"
                               "meta.name = 'summarizer-key';"
@@ -355,7 +355,7 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
                        FetchSearchQuerySummary_DynamicMetaTag_SingleQuery) {
   // Test when summarizer-key meta tag is dynamically inserted, should return
   // the search query summary from the mock response.
-  NavigateURL(https_server_.GetURL("search.brave.com", "/search?q=query"));
+  NavigateURL(https_server_.GetURL("google.com", "/search?q=query"));
   ASSERT_TRUE(content::ExecJs(GetActiveWebContents()->GetPrimaryMainFrame(),
                               "var meta = document.createElement('meta');"
                               "meta.name = 'summarizer-key';"
@@ -373,7 +373,7 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
                        FetchSearchQuerySummary_DynamicMetaTag_MultiQuery) {
   // Test when summarizer-key meta tag is dynamically inserted, should return
   // the search query summary from the mock response.
-  NavigateURL(https_server_.GetURL("search.brave.com", "/search?q=query"));
+  NavigateURL(https_server_.GetURL("google.com", "/search?q=query"));
   ASSERT_TRUE(content::ExecJs(GetActiveWebContents()->GetPrimaryMainFrame(),
                               "var meta = document.createElement('meta');"
                               "meta.name = 'summarizer-key';"

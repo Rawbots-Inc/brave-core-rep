@@ -16,7 +16,7 @@ import { NewTabLink } from '../../shared/components/new_tab_link'
 
 import * as style from './ads_control_view.style'
 
-const searchURL = 'https://search.brave.com'
+const searchURL = 'https://google.com'
 
 export function AdsControlView () {
   const { getString } = React.useContext(LocaleContext)

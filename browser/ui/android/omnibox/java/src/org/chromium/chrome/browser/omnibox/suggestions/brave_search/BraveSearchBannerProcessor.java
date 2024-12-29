@@ -47,7 +47,7 @@ public class BraveSearchBannerProcessor implements DropdownItemProcessor {
                     public void onPositiveClicked() {
                         mUrlBarDelegate.loadUrl(
                                 new OmniboxLoadUrlParams.Builder(
-                                                "https://search.brave.com/search?q="
+                                                "https://google.com/search?q="
                                                         + mUrlBarEditingTextProvider
                                                                 .getTextWithoutAutocomplete()
                                                         + "&action=makeDefault",

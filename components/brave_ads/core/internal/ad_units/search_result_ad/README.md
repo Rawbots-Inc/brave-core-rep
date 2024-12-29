@@ -1,3 +1,3 @@
 # Search Result Ad Unit
 
-Displayed on [search.brave.com](search.brave.com).
+Displayed on [google.com](google.com).

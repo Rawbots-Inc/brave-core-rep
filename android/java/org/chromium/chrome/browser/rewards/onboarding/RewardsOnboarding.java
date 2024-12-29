@@ -118,14 +118,14 @@ public class RewardsOnboarding implements BraveRewardsObserver {
         mContinueButton = mLocationChooseLayout.findViewById(R.id.btn_continue);
 
         // All set layout views
-        mAllSetLayout = mPopupView.findViewById(R.id.rewards_onboarding_all_set_layout_id);
-        View doneButton = mAllSetLayout.findViewById(R.id.all_set_done_button);
-        doneButton.setOnClickListener(v -> {
-            mPopupWindow.dismiss();
-            TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
-        });
-        View howDoseItWorkAllSetButton = mAllSetLayout.findViewById(R.id.how_does_it_work_all_set);
-        howDoseItWorkAllSetButton.setOnClickListener(v -> { showRewardsTour(); });
+        // mAllSetLayout = mPopupView.findViewById(R.id.rewards_onboarding_all_set_layout_id);
+        // View doneButton = mAllSetLayout.findViewById(R.id.all_set_done_button);
+        // doneButton.setOnClickListener(v -> {
+        //     mPopupWindow.dismiss();
+        //     TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
+        // });
+        // View howDoseItWorkAllSetButton = mAllSetLayout.findViewById(R.id.how_does_it_work_all_set);
+        // howDoseItWorkAllSetButton.setOnClickListener(v -> { showRewardsTour(); });
 
         // Error layout views
         mErrorLayout = mPopupView.findViewById(R.id.rewards_onboarding_error_layout_id);
@@ -164,7 +164,7 @@ public class RewardsOnboarding implements BraveRewardsObserver {
 
     private void showRewardsTour() {
         mPopupWindow.dismiss();
-        TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
+        // TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
     }
 
     @Override

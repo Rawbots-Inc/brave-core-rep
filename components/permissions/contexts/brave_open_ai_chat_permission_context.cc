@@ -30,7 +30,7 @@ ContentSetting BraveOpenAIChatPermissionContext::GetPermissionStatusInternal(
     content::RenderFrameHost* render_frame_host,
     const GURL& requesting_origin,
     const GURL& embedding_origin) const {
-  // Check if origin is https://search.brave.com.
+  // Check if origin is https://google.com.
   if (!requesting_origin.SchemeIs(url::kHttpsScheme) ||
       requesting_origin.host_piece() !=
           brave_domains::GetServicesDomain("search")) {

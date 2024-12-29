@@ -24,7 +24,7 @@ const std::vector<GURL>& GetSearchEngineResultsPageUrls() {
                GURL(R"(https://infogalactic.com/info/foobar)"),
                GURL(R"(https://ja.wikipedia.org/wiki/foobar)"),
                GURL(R"(https://results.excite.com/serp?q=foobar)"),
-               GURL(R"(https://search.brave.com/search?q=foobar&source=web)"),
+               GURL(R"(https://google.com/search?q=foobar&source=web)"),
                GURL(
                    R"(https://search.lycos.com/web/?q=foobar&keyvol=00eba27cf23332982690&_gl=1%2Aaqbo9y%2A_ga%2AMzk3NjM2MDcxLjE2NTM5MjY5NDQ.%2A_ga_76FJGHQNN6%2AMTY1MzkyNjk0NC4xLjEuMTY1MzkyNjk4MC4w)"),
                GURL(

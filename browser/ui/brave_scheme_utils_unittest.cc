@@ -16,7 +16,7 @@ TEST(BraveSchemeUtilsTest, ReplaceChromeToBraveScheme) {
   EXPECT_TRUE(brave_utils::ReplaceChromeToBraveScheme(url_string));
   EXPECT_EQ(url_string, u"brave://flags");
 
-  url_string = u"https://search.brave.com";
+  url_string = u"https://google.com";
   EXPECT_FALSE(brave_utils::ReplaceChromeToBraveScheme(url_string));
-  EXPECT_EQ(url_string, u"https://search.brave.com");
+  EXPECT_EQ(url_string, u"https://google.com");
 }

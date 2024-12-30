@@ -175,7 +175,7 @@ class PrefProviderInterface;
 // 7. "[virtual]:skus|environment|location|key"
 //    - Returning the SKU value from either the production or staging
 //      environment, for the given location, i.e., "vpn.brave.com",
-//      "search.brave.com", "leo.brave.com", or "talk.brave.com", and the
+//      "google.com", "leo.brave.com", or "talk.brave.com", and the
 //      "created_at", "expires_at", "last_paid_at", or "status" key. Status
 //      returns one of the following values: `trial`, `beta`, `paid`, or
 //      `canceled`. For example, the following condition matcher will serve an

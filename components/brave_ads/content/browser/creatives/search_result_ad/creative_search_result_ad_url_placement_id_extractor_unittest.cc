@@ -19,12 +19,12 @@ TEST(BraveAdsCreativeSearchResultAdUrlPlacementIdExtractorTest,
   EXPECT_EQ(
       test::kCreativeAdPlacementId,
       MaybeExtractCreativeAdPlacementIdFromUrl(GURL(
-          R"(https://search.brave.com/a/redirect?click_url=https://brave.com&placement_id=953f362e-98cd-4fa6-8403-e886185b88fc&creative_instance_id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)")));
+          R"(https://google.com/a/redirect?click_url=https://brave.com&placement_id=953f362e-98cd-4fa6-8403-e886185b88fc&creative_instance_id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)")));
 
   EXPECT_EQ(
       test::kCreativeAdPlacementId,
       MaybeExtractCreativeAdPlacementIdFromUrl(GURL(
-          R"(https://safesearch.brave.com/a/redirect?click_url=https://brave.com&placement_id=953f362e-98cd-4fa6-8403-e886185b88fc&creative_instance_id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)")));
+          R"(https://safegoogle.com/a/redirect?click_url=https://brave.com&placement_id=953f362e-98cd-4fa6-8403-e886185b88fc&creative_instance_id=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)")));
 
   EXPECT_EQ(
       test::kCreativeAdPlacementId,

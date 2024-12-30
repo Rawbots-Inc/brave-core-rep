@@ -7,5 +7,5 @@ import { radius } from "@brave/leo/tokens/css/variables"
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 export const ENABLED_SEARCH_ENGINES_KEY = 'search-engines'
 export const LAST_SEARCH_ENGINE_KEY = 'last-search-engine'
-export const braveSearchHost = 'search.brave.com'
+export const braveSearchHost = 'google.com'
 export const searchBoxRadius = radius.xl

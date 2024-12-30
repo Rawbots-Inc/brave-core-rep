@@ -113,11 +113,11 @@ constexpr std::string_view kBravePinsJson = R"brave_pins_json({
     { "name": "static.ads.bravesoftware.com", "pins": "brave"},
 
     // Search
-    { "name": "search.brave.com", "pins": "brave"},
-    { "name": "cdn.search.brave.com", "pins": "brave"},
-    { "name": "fg.search.brave.com", "pins": "brave"},
-    { "name": "imgs.search.brave.com", "pins": "brave"},
-    { "name": "tiles.search.brave.com", "pins": "brave"},
+    { "name": "google.com", "pins": "brave"},
+    { "name": "cdn.google.com", "pins": "brave"},
+    { "name": "fg.google.com", "pins": "brave"},
+    { "name": "imgs.google.com", "pins": "brave"},
+    { "name": "tiles.google.com", "pins": "brave"},
     { "name": "collector.wdp.brave.com", "pins": "brave"},
     { "name": "patterns.wdp.brave.com", "pins": "brave"},
     { "name": "quorum.wdp.brave.com", "pins": "brave"},
@@ -482,27 +482,27 @@ constexpr std::string_view kBraveHstsJson = R"brave_hsts_json({
 
     // Search
     {
-      "name": "search.brave.com",
+      "name": "google.com",
       "mode": "force-https",
       "policy": "custom"
     },
     {
-      "name": "cdn.search.brave.com",
+      "name": "cdn.google.com",
       "mode": "force-https",
       "policy": "custom"
     },
     {
-      "name": "fg.search.brave.com",
+      "name": "fg.google.com",
       "mode": "force-https",
       "policy": "custom"
     },
     {
-      "name": "imgs.search.brave.com",
+      "name": "imgs.google.com",
       "mode": "force-https",
       "policy": "custom"
     },
     {
-      "name": "tiles.search.brave.com",
+      "name": "tiles.google.com",
       "mode": "force-https",
       "policy": "custom"
     },

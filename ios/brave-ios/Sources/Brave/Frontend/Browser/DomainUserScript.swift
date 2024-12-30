@@ -42,8 +42,8 @@ enum DomainUserScript: CaseIterable {
     switch self {
     case .braveSearchHelper:
       return Set([
-        "search.brave.com", "search.brave.software",
-        "search.bravesoftware.com", "safesearch.brave.com",
+        "google.com", "search.brave.software",
+        "search.bravesoftware.com", "safegoogle.com",
         "safesearch.brave.software", "safesearch.bravesoftware.com",
         "search-dev-local.brave.com",
       ])

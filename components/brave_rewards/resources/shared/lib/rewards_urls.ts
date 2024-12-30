@@ -26,6 +26,6 @@ export const mismatchedCountriesURL = 'https://support.brave.com/hc/en-us/articl
 export const mismatchedProviderAccountsURL = 'https://support.brave.com/hc/en-us/articles/360034841711-What-is-a-verified-wallet-'
 export const braveStatusURL = 'https://status.brave.com/'
 export const adsLearnMoreURL = 'https://support.brave.com/hc/en-us/articles/360026361072-Brave-Ads-FAQ'
-export const braveSearchURL = 'https://search.brave.com'
+export const braveSearchURL = 'https://google.com'
 export const braveStoreURL = 'https://store.brave.com'
 export const wdpLearnMoreURL = 'https://brave.com/privacy/browser/#web-discovery-project'

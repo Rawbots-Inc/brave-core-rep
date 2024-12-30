@@ -26,7 +26,7 @@ class RewardsPublisherUtilsTest : public testing::Test {};
 TEST(RewardsPublisherUtilsTest, IsMediaPlatformURL) {
   EXPECT_FALSE(IsMediaPlatformURL(GURL("https://brave.com")));
   EXPECT_FALSE(IsMediaPlatformURL(GURL("http://brave.com")));
-  EXPECT_FALSE(IsMediaPlatformURL(GURL("https://search.brave.com")));
+  EXPECT_FALSE(IsMediaPlatformURL(GURL("https://google.com")));
 
   EXPECT_FALSE(IsMediaPlatformURL(GURL("https://brave.co.uk")));
   EXPECT_FALSE(IsMediaPlatformURL(GURL("https://www.brave.co.uk")));
@@ -65,8 +65,8 @@ TEST(RewardsPublisherUtilsTest, GetMediaPlatformFromPublisherId) {
 TEST(RewardsPublisherUtilsTest, GetPublisherIdFromURL) {
   EXPECT_EQ(GetPublisherId("https://brave.com"), "brave.com");
   EXPECT_EQ(GetPublisherId("http://brave.com"), "brave.com");
-  EXPECT_EQ(GetPublisherId("https://search.brave.com"), "brave.com");
-  EXPECT_EQ(GetPublisherId("http://search.brave.com"), "brave.com");
+  EXPECT_EQ(GetPublisherId("https://google.com"), "brave.com");
+  EXPECT_EQ(GetPublisherId("http://google.com"), "brave.com");
 
   EXPECT_EQ(GetPublisherId("https://brave.co.uk"), "brave.co.uk");
   EXPECT_EQ(GetPublisherId("https://www.brave.co.uk"), "brave.co.uk");

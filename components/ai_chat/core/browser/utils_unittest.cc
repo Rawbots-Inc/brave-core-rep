@@ -14,16 +14,16 @@
 namespace ai_chat {
 
 TEST(AIChatUtilsUnitTest, IsBraveSearchSERP) {
-  EXPECT_TRUE(IsBraveSearchSERP(GURL("https://search.brave.com/search?q=foo")));
+  EXPECT_TRUE(IsBraveSearchSERP(GURL("https://google.com/search?q=foo")));
   // Missing or wrong path.
-  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://search.brave.com?q=foo")));
+  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://google.com?q=foo")));
   EXPECT_FALSE(
-      IsBraveSearchSERP(GURL("https://search.brave.com/test.html?q=foo")));
+      IsBraveSearchSERP(GURL("https://google.com/test.html?q=foo")));
   // Missing or wrong query parameter.
-  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://search.brave.com/search")));
-  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://search.brave.com/search?t=t")));
+  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://google.com/search")));
+  EXPECT_FALSE(IsBraveSearchSERP(GURL("https://google.com/search?t=t")));
   // HTTP scheme.
-  EXPECT_FALSE(IsBraveSearchSERP(GURL("http://search.brave.com/search?q=foo")));
+  EXPECT_FALSE(IsBraveSearchSERP(GURL("http://google.com/search?q=foo")));
   // Wrong host.
   EXPECT_FALSE(IsBraveSearchSERP(GURL("https://brave.com/search?q=foo")));
 }

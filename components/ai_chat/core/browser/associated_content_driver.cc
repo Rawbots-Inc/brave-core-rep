@@ -210,7 +210,7 @@ void AssociatedContentDriver::OnSearchSummarizerKeyFetched(
             url_loader_factory_);
   }
 
-  // https://search.brave.com/api/chatllm/raw_data?key=<key>
+  // https://google.com/api/chatllm/raw_data?key=<key>
   GURL base_url(
       base::StrCat({url::kHttpsScheme, url::kStandardSchemeSeparator,
                     brave_domains::GetServicesDomain(kBraveSearchURLPrefix),

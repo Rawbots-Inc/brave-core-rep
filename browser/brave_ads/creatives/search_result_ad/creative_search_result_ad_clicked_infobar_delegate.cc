@@ -26,7 +26,7 @@ namespace brave_ads {
 namespace {
 
 constexpr char kLearnMoreUrl[] =
-    "https://search.brave.com/help/conversion-reporting";
+    "https://google.com/help/conversion-reporting";
 
 }  // namespace
 

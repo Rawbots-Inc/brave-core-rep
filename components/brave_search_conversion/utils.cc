@@ -172,7 +172,7 @@ void RegisterPrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(prefs::kDismissed, false);
   registry->RegisterBooleanPref(prefs::kShowNTPSearchBox, true);
   registry->RegisterStringPref(prefs::kLastUsedNTPSearchEngine,
-                               "search.brave.com");
+                               "google.com");
   registry->RegisterBooleanPref(prefs::kPromptEnableSuggestions, true);
   registry->RegisterTimePref(prefs::kMaybeLaterClickedTime, base::Time());
   registry->RegisterIntegerPref(prefs::kDDGBannerTypeIndex, 0);

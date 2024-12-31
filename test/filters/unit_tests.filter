@@ -581,7 +581,7 @@
 -All/ChromeBrowsingDataRemoverDelegateRelatedWebsiteSetsTest.RemoveRelatedWebsiteSetsPermissions/*
 
 # This test fails because our search engine keywords use a shorter syntax than
-# is expected (:b vs search.brave.com)
+# is expected (:b vs google.com)
 -IconUtilsTest.GetSearchEngineGeneratedIconPath
 
 # This test fails because we disable

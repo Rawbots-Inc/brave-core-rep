@@ -63,7 +63,7 @@ class UIHandler : public ai_chat::mojom::UntrustedUIHandler {
     if (!web_ui_->GetRenderFrameHost()->HasTransientUserActivation()) {
       return;
     }
-    OpenURL(GURL("https://search.brave.com/search?q=" +
+    OpenURL(GURL("https://google.com/search?q=" +
                  base::EscapeQueryParamValue(search_query, true)));
   }
 

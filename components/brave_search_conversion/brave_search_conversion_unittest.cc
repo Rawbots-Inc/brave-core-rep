@@ -80,7 +80,7 @@ TEST_F(BraveSearchConversionTest, DefaultValueTest) {
             GetConversionType(
                 &pref_service_,
                 search_engines_test_environment_.template_url_service()));
-  EXPECT_EQ(GURL("https://search.brave.com/search?q=brave&action=makeDefault"),
+  EXPECT_EQ(GURL("https://google.com/search?q=brave&action=makeDefault"),
             GetPromoURL(u"brave"));
 }
 

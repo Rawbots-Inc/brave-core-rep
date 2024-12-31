@@ -70,7 +70,7 @@ public class OnboardingPrefManager {
     public static boolean isNotification;
 
     private static final String GOOGLE = "Google";
-    public static final String BRAVE = "Brave";
+    // public static final String BRAVE = "Brave";
     public static final String DUCKDUCKGO = "DuckDuckGo";
     private static final String QWANT = "Qwant";
     private static final String BING = "Bing";
@@ -267,7 +267,7 @@ public class OnboardingPrefManager {
     public static Map<String, SearchEngineEnum> searchEngineMap =
             Map.ofEntries(
                     Map.entry(GOOGLE, SearchEngineEnum.GOOGLE),
-                    Map.entry(BRAVE, SearchEngineEnum.BRAVE),
+                    // Map.entry(BRAVE, SearchEngineEnum.BRAVE),
                     Map.entry(DUCKDUCKGO, SearchEngineEnum.DUCKDUCKGO),
                     Map.entry(QWANT, SearchEngineEnum.QWANT),
                     Map.entry(BING, SearchEngineEnum.BING),

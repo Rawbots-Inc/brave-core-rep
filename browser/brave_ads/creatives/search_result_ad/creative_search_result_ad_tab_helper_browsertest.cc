@@ -41,7 +41,7 @@ namespace brave_ads {
 
 namespace {
 
-constexpr char kAllowedDomain[] = "search.brave.com";
+constexpr char kAllowedDomain[] = "google.com";
 constexpr char kNotAllowedDomain[] = "brave.com";
 constexpr char kClickRedirectPath[] = "/a/redirect";
 constexpr char kTargetDomain[] = "example.com";

@@ -14,7 +14,7 @@ private struct SearchResultAdClickedInfoBarUX {
   static let toastCloseButtonWidth: CGFloat = 20.0
   static let toastLabelFont = UIFont.preferredFont(forTextStyle: .subheadline)
   static let toastBackgroundColor = UIColor(braveSystemName: .schemesOnPrimaryFixed)
-  static let learnMoreUrl = "https://search.brave.com/help/conversion-reporting"
+  static let learnMoreUrl = "https://google.com/help/conversion-reporting"
 }
 
 class SearchResultAdClickedInfoBar: Toast, UITextViewDelegate {

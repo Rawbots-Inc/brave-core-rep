@@ -31,7 +31,7 @@ TEST(BraveSearchSuggestionParser, ParseSuggestResults_EntityType) {
   suggestion.Set("category", base::Value("game"));
   suggestion.Set(
       "img",
-      base::Value("https://imgs.search.brave.com/"
+      base::Value("https://imgs.google.com/"
                   "To3SrgqTzUM9ADdXKrWxzAhplxPLgTggBSsPrF61GFo/rs:fit:60:60:1/"
                   "g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/"
                   "aWEvZW4vZS9lNy9I/ZWxsZGl2ZXJzMmNv/dmVyLnBuZw"));
@@ -61,7 +61,7 @@ TEST(BraveSearchSuggestionParser, ParseSuggestResults_EntityType) {
 
   EXPECT_EQ("Helldivers 2", result.entity_info().name());
   EXPECT_EQ(
-      "https://imgs.search.brave.com/"
+      "https://imgs.google.com/"
       "To3SrgqTzUM9ADdXKrWxzAhplxPLgTggBSsPrF61GFo/rs:fit:60:60:1/"
       "g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/"
       "aWEvZW4vZS9lNy9I/ZWxsZGl2ZXJzMmNv/dmVyLnBuZw",
@@ -112,7 +112,7 @@ TEST(BraveSearchSuggestionParser, ParseSuggestResults_FilterSVGImage) {
   suggestion.Set("category", base::Value("game"));
   suggestion.Set(
       "img",
-      base::Value("https://imgs.search.brave.com/"
+      base::Value("https://imgs.google.com/"
                   "To3SrgqTzUM9ADdXKrWxzAhplxPLgTggBSsPrF61GFo/rs:fit:60:60:1/"
                   "g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/"
                   "aWEvZW4vZS9lNy9I/ZWxsZGl2ZXJzMmNv/dmVyLnBuZw.svg"));

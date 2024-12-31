@@ -30,7 +30,7 @@ namespace brave_ads {
 
 namespace {
 
-constexpr char kAllowedDomain[] = "https://search.brave.com";
+constexpr char kAllowedDomain[] = "https://google.com";
 constexpr char kDisallowedDomain[] = "https://brave.com";
 
 }  // namespace

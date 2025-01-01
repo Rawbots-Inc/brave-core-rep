@@ -1,10 +1,10 @@
-COMPANY_FULLNAME=Brave Software, Inc.
-COMPANY_SHORTNAME=Brave Software
-PRODUCT_FULLNAME=Brave Browser Beta
-PRODUCT_SHORTNAME=Brave Beta
-PRODUCT_INSTALLER_FULLNAME=Brave Installer
-PRODUCT_INSTALLER_SHORTNAME=Brave Installer
-COPYRIGHT=Copyright 2016 The Brave Authors. All rights reserved.
+COMPANY_FULLNAME=Rawbots Interactive Inc
+COMPANY_SHORTNAME=Rawbots Interactive
+PRODUCT_FULLNAME=Rep Social
+PRODUCT_SHORTNAME=Rep Social
+PRODUCT_INSTALLER_FULLNAME=Rep Social Installer
+PRODUCT_INSTALLER_SHORTNAME=Rep Social Installer
+COPYRIGHT=Copyright 2025 Rep. All rights reserved.
 MAC_BUNDLE_ID=com.brave.Browser.beta
 MAC_CREATOR_CODE=Cr24
 MAC_TEAM_ID=KL8N8XSYF4

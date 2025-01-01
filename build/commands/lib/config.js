@@ -623,7 +623,7 @@ Config.prototype.buildArgs = function () {
     args.enable_mdns = true
 
     // We want it to be enabled for all configurations
-    args.disable_android_lint = false
+    args.disable_android_lint = true
 
     args.android_aab_to_apk = this.androidAabToApk
 

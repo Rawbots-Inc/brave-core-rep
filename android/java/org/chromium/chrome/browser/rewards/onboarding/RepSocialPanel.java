@@ -146,8 +146,8 @@ public class RepSocialPanel implements BraveRewardsObserver {
 
     // Load URL
     String targetUrl = (this.url != null && !this.url.isEmpty())
-            ? "https://dev.rep.run?currentTabUrl=" + this.url
-            : "https://dev.rep.run?currentTabUrl=new_tab";
+            ? "https://staging.rep.run?currentTabUrl=" + this.url
+            : "https://staging.rep.run?currentTabUrl=new_tab";
     modalWebView.loadUrl(targetUrl);
 
     mPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {

@@ -201,7 +201,7 @@ class BraveDropdownItemViewInfoListBuilder extends DropdownItemViewInfoListBuild
                 && !tab.isIncognito()
                 && ChromeSharedPreferences.getInstance()
                         .readBoolean(BravePreferenceKeys.BRAVE_LEO_AUTOCOMPLETE, true)) {
-            return true;
+            return false;
         }
 
         return false;

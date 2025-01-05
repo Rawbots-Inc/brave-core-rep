@@ -471,9 +471,7 @@ public abstract class BraveActivity extends ChromeActivity
             BraveVpnUtils.openVpnServerSelectionActivity(BraveActivity.this);
         } else if (id == R.id.brave_speedreader_id) {
             enableSpeedreaderMode();
-        } else if (id == R.id.brave_leo_id) {
-            openBraveLeo();
-        } else {
+        }  else {
             return false;
         }
         return true;

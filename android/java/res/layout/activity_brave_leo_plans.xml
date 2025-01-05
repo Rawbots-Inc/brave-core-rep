@@ -29,6 +29,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@null"
             android:layout_gravity="end"
+            android:visibility="gone"
             app:srcCompat="@drawable/ic_product_brave_leo"/>
 
         <LinearLayout

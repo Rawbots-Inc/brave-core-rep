@@ -113,15 +113,15 @@ constexpr std::string_view kBravePinsJson = R"brave_pins_json({
     { "name": "static.ads.bravesoftware.com", "pins": "brave"},
 
     // Search
-    { "name": "google.com", "pins": "brave"},
-    { "name": "cdn.google.com", "pins": "brave"},
-    { "name": "fg.google.com", "pins": "brave"},
-    { "name": "imgs.google.com", "pins": "brave"},
-    { "name": "tiles.google.com", "pins": "brave"},
-    { "name": "collector.wdp.brave.com", "pins": "brave"},
-    { "name": "patterns.wdp.brave.com", "pins": "brave"},
-    { "name": "quorum.wdp.brave.com", "pins": "brave"},
-    { "name": "star.wdp.brave.com", "pins": "brave"},
+    // { "name": "google.com", "pins": "brave"},
+    // { "name": "cdn.google.com", "pins": "brave"},
+    // { "name": "fg.google.com", "pins": "brave"},
+    // { "name": "imgs.google.com", "pins": "brave"},
+    // { "name": "tiles.google.com", "pins": "brave"},
+    // { "name": "collector.wdp.brave.com", "pins": "brave"},
+    // { "name": "patterns.wdp.brave.com", "pins": "brave"},
+    // { "name": "quorum.wdp.brave.com", "pins": "brave"},
+    // { "name": "star.wdp.brave.com", "pins": "brave"},
 
     // Premium
     { "name": "account.brave.com", "pins": "brave"},

@@ -134,20 +134,21 @@ public class BraveLeoPrefUtils {
     }
 
     public static boolean isLeoEnabled() {
-        if (!ChromeFeatureList.isEnabled(BraveFeatureList.AI_CHAT)) {
-            return false;
-        }
+        return false;
+        // if (!ChromeFeatureList.isEnabled(BraveFeatureList.AI_CHAT)) {
+        //     return false;
+        // }
 
-        Profile profileToUse = BraveLeoPrefUtils.getProfile();
-        if (profileToUse == null) {
-            Log.e(TAG, "BraveLeoPrefUtils.isLeoEnabled profile is null");
-            // JS is enabled for most users
-            return true;
-        }
+        // Profile profileToUse = BraveLeoPrefUtils.getProfile();
+        // if (profileToUse == null) {
+        //     Log.e(TAG, "BraveLeoPrefUtils.isLeoEnabled profile is null");
+        //     // JS is enabled for most users
+        //     return true;
+        // }
 
-        // Disables Leo when a global JAVASCRIPT toggle set to blocked.
-        // We want to fix that in the future.
-        return WebsitePreferenceBridge.isCategoryEnabled(
-                profileToUse, ContentSettingsType.JAVASCRIPT);
+        // // Disables Leo when a global JAVASCRIPT toggle set to blocked.
+        // // We want to fix that in the future.
+        // return WebsitePreferenceBridge.isCategoryEnabled(
+        //         profileToUse, ContentSettingsType.JAVASCRIPT);
     }
 }

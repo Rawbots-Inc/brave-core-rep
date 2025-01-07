@@ -214,8 +214,8 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             // }
             braveWallet.setVisible(false);
         }
-        MenuItem braveLeo = menu.findItem(R.id.brave_leo_id);
-        if (braveLeo != null) {
+        // MenuItem braveLeo = menu.findItem(R.id.brave_leo_id);
+        // if (braveLeo != null) {
             // Tab tab = mActivityTabProvider.get();
             // if (BraveLeoPrefUtils.isLeoEnabled() && tab != null && !tab.isIncognito()) {
             //     braveLeo.setVisible(false);
@@ -226,8 +226,8 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             // } else {
             //     braveLeo.setVisible(false);
             // }
-            braveLeo.setVisible(false);
-        }
+            // braveLeo.setVisible(false);
+        // }
 
         MenuItem bravePlaylist = menu.findItem(R.id.brave_playlist_id);
         if (bravePlaylist != null) {

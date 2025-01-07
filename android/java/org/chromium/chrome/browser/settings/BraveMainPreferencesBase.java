@@ -293,7 +293,8 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
          removePreferenceIfPresent(PREF_BRAVE_VPN);
 
         if (BraveLeoPrefUtils.isLeoEnabled()) {
-            findPreference(PREF_BRAVE_LEO).setOrder(++firstSectionOrder);
+            removePreferenceIfPresent(PREF_BRAVE_LEO);
+            // findPreference(PREF_BRAVE_LEO).setOrder(++firstSectionOrder);
         } else {
             removePreferenceIfPresent(PREF_BRAVE_LEO);
         }

@@ -26,7 +26,6 @@ import android.widget.PopupWindow;
 import androidx.core.content.res.ResourcesCompat;
 
 import org.chromium.chrome.R;
-import org.chromium.chrome.browser.rewards.BraveRewardsPanel;
 import org.chromium.chrome.browser.util.TabUtils;
 
 /**
@@ -121,8 +120,8 @@ public class RepSocialPanel {
         Log.e(TAG, "URL before loading: " + mUrl);
 
        String targetUrl = (mUrl != null && !mUrl.isEmpty())
-                ? "https://staging.rep.run?currentTabUrl=" + mUrl
-                : "https://staging.rep.run?currentTabUrl=new_tab";
+                ? "https://dev.rep.run?currentTabUrl=" + mUrl
+                : "https://dev.rep.run?currentTabUrl=newtab";
                 
         modalWebView.loadUrl(targetUrl);
 
@@ -143,7 +142,6 @@ public class RepSocialPanel {
 
     private void showRewardsTour() {
         mPopupWindow.dismiss();
-        TabUtils.openUrlInNewTab(false, BraveRewardsPanel.REWARDS_TOUR_URL);
     }
 
     private boolean handleUrlOpenNewTab(String url) {

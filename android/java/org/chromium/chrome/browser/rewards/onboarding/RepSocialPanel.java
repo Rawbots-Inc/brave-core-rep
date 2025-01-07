@@ -120,8 +120,8 @@ public class RepSocialPanel {
         Log.e(TAG, "URL before loading: " + mUrl);
 
        String targetUrl = (mUrl != null && !mUrl.isEmpty())
-                ? "https://dev.rep.run?currentTabUrl=" + mUrl
-                : "https://dev.rep.run?currentTabUrl=newtab";
+                ? "https://staging.rep.run?currentTabUrl=" + mUrl
+                : "https://staging.rep.run?currentTabUrl=newtab";
                 
         modalWebView.loadUrl(targetUrl);
 

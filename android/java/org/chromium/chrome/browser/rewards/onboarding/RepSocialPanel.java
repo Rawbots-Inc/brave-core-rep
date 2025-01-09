@@ -68,6 +68,7 @@ public class RepSocialPanel {
     }
 
     private void setUpViews(int deviceWidth) {
+        
         Log.e(TAG, "URL in setUpViews: " + mUrl);
 
         LayoutInflater inflater = (LayoutInflater)
@@ -120,13 +121,14 @@ public class RepSocialPanel {
         Log.e(TAG, "URL before loading: " + mUrl);
 
        String targetUrl = (mUrl != null && !mUrl.isEmpty())
-                ? "https://staging.rep.run?currentTabUrl=" + mUrl
-                : "https://staging.rep.run?currentTabUrl=newtab";
+                ? "https://dev.rep.run?currentTabUrl=" + mUrl
+                : "https://dev.rep.run?currentTabUrl=newtab";
                 
         modalWebView.loadUrl(targetUrl);
 
         mPopupWindow.setOnDismissListener(() -> {
             Log.e(TAG, "Popup dismissed");
+            closeWebView();
         });
 
         mPopupWindow.setWidth(deviceWidth);
@@ -143,6 +145,22 @@ public class RepSocialPanel {
     private void showRewardsTour() {
         mPopupWindow.dismiss();
     }
+    
+    public void closeWebView() {
+    if (modalWebView != null) {
+        modalWebView.loadUrl("about:blank"); // Xóa nội dung hiển thị
+        modalWebView.clearHistory();        // Xóa lịch sử duyệt web
+        modalWebView.removeAllViews();      // Loại bỏ view con
+        modalWebView.destroy();             // Giải phóng tài nguyên
+        modalWebView = null;                // Đặt về null để tránh sử dụng lại
+    }
+
+    if (mPopupWindow != null && mPopupWindow.isShowing()) {
+        mPopupWindow.dismiss();             // Đảm bảo popup được đóng
+    }
+
+    Log.e(TAG, "WebView closed completely, cookies retained");
+}
 
     private boolean handleUrlOpenNewTab(String url) {
         try {
@@ -162,6 +180,7 @@ public class RepSocialPanel {
                 Log.e(TAG, "Open new tab with: " + newUrl);
 
                 TabUtils.openUrlInNewTab(false, newUrl);
+                // closeWebView();
                 mPopupWindow.dismiss();
                 return true;
             }

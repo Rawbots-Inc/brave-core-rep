@@ -476,6 +476,9 @@
   <message name="IDS_SETTINGS_BRAVE_SHIELDS_COOKIE_CONTROL_LABEL" desc="Default Brave cookies control setting label">
     Block cookies
   </message>
+  <message name="IDS_SETTINGS_BRAVE_SHIELDS_COOKIE_CONTROL_BLOCK_ALL_DEPRECATED_LABEL" desc="Block all cookies deprecation warning">
+    The "Block all Cookies" option has been deprecated. To learn how to force-enable this option, visit <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>our help page<ph name="END_LINK">&lt;/a&gt;</ph>
+  </message>
   <message name="IDS_SETTINGS_BLOCK_3RD_PARTY_COOKIES" desc="Select value">
     Block third-party cookies
   </message>
@@ -915,15 +918,6 @@
   </message>
   <message name="IDS_SETTINGS_BRAVE_SYNC_COULD_NOT_SYNC_ACTION_LABEL" desc="Could not sync devices action label. It is displayed in the case when Brave Sync could not decrypt code words and start work">
     Could not sync Brave on your devices
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_CUSTOM_SYNC_URL_TITLE" desc="Title for custom sync url">
-    Custom sync URL
-  </message>
-  <message name="IDS_SETTINGS_ENTER_CUSTOM_SYNC_URL" desc="Input label for a custom sync url">
-    Enter custom sync URL
-  </message>
-  <message name="IDS_SETTINGS_POLICY_INDICATOR" desc="Tooltip text for policy indicator(building) icon">
-    This setting is managed by your organization
   </message>
   <message name="IDS_SETTINGS_BRAVE_SYNC_MANAGER_TITLE" desc="Brave Sync manager title">
     Sync Manager
@@ -1592,7 +1586,7 @@ Leo AI. This action can't be undone.
     Context size
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_INPUT_CONTEXT_SIZE_TOOLTIP_INFO" desc="A brief description for context size, as well as a concise explanation for how it relates to the the user's experience.">
-    The maximum number of tokens the model can process in a single interaction. Each token is roughly 3/4 of a word. A larger context size allows the model to handle longer conversations. Different models support different maximum context sizes.
+    The maximum number of tokens the model can process in a single interaction. A larger context size allows the model to handle longer conversations. Different models support different maximum context sizes.
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_CLOSE_BUTTON_LABEL" desc="A label for a button that closes configuration UI">
     Close

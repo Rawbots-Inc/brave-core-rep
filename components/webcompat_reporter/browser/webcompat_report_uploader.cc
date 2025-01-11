@@ -16,7 +16,6 @@
 #include "brave/components/version_info/version_info.h"
 #include "brave/components/webcompat_reporter/browser/fields.h"
 #include "brave/components/webcompat_reporter/buildflags/buildflags.h"
-#include "content/public/browser/browser_thread.h"
 #include "net/base/load_flags.h"
 #include "net/base/mime_util.h"
 #include "services/network/public/cpp/resource_request.h"
@@ -146,6 +145,16 @@ void WebcompatReportUploader::SubmitReport(mojom::ReportInfoPtr report_info) {
     report_details_dict.Set(
         kBraveVPNEnabledField,
         report_info->brave_vpn_connected.value() == kStringTrue);
+  }
+
+  if (report_info->cookie_policy) {
+    report_details_dict.Set(kCookiePolicyField,
+                            report_info->cookie_policy.value());
+  }
+
+  if (report_info->block_scripts) {
+    report_details_dict.Set(kBlockScriptsField,
+                            report_info->block_scripts.value() == kStringTrue);
   }
 
   report_details_dict.Set(kApiKeyField, base::Value(api_key));

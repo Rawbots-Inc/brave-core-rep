@@ -40,6 +40,7 @@ public class RepSocialPanel {
     private WebView modalWebView;
 
     private String mUrl = "";
+    private String mUrlPrevious = "";
 
     // Primary constructor with URL
     public RepSocialPanel(View anchorView, int deviceWidth, String url) {
@@ -67,16 +68,28 @@ public class RepSocialPanel {
         this(anchorView, deviceWidth, "");
     }
 
-    private void setUpViews(int deviceWidth) {
-        
-        Log.e(TAG, "URL in setUpViews: " + mUrl);
+    public void setUrl(String url) {
+        this.mUrl = url;
+        this.mUrlPrevious = this.mUrl;
 
+        if (this.mUrl.equals(this.mUrlPrevious)) {
+            Log.e(TAG, "URL before loading: " + mUrl);
+            String targetUrl = (mUrl != null && !mUrl.isEmpty())
+                    ? "https://dev.rep.run?currentTabUrl=" + mUrl
+                    : "https://dev.rep.run?currentTabUrl=newtab";
+
+            if (modalWebView != null) {
+                modalWebView.loadUrl(targetUrl);
+            }
+        }
+    }
+
+    private void setUpViews(int deviceWidth) {
         LayoutInflater inflater = (LayoutInflater)
                 mAnchorView.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mPopupView = inflater.inflate(R.layout.brave_rewards_rep_social_layout, null);
         modalWebView = mPopupView.findViewById(R.id.modalWebView);
-
 
         WebSettings webSettings = modalWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -118,14 +131,6 @@ public class RepSocialPanel {
         cookieManager.setAcceptCookie(true);
         cookieManager.setAcceptThirdPartyCookies(modalWebView, true);
 
-        Log.e(TAG, "URL before loading: " + mUrl);
-
-       String targetUrl = (mUrl != null && !mUrl.isEmpty())
-                ? "https://dev.rep.run?currentTabUrl=" + mUrl
-                : "https://dev.rep.run?currentTabUrl=newtab";
-                
-        modalWebView.loadUrl(targetUrl);
-
         mPopupWindow.setOnDismissListener(() -> {
             Log.e(TAG, "Popup dismissed");
             closeWebView();
@@ -147,20 +152,19 @@ public class RepSocialPanel {
     }
     
     public void closeWebView() {
-    if (modalWebView != null) {
-        modalWebView.loadUrl("about:blank"); // Xóa nội dung hiển thị
-        modalWebView.clearHistory();        // Xóa lịch sử duyệt web
-        modalWebView.removeAllViews();      // Loại bỏ view con
-        modalWebView.destroy();             // Giải phóng tài nguyên
-        modalWebView = null;                // Đặt về null để tránh sử dụng lại
-    }
+        if (modalWebView != null) {
+            // modalWebView.loadUrl("about:blank"); // Xóa nội dung hiển thị
+            // modalWebView.clearHistory();        // Xóa lịch sử duyệt web
+            // modalWebView.removeAllViews();      // Loại bỏ view con
+            // modalWebView.destroy();             // Giải phóng tài nguyên
+        }
 
-    if (mPopupWindow != null && mPopupWindow.isShowing()) {
-        mPopupWindow.dismiss();             // Đảm bảo popup được đóng
-    }
+        if (mPopupWindow != null && mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();             // Đảm bảo popup được đóng
+        }
 
-    Log.e(TAG, "WebView closed completely, cookies retained");
-}
+        Log.e(TAG, "WebView closed completely, cookies retained");
+    }
 
     private boolean handleUrlOpenNewTab(String url) {
         try {

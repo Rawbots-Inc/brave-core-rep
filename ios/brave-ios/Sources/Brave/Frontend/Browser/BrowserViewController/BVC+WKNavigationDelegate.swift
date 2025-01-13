@@ -92,13 +92,15 @@ extension BrowserViewController: WKNavigationDelegate {
     // (orange color) as soon as the page has loaded.
     if let url = webView.url {
       if !url.isInternalURL(for: .readermode) {
-        topToolbar.updateReaderModeState(ReaderModeState.unavailable)
+        topToolbar.updateReaderModeState(.unavailable)
         hideReaderModeBar(animated: false)
       }
     }
 
     hideToastsOnNavigationStartIfNeeded(tabManager)
 
+    // If we are going to navigate to a new page, hide the translate button.
+    topToolbar.updateTranslateButtonState(.unavailable)
     resetRedirectChain(webView)
 
     // Append source URL to redirect chain
@@ -213,8 +215,8 @@ extension BrowserViewController: WKNavigationDelegate {
 
     // First special case are some schemes that are about Calling. We prompt the user to confirm this action. This
     // gives us the exact same behaviour as Safari.
-
-    if ["sms", "tel", "facetime", "facetime-audio"].contains(requestURL.scheme) {
+    // tel:, facetime:, facetime-audio:, already has its own native alert displayed by the OS!f
+    if ["sms", "mailto"].contains(requestURL.scheme) {
       let shouldOpen = await handleExternalURL(
         requestURL,
         tab: tab,
@@ -254,16 +256,6 @@ extension BrowserViewController: WKNavigationDelegate {
     }
 
     if isStoreURL(requestURL) {
-      let shouldOpen = await handleExternalURL(
-        requestURL,
-        tab: tab,
-        navigationAction: navigationAction
-      )
-      return (shouldOpen ? .allow : .cancel, preferences)
-    }
-
-    // Handles custom mailto URL schemes.
-    if requestURL.scheme == "mailto" {
       let shouldOpen = await handleExternalURL(
         requestURL,
         tab: tab,
@@ -729,12 +721,18 @@ extension BrowserViewController: WKNavigationDelegate {
 
     // We can only show this content in the web view if this web view is not pending
     // download via the context menu.
-    let canShowInWebView = navigationResponse.canShowMIMEType && (webView != pendingDownloadWebView)
-    let forceDownload = webView == pendingDownloadWebView
+    let canShowInWebView = navigationResponse.canShowMIMEType
 
     let mimeTypesThatRequireSFSafariViewControllerHandling: [UTType] = [
       .textCalendar,
       .mobileConfiguration,
+    ]
+
+    let mimeTypesThatRequireSFSafariViewControllerHandlingTexts: [UTType: (String, String)] = [
+      .textCalendar: (Strings.openTextCalendarAlertTitle, Strings.openTextCalendarAlertDescription),
+      .mobileConfiguration: (
+        Strings.openMobileConfigurationAlertTitle, Strings.openMobileConfigurationAlertDescription
+      ),
     ]
 
     // SFSafariViewController only supports http/https links
@@ -742,9 +740,30 @@ extension BrowserViewController: WKNavigationDelegate {
       url.isWebPage(includeDataURIs: false),
       let tab, tab === tabManager.selectedTab,
       let mimeType = response.mimeType.flatMap({ UTType(mimeType: $0) }),
-      mimeTypesThatRequireSFSafariViewControllerHandling.contains(mimeType)
+      mimeTypesThatRequireSFSafariViewControllerHandling.contains(mimeType),
+      let (alertTitle, alertMessage) = mimeTypesThatRequireSFSafariViewControllerHandlingTexts[
+        mimeType
+      ]
     {
-      handleLinkWithSafariViewController(url, tab: tab)
+      // Do what Chromium does: https://source.chromium.org/chromium/chromium/src/+/main:ios/chrome/browser/download/ui_bundled/safari_download_coordinator.mm;l=100;bpv=1;bpt=1?q=presentMobileConfigAlertFromURL&ss=chromium%2Fchromium%2Fsrc
+      // and present an alert before showing the Safari View Controller
+      let alert = UIAlertController(
+        title: alertTitle,
+        message: String.init(
+          format: alertMessage,
+          url.absoluteString
+        ),
+        preferredStyle: .alert
+      )
+      alert.addAction(
+        UIAlertAction(title: Strings.OBContinueButton, style: .default) { [weak self] _ in
+          self?.handleLinkWithSafariViewController(url, tab: tab)
+        }
+      )
+
+      alert.addAction(UIAlertAction(title: Strings.cancelButtonTitle, style: .cancel))
+      present(alert, animated: true)
+
       return .cancel
     }
 
@@ -795,13 +814,8 @@ extension BrowserViewController: WKNavigationDelegate {
       request: request,
       response: response,
       cookieStore: cookieStore,
-      canShowInWebView: canShowInWebView,
-      forceDownload: forceDownload
+      canShowInWebView: canShowInWebView
     ) {
-      // Clear the pending download web view so that subsequent navigations from the same
-      // web view don't invoke another download.
-      pendingDownloadWebView = nil
-
       let downloadAlertAction: (HTTPDownload) -> Void = { [weak self] download in
         self?.downloadQueue.enqueue(download)
       }
@@ -1238,7 +1252,11 @@ extension BrowserViewController {
 
     var alertTitle = Strings.openExternalAppURLGenericTitle
 
-    if let displayHost = tab?.url?.withoutWWW.host {
+    if navigationAction.sourceFrame != nil {
+      let displayHost =
+        "\(navigationAction.sourceFrame.securityOrigin.protocol)://\(navigationAction.sourceFrame.securityOrigin.host):\(navigationAction.sourceFrame.securityOrigin.port)"
+      alertTitle = String(format: Strings.openExternalAppURLTitle, displayHost)
+    } else if let displayHost = tab?.url?.withoutWWW.host {
       alertTitle = String(format: Strings.openExternalAppURLTitle, displayHost)
     }
 

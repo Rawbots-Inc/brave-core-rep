@@ -80,6 +80,9 @@ constexpr char16_t kDebounceLearnMoreUrl[] =
 constexpr char16_t kEnableNftDiscoveryLearnMoreUrl[] =
     u"https://github.com/brave/brave-browser/wiki/"
     u"NFT-Discovery";
+constexpr char16_t kBlockAllCookiesLearnMoreUrl[] =
+    u"https://github.com/brave/brave-browser/wiki/"
+    u"Block-all-cookies-global-Shields-setting";
 
 void BraveAddCommonStrings(content::WebUIDataSource* html_source,
                            Profile* profile) {
@@ -421,8 +424,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_BRAVE_SYNC_MANAGE_ACTION_LABEL},
       {"braveSyncCouldNotSyncActionLabel",
        IDS_SETTINGS_BRAVE_SYNC_COULD_NOT_SYNC_ACTION_LABEL},
-      {"braveCustomSyncUrlTitle", IDS_SETTINGS_BRAVE_CUSTOM_SYNC_URL_TITLE},
-      {"enterCustomSyncUrl", IDS_SETTINGS_ENTER_CUSTOM_SYNC_URL},
       {"braveSyncWordCount", IDS_SETTINGS_BRAVE_SYNC_WORD_COUNT},
       {"braveSyncCopied", IDS_SETTINGS_BRAVE_SYNC_COPIED_TEXT},
       {"braveSyncQRCodeAlt", IDS_SETTINGS_BRAVE_SYNC_QR_IMAGE_ALT},
@@ -891,7 +892,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"settingsSelectValueYes", IDS_SETTINGS_SELECT_VALUE_YES},
       {"settingsSelectValueNo", IDS_SETTINGS_SELECT_VALUE_NO},
       {"settingsSelectValueAsk", IDS_SETTINGS_SELECT_VALUE_ASK},
-      {"policyIndicatorTooltip", IDS_SETTINGS_POLICY_INDICATOR},
       {"braveShieldsSaveContactInfo",
        IDS_BRAVE_SHIELDS_SAVE_CONTACT_INFO_LABEL},
       {"braveShieldsSaveContactInfoSublabel",
@@ -968,6 +968,12 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       "ensOffchainLookupDesc",
       l10n_util::GetStringFUTF16(IDS_SETTINGS_ENABLE_ENS_OFFCHAIN_LOOKUP_DESC,
                                  kEnsOffchainLookupLearnMoreURL));
+
+  html_source->AddString(
+      "blockAllCookiesDeprecatedLabel",
+      l10n_util::GetStringFUTF16(
+          IDS_SETTINGS_BRAVE_SHIELDS_COOKIE_CONTROL_BLOCK_ALL_DEPRECATED_LABEL,
+          kBlockAllCookiesLearnMoreUrl));
 }  // NOLINT(readability/fn_size)
 
 void BraveAddResources(content::WebUIDataSource* html_source,

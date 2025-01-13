@@ -410,13 +410,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        // if (viewType == TYPE_STATS) {
-        //     // view = LayoutInflater.from(parent.getContext())
-        //     //                .inflate(R.layout.brave_stats_layout, parent, false);
-        //     // return new StatsViewHolder(view);
-
-        // } else 
-        if (viewType == TYPE_TOP_SITES) {
+       if (viewType == TYPE_TOP_SITES) {
             return new TopSitesViewHolder(mMvTilesContainerLayout);
 
         } else if (viewType == TYPE_NEW_CONTENT) {
@@ -429,7 +423,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                            .inflate(R.layout.ntp_image_credit, parent, false);
             return new ImageCreditViewHolder(view);
 
-        }  else if (viewType == TYPE_NEWS_LOADING) {
+        } else if (viewType == TYPE_NEWS_LOADING) {
             view = LayoutInflater.from(parent.getContext())
                            .inflate(R.layout.news_loading, parent, false);
             return new NewsLoadingViewHolder(view);

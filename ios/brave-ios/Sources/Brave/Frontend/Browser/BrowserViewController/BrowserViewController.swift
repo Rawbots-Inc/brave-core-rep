@@ -25,6 +25,7 @@ import SpeechRecognition
 import Storage
 import StoreKit
 import SwiftUI
+import Translation
 import UIKit
 import WebKit
 import os.log
@@ -151,6 +152,11 @@ public class BrowserViewController: UIViewController {
   private var adFeatureLinkageCancelable: AnyCancellable?
   var onPendingRequestUpdatedCancellable: AnyCancellable?
 
+  // Translation
+  let translationHostingController: UIHostingController<AnyView> = .init(
+    rootView: AnyView(EmptyView())
+  )
+
   /// Voice Search
   var voiceSearchViewController: PopupViewController<SpeechToTextInputView>?
   var voiceSearchCancelable: AnyCancellable?
@@ -226,10 +232,6 @@ public class BrowserViewController: UIViewController {
   // that we can obtain the originating `URLRequest` when a `URLResponse` is received. This will
   // allow us to re-trigger the `URLRequest` if the user requests a file to be downloaded.
   var pendingRequests = [String: URLRequest]()
-
-  // This is set when the user taps "Download Link" from the context menu. We then force a
-  // download of the next request through the `WKNavigationDelegate` that matches this web view.
-  weak var pendingDownloadWebView: WKWebView?
 
   let downloadQueue = DownloadQueue()
 
@@ -484,6 +486,7 @@ public class BrowserViewController: UIViewController {
     Preferences.NewTabPage.backgroundMediaTypeRaw.observe(from: self)
     ShieldPreferences.blockAdsAndTrackingLevelRaw.observe(from: self)
     Preferences.Privacy.screenTimeEnabled.observe(from: self)
+    Preferences.Translate.translateEnabled.observe(from: self)
 
     pageZoomListener = NotificationCenter.default.addObserver(
       forName: PageZoomView.notificationName,
@@ -868,6 +871,10 @@ public class BrowserViewController: UIViewController {
 
     addChild(tabsBar)
     tabsBar.didMove(toParent: self)
+
+    addChild(translationHostingController)
+    view.addSubview(translationHostingController.view)
+    translationHostingController.didMove(toParent: self)
 
     view.addSubview(alertStackView)
     view.addSubview(bottomTouchArea)
@@ -1326,6 +1333,9 @@ public class BrowserViewController: UIViewController {
 
   /// Whether or not to show the playlist onboarding callout this session
   var shouldShowPlaylistOnboardingThisSession = true
+
+  /// Wheter or not to show the translate onboarding callout this session
+  var shouldShowTranslationOnboardingThisSession = true
 
   public func showQueuedAlertIfAvailable() {
     if let queuedAlertInfo = tabManager.selectedTab?.dequeueJavascriptAlertPrompt() {
@@ -2615,41 +2625,44 @@ extension BrowserViewController: TabDelegate {
     webView.uiDelegate = self
 
     var injectedScripts: [TabContentScript] = [
-      ReaderModeScriptHandler(tab: tab),
+      ReaderModeScriptHandler(),
       ErrorPageHelper(certStore: profile.certStore),
-      SessionRestoreScriptHandler(tab: tab),
-      BlockedDomainScriptHandler(tab: tab),
-      HTTPBlockedScriptHandler(tab: tab, tabManager: tabManager),
-      PrintScriptHandler(browserController: self, tab: tab),
-      CustomSearchScriptHandler(tab: tab),
-      DarkReaderScriptHandler(tab: tab),
-      FocusScriptHandler(tab: tab),
-      BraveGetUA(tab: tab),
-      BraveSearchScriptHandler(tab: tab, profile: profile, rewards: rewards),
-      ResourceDownloadScriptHandler(tab: tab),
-      DownloadContentScriptHandler(browserController: self, tab: tab),
+      SessionRestoreScriptHandler(),
+      BlockedDomainScriptHandler(),
+      HTTPBlockedScriptHandler(tabManager: tabManager),
+      PrintScriptHandler(browserController: self),
+      CustomSearchScriptHandler(),
+      DarkReaderScriptHandler(),
+      FocusScriptHandler(),
+      BraveGetUA(),
+      BraveSearchScriptHandler(profile: profile, rewards: rewards),
+      ResourceDownloadScriptHandler(),
+      DownloadContentScriptHandler(browserController: self),
       PlaylistScriptHandler(tab: tab),
-      PlaylistFolderSharingScriptHandler(tab: tab),
-      RewardsReportingScriptHandler(rewards: rewards, tab: tab),
-      AdsMediaReportingScriptHandler(rewards: rewards, tab: tab),
-      ReadyStateScriptHandler(tab: tab),
-      DeAmpScriptHandler(tab: tab),
-      SiteStateListenerScriptHandler(tab: tab),
-      CosmeticFiltersScriptHandler(tab: tab),
-      URLPartinessScriptHandler(tab: tab),
-      FaviconScriptHandler(tab: tab),
-      Web3NameServiceScriptHandler(tab: tab),
+      PlaylistFolderSharingScriptHandler(),
+      RewardsReportingScriptHandler(rewards: rewards),
+      AdsMediaReportingScriptHandler(rewards: rewards),
+      ReadyStateScriptHandler(),
+      DeAmpScriptHandler(),
+      SiteStateListenerScriptHandler(),
+      CosmeticFiltersScriptHandler(),
+      URLPartinessScriptHandler(),
+      FaviconScriptHandler(),
+      Web3NameServiceScriptHandler(),
       YoutubeQualityScriptHandler(tab: tab),
-      BraveLeoScriptHandler(tab: tab),
+      BraveLeoScriptHandler(),
+      BraveSkusScriptHandler(),
 
       tab.contentBlocker,
       tab.requestBlockingContentHelper,
+
+      BraveTranslateScriptLanguageDetectionHandler(),
+      BraveTranslateScriptHandler(),
     ]
 
     #if canImport(BraveTalk)
     injectedScripts.append(
       BraveTalkScriptHandler(
-        tab: tab,
         rewards: rewards,
         launchNativeBraveTalk: { [weak self] tab, room, token in
           self?.launchNativeBraveTalk(tab: tab, room: room, token: token)
@@ -2658,17 +2671,13 @@ extension BrowserViewController: TabDelegate {
     )
     #endif
 
-    if let braveSkusHandler = BraveSkusScriptHandler(tab: tab) {
-      injectedScripts.append(braveSkusHandler)
-    }
-
     // Only add the logins handler and wallet provider if the tab is NOT a private browsing tab
     if !tab.isPrivate {
       injectedScripts += [
-        LoginsScriptHandler(tab: tab, profile: profile, passwordAPI: braveCore.passwordAPI),
-        EthereumProviderScriptHandler(tab: tab),
-        SolanaProviderScriptHandler(tab: tab),
-        BraveSearchResultAdScriptHandler(tab: tab),
+        LoginsScriptHandler(profile: profile, passwordAPI: braveCore.passwordAPI),
+        EthereumProviderScriptHandler(),
+        SolanaProviderScriptHandler(),
+        BraveSearchResultAdScriptHandler(),
       ]
     }
 
@@ -2694,6 +2703,9 @@ extension BrowserViewController: TabDelegate {
       as? PlaylistFolderSharingScriptHandler)?.delegate = self
     (tab.getContentScript(name: Web3NameServiceScriptHandler.scriptName)
       as? Web3NameServiceScriptHandler)?.delegate = self
+
+    // Translate Helper
+    tab.translateHelper = BraveTranslateTabHelper(tab: tab, delegate: self)
   }
 
   func tab(_ tab: Tab, willDeleteWebView webView: WKWebView) {
@@ -3357,6 +3369,11 @@ extension BrowserViewController: PreferencesObserver {
         screenTimeViewController?.suppressUsageRecording = true
         screenTimeViewController = nil
       }
+    case Preferences.Translate.translateEnabled.key:
+      tabManager.selectedTab?.setScripts(scripts: [
+        .braveTranslate: Preferences.Translate.translateEnabled.value
+      ])
+      tabManager.reloadSelectedTab()
     default:
       Logger.module.debug(
         "Received a preference change for an unknown key: \(key, privacy: .public) on \(type(of: self), privacy: .public)"

@@ -287,7 +287,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
             mBraveShieldsButton.setImageResource(R.drawable.btn_brave);
 
-            mBraveShieldsButton.setVisibility(isCustomTab() ? View.GONE : View.VISIBLE);
+            mBraveShieldsButton.setVisibility(View.GONE);
         }
 
         if (mBraveRewardsButton != null) {
@@ -1449,18 +1449,12 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         // mBraveShieldsButton.setImageResource(
         //         isShieldsOnForTab(tab) ? R.drawable.btn_brave : R.drawable.btn_brave_off);
 
-        // if (mRewardsLayout == null) return;
-        // if (isIncognito()) {
-        //     mRewardsLayout.setVisibility(View.GONE);
-        //     updateShieldsLayoutBackground(true);
-        // } else if (isNativeLibraryReady()
-        //         && mBraveRewardsNativeWorker != null
-        //         && mBraveRewardsNativeWorker.isSupported()
-        //         && !BravePrefServiceBridge.getInstance().getSafetynetCheckFailed()
-        //         && NtpUtil.shouldShowRewardsIcon()) {
-        //     mRewardsLayout.setVisibility(View.VISIBLE);
-        //     updateShieldsLayoutBackground(false);
-        // }
+          if (mBraveShieldsButton != null) {
+            mBraveShieldsButton.setClickable(true);
+            mBraveShieldsButton.setOnClickListener(this);
+            mBraveShieldsButton.setOnLongClickListener(this);
+            BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
+        }
     }
 
     private boolean isShieldsOnForTab(Tab tab) {

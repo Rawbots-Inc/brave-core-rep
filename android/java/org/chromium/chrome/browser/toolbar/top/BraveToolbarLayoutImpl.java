@@ -143,6 +143,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,
@@ -1229,10 +1231,75 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
     }
 
+      public static String transformToDesktopURL(String mobileUrl) {
+        try {
+            // Parse the input URL
+            URI uri = new URI(mobileUrl);
+
+            // Check if it's a YouTube URL
+            if (uri.getHost().contains("youtube.com")) {
+                // Replace "m.youtube.com" with "www.youtube.com"
+                String desktopHost = uri.getHost().replace("m.youtube.com", "www.youtube.com");
+
+                // Remove the "pp" parameter if it exists
+                String query = uri.getQuery();
+                if (query != null && query.contains("pp=")) {
+                    query = query.replaceAll("pp=[^&]*&?", "");
+
+                    // Remove trailing "&" or "?" if present
+                    query = query.replaceAll("[&?]$", "");
+                }
+
+                // Construct the new URL with the desktop hostname and updated query
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    query, 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("facebook.com")) {
+                // Replace "m.facebook.com" with "www.facebook.com"
+                String desktopHost = uri.getHost().replace("m.facebook.com", "www.facebook.com");
+
+                // Construct the new URL with the desktop hostname
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    uri.getQuery(), 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("linkedin.com")) {
+                // Redirect LinkedIn root URL to its feed page
+                if (uri.getPath().equals("/") || uri.getPath().isEmpty()) {
+                    return "https://www.linkedin.com/feed/";
+                }
+
+                // Return original LinkedIn URL if not the root
+                return mobileUrl;
+            }
+
+            return mobileUrl; // Return the original URL if not YouTube, Facebook, or LinkedIn
+
+        } catch (URISyntaxException e) {
+            return mobileUrl; // Return the original URL if invalid format
+        }
+    }
+
     private void showRepSocial(String url) {
         String targetUrl = (url != null && !url.isEmpty())
-                ? "https://dev.rep.run?currentTabUrl=" + url
+                ? "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url)
                 : "https://dev.rep.run?currentTabUrl=newtab";
+       Log.e(TAG, "URL " + transformToDesktopURL(url));
         CustomTabActivity.showInfoPage(getContext(), targetUrl);
 
         // try {

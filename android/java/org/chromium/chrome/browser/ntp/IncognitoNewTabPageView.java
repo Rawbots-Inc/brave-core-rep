@@ -105,9 +105,11 @@ public class IncognitoNewTabPageView extends FrameLayout {
                             BraveVpnUtils.openBraveVpnPlansActivity(getContext());
                         }
                     });
+        mVpnCta.setVisibility(View.GONE);
         } else {
             mVpnCta.setVisibility(View.GONE);
         }
+        mVpnCta.setVisibility(View.GONE);
     }
 
     /**

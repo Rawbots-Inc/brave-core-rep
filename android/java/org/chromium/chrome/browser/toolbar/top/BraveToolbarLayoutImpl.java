@@ -1299,7 +1299,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         String targetUrl = (url != null && !url.isEmpty())
                 ? "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url)
                 : "https://dev.rep.run?currentTabUrl=newtab";
-       Log.e(TAG, "URL " + transformToDesktopURL(url));
+    //    Log.e(TAG, "URL " + transformToDesktopURL(url));
         CustomTabActivity.showInfoPage(getContext(), targetUrl);
 
         // try {

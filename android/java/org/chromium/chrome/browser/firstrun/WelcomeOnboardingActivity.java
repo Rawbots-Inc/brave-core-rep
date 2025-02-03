@@ -273,9 +273,7 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
             } else {
                 nextOnboardingStep();
             }
-        } else if (mCurrentStep == getAnalyticsConsentPageStep()) {
-            showAnalyticsConsentPage();
-        } else {
+        }  else {
             OnboardingPrefManager.getInstance().setP3aOnboardingShown(true);
             OnboardingPrefManager.getInstance().setOnboardingSearchBoxTooltip(true);
             FirstRunStatus.setFirstRunFlowComplete(true);

@@ -882,10 +882,10 @@
         Welcome to Rep Social
       </message>
       <message name="IDS_PRIVACY_ONBOARDING" desc="Text for privacy onboarding">
-        Privacy. Made simple.
+        Post without limits.
       </message>
       <message name="IDS_ONBOARDING_SET_DEFAULT" desc="Text for set default onboarding">
-        With Rep Social as default, every link you tap opens with Rep Social's privacy protections.
+        With Rep Social, every web page you visit, has a wall you can post your thoughts on.
       </message>
       <message name="IDS_PRIVACY_ONBOARDING_INDIA" desc="Text for privacy onboarding for india">
         Block ads. Save data. Every single day.
@@ -906,7 +906,7 @@
         Type a website name or URL
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING" desc="Text for searhbox tooltip onboarding">
-        See the Rep Social difference: No ads. No trackers. Way faster page load.
+        With Rep Social, every webpage turns into a community hub.&#10; Click The rep logo extension, and post your thoughts on any webpage you wish.
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING_INDIA" desc="Text for searhbox tooltip onboarding for india">
         See the Rep Social difference: Block ads. Save data. Stream faster.

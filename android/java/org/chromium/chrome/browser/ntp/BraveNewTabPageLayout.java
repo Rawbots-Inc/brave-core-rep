@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -1229,27 +1230,36 @@ public class BraveNewTabPageLayout
             setBackgroundImage(ntpImage);
         }
     }
-
+    @SuppressWarnings("UnusedVariable")
     private void setBackgroundImage(NTPImage ntpImage) {
         mBgImageView = (ImageView) findViewById(R.id.bg_image_view);
-        mBgImageView.setScaleType(ImageView.ScaleType.MATRIX);
+        
+          mBgImageView.setLayoutParams(new FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.MATCH_PARENT
+    ));
+    // Chọn ScaleType để phóng ảnh full
+    mBgImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        ViewTreeObserver observer = mBgImageView.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        mWorkerTask =
-                                new FetchWallpaperWorkerTask(
-                                        ntpImage,
-                                        mBgImageView.getMeasuredWidth(),
-                                        mBgImageView.getMeasuredHeight(),
-                                        mWallpaperRetrievedCallback);
-                        mWorkerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-                        mBgImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                });
+        mBgImageView.setImageResource(R.drawable.ic_onboarding_top_leaf);
+
+        // ViewTreeObserver observer = mBgImageView.getViewTreeObserver();
+        // observer.addOnGlobalLayoutListener(
+        //         new ViewTreeObserver.OnGlobalLayoutListener() {
+        //             @Override
+        //             public void onGlobalLayout() {
+        //                 mWorkerTask =
+        //                         new FetchWallpaperWorkerTask(
+        //                                 ntpImage,
+        //                                 mBgImageView.getMeasuredWidth(),
+        //                                 mBgImageView.getMeasuredHeight(),
+        //                                 mWallpaperRetrievedCallback);
+        //                 mWorkerTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
+        //                 mBgImageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+        //             }
+        //         });
     }
 
     private void checkAndShowNTPImage(boolean isReset) {
@@ -1323,7 +1333,7 @@ public class BraveNewTabPageLayout
                             }
                         }
                     };
-
+    @SuppressWarnings("UnusedVariable")
     private FetchWallpaperWorkerTask.WallpaperRetrievedCallback mWallpaperRetrievedCallback =
             new FetchWallpaperWorkerTask.WallpaperRetrievedCallback() {
                 @Override

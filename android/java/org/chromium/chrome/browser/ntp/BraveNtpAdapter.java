@@ -182,10 +182,10 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (mIsNewContentLoading) {
                 newContentViewHolder.mNewContentLayout.setClickable(false);
                 newContentViewHolder.mNewContentText.setVisibility(View.GONE);
-                newContentViewHolder.mNewContentProgressBar.setVisibility(View.VISIBLE);
+                newContentViewHolder.mNewContentProgressBar.setVisibility(View.GONE);
             } else {
                 newContentViewHolder.mNewContentLayout.setClickable(true);
-                newContentViewHolder.mNewContentText.setVisibility(View.VISIBLE);
+                newContentViewHolder.mNewContentText.setVisibility(View.GONE);
                 newContentViewHolder.mNewContentProgressBar.setVisibility(View.GONE);
             }
             mNewContentHeight =
@@ -198,7 +198,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (mNtpImage instanceof Wallpaper
                     && NTPImageUtil.isReferralEnabled()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                imageCreditViewHolder.mSuperReferralLogo.setVisibility(View.VISIBLE);
+                imageCreditViewHolder.mSuperReferralLogo.setVisibility(View.GONE);
                 imageCreditViewHolder.mCreditTv.setVisibility(View.GONE);
                 int floatingButtonIcon = R.drawable.ic_qr_code;
                 imageCreditViewHolder.mSuperReferralLogo.setImageResource(floatingButtonIcon);
@@ -252,7 +252,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                         imageCreditViewHolder.mCreditTv.setText(spannableString);
-                        imageCreditViewHolder.mCreditTv.setVisibility(View.VISIBLE);
+                        imageCreditViewHolder.mCreditTv.setVisibility(View.GONE);
 
                         imageCreditViewHolder.mCreditTv.setOnClickListener(
                                 view -> {
@@ -265,7 +265,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
             if (!NTPImageUtil.isReferralEnabled() && mSponsoredLogo != null) {
-                imageCreditViewHolder.mSponsoredLogo.setVisibility(View.VISIBLE);
+                imageCreditViewHolder.mSponsoredLogo.setVisibility(View.GONE);
                 imageCreditViewHolder.mSponsoredLogo.setImageBitmap(mSponsoredLogo);
                 imageCreditViewHolder.mSponsoredLogo.setOnClickListener(
                         view -> {

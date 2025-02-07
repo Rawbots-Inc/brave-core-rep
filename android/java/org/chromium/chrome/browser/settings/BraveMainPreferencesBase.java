@@ -173,6 +173,9 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
     }
 
     private void updateBravePreferences() {
+        removePreferenceIfPresent(PREF_HOME_SCREEN_WIDGET);
+        removePreferenceIfPresent(PREF_SYNC);
+        removePreferenceIfPresent(PREF_BRAVE_SEARCH_ENGINES);
         // Below prefs are removed from main settings.
         removePreferenceIfPresent(MainSettings.PREF_SYNC_PROMO);
         removePreferenceIfPresent(MainSettings.PREF_SIGN_IN);

@@ -120,17 +120,17 @@ public class BraveSetDefaultBrowserUtils {
         if (!isBottomSheetVisible) {
             isBottomSheetVisible = true;
 
-            try {
-                SetDefaultBrowserBottomSheetFragment bottomSheetDialog =
-                        SetDefaultBrowserBottomSheetFragment.newInstance(isFromMenu);
+            // try {
+            //     SetDefaultBrowserBottomSheetFragment bottomSheetDialog =
+            //             SetDefaultBrowserBottomSheetFragment.newInstance(isFromMenu);
 
-                bottomSheetDialog.show(activity.getSupportFragmentManager(),
-                        "SetDefaultBrowserBottomSheetFragment");
-            } catch (IllegalStateException e) {
-                // That exception could be thrown when Activity is not in the foreground.
-                Log.e(TAG, "showBraveSetDefaultBrowserDialog error: " + e.getMessage());
-                return;
-            }
+            //     bottomSheetDialog.show(activity.getSupportFragmentManager(),
+            //             "SetDefaultBrowserBottomSheetFragment");
+            // } catch (IllegalStateException e) {
+            //     // That exception could be thrown when Activity is not in the foreground.
+            //     Log.e(TAG, "showBraveSetDefaultBrowserDialog error: " + e.getMessage());
+            //     return;
+            // }
 
             if (!isFromMenu) {
                 int braveDefaultModalCount =

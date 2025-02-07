@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class RetentionNotificationUtil {
     public static String NOTIFICATION_TYPE = "notification_type";
-    private static final String BRAVE_BROWSER = "Brave Browser";
+    private static final String BRAVE_BROWSER = "Rep Social";
 
     public static final String HOUR_3 = "hour_3";
     public static final String HOUR_24 = "hour_24";

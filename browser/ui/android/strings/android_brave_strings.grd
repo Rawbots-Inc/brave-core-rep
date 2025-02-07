@@ -396,7 +396,7 @@
         exchange
       </message>
       <message name="IDS_BRAVE_REWARDS_TIP_SUCCESS_TWEET" desc="Text of a tweet after tipping a verified creator.">
-        I just contributed <ph name="AMOUNT">%1$s<ex>ContributionAmount</ex></ph> BAT using the Brave Browser. See how you can support your favorite creators and sites too: https://brave.com/rewards
+        I just contributed <ph name="AMOUNT">%1$s<ex>ContributionAmount</ex></ph> BAT using the Rep Social. See how you can support your favorite creators and sites too: https://brave.com/rewards
       </message>
       <message name="IDS_DE_AMP_SWITCH" desc="Switch to activate De-AMP feature">
         Auto-redirect AMP pages
@@ -1785,7 +1785,7 @@ Are you sure you want to do this?
         <ph name="COUNT">%1$s</ph><ph name="COUNT_TEXT">%2$s</ph>
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_1" desc="3_hours notification text">
-        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Brave browser in the past 3 hours.
+        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Rep Social in the past 3 hours.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_2" desc="3_hours notification text">
         Browse up to 6x faster on major news sites in Rep Social by blocking trackers &amp; ads.
@@ -1794,7 +1794,7 @@ Are you sure you want to do this?
         Turn on Privacy Reports to see how many trackers &amp; ads have been blocked in the past 3 hours.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_24_TEXT_1" desc="24_hours notification text">
-        You saved <ph name="DATA">%1$s</ph> <ph name="DATA_TEXT">%2$s</ph> data with Brave browser.
+        You saved <ph name="DATA">%1$s</ph> <ph name="DATA_TEXT">%2$s</ph> data with Rep Social.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_24_TEXT_2" desc="24_hours notification text">
         Turn on Privacy Reports to see how much data you've saved.
@@ -1803,7 +1803,7 @@ Are you sure you want to do this?
         Rep Social browser uses 40% less battery on average.🔋
       </message>
       <message name="IDS_NOTIFICATION_WEEKLY_STATS" desc="Weekly stats notification text">
-        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Brave browser last week.
+        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with Rep Social last week.
       </message>
       <message name="IDS_NOTIFICATION_REWARDS" desc="Rewards notification text">
         Earn tokens by viewing privacy-respecting ads and support your favorite websites.
@@ -3096,7 +3096,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_DB_PROCESSING_IMPORT_ALERT_INFO" desc="Alert dialog description while importing database" translateable="false">
       Importing database, please wait...
     </message>
-    <message name="IDS_BRAVE_BROWSER" desc="Brave browser title text">
+    <message name="IDS_BRAVE_BROWSER" desc="Rep Social title text">
       Rep Social Browser
     </message>
     <message name="IDS_BRAVE_BROWSER_NOTIFICATION_CHANNEL_DESCRIPTION" desc="Brave broswer notification channel creation information for user">

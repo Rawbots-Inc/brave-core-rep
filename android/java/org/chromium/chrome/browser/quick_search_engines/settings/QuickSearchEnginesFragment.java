@@ -167,7 +167,7 @@ public class QuickSearchEnginesFragment extends BravePreferenceFragment
     public void onSearchEngineClick(int position, QuickSearchEnginesModel quickSearchEnginesModel) {
         updateQuickSearchEnginesInPref(quickSearchEnginesModel);
     }
-
+    @SuppressWarnings("UnusedVariable")
     private void updateQuickSearchEnginesInPref(QuickSearchEnginesModel quickSearchEnginesModel) {
         // Map<String, QuickSearchEnginesModel> searchEnginesMap =
                 // QuickSearchEnginesUtil.getQuickSearchEnginesFromPref();

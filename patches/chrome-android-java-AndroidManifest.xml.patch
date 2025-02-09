@@ -21,7 +21,6 @@ index 9bb1c95729a7a34b7099117d2e4cea37845e6fc4..0b6ad2791fb66ce9a6866386b47da0e3
      <uses-permission-sdk-23 android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
  
 @@ -79,11 +82,17 @@ by a child template that "extends" this file.
-     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:ignore="SystemPermissionTypo" />
      <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
  
 +<!--

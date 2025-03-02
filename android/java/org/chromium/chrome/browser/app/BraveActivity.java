@@ -130,6 +130,7 @@ import org.chromium.chrome.browser.crypto_wallet.activities.BraveWalletDAppsActi
 import org.chromium.chrome.browser.crypto_wallet.model.CryptoAccountTypeInfo;
 import org.chromium.chrome.browser.crypto_wallet.util.Utils;
 import org.chromium.chrome.browser.custom_layout.popup_window_tooltip.PopupWindowTooltip;
+import org.chromium.chrome.browser.custom_layout.popup_window_tooltip.PopupWindowTooltipCustom;
 import org.chromium.chrome.browser.customtabs.CustomTabActivity;
 import org.chromium.chrome.browser.flags.ChromeFeatureList;
 import org.chromium.chrome.browser.flags.ChromeSwitches;
@@ -1484,6 +1485,7 @@ public abstract class BraveActivity extends ChromeActivity
                                                                 && highlightView != null) {
                                                             viewGroup.removeView(highlightView);
                                                         }
+                                                        showSearchRewardTooltip();
                                                     })
                                             .modal(true)
                                             .contentView(R.layout.brave_onboarding_searchbox)
@@ -1505,6 +1507,50 @@ public abstract class BraveActivity extends ChromeActivity
                         },
                         500);
     }
+
+  private void showSearchRewardTooltip() {
+        OnboardingPrefManager.getInstance().setOnboardingSearchBoxTooltip(false);
+        HighlightView highlightView = new HighlightView(this, null);
+        highlightView.setColor(
+                ContextCompat.getColor(this, R.color.onboarding_search_highlight_color));
+        ViewGroup viewGroup = findViewById(android.R.id.content);
+        View anchorView = (View) findViewById(R.id.brave_rewards_button);
+        float padding = (float) dpToPx(this, 20);
+        boolean isTablet = ConfigurationUtils.isTablet(this);
+        new Handler()
+                .postDelayed(
+                        () -> {
+                            PopupWindowTooltipCustom popupWindowTooltip =
+                                    new PopupWindowTooltipCustom.Builder(this)
+                                            .anchorView(anchorView)
+                                            .arrowColor(getColor(R.color.onboarding_arrow_color))
+                                            .gravity(Gravity.BOTTOM)
+                                            .dismissOnOutsideTouch(true)
+                                            .dismissOnInsideTouch(false)
+                                            .backgroundDimDisabled(true)
+                                            .contentArrowAtStart(!isTablet)
+                                            .padding(padding)
+                                            .parentPaddingHorizontal(dpToPx(this, 10))
+                                            .onDismissListener(
+                                                    tooltip -> {
+                                                        if (viewGroup != null
+                                                                && highlightView != null) {
+                                                            viewGroup.removeView(highlightView);
+                                                        }
+                                                    })
+                                            .modal(true)
+                                            .contentView(R.layout.brave_onboarding_rep_social)
+                                            .build();
+
+                            viewGroup.addView(highlightView);
+                            HighlightItem item = new HighlightItem(anchorView);
+                            highlightView.setHighlightTransparent(true);
+                            highlightView.setHighlightItem(item);
+                            popupWindowTooltip.show();
+                        },
+                        500);
+    }
+
 
     public void setDormantUsersPrefs() {
         OnboardingPrefManager.getInstance().setDormantUsersPrefs();

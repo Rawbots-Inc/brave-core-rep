@@ -906,13 +906,13 @@
         Type a website name or URL
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING" desc="Text for searhbox tooltip onboarding">
-        With Rep Social, every webpage turns into a community hub.&#10; Click The rep logo extension, and post your thoughts on any webpage you wish.
+        With Rep Social, every webpage turns into a community hub.
       </message>
       <message name="IDS_SEARCHBOX_ONBOARDING_INDIA" desc="Text for searhbox tooltip onboarding for india">
         See the Rep Social difference: Block ads. Save data. Stream faster.
       </message>
       <message name="IDS_SHIELD_ONBOARDING" desc="Text for shield tooltip onboarding">
-        Tap to view Rep Social Shields
+        Click The rep logo extension, and post your thoughts on any webpage you wish.
       </message>
       <message name="IDS_SHIELD_TOOLTIP_DESC" desc="Text for shield tooltip description onboarding">
         See all the bad stuff Rep Social blocked, on every page, with Shields.

@@ -1297,8 +1297,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
     private void showRepSocial(String url) {
         String targetUrl = (url != null && !url.isEmpty())
-                ? "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url)
-                : "https://dev.rep.run?currentTabUrl=newtab";
+                ? "https://rep.run?currentTabUrl=" + transformToDesktopURL(url)
+                : "https://rep.run?currentTabUrl=newtab";
     //    Log.e(TAG, "URL " + transformToDesktopURL(url));
         CustomTabActivity.showInfoPage(getContext(), targetUrl);
 

@@ -1181,7 +1181,7 @@ public class BraveRewardsPanel
         if (mBraveActivity != null) {
             int deviceWidth = ConfigurationUtils.getDisplayMetrics(mBraveActivity).get("width");
             deviceWidth = (int) (mIsTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
-            RewardsOnboarding panel = new RewardsOnboarding(mAnchorView, deviceWidth);
+            RewardsOnboarding panel = new RewardsOnboarding(mAnchorView, deviceWidth, "");
             panel.showLikePopDownMenu();
         }
     }

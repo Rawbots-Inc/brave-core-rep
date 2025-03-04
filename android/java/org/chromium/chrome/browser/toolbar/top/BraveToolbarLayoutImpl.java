@@ -603,14 +603,14 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                     }
                 };
     }
-
-    private void showOnBoarding() {
+    @SuppressWarnings("UnusedVariable")
+    private void showOnBoarding(String url) {
         try {
             BraveActivity activity = BraveActivity.getBraveActivity();
             int deviceWidth = ConfigurationUtils.getDisplayMetrics(activity).get("width");
             boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
             deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
-            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth);
+            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth, url);
             panel.showLikePopDownMenu();
         } catch (BraveActivity.BraveActivityNotFoundException e) {
             Log.e(TAG, "RewardsOnboarding failed " + e);
@@ -1294,13 +1294,30 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             return mobileUrl; // Return the original URL if invalid format
         }
     }
-
+    @SuppressWarnings("UnusedVariable")
     private void showRepSocial(String url) {
-        String targetUrl = (url != null && !url.isEmpty())
-                ? "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url)
-                : "https://dev.rep.run?currentTabUrl=newtab";
-    //    Log.e(TAG, "URL " + transformToDesktopURL(url));
-        CustomTabActivity.showInfoPage(getContext(), targetUrl);
+        boolean isFirstClick = !ChromeSharedPreferences.getInstance()
+                      .readBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, false);
+        if (isFirstClick) {
+             Log.d(TAG, "Button Brave Rewards nhan lan dau tien");
+             ChromeSharedPreferences.getInstance()
+      .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+      String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
+    showOnBoarding(targetUrl);
+   
+  } else {
+    Log.d(TAG, "Button Brave Rewards ko phai dau dien");
+ String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
+    CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    
+
+  }
+         
+       
 
         // try {
         //     if (null == mRepSocialPopup) {

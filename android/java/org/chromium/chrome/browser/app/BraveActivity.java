@@ -1485,7 +1485,7 @@ public abstract class BraveActivity extends ChromeActivity
                                                                 && highlightView != null) {
                                                             viewGroup.removeView(highlightView);
                                                         }
-                                                        showSearchRewardTooltip();
+                                                        // showSearchRewardTooltip();
                                                     })
                                             .modal(true)
                                             .contentView(R.layout.brave_onboarding_searchbox)

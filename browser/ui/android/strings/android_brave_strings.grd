@@ -162,10 +162,10 @@
         Loading...
       </message>
       <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_TITLE" desc="Text for Earn tokens for private ads you see in Brave">
-        Earn tokens for private ads you see in Rep Social
+            Transform any webpage into a community with Rep Social
       </message>
       <message name="IDS_EARN_TOKENS_FOR_PRIVATE_ADS_DESCRIPTION" desc="Text for Use tokens to buy gift cards, exchange for other currencies, support content creators, and more.">
-        Use tokens to buy gift cards, exchange for other currencies, support content creators, and more.
+        Engage with real-time events and vibrant discussions, right where the content lives.
       </message>
       <message name="IDS_HOW_DOES_IT_WORK" desc="Text for How does it work">
         How does it work?
@@ -174,7 +174,7 @@
         How does Rep Social Rewards work?
       </message>
       <message name="IDS_START_USING_REWARDS" desc="Text for Start using Rewards">
-        Start using Rewards
+        Start using Rep Social
       </message>
       <message name="IDS_STILL_RECEIVE_CONTRIBUTIONS_FROM_WEB3" desc="Text for still send crypto contributions">
         \n\nYou can still send crypto contributions to this creator by using your Web3 wallet.
@@ -1872,7 +1872,7 @@ Are you sure you want to do this?
         Privacy Policy
       </message>
       <message name="IDS_BRAVE_REWARDS_ONBOARDING_TOS_TEXT" desc="Brave rewards onboarding tos text">
-        By enabling Rewards, you agree to the <ph name="TERMS_OF_SERVICE">%1$s</ph> and <ph name="PRIVACY_POLICY">%2$s</ph>.
+        By using Rep Social, you agree to the <ph name="TERMS_OF_SERVICE">%1$s</ph> and <ph name="PRIVACY_POLICY">%2$s</ph>.
       </message>
       <message name="IDS_TAKE_QUICK_TOUR" desc="Brave rewards quick tour text">
         Let’s take a quick tour

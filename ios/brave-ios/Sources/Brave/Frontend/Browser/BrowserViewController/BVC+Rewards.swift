@@ -33,48 +33,55 @@ extension BrowserViewController {
   }
 
   func showBraveRewardsPanel() {
-    if !Preferences.FullScreenCallout.rewardsCalloutCompleted.value,
-      Preferences.Onboarding.isNewRetentionUser.value == true,
-      !Preferences.Rewards.rewardsToggledOnce.value
-    {
+//    if !Preferences.FullScreenCallout.rewardsCalloutCompleted.value,
+//      Preferences.Onboarding.isNewRetentionUser.value == true,
+//      !Preferences.Rewards.rewardsToggledOnce.value
+//    {
+//
+//      let controller = OnboardingRewardsAgreementViewController()
+//      controller.onOnboardingStateChanged = { [weak self] controller, state in
+//        self?.completeOnboarding(controller)
+//      }
+//      controller.onRewardsStatusChanged = { [weak self] status in
+//        self?.rewards.isEnabled = status
+//      }
+//
+//      Preferences.FullScreenCallout.rewardsCalloutCompleted.value = true
+//      present(controller, animated: true)
+//      topToolbar.rewardsButton.iconState =
+//        Preferences.Rewards.rewardsToggledOnce.value
+//        ? (rewards.isEnabled || rewards.isTurningOnRewards ? .enabled : .disabled) : .initial
+//      return
+//    }
 
-      let controller = OnboardingRewardsAgreementViewController()
-      controller.onOnboardingStateChanged = { [weak self] controller, state in
-        self?.completeOnboarding(controller)
-      }
-      controller.onRewardsStatusChanged = { [weak self] status in
-        self?.rewards.isEnabled = status
-      }
-
-      Preferences.FullScreenCallout.rewardsCalloutCompleted.value = true
-      present(controller, animated: true)
-      topToolbar.rewardsButton.iconState =
-        Preferences.Rewards.rewardsToggledOnce.value
-        ? (rewards.isEnabled || rewards.isTurningOnRewards ? .enabled : .disabled) : .initial
-      return
-    }
-
-    updateRewardsButtonState()
-
-    guard let tab = tabManager.selectedTab else { return }
-
-    // System components sit on top so we want to dismiss it
-    tab.webView?.findInteraction?.dismissFindNavigator()
-
-    let braveRewardsPanel = BraveRewardsViewController(
-      tab: tab,
-      rewards: rewards
-    )
-    braveRewardsPanel.actionHandler = { [weak self] action in
-      switch action {
-      case .unverifiedPublisherLearnMoreTapped:
-        self?.loadNewTabWithRewardsURL(.brave.rewardsUnverifiedPublisherLearnMoreURL)
-      }
-    }
-
-    let popover = PopoverController(contentController: braveRewardsPanel)
-    popover.addsConvenientDismissalMargins = false
-    popover.present(from: topToolbar.rewardsButton, on: self)
+//    updateRewardsButtonState()
+//
+//    guard let tab = tabManager.selectedTab else { return }
+//
+//    // System components sit on top so we want to dismiss it
+//    tab.webView?.findInteraction?.dismissFindNavigator()
+//
+//    let braveRewardsPanel = BraveRewardsViewController(
+//      tab: tab,
+//      rewards: rewards
+//    )
+//    braveRewardsPanel.actionHandler = { [weak self] action in
+//      switch action {
+//      case .unverifiedPublisherLearnMoreTapped:
+//        self?.loadNewTabWithRewardsURL(.brave.rewardsUnverifiedPublisherLearnMoreURL)
+//      }
+//    }
+//
+//    let popover = PopoverController(contentController: braveRewardsPanel)
+//    popover.addsConvenientDismissalMargins = false
+//    popover.present(from: topToolbar.rewardsButton, on: self)
+//      let toc = RepSocialContentViewController().then { $0.url = .brave.termsOfUse }
+//      toc.navigationItem.title = Strings.termsOfUse
+//      self.navigationController?.pushViewController(toc, animated: true)
+      let webVC = RepViewController()
+      webVC.url = URL(string: "https://brave.com/terms-of-use")! // URL cần load
+      let navController = UINavigationController(rootViewController: webVC)
+      present(navController, animated: true)
   }
 
   @objc func resetNTPNotification() {

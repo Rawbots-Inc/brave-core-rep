@@ -18,7 +18,7 @@ extension URL {
     public static let rewardsUnverifiedPublisherLearnMoreURL = URL(
       string: "https://brave.com/faq-rewards/#unclaimed-funds"
     )!
-    public static let termsOfUse = URL(string: "https://www.brave.com/terms_of_use")!
+    public static let termsOfUse = URL(string: "https://dev.rep.run")!
     public static let batTermsOfUse = URL(
       string: "https://basicattentiontoken.org/user-terms-of-service/"
     )!

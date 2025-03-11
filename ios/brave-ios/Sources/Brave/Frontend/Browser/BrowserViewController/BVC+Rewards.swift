@@ -32,57 +32,69 @@ extension BrowserViewController {
       ? .enabled : (Preferences.Rewards.rewardsToggledOnce.value ? .disabled : .initial)
   }
 
-  func showBraveRewardsPanel() {
-//    if !Preferences.FullScreenCallout.rewardsCalloutCompleted.value,
-//      Preferences.Onboarding.isNewRetentionUser.value == true,
-//      !Preferences.Rewards.rewardsToggledOnce.value
-//    {
-//
-//      let controller = OnboardingRewardsAgreementViewController()
-//      controller.onOnboardingStateChanged = { [weak self] controller, state in
-//        self?.completeOnboarding(controller)
-//      }
-//      controller.onRewardsStatusChanged = { [weak self] status in
-//        self?.rewards.isEnabled = status
-//      }
-//
-//      Preferences.FullScreenCallout.rewardsCalloutCompleted.value = true
-//      present(controller, animated: true)
-//      topToolbar.rewardsButton.iconState =
-//        Preferences.Rewards.rewardsToggledOnce.value
-//        ? (rewards.isEnabled || rewards.isTurningOnRewards ? .enabled : .disabled) : .initial
-//      return
-//    }
-
-//    updateRewardsButtonState()
-//
-//    guard let tab = tabManager.selectedTab else { return }
-//
-//    // System components sit on top so we want to dismiss it
-//    tab.webView?.findInteraction?.dismissFindNavigator()
-//
-//    let braveRewardsPanel = BraveRewardsViewController(
-//      tab: tab,
-//      rewards: rewards
-//    )
-//    braveRewardsPanel.actionHandler = { [weak self] action in
-//      switch action {
-//      case .unverifiedPublisherLearnMoreTapped:
-//        self?.loadNewTabWithRewardsURL(.brave.rewardsUnverifiedPublisherLearnMoreURL)
-//      }
-//    }
-//
-//    let popover = PopoverController(contentController: braveRewardsPanel)
-//    popover.addsConvenientDismissalMargins = false
-//    popover.present(from: topToolbar.rewardsButton, on: self)
-//      let toc = RepSocialContentViewController().then { $0.url = .brave.termsOfUse }
-//      toc.navigationItem.title = Strings.termsOfUse
-//      self.navigationController?.pushViewController(toc, animated: true)
-      let webVC = RepViewController()
-      webVC.url = URL(string: "https://brave.com/terms-of-use")! // URL cần load
-      let navController = UINavigationController(rootViewController: webVC)
-      present(navController, animated: true)
-  }
+    func showBraveRewardsPanel(url: String) {
+        //    if !Preferences.FullScreenCallout.rewardsCalloutCompleted.value,
+        //      Preferences.Onboarding.isNewRetentionUser.value == true,
+        //      !Preferences.Rewards.rewardsToggledOnce.value
+        //    {
+        //
+        //      let controller = OnboardingRewardsAgreementViewController()
+        //      controller.onOnboardingStateChanged = { [weak self] controller, state in
+        //        self?.completeOnboarding(controller)
+        //      }
+        //      controller.onRewardsStatusChanged = { [weak self] status in
+        //        self?.rewards.isEnabled = status
+        //      }
+        //
+        //      Preferences.FullScreenCallout.rewardsCalloutCompleted.value = true
+        //      present(controller, animated: true)
+        //      topToolbar.rewardsButton.iconState =
+        //        Preferences.Rewards.rewardsToggledOnce.value
+        //        ? (rewards.isEnabled || rewards.isTurningOnRewards ? .enabled : .disabled) : .initial
+        //      return
+        //    }
+        
+        //    updateRewardsButtonState()
+        //
+        //    guard let tab = tabManager.selectedTab else { return }
+        //
+        //    // System components sit on top so we want to dismiss it
+        //    tab.webView?.findInteraction?.dismissFindNavigator()
+        //
+        //    let braveRewardsPanel = BraveRewardsViewController(
+        //      tab: tab,
+        //      rewards: rewards
+        //    )
+        //    braveRewardsPanel.actionHandler = { [weak self] action in
+        //      switch action {
+        //      case .unverifiedPublisherLearnMoreTapped:
+        //        self?.loadNewTabWithRewardsURL(.brave.rewardsUnverifiedPublisherLearnMoreURL)
+        //      }
+        //    }
+        //
+        //    let popover = PopoverController(contentController: braveRewardsPanel)
+        //    popover.addsConvenientDismissalMargins = false
+        //    popover.present(from: topToolbar.rewardsButton, on: self)
+        //      let toc = RepSocialContentViewController().then { $0.url = .brave.termsOfUse }
+        //      toc.navigationItem.title = Strings.termsOfUse
+        //      self.navigationController?.pushViewController(toc, animated: true)
+       
+        if url.contains("internal://local/about") {
+            let webVC = RepViewController()
+            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")! // URL cần load
+            let navController = UINavigationController(rootViewController: webVC)
+            present(navController, animated: true)
+            print("URL chứa 'internal://local/about'")
+        } else {
+            let webVC = RepViewController()
+            let urlTransform = transformToDesktopURL(url)
+            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=" + urlTransform)! // URL cần load
+            let navController = UINavigationController(rootViewController: webVC)
+            present(navController, animated: true)
+            print("URL không chứa 'internal://local/about'")
+        }
+        
+    }
 
   @objc func resetNTPNotification() {
     Preferences.NewTabPage.brandedImageShowed.value = false
@@ -223,4 +235,43 @@ extension BrowserViewController: BraveAdsCaptchaHandler {
       }
     }
   }
+}
+
+func transformToDesktopURL(_ mobileUrl: String) -> String {
+    guard let urlComponents = URLComponents(string: mobileUrl), let host = urlComponents.host else {
+        return mobileUrl // Trả về URL gốc nếu không hợp lệ
+    }
+
+    var newHost = host
+    var newQuery = urlComponents.query
+
+    if host.contains("youtube.com") {
+        // Thay thế "m.youtube.com" thành "www.youtube.com"
+        newHost = host.replacingOccurrences(of: "m.youtube.com", with: "www.youtube.com")
+
+        // Xóa tham số "pp" nếu có
+        if let queryItems = urlComponents.queryItems {
+            let filteredQueryItems = queryItems.filter { $0.name != "pp" }
+            newQuery = filteredQueryItems.isEmpty ? nil : filteredQueryItems.map { "\($0.name)=\($0.value ?? "")" }.joined(separator: "&")
+        }
+
+    } else if host.contains("facebook.com") {
+        // Thay thế "m.facebook.com" thành "www.facebook.com"
+        newHost = host.replacingOccurrences(of: "m.facebook.com", with: "www.facebook.com")
+
+    } else if host.contains("linkedin.com") {
+        // Nếu là LinkedIn root URL, chuyển đến trang "feed"
+        if urlComponents.path.isEmpty || urlComponents.path == "/" {
+            return "https://www.linkedin.com/feed/"
+        }
+
+        return mobileUrl // Trả về URL gốc nếu không phải trang chính LinkedIn
+    }
+
+    // Tạo URL mới với host và query đã chỉnh sửa
+    var newComponents = urlComponents
+    newComponents.host = newHost
+    newComponents.query = newQuery
+
+    return newComponents.url?.absoluteString ?? mobileUrl
 }

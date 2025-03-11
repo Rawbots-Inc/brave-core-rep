@@ -585,7 +585,9 @@ extension BrowserViewController: TopToolbarDelegate {
   }
 
   func topToolbarDidTapBraveRewardsButton(_ topToolbar: TopToolbarView) {
-    showBraveRewardsPanel()
+      guard let selectedTab = tabManager.selectedTab, var url = selectedTab.url else { return }
+        print("lllllll " + url.absoluteString)
+      showBraveRewardsPanel(url: url.absoluteString)
   }
 
   func topToolbarDidTapMenuButton(_ topToolbar: TopToolbarView) {

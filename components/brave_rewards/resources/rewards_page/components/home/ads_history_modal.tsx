@@ -9,7 +9,6 @@ import ButtonMenu from '@brave/leo/react/buttonMenu'
 
 import { TabOpenerContext } from '../../../shared/components/new_tab_link'
 import { useLocaleContext } from '../../lib/locale_strings'
-import { useCallbackWrapper } from '../../lib/callback_wrapper'
 import { AdsHistoryItem } from '../../lib/app_state'
 import { AppModelContext } from '../../lib/app_model_context'
 import { Modal } from '../modal'
@@ -61,13 +60,12 @@ export function AdsHistoryModal(props: Props) {
   const { getString } = useLocaleContext()
   const model = React.useContext(AppModelContext)
   const tabOpener = React.useContext(TabOpenerContext)
-  const wrapCallback = useCallbackWrapper()
 
   const [adsHistory, setAdsHistory] =
     React.useState<AdsHistoryItem[] | null>(null)
 
   React.useEffect(() => {
-    model.getAdsHistory().then(wrapCallback(setAdsHistory))
+    model.getAdsHistory().then(setAdsHistory)
   }, [model])
 
   const groups = groupItems(adsHistory || [])
@@ -78,7 +76,7 @@ export function AdsHistoryModal(props: Props) {
 
     // An action that updates a single Ad history item may have an effect on
     // other history items. Update the Ads history to pick up these changes.
-    model.getAdsHistory().then(wrapCallback(setAdsHistory))
+    model.getAdsHistory().then(setAdsHistory)
   }
 
   function toggleLike(item: AdsHistoryItem) {
@@ -172,7 +170,7 @@ export function AdsHistoryModal(props: Props) {
         title={getString('adsHistoryTitle')}
         onClose={props.onClose}
       />
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         {renderHistory()}
       </div>
     </Modal>

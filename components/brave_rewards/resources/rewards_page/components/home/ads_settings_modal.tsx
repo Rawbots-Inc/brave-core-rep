@@ -34,10 +34,8 @@ export function AdsSettingsModal(props: Props) {
   const model = React.useContext(AppModelContext)
   const { getString } = useLocaleContext()
 
-  const [adsInfo, externalWallet] = useAppState((state) => [
-    state.adsInfo,
-    state.externalWallet
-  ])
+  const adsInfo = useAppState((state) => state.adsInfo)
+  const externalWallet = useAppState((state) => state.externalWallet)
 
   if (!adsInfo) {
     return null
@@ -120,7 +118,7 @@ export function AdsSettingsModal(props: Props) {
         title={getString('adsSettingsTitle')}
         onClose={props.onClose}
       />
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         {
           externalWallet &&
             <p className='description'>

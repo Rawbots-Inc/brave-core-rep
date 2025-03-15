@@ -5,6 +5,7 @@
 
 import BraveCore
 import BraveShared
+import Data
 import Foundation
 import Preferences
 import Shared
@@ -43,6 +44,13 @@ protocol TabWebDelegate: AnyObject {
     proposedCredential credential: URLCredential?,
     previousFailureCount: Int
   ) async -> URLCredential?
+  func tab(
+    _ tab: Tab,
+    createNewTabWithRequest request: URLRequest,
+    configuration: WKWebViewConfiguration
+  ) -> Tab?
+  func tab(_ tab: Tab, shouldBlockJavaScriptForRequest request: URLRequest) -> Bool
+  func tab(_ tab: Tab, shouldBlockUniversalLinksForRequest request: URLRequest) -> Bool
 }
 
 /// Media device capture types that a web page may request
@@ -102,6 +110,14 @@ extension TabWebDelegate {
     previousFailureCount: Int
   ) async -> URLCredential? {
     return nil
+  }
+
+  func tab(_ tab: Tab, shouldBlockJavaScriptForRequest request: URLRequest) -> Bool {
+    return false
+  }
+
+  func tab(_ tab: Tab, shouldBlockUniversalLinksForRequest request: URLRequest) -> Bool {
+    return false
   }
 }
 
@@ -219,7 +235,7 @@ extension BrowserViewController: TabWebDelegate {
             let touchPoint = braveWebView.lastHitPoint
             let touchRect = CGRect(origin: touchPoint, size: .zero)
 
-            // TODO: Find a way to add fixes #3323 and #2961 here:
+            // TODO: Find a way to add fixes brave-ios#3323 and brave-ios#2961 here:
             // Normally we use `tab.temporaryDocument` for the downloaded file on the tab.
             // `temporaryDocument` returns the downloaded file to disk on the current tab.
             // Using a downloaded file url results in having functions like "Save to files" available.
@@ -277,7 +293,9 @@ extension BrowserViewController: TabWebDelegate {
     _ tab: Tab,
     requestMediaCapturePermissionsFor type: WebMediaCaptureType
   ) async -> WebPermissionDecision {
-    guard let origin = tab.committedURL?.origin else { return .deny }
+    guard let origin = tab.committedURL?.origin, tab === tabManager.selectedTab else {
+      return .deny
+    }
 
     let presentAlert: (CheckedContinuation<WebPermissionDecision, Never>) -> Void = {
       [weak self] contination in
@@ -340,7 +358,9 @@ extension BrowserViewController: TabWebDelegate {
   }
 
   func tab(_ tab: Tab, runJavaScriptAlertPanelWithMessage message: String, pageURL: URL) async {
-    guard case let origin = pageURL.origin, !origin.isOpaque else { return }
+    guard case let origin = pageURL.origin, !origin.isOpaque, tab === tabManager.selectedTab else {
+      return
+    }
     await withCheckedContinuation { continuation in
       let completionHandler: () -> Void = {
         continuation.resume()
@@ -362,7 +382,9 @@ extension BrowserViewController: TabWebDelegate {
     runJavaScriptConfirmPanelWithMessage message: String,
     pageURL: URL
   ) async -> Bool {
-    guard case let origin = pageURL.origin, !origin.isOpaque else { return false }
+    guard case let origin = pageURL.origin, !origin.isOpaque, tab === tabManager.selectedTab else {
+      return false
+    }
     return await withCheckedContinuation { continuation in
       let completionHandler: (Bool) -> Void = { result in
         continuation.resume(returning: result)
@@ -385,7 +407,9 @@ extension BrowserViewController: TabWebDelegate {
     defaultText: String?,
     pageURL: URL
   ) async -> String? {
-    guard case let origin = pageURL.origin, !origin.isOpaque else { return nil }
+    guard case let origin = pageURL.origin, !origin.isOpaque, tab === tabManager.selectedTab else {
+      return nil
+    }
     return await withCheckedContinuation { continuation in
       let completionHandler: (String?) -> Void = { result in
         continuation.resume(returning: result)
@@ -401,6 +425,31 @@ extension BrowserViewController: TabWebDelegate {
         completionHandler(nil)
       }
     }
+  }
+
+  func tab(_ tab: Tab, shouldBlockJavaScriptForRequest request: URLRequest) -> Bool {
+    guard let documentTargetURL = request.mainDocumentURL else { return false }
+    let domainForShields = Domain.getOrCreate(
+      forUrl: documentTargetURL,
+      persistent: !tab.isPrivate
+    )
+    return domainForShields.isShieldExpected(.noScript, considerAllShieldsOption: true)
+  }
+
+  func tab(_ tab: Tab, shouldBlockUniversalLinksForRequest request: URLRequest) -> Bool {
+    func isYouTubeLoad() -> Bool {
+      guard let domain = request.mainDocumentURL?.baseDomain else {
+        return false
+      }
+      let domainsWithUniversalLinks: Set<String> = ["youtube.com", "youtu.be"]
+      return domainsWithUniversalLinks.contains(domain)
+    }
+    if tab.isPrivate || !Preferences.General.followUniversalLinks.value
+      || (Preferences.General.keepYouTubeInBrave.value && isYouTubeLoad())
+    {
+      return true
+    }
+    return false
   }
 }
 
@@ -571,5 +620,50 @@ extension BrowserViewController {
     } catch {
       return nil
     }
+  }
+
+  func tab(
+    _ tab: Tab,
+    createNewTabWithRequest request: URLRequest,
+    configuration: WKWebViewConfiguration
+  ) -> Tab? {
+    guard !request.isInternalUnprivileged,
+      let navigationURL = request.url,
+      navigationURL.shouldRequestBeOpenedAsPopup()
+    else {
+      print("Denying popup from request: \(request)")
+      return nil
+    }
+
+    if let currentTab = tabManager.selectedTab {
+      screenshotHelper.takeScreenshot(currentTab)
+    }
+
+    // If the page uses `window.open()` or `[target="_blank"]`, open the page in a new tab.
+    // IMPORTANT!!: WebKit will perform the `URLRequest` automatically!! Attempting to do
+    // the request here manually leads to incorrect results!!
+    let newTab = tabManager.addPopupForParentTab(tab, configuration: configuration)
+
+    newTab.setVirtualURL(URL(string: "about:blank"))
+
+    toolbarVisibilityViewModel.toolbarState = .expanded
+
+    // Wait until WebKit starts the request before selecting the new tab, otherwise the tab manager may
+    // restore it as if it was a dead tab.
+    var observation: NSKeyValueObservation?
+    observation = newTab.webView?.observe(
+      \.url,
+      changeHandler: { [weak self, weak newTab] webView, _ in
+        _ = observation  // Silence write but not read warning
+        observation = nil
+        guard let self = self, let tab = newTab else { return }
+
+        // When a child tab is being selected, dismiss any popups on the parent tab
+        tab.parent?.shownPromptAlert?.dismiss(animated: false)
+        self.tabManager.selectTab(tab)
+      }
+    )
+
+    return newTab
   }
 }

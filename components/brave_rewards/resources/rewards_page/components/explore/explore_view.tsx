@@ -12,17 +12,18 @@ import { useBreakpoint } from '../../lib/breakpoint'
 import { BatUtilityCard } from './bat_utility_card'
 import { CommunityCard } from './community_card'
 import { MerchStoreCard } from './merch_store_card'
+import { PartnerPromoCard } from './partner_promo_card'
 
 import { style } from './explore_view.style'
 
 export function ExploreView() {
   const { getString } = useLocaleContext()
   const viewType = useBreakpoint()
-  const [cards] = useAppState((state) => [state.cards])
+  const cards = useAppState((state) => state.cards)
 
   if (!cards) {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <div className='loading'>
           <ProgressRing />
         </div>
@@ -32,14 +33,15 @@ export function ExploreView() {
 
   if (viewType === 'double') {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <h3>{getString('navigationExploreLabel')}</h3>
         <div className='columns'>
           <div>
+            <PartnerPromoCard />
             <MerchStoreCard />
-            <BatUtilityCard />
           </div>
           <div>
+            <BatUtilityCard />
             <CommunityCard />
           </div>
         </div>
@@ -48,8 +50,9 @@ export function ExploreView() {
   }
 
   return (
-    <div {...style}>
+    <div data-css-scope={style.scope}>
       <h3>{getString('navigationExploreLabel')}</h3>
+      <PartnerPromoCard />
       <MerchStoreCard />
       <BatUtilityCard />
       <CommunityCard />

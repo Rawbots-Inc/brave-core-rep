@@ -45,17 +45,10 @@ export function PaymentForm(props: Props) {
   const model = React.useContext(AppModelContext)
   const tabOpener = React.useContext(TabOpenerContext)
 
-  const [
-    creator,
-    externalWallet,
-    parameters,
-    balance
-  ] = useAppState((state) => [
-    state.currentCreator,
-    state.externalWallet,
-    state.rewardsParameters,
-    state.balance
-  ])
+  const creator = useAppState((state) => state.currentCreator)
+  const externalWallet = useAppState((state) => state.externalWallet)
+  const parameters = useAppState((state) => state.rewardsParameters)
+  const balance = useAppState((state) => state.balance)
 
   const [selectedOption, setSelectedOption] = React.useState(0)
   const [customAmountText, setCustomAmountText] = React.useState('')
@@ -152,7 +145,7 @@ export function PaymentForm(props: Props) {
     const providerName = getExternalWalletProviderName(provider)
     const { web3URL } = creator.banner
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         {renderBalance()}
         <div className='reconnect'>
           <Icon name='warning-triangle-filled' />
@@ -201,7 +194,7 @@ export function PaymentForm(props: Props) {
   }
 
   return (
-    <div {...style}>
+    <div data-css-scope={style.scope}>
       {renderBalance()}
       <div>
         <div className='form-header'>
@@ -265,6 +258,7 @@ export function PaymentForm(props: Props) {
       </div>
       <div className='actions'>
         <Button
+          className='send-button'
           isDisabled={isSendDisabled()}
           onClick={() => props.onSend(sendValue, isRecurring)}
         >

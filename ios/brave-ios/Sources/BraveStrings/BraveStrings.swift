@@ -1932,17 +1932,6 @@ extension Strings {
   }
 }
 
-// MARK:-  SettingsContentViewController.swift
-extension Strings {
-  public static let settingsContentLoadErrorMessage = NSLocalizedString(
-    "SettingsContentLoadErrorMessage",
-    tableName: "BraveShared",
-    bundle: .module,
-    value: "Could not load page.",
-    comment: "Error message that is shown in settings when there was a problem loading"
-  )
-}
-
 // MARK:-  SearchInputView.swift
 extension Strings {
   public static let searchInputViewTextFieldAccessibilityLabel = NSLocalizedString(
@@ -2734,7 +2723,7 @@ extension Strings {
     "TranslatePage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Translate",
+    value: "Translate Page",
     comment: "Title of an action that allows the user to translate the current web-page to another language"
   )
   public static let findInPage = NSLocalizedString(

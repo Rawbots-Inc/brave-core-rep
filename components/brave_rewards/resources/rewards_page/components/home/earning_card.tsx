@@ -25,11 +25,9 @@ export function EarningCard() {
   const connectAccount = useConnectAccountRouter()
   const { getString } = useLocaleContext()
 
-  const [externalWallet, adsInfo, isBubble] = useAppState((state) => [
-    state.externalWallet,
-    state.adsInfo,
-    state.embedder.isBubble
-  ])
+  const externalWallet = useAppState((state) => state.externalWallet)
+  const adsInfo = useAppState((state) => state.adsInfo)
+  const isBubble = useAppState((state) => state.embedder.isBubble)
 
   const [showAdDetails, setShowAdDetails] = React.useState(!isBubble)
   const [showAdsSettingsModal, setShowAdsSettingsModal] = React.useState(false)
@@ -70,7 +68,7 @@ export function EarningCard() {
 
   function renderLimited() {
     return (
-      <div className='content-card' {...style}>
+      <div className='content-card' data-css-scope={style.scope}>
         <div className='counter'>
           <img alt='BAT' src={batCoinGray} />
           <div className='counter-text'>
@@ -175,7 +173,7 @@ export function EarningCard() {
 
   function renderConnected() {
     return (
-      <div className='content-card' {...style}>
+      <div className='content-card' data-css-scope={style.scope}>
         <PayoutStatusView />
         <div className='counter'>
           <img alt='BAT' src={batCoinColor} />

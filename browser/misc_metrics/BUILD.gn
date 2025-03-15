@@ -80,6 +80,7 @@ source_set("unit_tests") {
     "//brave/browser",
     "//brave/browser/misc_metrics",
     "//brave/browser/misc_metrics:misc_metrics_impl",
+    "//brave/components/brave_rewards/core",
     "//brave/components/misc_metrics",
     "//chrome/browser",
     "//chrome/browser/content_settings:content_settings_factory",
@@ -94,6 +95,7 @@ source_set("unit_tests") {
   if (!is_android) {
     sources += [
       "extension_metrics_unittest.cc",
+      "profile_new_tab_metrics_unittest.cc",
       "theme_metrics_unittest.cc",
     ]
 

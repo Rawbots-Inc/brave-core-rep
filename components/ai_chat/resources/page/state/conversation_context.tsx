@@ -22,6 +22,8 @@ export interface CharCountContext {
   inputTextCharCountDisplay: string
 }
 
+export type UploadedImageData = Mojom.UploadedImage
+
 export type ConversationContext = SendFeedbackState & CharCountContext & {
   historyInitialized: boolean
   conversationUuid?: string
@@ -32,8 +34,6 @@ export type ConversationContext = SendFeedbackState & CharCountContext & {
   suggestedQuestions: string[]
   isGenerating: boolean
   suggestionStatus: Mojom.SuggestionGenerationStatus
-  faviconUrl?: string
-  faviconCacheKey?: string
   currentError: Mojom.APIError | undefined
   apiHasError: boolean
   shouldDisableUserInput: boolean
@@ -64,6 +64,9 @@ export type ConversationContext = SendFeedbackState & CharCountContext & {
 
   showAttachments: boolean
   setShowAttachments: (show: boolean) => void
+  uploadImage: () => void
+  removeImage: (index: number) => void
+  pendingMessageImages: Mojom.UploadedImage[] | null
 }
 
 export const defaultCharCountContext: CharCountContext = {
@@ -105,6 +108,9 @@ const defaultContext: ConversationContext = {
   setIsToolsMenuOpen: () => { },
   showAttachments: false,
   setShowAttachments: () => { },
+  uploadImage: () => { },
+  removeImage: () => { },
+  pendingMessageImages: null,
   ...defaultSendFeedbackState,
   ...defaultCharCountContext
 }
@@ -287,13 +293,6 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     )
     listenerIds.push(id)
 
-    id = callbackRouter.onFaviconImageDataChanged.addListener(() =>
-      setPartialContext({
-        faviconCacheKey: new Date().getTime().toFixed(0)
-      })
-    )
-    listenerIds.push(id)
-
     id = callbackRouter.onConversationDeleted.addListener(() => {
       // TODO(petemill): Show deleted UI
       console.debug('DELETED')
@@ -307,23 +306,6 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
       }
     }
   }, [conversationHandler, callbackRouter])
-
-  // Update favicon
-  React.useEffect(() => {
-    if (!context.conversationUuid || !aiChatContext.uiHandler) {
-      return
-    }
-    aiChatContext.uiHandler.getFaviconImageData(context.conversationUuid)
-      .then(({ faviconImageData }) => {
-        if (!faviconImageData) {
-          return
-        }
-        const blob = new Blob([new Uint8Array(faviconImageData)], { type: 'image/*' })
-        setPartialContext({
-          faviconUrl: URL.createObjectURL(blob)
-        })
-      })
-  }, [context.conversationUuid, context.faviconCacheKey])
 
   // Update the location when the visible conversation changes
   const isVisible = useIsConversationVisible(context.conversationUuid)
@@ -473,11 +455,14 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
         context.selectedActionType
       )
     } else {
-      conversationHandler.submitHumanConversationEntry(context.inputText)
+      conversationHandler.submitHumanConversationEntry(
+        context.inputText,
+        context.pendingMessageImages)
     }
 
     setPartialContext({
-      inputText: ''
+      inputText: '',
+      pendingMessageImages: null
     })
     resetSelectedActionType()
   }
@@ -521,6 +506,33 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     aiChatContext.uiHandler?.handleVoiceRecognition(context.conversationUuid)
   }
 
+  const uploadImage = () => {
+    if (!context.conversationUuid) {
+      console.error('No conversationUuid found')
+      return
+    }
+    // For now we only allow uploading 1 image per conversation.
+    if (context.pendingMessageImages) {
+      setPartialContext({
+        pendingMessageImages: null
+      })
+    }
+    aiChatContext.uiHandler?.uploadImage(context.conversationUuid)
+    .then(({uploadedImage}) => {
+      if (uploadedImage) {
+        setPartialContext({
+          pendingMessageImages: [uploadedImage]
+        })
+      }
+    })
+  }
+
+  const removeImage = (index: number) => {
+    setPartialContext({
+      pendingMessageImages: null
+    })
+  }
+
   const store: ConversationContext = {
     ...context,
     ...sendFeedbackState,
@@ -549,6 +561,8 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     switchToBasicModel,
     setIsToolsMenuOpen: (isToolsMenuOpen) => setPartialContext({ isToolsMenuOpen }),
     handleVoiceRecognition,
+    uploadImage,
+    removeImage,
     conversationHandler
   }
 

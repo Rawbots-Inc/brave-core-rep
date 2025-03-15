@@ -32,11 +32,9 @@ export function RecurringContributionCard() {
   const { getString } = useLocaleContext()
   const model = React.useContext(AppModelContext)
 
-  const [externalWallet, contributions, parameters] = useAppState((state) => [
-    state.externalWallet,
-    state.recurringContributions,
-    state.rewardsParameters
-  ])
+  const externalWallet = useAppState((state) => state.externalWallet)
+  const contributions = useAppState((state) => state.recurringContributions)
+  const parameters = useAppState((state) => state.rewardsParameters)
 
   const [showAll, setShowAll] = React.useState(false)
 
@@ -120,7 +118,7 @@ export function RecurringContributionCard() {
   }
 
   return (
-    <div className='content-card' {...style}>
+    <div className='content-card' data-css-scope={style.scope}>
       <h4>{getString('recurringTitle')}</h4>
       <section>
         {renderList()}

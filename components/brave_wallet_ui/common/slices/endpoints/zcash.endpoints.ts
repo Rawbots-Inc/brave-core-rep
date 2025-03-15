@@ -194,7 +194,14 @@ export const zcashEndpoints = ({
       },
       invalidatesTags: ['IsSyncInProgress']
     }),
-
+    clearChainTipStatusCache: mutation<true, void>({
+      queryFn: async (_args, { endpoint }, _extraOptions, baseQuery) => {
+          return {
+            data: true
+          }
+      },
+      invalidatesTags: ['ZcashChainTipStatus']
+    }),
     stopShieldSync: mutation<true, BraveWallet.AccountId>({
       queryFn: async (args, { endpoint }, _extraOptions, baseQuery) => {
         try {
@@ -221,7 +228,7 @@ export const zcashEndpoints = ({
           )
         }
       },
-      invalidatesTags: ['ZcashChainTipStatus', 'IsSyncInProgress']
+      invalidatesTags: ['ZcashChainTipStatus', 'IsSyncInProgress', 'TokenBalances']
     }),
 
     getIsSyncInProgress: query<boolean, BraveWallet.AccountId>({

@@ -17,6 +17,7 @@ import { ExploreView } from './explore/explore_view'
 import { Onboarding } from './onboarding/onboarding'
 import { OnboardingSuccessModal } from './onboarding/onboarding_success_modal'
 import { ConnectAccount } from './connect_account'
+import { UnsupportedRegionView } from './unsupported_region_view'
 import { AuthorizationModal } from './authorization_modal'
 import { CaptchaModal } from './captcha_modal'
 import { ContributeModal } from './contribute/contribute_modal'
@@ -34,21 +35,13 @@ export function App() {
   const model = React.useContext(AppModelContext)
   const eventHub = React.useContext(EventHubContext)
 
-  const [
-    loading,
-    embedder,
-    paymentId,
-    tosUpdateRequired,
-    captchaInfo,
-    notifications,
-  ] = useAppState((state) => [
-    state.loading,
-    state.embedder,
-    state.paymentId,
-    state.tosUpdateRequired,
-    state.captchaInfo,
-    state.notifications
-  ])
+  const loading = useAppState((state) => state.loading)
+  const isUnsupportedRegion = useAppState((state) => state.isUnsupportedRegion)
+  const embedder = useAppState((state) => state.embedder)
+  const paymentId = useAppState((state) => state.paymentId)
+  const tosUpdateRequired = useAppState((state) => state.tosUpdateRequired)
+  const captchaInfo = useAppState((state) => state.captchaInfo)
+  const notifications = useAppState((state) => state.notifications)
 
   const viewType = useBreakpoint()
 
@@ -187,6 +180,10 @@ export function App() {
       )
     }
 
+    if (isUnsupportedRegion) {
+      return <UnsupportedRegionView />
+    }
+
     if (!paymentId) {
       return (
         <Onboarding
@@ -215,7 +212,7 @@ export function App() {
   }
 
   return (
-    <div className={getClassNames()} ref={onMount} {...style}>
+    <div className={getClassNames()} ref={onMount} data-css-scope={style.scope}>
       <AppErrorBoundary>
         {renderContent()}
       </AppErrorBoundary>

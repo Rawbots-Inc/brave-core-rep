@@ -255,7 +255,10 @@ class ConversationHandler : public mojom::ConversationHandler,
   void GetModels(GetModelsCallback callback) override;
   void ChangeModel(const std::string& model_key) override;
   void GetIsRequestInProgress(GetIsRequestInProgressCallback callback) override;
-  void SubmitHumanConversationEntry(const std::string& input) override;
+  void SubmitHumanConversationEntry(
+      const std::string& input,
+      std::optional<std::vector<mojom::UploadedImagePtr>> uploaded_images)
+      override;
   void SubmitHumanConversationEntry(mojom::ConversationTurnPtr turn);
   void SubmitHumanConversationEntryWithAction(
       const std::string& input,
@@ -288,7 +291,6 @@ class ConversationHandler : public mojom::ConversationHandler,
                                   mojom::ActionType action_type,
                                   mojom::APIError error);
   void OnAssociatedContentTitleChanged();
-  void OnFaviconImageDataChanged();
   void OnUserOptedIn();
   size_t GetConversationHistorySize() override;
 
@@ -428,7 +430,6 @@ class ConversationHandler : public mojom::ConversationHandler,
   void OnConversationTitleChanged(std::string_view title);
   void OnConversationUIConnectionChanged(mojo::RemoteSetElementId id);
   void OnSelectedLanguageChanged(const std::string& selected_language);
-  void OnAssociatedContentFaviconImageDataChanged();
   void OnAPIRequestInProgressChanged();
   void OnStateForConversationEntriesChanged();
 

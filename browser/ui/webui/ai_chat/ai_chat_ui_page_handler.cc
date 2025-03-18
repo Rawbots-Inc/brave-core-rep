@@ -26,6 +26,7 @@
 #include "chrome/browser/favicon/favicon_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_finder.h"
+#include "chrome/browser/ui/chrome_select_file_policy.h"
 #include "chrome/browser/ui/singleton_tabs.h"
 #include "chrome/browser/ui/tabs/public/tab_interface.h"
 #include "components/favicon/core/favicon_service.h"
@@ -45,7 +46,6 @@
 #endif
 
 namespace {
-constexpr uint32_t kDesiredFaviconSizePixels = 32;
 constexpr char kURLRefreshPremiumSession[] =
     "https://account.brave.com/?intent=recover&product=leo";
 constexpr char kURLLearnMoreAboutStorage[] =
@@ -144,8 +144,6 @@ AIChatUIPageHandler::AIChatUIPageHandler(
       receiver_(this, std::move(receiver)) {
   // Standalone mode means Chat is opened as its own tab in the tab strip and
   // not a side panel. chat_context_web_contents is nullptr in that case
-  favicon_service_ = FaviconServiceFactory::GetForProfile(
-      profile_, ServiceAccessType::EXPLICIT_ACCESS);
   const bool is_standalone = chat_context_web_contents == nullptr;
   if (!is_standalone) {
 #if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
@@ -174,6 +172,17 @@ void AIChatUIPageHandler::ShowSoftKeyboard() {
 #if BUILDFLAG(IS_ANDROID)
   ai_chat::HandleShowSoftKeyboard(owner_web_contents_.get());
 #endif
+}
+
+void AIChatUIPageHandler::UploadImage(const std::string& conversation_uuid,
+                                      UploadImageCallback callback) {
+  if (!upload_file_helper_) {
+    upload_file_helper_ =
+        std::make_unique<UploadFileHelper>(owner_web_contents_, profile_);
+  }
+  upload_file_helper_->UploadImage(
+      std::make_unique<ChromeSelectFilePolicy>(owner_web_contents_),
+      std::move(callback));
 }
 
 void AIChatUIPageHandler::OpenAIChatSettings() {
@@ -376,55 +385,9 @@ void AIChatUIPageHandler::NewConversation(
   conversation->Bind(std::move(receiver), std::move(conversation_ui_handler));
 }
 
-void AIChatUIPageHandler::GetFaviconImageData(
-    const std::string& conversation_id,
-    GetFaviconImageDataCallback callback) {
-  ConversationHandler* conversation =
-      AIChatServiceFactory::GetForBrowserContext(profile_)->GetConversation(
-          conversation_id);
-  if (!conversation) {
-    std::move(callback).Run(std::nullopt);
-    return;
-  }
-
-  conversation->GetAssociatedContentInfo(base::BindOnce(
-      &AIChatUIPageHandler::GetFaviconImageDataForAssociatedContent,
-      weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
-}
-
 void AIChatUIPageHandler::BindParentUIFrameFromChildFrame(
     mojo::PendingReceiver<mojom::ParentUIFrame> receiver) {
   chat_ui_->OnChildFrameBound(std::move(receiver));
-}
-
-void AIChatUIPageHandler::GetFaviconImageDataForAssociatedContent(
-    GetFaviconImageDataCallback callback,
-    mojom::AssociatedContentPtr content_info,
-    bool should_send_page_contents) {
-  if (!content_info || !content_info->url.is_valid()) {
-    std::move(callback).Run(std::nullopt);
-    return;
-  }
-  favicon_base::IconTypeSet icon_types{favicon_base::IconType::kFavicon,
-                                       favicon_base::IconType::kTouchIcon};
-
-  auto on_favicon_available =
-      [](GetFaviconImageDataCallback callback,
-         const favicon_base::FaviconRawBitmapResult& result) {
-        if (!result.is_valid()) {
-          std::move(callback).Run(std::nullopt);
-          return;
-        }
-
-        std::vector<uint8_t> bytes(result.bitmap_data->begin(),
-                                   result.bitmap_data->end());
-        std::move(callback).Run(std::move(bytes));
-      };
-
-  favicon_service_->GetRawFaviconForPageURL(
-      content_info->url, icon_types, kDesiredFaviconSizePixels, true,
-      base::BindOnce(on_favicon_available, std::move(callback)),
-      &favicon_task_tracker_);
 }
 
 }  // namespace ai_chat

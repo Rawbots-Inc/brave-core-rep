@@ -26,7 +26,8 @@ class LinkPreviewViewController: UIViewController {
 
   override func viewDidLoad() {
     guard let parentTab = parentTab,
-      let tabWebView = parentTab.webView
+      let tabWebView = parentTab.webView,
+      let browserController
     else {
       return
     }
@@ -38,7 +39,9 @@ class LinkPreviewViewController: UIViewController {
     ).then {
       $0.tabDelegate = browserController
       $0.createWebview()
-      $0.webView?.navigationDelegate = browserController
+      $0.addPolicyDecider(browserController)
+      $0.webDelegate = browserController
+      $0.downloadDelegate = browserController
       $0.webView?.scrollView.layer.masksToBounds = true
     }
 
@@ -66,6 +69,9 @@ class LinkPreviewViewController: UIViewController {
 
   deinit {
     self.currentTab?.webView?.navigationDelegate = nil
+    if let browserController {
+      currentTab?.removePolicyDecider(browserController)
+    }
     self.currentTab = nil
   }
 }

@@ -25,10 +25,8 @@ export function PaymentSelection(props: Props) {
   const { getString } = useLocaleContext()
   const tabOpener = React.useContext(TabOpenerContext)
 
-  const [creator, externalWallet] = useAppState((state) => [
-    state.currentCreator,
-    state.externalWallet
-  ])
+  const creator = useAppState((state) => state.currentCreator)
+  const externalWallet = useAppState((state) => state.externalWallet)
 
   if (!creator) {
     return null
@@ -65,7 +63,7 @@ export function PaymentSelection(props: Props) {
 
   if (!web3URL && !matchingProvider) {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <div className='text'>
           <Icon name='hand-coins' />
           <div>
@@ -99,7 +97,7 @@ export function PaymentSelection(props: Props) {
   }
 
   return (
-    <div {...style}>
+    <div data-css-scope={style.scope}>
       <div className='text'>
         <Icon name='hand-coins' />
         <div>{getString('contributeChooseMethodText')}</div>

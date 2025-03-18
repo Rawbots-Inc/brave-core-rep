@@ -27,7 +27,7 @@
 #include "ui/base/l10n/l10n_util.h"
 
 #if BUILDFLAG(IS_ANDROID)
-#include "brave/build/android/jni_headers/BraveLeoMojomHelper_jni.h"
+#include "chrome/android/chrome_jni_headers/BraveLeoMojomHelper_jni.h"
 #include "content/public/browser/android/browser_context_handle.h"
 #endif
 
@@ -124,6 +124,12 @@ void AIChatSettingsHelper::GetModelsWithSubtitles(
       } else if (model->key == "chat-claude-sonnet") {
         modelWithSubtitle.subtitle =
             l10n_util::GetStringUTF8(IDS_CHAT_UI_CHAT_CLAUDE_SONNET_SUBTITLE);
+      } else if (model->key == "chat-qwen") {
+        modelWithSubtitle.subtitle =
+            l10n_util::GetStringUTF8(IDS_CHAT_UI_CHAT_QWEN_SUBTITLE);
+      } else if (model->key == "chat-vision-basic") {
+        modelWithSubtitle.subtitle =
+            l10n_util::GetStringUTF8(IDS_CHAT_UI_CHAT_VISION_BASIC_SUBTITLE);
       }
     }
 

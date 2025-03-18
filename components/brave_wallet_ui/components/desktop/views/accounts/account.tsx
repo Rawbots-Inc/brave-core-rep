@@ -108,6 +108,7 @@ import { ZCashSyncModal } from '../../popup-modals/zcash_sync_modal/zcash_sync_m
 import { AccountDetailsOptions } from '../../../../options/nav-options'
 
 // Hooks
+import useInterval from '../../../../common/hooks/interval'
 import { useScrollIntoView } from '../../../../common/hooks/use-scroll-into-view'
 import {
   useGetDefaultFiatCurrencyQuery,
@@ -119,7 +120,8 @@ import {
   useGetChainTipStatusQuery,
   useGetZCashAccountInfoQuery,
   useStopShieldSyncMutation,
-  useGetZCashBalanceQuery
+  useGetZCashBalanceQuery,
+  useClearChainTipStatusCacheMutation,
 } from '../../../../common/slices/api.slice'
 import {
   querySubscriptionOptions60s //
@@ -128,6 +130,9 @@ import {
   useBalancesFetcher //
 } from '../../../../common/hooks/use-balances-fetcher'
 import { useExplorer } from '../../../../common/hooks/explorer'
+import {
+  useIsAccountSyncing //
+} from '../../../../common/hooks/use_is_account_syncing'
 
 // Actions
 import { AccountsTabActions } from '../../../../page/reducers/accounts-tab-reducer'
@@ -220,6 +225,16 @@ export const Account = () => {
     isShieldedAccount && selectedAccount ? selectedAccount.accountId : skipToken
   )
 
+  const [clearChainTipStatusCache] = useClearChainTipStatusCacheMutation()
+
+  const retryChainTipStatus = React.useCallback(async () => {
+    await clearChainTipStatusCache()
+  }, [
+    clearChainTipStatusCache
+  ])
+
+  useInterval(retryChainTipStatus, 60000, 60000)
+
   const { data: zcashBalance } =
     useGetZCashBalanceQuery(isShieldedAccount && selectedAccount ? {
         chainId: BraveWallet.Z_CASH_MAINNET,
@@ -240,11 +255,16 @@ export const Account = () => {
     ? chainTipStatus.chainTip - chainTipStatus.latestScannedBlock
     : 0
 
+  const isAccountSyncing = useIsAccountSyncing(selectedAccount?.accountId)
+
   const showSyncWarning =
     isShieldedAccount &&
     !syncWarningDismissed
 
-  const enableSyncButton = showSyncWarning && blocksBehind > 0
+  const enableSyncButton =
+    !isAccountSyncing &&
+    showSyncWarning &&
+    blocksBehind > 0
 
   // custom hooks & memos
   const scrollIntoView = useScrollIntoView()
@@ -631,7 +651,9 @@ export const Account = () => {
                   name='refresh'
                   slot='icon-before'
                 />
-                {getLocale('braveWalletSyncAccountButton')}
+                {isAccountSyncing ?
+                  getLocale('braveWalletSyncAccountButtonInProgress') :
+                  getLocale('braveWalletSyncAccountButton')}
               </Button>
               <Button
                 size='small'

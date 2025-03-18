@@ -29,11 +29,9 @@ export function PayoutAccountCard() {
   const tabOpener = React.useContext(TabOpenerContext)
   const { getString } = useLocaleContext()
 
-  const [externalWallet, balance, adsInfo] = useAppState((state) => [
-    state.externalWallet,
-    state.balance,
-    state.adsInfo
-  ])
+  const externalWallet = useAppState((state) => state.externalWallet)
+  const balance = useAppState((state) => state.balance)
+  const adsInfo = useAppState((state) => state.adsInfo)
 
   const [showDetails, setShowDetails] = React.useState(false)
 
@@ -158,7 +156,7 @@ export function PayoutAccountCard() {
   }
 
   return (
-    <div className='content-card' {...style}>
+    <div className='content-card' data-css-scope={style.scope}>
       <h4>
         {
           externalWallet.authenticated ?

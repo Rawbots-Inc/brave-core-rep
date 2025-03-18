@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "base/check.h"
+#include "base/check_is_test.h"
 #include "base/feature_list.h"
 #include "base/strings/stringprintf.h"
 #include "brave/browser/brave_browser_process.h"
@@ -26,6 +27,7 @@
 #include "brave/components/brave_news/browser/brave_news_controller.h"
 #include "brave/components/brave_news/common/features.h"
 #include "brave/components/constants/webui_url_constants.h"
+#include "brave/components/l10n/common/country_code_util.h"
 #include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/misc_metrics/new_tab_metrics.h"
 #include "brave/components/ntp_background_images/browser/ntp_custom_images_source.h"
@@ -33,6 +35,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/browser/themes/theme_syncable_service.h"
+#include "chrome/browser/ui/webui/sanitized_image_source.h"
 #include "components/grit/brave_components_resources.h"
 #include "components/strings/grit/components_strings.h"
 #include "content/public/browser/navigation_entry.h"
@@ -50,6 +53,25 @@
 #endif
 
 using ntp_background_images::NTPCustomImagesSource;
+
+namespace {
+
+std::string GetSearchWidgetDefaultHost(PrefService* local_state) {
+  constexpr char kBraveSearchHost[] = "search.brave.com";
+  constexpr char kYahooSearchHost[] = "search.yahoo.co.jp";
+  if (!local_state) {
+    CHECK_IS_TEST();
+    return kBraveSearchHost;
+  }
+
+  if (brave_l10n::GetCountryCode(local_state) == "JP") {
+    return kYahooSearchHost;
+  }
+
+  return kBraveSearchHost;
+}
+
+}  // namespace
 
 BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
                              const std::string& name,
@@ -118,6 +140,8 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
   source->AddBoolean(
       "featureFlagSearchWidget",
       base::FeatureList::IsEnabled(features::kBraveNtpSearchWidget));
+  source->AddString("searchWidgetDefaultHost",
+                    GetSearchWidgetDefaultHost(local_state));
 
   source->AddBoolean("vpnWidgetSupported",
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
@@ -155,6 +179,10 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
   rich_media_ad_event_handler_ = std::make_unique<
       ntp_background_images::NTPSponsoredRichMediaAdEventHandler>(
       ads_service, std::move(ntp_p3a_helper));
+
+  // Add a SanitizedImageSource to allow fetching images for Brave News.
+  content::URLDataSource::Add(profile,
+                              std::make_unique<SanitizedImageSource>(profile));
 }
 
 BraveNewTabUI::~BraveNewTabUI() = default;

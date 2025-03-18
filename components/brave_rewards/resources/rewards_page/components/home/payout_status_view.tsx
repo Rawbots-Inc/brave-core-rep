@@ -43,11 +43,9 @@ function getPayoutMonth() {
 export function PayoutStatusView() {
   const { getString } = useLocaleContext()
 
-  const [parameters, adsInfo, externalWallet] = useAppState((state) => [
-    state.rewardsParameters,
-    state.adsInfo,
-    state.externalWallet
-  ])
+  const parameters = useAppState((state) => state.rewardsParameters)
+  const adsInfo = useAppState((state) => state.adsInfo)
+  const externalWallet = useAppState((state) => state.externalWallet)
 
   if (!parameters || !adsInfo || !externalWallet) {
     return null
@@ -63,7 +61,7 @@ export function PayoutStatusView() {
 
   if (payoutStatus === 'complete') {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <Icon name='info-filled' />
         <div>
           {formatMessage(getString('payoutCompletedText'), [getPayoutMonth()])}
@@ -80,7 +78,7 @@ export function PayoutStatusView() {
 
   if (payoutStatus === 'processing') {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <Icon name='info-filled' />
         <div>
           {
@@ -101,7 +99,7 @@ export function PayoutStatusView() {
   const estimatedPendingDays = getDaysUntilPayout(adsInfo.nextPaymentDate)
   if (estimatedPendingDays) {
     return (
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <Icon name='info-filled' />
         <div>
           {

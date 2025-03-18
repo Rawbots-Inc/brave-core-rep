@@ -86,21 +86,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     SDImageCodersManager.shared.addCoder(PrivateCDNImageCoder())
 
-    // Temporary fix for Bug 1390871 - NSInvalidArgumentException: -[WKContentView menuHelperFindInPage]: unrecognized selector
-    if let clazz = NSClassFromString("WKCont" + "ent" + "View"),
-      let swizzledMethod = class_getInstanceMethod(
-        TabWebViewMenuHelper.self,
-        #selector(TabWebViewMenuHelper.swizzledMenuHelperFindInPage)
-      )
-    {
-      class_addMethod(
-        clazz,
-        MenuHelper.selectorFindInPage,
-        method_getImplementation(swizzledMethod),
-        method_getTypeEncoding(swizzledMethod)
-      )
-    }
-
     if Preferences.BraveNews.isEnabled.value && !Preferences.BraveNews.userOptedIn.value {
       // Opt-out any user that has not explicitly opted-in
       Preferences.BraveNews.isEnabled.value = false
@@ -225,6 +210,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       Preferences.PrivacyReports.ntpOnboardingCompleted.value = false
     }
 
+    if Preferences.Search.defaultEngineName.value != nil
+      && !Preferences.Search.yahooJPPhaseOneCompleted.value
+    {
+      // Not a new install. DSE has been set previously.
+      Preferences.Search.shouldOverrideDSEForJapanRegion.value = false
+      Preferences.Search.yahooJPPhaseOneCompleted.value = true
+    }
+
     Preferences.General.isFirstLaunch.value = false
 
     Task {
@@ -234,6 +227,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // was not set.
       if Preferences.Search.defaultEngineName.value == nil {
         AppState.shared.profile.searchEngines.searchEngineSetup()
+        Preferences.Search.yahooJPPhaseOneCompleted.value = true
       }
     }
 

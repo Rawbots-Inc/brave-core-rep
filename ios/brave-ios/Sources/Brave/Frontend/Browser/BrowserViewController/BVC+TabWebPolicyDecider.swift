@@ -4,6 +4,7 @@
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import BraveCore
+import BraveShields
 import BraveUI
 import Data
 import Foundation
@@ -11,10 +12,8 @@ import Growth
 import MarketplaceKit
 import OSLog
 import Preferences
-import SafariServices
 import Shared
 import UIKit
-import UniformTypeIdentifiers
 
 /// Decides the navigation policy for a tab's navigations
 protocol TabWebPolicyDecider: AnyObject {
@@ -48,6 +47,47 @@ extension TabWebPolicyDecider {
     responseInfo: WebResponseInfo
   ) async -> WebPolicyDecision {
     return .allow
+  }
+}
+
+class AnyTabWebPolicyDecider: TabWebPolicyDecider, Hashable {
+  var id: ObjectIdentifier
+
+  private let _shouldAllowRequest: (Tab, URLRequest, WebRequestInfo) async -> WebPolicyDecision
+  private let _shouldAllowResponse: (Tab, URLResponse, WebResponseInfo) async -> WebPolicyDecision
+
+  init(_ policyDecider: some TabWebPolicyDecider) {
+    id = ObjectIdentifier(policyDecider)
+    _shouldAllowRequest = { [weak policyDecider] in
+      await policyDecider?.tab($0, shouldAllowRequest: $1, requestInfo: $2) ?? .allow
+    }
+    _shouldAllowResponse = { [weak policyDecider] in
+      await policyDecider?.tab($0, shouldAllowResponse: $1, responseInfo: $2) ?? .allow
+    }
+  }
+
+  func tab(
+    _ tab: Tab,
+    shouldAllowRequest request: URLRequest,
+    requestInfo: WebRequestInfo
+  ) async -> WebPolicyDecision {
+    return await _shouldAllowRequest(tab, request, requestInfo)
+  }
+
+  func tab(
+    _ tab: Tab,
+    shouldAllowResponse response: URLResponse,
+    responseInfo: WebResponseInfo
+  ) async -> WebPolicyDecision {
+    return await _shouldAllowResponse(tab, response, responseInfo)
+  }
+
+  static func == (lhs: AnyTabWebPolicyDecider, rhs: AnyTabWebPolicyDecider) -> Bool {
+    lhs.id == rhs.id
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
   }
 }
 
@@ -117,60 +157,9 @@ extension BrowserViewController: TabWebPolicyDecider {
       let internalUrl = InternalURL(responseURL)
 
       tab.rewardsReportingState.httpStatusCode = response.statusCode
-
-      if !tab.rewardsReportingState.wasRestored {
-        tab.rewardsReportingState.wasRestored = internalUrl?.isSessionRestore == true
-      }
     }
 
     let request = response.url.flatMap { pendingRequests[$0.absoluteString] }
-
-    /// Safari Controller
-    let mimeTypesThatRequireSFSafariViewControllerHandling: [UTType] = [
-      .textCalendar,
-      .mobileConfiguration,
-    ]
-
-    let mimeTypesThatRequireSFSafariViewControllerHandlingTexts: [UTType: (String, String)] = [
-      .textCalendar: (
-        Strings.openTextCalendarAlertTitle, Strings.openTextCalendarAlertDescription
-      ),
-      .mobileConfiguration: (
-        Strings.openMobileConfigurationAlertTitle, Strings.openMobileConfigurationAlertDescription
-      ),
-    ]
-
-    // SFSafariViewController only supports http/https links
-    if responseInfo.isForMainFrame, let url = responseURL,
-      url.isWebPage(includeDataURIs: false),
-      tab === tabManager.selectedTab,
-      let mimeType = response.mimeType.flatMap({ UTType(mimeType: $0) }),
-      mimeTypesThatRequireSFSafariViewControllerHandling.contains(mimeType),
-      let (alertTitle, alertMessage) = mimeTypesThatRequireSFSafariViewControllerHandlingTexts[
-        mimeType
-      ]
-    {
-      // Do what Chromium does: https://source.chromium.org/chromium/chromium/src/+/main:ios/chrome/browser/download/ui_bundled/safari_download_coordinator.mm;l=100;bpv=1;bpt=1?q=presentMobileConfigAlertFromURL&ss=chromium%2Fchromium%2Fsrc
-      // and present an alert before showing the Safari View Controller
-      let alert = UIAlertController(
-        title: alertTitle,
-        message: String.init(
-          format: alertMessage,
-          url.absoluteString
-        ),
-        preferredStyle: .alert
-      )
-      alert.addAction(
-        UIAlertAction(title: Strings.OBContinueButton, style: .default) { [weak self] _ in
-          self?.handleLinkWithSafariViewController(url, tab: tab)
-        }
-      )
-
-      alert.addAction(UIAlertAction(title: Strings.cancelButtonTitle, style: .cancel))
-      present(alert, animated: true)
-
-      return .cancel
-    }
 
     // If the content type is not HTML, create a temporary document so it can be downloaded and
     // shared to external applications later. Otherwise, clear the old temporary document.
@@ -210,9 +199,12 @@ extension BrowserViewController: TabWebPolicyDecider {
 
     // Handle internal:// urls
     if InternalURL.isValid(url: requestURL) {
-      if requestInfo.navigationType != .backForward, request.isInternalUnprivileged {
-        Logger.module.warning("Denying unprivileged request: \(request)")
-        return .cancel
+      // Requests for Internal pages have a 60s timeout by default
+      let isPrivilegedRequest =
+        Int64(request.timeoutInterval) < Int64(Int32.max) || request.isPrivileged
+
+      if !isPrivilegedRequest {
+        Logger.module.error("Denying Unprivileged Request: \(request)")
       }
       return .allow
     }
@@ -552,7 +544,6 @@ extension BrowserViewController: TabWebPolicyDecider {
       // request then the page is reloaded with a proper url and adblocking rules are applied.
       if let mainDocumentURL = request.mainDocumentURL,
         mainDocumentURL.schemelessAbsoluteString == requestURL.schemelessAbsoluteString,
-        !(InternalURL(requestURL)?.isSessionRestore ?? false),
         requestInfo.isMainFrame
       {
         // Identify specific block lists that need to be applied to the requesting domain
@@ -622,24 +613,6 @@ extension BrowserViewController: TabWebPolicyDecider {
 }
 
 extension BrowserViewController {
-  /// Handles a link by opening it in an SFSafariViewController and presenting it on the BVC.
-  ///
-  /// This is unfortunately neccessary to handle certain downloads natively such as ics/calendar invites and
-  /// mobileconfiguration files.
-  ///
-  /// The user unfortunately has to  dismiss it manually after they have handled the file.
-  /// Chrome iOS does the same
-  private func handleLinkWithSafariViewController(_ url: URL, tab: Tab) {
-    let vc = SFSafariViewController(url: url, configuration: .init())
-    vc.modalPresentationStyle = .formSheet
-    self.present(vc, animated: true)
-
-    // If the website opened this URL in a separate tab, remove the empty tab
-    if tab.url == nil || tab.url?.absoluteString == "about:blank" {
-      tabManager.removeTab(tab)
-    }
-  }
-
   // Recognize an Apple Maps URL. This will trigger the native app. But only if a search query is present.
   // Otherwise it could just be a visit to a regular page on maps.apple.com.
   // Exchaging https/https scheme with maps in order to open URLS properly on Apple Maps
@@ -780,6 +753,68 @@ extension BrowserViewController {
     }
 
     return nil
+  }
+
+  /// Determines if the given url should be upgraded from http to https.
+  fileprivate func shouldUpgradeToHttps(url: URL, isPrivate: Bool) -> Bool {
+    guard FeatureList.kBraveHttpsByDefault.enabled,
+      let httpUpgradeService = HttpsUpgradeServiceFactory.get(privateMode: isPrivate),
+      url.scheme == "http", let host = url.host
+    else {
+      return false
+    }
+    let isInUserAllowList = httpUpgradeService.isHttpAllowed(forHost: host)
+    let shouldUpgrade: Bool
+    switch ShieldPreferences.httpsUpgradeLevel {
+    case .strict:
+      // Always upgrade for Strict HTTPS upgrade unless previously allowed by user.
+      shouldUpgrade = !isInUserAllowList
+    case .standard:
+      // Upgrade for Standard HTTPS upgrade if host is not on the exceptions list and not previously allowed by user.
+      shouldUpgrade =
+        braveCore.httpsUpgradeExceptionsService.canUpgradeToHTTPS(for: url)
+        && !isInUserAllowList
+    case .disabled:
+      shouldUpgrade = false
+    }
+    return shouldUpgrade
+  }
+
+  /// Upon an invalid response, check that we need to roll back any HTTPS upgrade
+  /// or show the interstitial page
+  func handleInvalidHTTPSUpgrade(tab: Tab, responseURL: URL) -> URLRequest? {
+    // Handle invalid upgrade to https
+    guard let originalRequest = tab.upgradedHTTPSRequest,
+      let originalURL = originalRequest.url,
+      responseURL.baseDomain == originalURL.baseDomain
+    else {
+      return nil
+    }
+
+    if ShieldPreferences.httpsUpgradeLevel.isStrict,
+      let url = originalURL.encodeEmbeddedInternalURL(for: .httpBlocked)
+    {
+      Logger.module.debug(
+        "Show http blocked interstitial for `\(originalURL.absoluteString)`"
+      )
+
+      let request = PrivilegedRequest(url: url) as URLRequest
+      return request
+    } else {
+      Logger.module.debug(
+        "Revert HTTPS upgrade for `\(originalURL.absoluteString)`"
+      )
+
+      tab.upgradedHTTPSRequest = nil
+      tab.upgradeHTTPSTimeoutTimer?.invalidate()
+      tab.upgradeHTTPSTimeoutTimer = nil
+      if let httpsUpgradeService = HttpsUpgradeServiceFactory.get(privateMode: tab.isPrivate),
+        let host = originalURL.host
+      {
+        httpsUpgradeService.allowHttp(forHost: host)
+      }
+      return originalRequest
+    }
   }
 
   func handleExternalURL(
@@ -956,11 +991,6 @@ extension BrowserViewController {
 
 extension P3ATimedStorage where Value == Int {
   fileprivate static var pagesLoadedStorage: Self { .init(name: "paged-loaded", lifetimeInDays: 7) }
-}
-
-extension UTType {
-  static let textCalendar = UTType(mimeType: "text/calendar")!  // Not the same as `calendarEvent`
-  static let mobileConfiguration = UTType(mimeType: "application/x-apple-aspen-config")!
 }
 
 extension URLRequest {

@@ -14,6 +14,7 @@ import Shared
 import Storage
 import WebKit
 import os.log
+import SafariServices
 
 // TODO: Move this log to the Rewards/Ads target once we move Rewards/Ads files.
 public let adsRewardsLog = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ads-rewards")
@@ -80,18 +81,33 @@ extension BrowserViewController {
         //      self.navigationController?.pushViewController(toc, animated: true)
        
         if url.contains("internal://local/about") {
-            let webVC = RepViewController()
-            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")! // URL cần load
-            let navController = UINavigationController(rootViewController: webVC)
-            present(navController, animated: true)
-            print("URL chứa 'internal://local/about'")
+            let  url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")!
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = false
+            config.barCollapsingEnabled = true
+            let safariVC = SFSafariViewController(url: url, configuration: config)
+            safariVC.dismissButtonStyle = .close ;
+            present(safariVC, animated: true, completion: nil)
+//            let webVC = RepViewController()
+//            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")! // URL cần load
+//            let navController = UINavigationController(rootViewController: webVC)
+//            present(navController, animated: true)
+//            print("URL chứa 'internal://local/about'")
         } else {
-            let webVC = RepViewController()
             let urlTransform = transformToDesktopURL(url)
-            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=" + urlTransform)! // URL cần load
-            let navController = UINavigationController(rootViewController: webVC)
-            present(navController, animated: true)
-            print("URL không chứa 'internal://local/about'")
+            let  url = URL(string: "https://dev.rep.run?currentTabUrl=" + urlTransform)!
+            let config = SFSafariViewController.Configuration()
+            config.entersReaderIfAvailable = false
+            config.barCollapsingEnabled = true
+            let safariVC = SFSafariViewController(url: url, configuration: config)
+            safariVC.dismissButtonStyle = .close ;
+            present(safariVC, animated: true, completion: nil)
+//            let webVC = RepViewController()
+//            let urlTransform = transformToDesktopURL(url)
+//            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=" + urlTransform)! // URL cần load
+//            let navController = UINavigationController(rootViewController: webVC)
+//            present(navController, animated: true)
+//            print("URL không chứa 'internal://local/about'")
         }
         
     }

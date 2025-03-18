@@ -42,10 +42,12 @@ class RepViewCustomView: UIView, WKNavigationDelegate, WKUIDelegate {
            """
            let userScript = WKUserScript(source: jsScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
            configuration.userContentController.addUserScript(userScript)
+        configuration.applicationNameForUserAgent = "Version/8.0.2 Safari/600.2.5"
 
         webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = self
         webView.uiDelegate = self
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Mobile Safari/537.36"
         webView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(webView)
 
@@ -78,11 +80,11 @@ class RepViewCustomView: UIView, WKNavigationDelegate, WKUIDelegate {
 // MARK: - WKNavigationDelegate
 extension RepViewCustomView {
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-        activityIndicator.startAnimating()
+//        activityIndicator.startAnimating()
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        activityIndicator.stopAnimating()
+//        activityIndicator.stopAnimating()
 
         // 🛠 Kiểm tra nếu script đã inject
         let checkScript = "document.documentElement.getAttribute('data-rep-social');"
@@ -96,6 +98,6 @@ extension RepViewCustomView {
     }
     
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        activityIndicator.stopAnimating()
+//        activityIndicator.stopAnimating()
     }
 }

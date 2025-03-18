@@ -211,7 +211,7 @@ class SettingsViewController: TableViewController {
   private func makeSections() -> [Static.Section] {
     var list = [
       defaultBrowserSection,
-      makeFeaturesSection(),
+      // makeFeaturesSection(),
       generalSection,
       displaySection,
       tabsSection,

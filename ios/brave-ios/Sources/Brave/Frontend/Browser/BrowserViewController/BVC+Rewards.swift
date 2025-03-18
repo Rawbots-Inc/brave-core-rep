@@ -30,7 +30,7 @@ extension BrowserViewController {
       Preferences.Rewards.hideRewardsIcon.value || privateBrowsingManager.isPrivateBrowsing
     self.topToolbar.rewardsButton.iconState =
       rewards.isEnabled || rewards.isTurningOnRewards
-      ? .enabled : (Preferences.Rewards.rewardsToggledOnce.value ? .disabled : .initial)
+      ? .enabled : (Preferences.Rewards.rewardsToggledOnce.value ? .disabled : .enabled)
   }
 
     func showBraveRewardsPanel(url: String) {

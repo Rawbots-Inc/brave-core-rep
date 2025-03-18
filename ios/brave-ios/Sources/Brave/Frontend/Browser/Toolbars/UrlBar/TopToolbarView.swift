@@ -372,7 +372,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     trailingItemsStackView.addArrangedSubview(tabsButton)
     trailingItemsStackView.addArrangedSubview(menuButton)
 
-    shieldsRewardsStack.addArrangedSubview(shieldsButton)
+//    shieldsRewardsStack.addArrangedSubview(shieldsButton)
     shieldsRewardsStack.addArrangedSubview(rewardsButton)
 
     [

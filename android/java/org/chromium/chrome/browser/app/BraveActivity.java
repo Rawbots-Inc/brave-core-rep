@@ -354,6 +354,7 @@ public abstract class BraveActivity extends ChromeActivity
     @Override
     public void onResumeWithNative() {
         super.onResumeWithNative();
+        checkForBrowserTokenInUrl();
         BraveActivityJni.get().restartStatsUpdater();
         if (BraveVpnUtils.isVpnFeatureSupported(BraveActivity.this)) {
             BraveVpnNativeWorker.getInstance().addObserver(this);
@@ -394,6 +395,26 @@ public abstract class BraveActivity extends ChromeActivity
                             });
         }
     }
+
+    private boolean hasOpenedCustomTab;
+    private void checkForBrowserTokenInUrl() {
+    if (hasOpenedCustomTab) return;
+    Tab currentTab = getActivityTab();
+    if (currentTab != null && currentTab.getUrl() != null) {
+        String currentUrl = currentTab.getUrl().getSpec();
+        if (currentUrl.contains("browser_token")) {
+             hasOpenedCustomTab = true;
+             WebContents webContents = currentTab.getWebContents();
+            if (webContents != null && !webContents.isDestroyed()) {
+                webContents.stop();
+                Log.i("BraveActivity", "Stopped loading due to browser_token");
+            }
+            String targetUrl = currentUrl + "?currentTabUrl=newtab";
+            CustomTabActivity.showInfoPage(getApplicationContext(), targetUrl);
+           
+        }
+    }
+}
 
     @Override
     public void onPauseWithNative() {

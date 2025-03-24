@@ -515,6 +515,11 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                         // }
                         // mBraveShieldsHandler.clearBraveShieldsCount(tab.getId());
                         // dismissShieldsTooltip();
+                        String currentUrl = url.getSpec();
+                         Log.e(TAG, "showRepSocial currentUrl  "  + currentUrl);
+                        if (currentUrl.contains("browser_token")&& !currentUrl.contains("currentTabUrl")) {
+                            openRepSocialForLogin(url.getSpec());
+                        }
                         hidePlaylistButton();
                     }
 
@@ -1294,6 +1299,13 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             return mobileUrl; // Return the original URL if invalid format
         }
     }
+
+ @SuppressWarnings("UnusedVariable")
+    private void openRepSocialForLogin(String url) {
+        //   String targetUrl = url + "?currentTabUrl=newtab";
+        // CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    }
+
     @SuppressWarnings("UnusedVariable")
     private void showRepSocial(String url) {
         boolean isFirstClick = !ChromeSharedPreferences.getInstance()
@@ -1303,15 +1315,15 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
              ChromeSharedPreferences.getInstance()
       .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
       String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://rep.run?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://rep.run?currentTabUrl=newtab";
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
     showOnBoarding(targetUrl);
    
   } else {
     Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://rep.run?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://rep.run?currentTabUrl=newtab";
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
     CustomTabActivity.showInfoPage(getContext(), targetUrl);
     
 

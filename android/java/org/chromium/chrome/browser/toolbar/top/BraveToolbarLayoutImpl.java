@@ -517,7 +517,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                         // dismissShieldsTooltip();
                         String currentUrl = url.getSpec();
                          Log.e(TAG, "showRepSocial currentUrl  "  + currentUrl);
-                        if (currentUrl.contains("browser_token")&& !currentUrl.contains("currentTabUrl")) {
+                        if (currentUrl.contains("&browser=true") && !currentUrl.contains("currentTabUrl")) {
                             openRepSocialForLogin(url.getSpec());
                         }
                         hidePlaylistButton();
@@ -1302,8 +1302,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
  @SuppressWarnings("UnusedVariable")
     private void openRepSocialForLogin(String url) {
-        //   String targetUrl = url + "?currentTabUrl=newtab";
-        // CustomTabActivity.showInfoPage(getContext(), targetUrl);
+          String targetUrl = url + "?currentTabUrl=newtab";
+        CustomTabActivity.showInfoPage(getContext(), targetUrl);
     }
 
     @SuppressWarnings("UnusedVariable")

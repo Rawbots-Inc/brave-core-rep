@@ -515,6 +515,11 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                         // }
                         // mBraveShieldsHandler.clearBraveShieldsCount(tab.getId());
                         // dismissShieldsTooltip();
+                        String currentUrl = url.getSpec();
+                         Log.e(TAG, "showRepSocial currentUrl  "  + currentUrl);
+                        if (currentUrl.contains("browser_token")&& !currentUrl.contains("currentTabUrl")) {
+                            openRepSocialForLogin(url.getSpec());
+                        }
                         hidePlaylistButton();
                     }
 
@@ -1294,6 +1299,13 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             return mobileUrl; // Return the original URL if invalid format
         }
     }
+
+ @SuppressWarnings("UnusedVariable")
+    private void openRepSocialForLogin(String url) {
+        //   String targetUrl = url + "?currentTabUrl=newtab";
+        // CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    }
+
     @SuppressWarnings("UnusedVariable")
     private void showRepSocial(String url) {
         boolean isFirstClick = !ChromeSharedPreferences.getInstance()

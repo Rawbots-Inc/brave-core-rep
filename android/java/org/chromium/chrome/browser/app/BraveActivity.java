@@ -396,21 +396,26 @@ public abstract class BraveActivity extends ChromeActivity
         }
     }
 
-    private boolean hasOpenedCustomTab;
+    // private boolean hasOpenedCustomTab;
     private void checkForBrowserTokenInUrl() {
-    if (hasOpenedCustomTab) return;
+    // if (hasOpenedCustomTab) return;
     Tab currentTab = getActivityTab();
     if (currentTab != null && currentTab.getUrl() != null) {
         String currentUrl = currentTab.getUrl().getSpec();
-        if (currentUrl.contains("browser_token")) {
-             hasOpenedCustomTab = true;
+         Log.e("BraveActivity", "Stopped loading due to browser_token" + currentUrl);
+        if (currentUrl.contains("&browser=true")) {
+            currentTab.setClosing(true);
+    
+             getCurrentTabModel().closeTabs(TabClosureParams.closeTab(currentTab).build());
+             String targetUrl = currentUrl + "?currentTabUrl=newtab";
+              CustomTabActivity.showInfoPage(getApplicationContext(), targetUrl);
              WebContents webContents = currentTab.getWebContents();
+
             if (webContents != null && !webContents.isDestroyed()) {
-                webContents.stop();
-                Log.i("BraveActivity", "Stopped loading due to browser_token");
+                getTabCreator(false).launchUrl(UrlConstants.NTP_URL, TabLaunchType.FROM_CHROME_UI);
+
             }
-            String targetUrl = currentUrl + "?currentTabUrl=newtab";
-            CustomTabActivity.showInfoPage(getApplicationContext(), targetUrl);
+            
            
         }
     }

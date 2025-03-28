@@ -71,9 +71,9 @@ extension BrowserViewController {
         addNTPTutorialPage()
       }
 
-      if !Preferences.FullScreenCallout.ntpCalloutCompleted.value {
-        showPrivacyReportsOnboardingIfNeeded()
-      }
+//      if !Preferences.FullScreenCallout.ntpCalloutCompleted.value {
+//        showPrivacyReportsOnboardingIfNeeded()
+//      }
     }
   }
 

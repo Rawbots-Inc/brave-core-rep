@@ -191,43 +191,43 @@ class NewTabPageViewController: UIViewController {
     Preferences.NewTabPage.showNewTabFavourites.observe(from: self)
 
     sections = [
-      StatsSectionProvider(
-        isPrivateBrowsing: tab.isPrivate,
-        openPrivacyHubPressed: { [weak self] in
-          if self?.privateBrowsingManager.isPrivateBrowsing == true {
-            return
-          }
-
-          let host = UIHostingController(
-            rootView: PrivacyReportsManager.prepareView(
-              isPrivateBrowsing: privateBrowsingManager.isPrivateBrowsing
-            )
-          )
-          host.rootView.onDismiss = { [weak self] in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-              guard let self = self else { return }
-
-              // Handle App Rating
-              // User finished viewing the privacy report (tapped close)
-              AppReviewManager.shared.handleAppReview(for: .revised, using: self)
-            }
-          }
-
-          host.rootView.openPrivacyReportsUrl = { [weak self] in
-            self?.delegate?.navigateToInput(
-              URL.brave.privacyFeatures.absoluteString,
-              inNewTab: false,
-              // Privacy Reports view is unavailable in private mode.
-              switchingToPrivateMode: false
-            )
-          }
-
-          self?.present(host, animated: true)
-        },
-        hidePrivacyHubPressed: { [weak self] in
-          self?.hidePrivacyHub()
-        }
-      ),
+//      StatsSectionProvider(
+//        isPrivateBrowsing: tab.isPrivate,
+//        openPrivacyHubPressed: { [weak self] in
+//          if self?.privateBrowsingManager.isPrivateBrowsing == true {
+//            return
+//          }
+//
+//          let host = UIHostingController(
+//            rootView: PrivacyReportsManager.prepareView(
+//              isPrivateBrowsing: privateBrowsingManager.isPrivateBrowsing
+//            )
+//          )
+//          host.rootView.onDismiss = { [weak self] in
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+//              guard let self = self else { return }
+//
+//              // Handle App Rating
+//              // User finished viewing the privacy report (tapped close)
+//              AppReviewManager.shared.handleAppReview(for: .revised, using: self)
+//            }
+//          }
+//
+//          host.rootView.openPrivacyReportsUrl = { [weak self] in
+//            self?.delegate?.navigateToInput(
+//              URL.brave.privacyFeatures.absoluteString,
+//              inNewTab: false,
+//              // Privacy Reports view is unavailable in private mode.
+//              switchingToPrivateMode: false
+//            )
+//          }
+//
+//          self?.present(host, animated: true)
+//        },
+//        hidePrivacyHubPressed: { [weak self] in
+//          self?.hidePrivacyHub()
+//        }
+//      ),
       FavoritesSectionProvider(
         action: { [weak self] bookmark, action in
           self?.handleFavoriteAction(favorite: bookmark, action: action)
@@ -256,16 +256,16 @@ class NewTabPageViewController: UIViewController {
     }
 
     if !privateBrowsingManager.isPrivateBrowsing {
-      sections.append(
-        BraveNewsSectionProvider(
-          dataSource: feedDataSource,
-          rewards: rewards,
-          actionHandler: { [weak self] in
-            self?.handleBraveNewsAction($0)
-          }
-        )
-      )
-      layout.braveNewsSection = sections.firstIndex(where: { $0 is BraveNewsSectionProvider })
+//      sections.append(
+//        BraveNewsSectionProvider(
+//          dataSource: feedDataSource,
+//          rewards: rewards,
+//          actionHandler: { [weak self] in
+//            self?.handleBraveNewsAction($0)
+//          }
+//        )
+//      )
+//      layout.braveNewsSection = sections.firstIndex(where: { $0 is BraveNewsSectionProvider })
     }
 
     collectionView.do {

@@ -39,7 +39,7 @@ class NewTabPageBackgroundButtonsView: UIView, PreferencesObserver {
       }
       switch activeButton {
       case .imageCredit(let name):
-        imageCreditButton.label.text = String(format: Strings.photoBy, name)
+        imageCreditButton.label.text = ""
         activeView = imageCreditButton
       case .brandLogo(let logo):
         if let logoImagePath = logo.imagePath?.path {

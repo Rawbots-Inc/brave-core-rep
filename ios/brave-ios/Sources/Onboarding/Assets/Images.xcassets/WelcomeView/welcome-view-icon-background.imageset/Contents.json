@@ -5,12 +5,12 @@
       "scale" : "1x"
     },
     {
-      "filename" : "3d-icon-shadow.png",
+      "filename" : "BG.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "3d-icon-shadow-1.png",
+      "filename" : "BG 1.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

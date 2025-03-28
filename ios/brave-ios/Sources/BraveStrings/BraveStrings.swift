@@ -687,7 +687,7 @@ extension Strings {
         "callout.defaultBrowserTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Privacy. Made Simple.",
+        value: "Post without limits.",
         comment: "Title for Default Browser Full Screen Callout"
       )
     public static let defaultBrowserCalloutDescription =
@@ -695,7 +695,7 @@ extension Strings {
         "callout.defaultBrowserCalloutDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "With Rep Social as default, every link you tap opens with Rep Social's privacy protections.",
+        value: "With Rep Social, every web page you visit, has a wall you can post your thoughts on.",
         comment: "Subtitle - Description for Default Browser Full Screen Callout"
       )
     public static let defaultBrowserCalloutButtonDescription =
@@ -927,7 +927,7 @@ extension Strings {
         "onboarding.omniboxOnboardingPopOverDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "See the Brave difference:\nNo ads. No trackers. Way faster page load.",
+        value: "With Rep Social, every webpage turns into a community hub.",
         comment: "Description for the Omnibox (URL Bar) pop-over that describes faster load times."
       )
 

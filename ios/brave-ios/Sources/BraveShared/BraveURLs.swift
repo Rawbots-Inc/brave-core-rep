@@ -9,7 +9,7 @@ extension URL {
   public enum Brave {
     public static let community = URL(string: "https://community.brave.com/")!
     public static let account = URL(string: "https://account.brave.com")!
-    public static let privacy = URL(string: "https://brave.com/privacy/")!
+    public static let privacy = URL(string: "https://rep.run/privacy/privacy-policy")!
     public static let braveNews = URL(string: "https://brave.com/brave-news/")!
     public static let braveNewsPrivacy = URL(string: "https://brave.com/privacy/#brave-news")!
     public static let braveOffers = URL(string: "https://offers.brave.com/")!

@@ -1,17 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "brave-logo1.png",
+      "filename" : "logo_54.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "brave-logo1@2x.png",
+      "filename" : "logo_54 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "brave-logo1@3x.png",
+      "filename" : "logo_54 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

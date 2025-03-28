@@ -55,10 +55,16 @@ public class WelcomeViewController: UIViewController {
     fatalError("init(coder:) has not been implemented")
   }
 
-  private let backgroundGradientView = BraveGradientView(gradient: .backgroundGradient)
-
+//  private let backgroundGradientView = BraveGradientView(gradient: .backgroundGradient)
+    private let backgroundGradientView = UIImageView().then {
+      $0.image = UIImage(named: "welcome-view-bottom-image", in: .module, compatibleWith: nil)
+      $0.contentMode = .scaleAspectFill
+      $0.clipsToBounds = true
+      $0.tag = WelcomeViewID.background.rawValue
+}
+    
   private let topImageView = UIImageView().then {
-    $0.image = UIImage(named: "welcome-view-top-image", in: .module, compatibleWith: nil)!
+//    $0.image = UIImage(named: "welcome-view-top-image", in: .module, compatibleWith: nil)!
     $0.contentMode = .scaleAspectFill
     $0.setContentHuggingPriority(.required, for: .vertical)
     $0.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -82,12 +88,12 @@ public class WelcomeViewController: UIViewController {
   }
 
   private let iconBackgroundView = UIImageView().then {
-    $0.image = UIImage(named: "welcome-view-icon-background", in: .module, compatibleWith: nil)!
+//    $0.image = UIImage(named: "welcome-view-icon-background", in: .module, compatibleWith: nil)!
     $0.contentMode = .scaleAspectFit
   }
 
   private let bottomImageView = UIImageView().then {
-    $0.image = UIImage(named: "welcome-view-bottom-image", in: .module, compatibleWith: nil)!
+//    $0.image = UIImage(named: "welcome-view-bottom-image", in: .module, compatibleWith: nil)!
     $0.contentMode = .scaleAspectFill
     $0.setContentHuggingPriority(.required, for: .vertical)
     $0.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -354,7 +360,7 @@ public class WelcomeViewController: UIViewController {
           nextController.animateToDefaultSettingsState()
         },
         secondaryButtonAction: {
-          nextController.animateToP3aState()
+            nextController.close()
         }
       )
     )
@@ -510,8 +516,10 @@ public class WelcomeViewController: UIViewController {
       return
     }
     UIApplication.shared.open(settingsUrl)
+    close()
 
-    animateToP3aState()
+//    animateToP3aState()
+    
   }
 
   private func close(completion: (() -> Void)? = nil) {

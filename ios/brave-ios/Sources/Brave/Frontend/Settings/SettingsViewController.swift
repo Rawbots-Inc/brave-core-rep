@@ -734,20 +734,20 @@ class SettingsViewController: TableViewController {
       self.navigationController?.pushViewController(optionsViewController, animated: true)
     }
     display.rows.append(row)
-    display.rows.append(
-      Row(
-        text: Strings.AltAppIcon.changeAppIcon,
-        selection: { [unowned self] in
-          let controller = UIHostingController(rootView: AltIconsView(model: altIconsModel))
-          controller.title = Strings.AltAppIcon.changeAppIcon
-          navigationController?.pushViewController(controller, animated: true)
-        },
-        image: selectedAppIcon,
-        accessory: .disclosureIndicator,
-        cellClass: AppIconCell.self,
-        uuid: appIconRowUUID.uuidString
-      )
-    )
+//    display.rows.append(
+//      Row(
+//        text: Strings.AltAppIcon.changeAppIcon,
+//        selection: { [unowned self] in
+//          let controller = UIHostingController(rootView: AltIconsView(model: altIconsModel))
+//          controller.title = Strings.AltAppIcon.changeAppIcon
+//          navigationController?.pushViewController(controller, animated: true)
+//        },
+//        image: selectedAppIcon,
+//        accessory: .disclosureIndicator,
+//        cellClass: AppIconCell.self,
+//        uuid: appIconRowUUID.uuidString
+//      )
+//    )
     display.rows.append(
       Row(
         text: Strings.NTP.settingsTitle,

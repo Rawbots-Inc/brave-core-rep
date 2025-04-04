@@ -968,11 +968,11 @@ extension BrowserViewController: TopToolbarDelegate {
       content: { menuController in
         let isShownOnWebPage = selectedTabURL != nil
         VStack(spacing: 6) {
-          if isShownOnWebPage {
-            featuresMenuSection(menuController)
-          } else {
-            privacyFeaturesMenuSection(menuController)
-          }
+//          if isShownOnWebPage {
+//            featuresMenuSection(menuController)
+//          } else {
+//            privacyFeaturesMenuSection(menuController)
+//          }
           Divider()
           destinationMenuSection(menuController, isShownOnWebPage: isShownOnWebPage)
           if let tabURL = selectedTabURL, let originalTabURL = selectedTabOriginalURL {

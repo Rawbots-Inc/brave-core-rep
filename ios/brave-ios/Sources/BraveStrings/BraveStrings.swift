@@ -195,7 +195,7 @@ extension Strings {
     "SendCrashReportAlertMessage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Send a crash report so Brave can fix the problem?",
+    value: "Send a crash report so Rep Social can fix the problem?",
     comment:
       "Message displayed in the crash dialog above the buttons used to select when sending reports"
   )
@@ -450,7 +450,7 @@ extension Strings {
     "AuthenticationLoginsTouchReason",
     tableName: "BraveShared",
     bundle: .module,
-    value: "This authenticates your access to Brave",
+    value: "This authenticates your access to Rep Social",
     comment:
       "Touch ID or PIN entry prompt subtitle when accessing Brave with the Browser Lock feature enabled"
   )
@@ -484,7 +484,7 @@ extension Strings {
     "AccessPhotoDeniedAlertTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Brave would like to access your Photos",
+    value: "Rep Social would like to access your Photos",
     comment: "See http://mzl.la/1G7uHo7"
   )
   public static let accessPhotoDeniedAlertMessage = NSLocalizedString(
@@ -639,7 +639,7 @@ extension Strings {
         "defaultBrowserCallout.introTertiaryText",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Settings, tap Default Browser App, and select Brave.",
+        value: "Open Settings, tap Default Browser App, and select Rep Social.",
         comment: "Tertiary text on default browser popup screen"
       )
     public static let introOpenSettingsButtonText =
@@ -663,7 +663,7 @@ extension Strings {
         "defaultBrowserCallout.notificationTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Get Brave protection, on every link",
+        value: "Get Rep Social protection, on every link",
         comment: "Notification title to promote setting Brave app as default browser"
       )
 
@@ -672,7 +672,7 @@ extension Strings {
         "defaultBrowserCallout.notificationBody",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Set Brave as your default browser",
+        value: "Set Rep Social as your default browser",
         comment: "Notification body to promote setting Brave app as default browser"
       )
   }
@@ -745,7 +745,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Get Brave privacy on your computer or tablet, and sync bookmarks & extensions between devices.",
+          "Get Rep Social privacy on your computer or tablet, and sync bookmarks & extensions between devices.",
         comment: "Subtitle - Description for Privacy Everywhere Full Screen Callout"
       )
     public static let privacyEverywhereCalloutPrimaryButtonTitle =
@@ -946,7 +946,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Your Rep Social VPN subscription can protect up to 10 devices, across Android, iOS, and desktop. Just link your App Store subscription to your Brave account.",
+          "Your Rep Social VPN subscription can protect up to 10 devices, across Android, iOS, and desktop. Just link your App Store subscription to your Rep Social account.",
         comment: "Popup description to let users know they can use the vpn on all their devices"
       )
 
@@ -1811,7 +1811,7 @@ extension Strings {
       "optionsMenu.menuSectionTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Brave Features",
+      value: "Rep Social Features",
       comment: "Privacy Features Section title"
     )
     public static let braveVPNItemTitle = NSLocalizedString(
@@ -3332,7 +3332,7 @@ extension Strings {
     "RewardsPanel",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rewards Panel",
+    value: "Rep Social Panel",
     comment: "Button to show the rewards panel"
   )
   public static let individualControls = NSLocalizedString(
@@ -3759,7 +3759,7 @@ extension Strings {
       "themeQRCodeShareTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Share Brave with your friends!",
+      value: "Share Rep Social with your friends!",
       comment: "Title for QR popup encouraging users to share the code with their friends."
     )
   public static let themeQRCodeShareButton =
@@ -3873,7 +3873,7 @@ extension Strings {
     "OBShieldsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Brave Shields",
+    value: "Rep Social Shields",
     comment: "Title for shields onboarding screen"
   )
   public static let OBShieldsDetail = NSLocalizedString(
@@ -4731,7 +4731,7 @@ extension Strings {
         "playList.addToPlayListAlertTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Add to Brave Playlist",
+        value: "Add to Rep Social Playlist",
         comment: "Alert Title for adding videos to playlist"
       )
 
@@ -7361,7 +7361,7 @@ extension Strings {
       "today.isEnabledToggleLabel",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Show Brave News",
+      value: "Show Rep Social News",
       comment: ""
     )
     public static let contentAvailableButtonTitle = NSLocalizedString(
@@ -9552,7 +9552,7 @@ extension Strings {
     public static let braveIconsHeader = NSLocalizedString(
       "altAppIcon.braveIconsHeader",
       bundle: .module,
-      value: "Brave Icons",
+      value: "Rep Social Icons",
       comment: "A label shown above a list of icons designed by Brave"
     )
     public static let errorTitle = NSLocalizedString(

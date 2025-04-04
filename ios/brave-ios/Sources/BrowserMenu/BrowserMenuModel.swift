@@ -149,21 +149,21 @@ extension BrowserMenuModel {
     let vpnStatusPublisher = CurrentValueSubject<VPNStatus, Never>(mockStatus)
     let model = BrowserMenuModel(
       actions: [
-        .init(
-          id: .vpn,
-          title: "VPN On",
-          traits: .init(badgeColor: UIColor(braveSystemName: .primary50)),
-          state: true
-        ) { action in
-          var actionCopy = action
-          actionCopy.state?.toggle()
-          actionCopy.title = "VPN \(actionCopy.state! ? "On" : "Off")"
-          vpnStatusPublisher.send(actionCopy.state! ? mockStatus : .disconnected)
-          return .updateAction(actionCopy)
-        },
+//        .init(
+//          id: .vpn,
+//          title: "VPN On",
+//          traits: .init(badgeColor: UIColor(braveSystemName: .primary50)),
+//          state: true
+//        ) { action in
+//          var actionCopy = action
+//          actionCopy.state?.toggle()
+//          actionCopy.title = "VPN \(actionCopy.state! ? "On" : "Off")"
+//          vpnStatusPublisher.send(actionCopy.state! ? mockStatus : .disconnected)
+//          return .updateAction(actionCopy)
+//        },
         .init(id: .addBookmark, attributes: .disabled),
         .init(id: .history),
-        .init(id: .braveLeo),
+//        .init(id: .braveLeo),
         .init(id: .playlist),
         .init(id: .addFavourites),
         .init(
@@ -176,7 +176,7 @@ extension BrowserMenuModel {
           return .updateAction(actionCopy)
         },
         .init(id: .bookmarks, attributes: .disabled),
-        .init(id: .braveNews),
+//        .init(id: .braveNews),
         .init(id: .createPDF),
         .init(id: .pageZoom),
       ],

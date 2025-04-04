@@ -506,7 +506,7 @@ extension BrowserViewController {
     webView: WKWebView?
   ) {
     var actions: [Action] = []
-    actions.append(vpnMenuAction)
+//    actions.append(vpnMenuAction)
     actions.append(contentsOf: destinationMenuActions(for: pageURL))
     actions.append(contentsOf: pageActions(for: pageURL, webView: webView))
     var pageActivities: Set<Action> = Set(
@@ -838,60 +838,60 @@ extension BrowserViewController {
         }
         return .none
       },
-      .init(id: .braveWallet) { @MainActor [unowned self] _ in
-        // Present wallet already handles dismiss + present
-        self.presentWallet()
-        return .none
-      },
-      .init(
-        id: .braveLeo,
-        attributes: isPrivateBrowsing ? .disabled : []
-      ) { @MainActor [unowned self] _ in
-        self.dismiss(animated: true) {
-          self.openBraveLeo()
-        }
-        return .none
-      },
-      .init(id: .playlist) { @MainActor [unowned self] _ in
-        // presentPlaylistController already handles dismiss + present
-        self.presentPlaylistController()
-        return .none
-      },
-      .init(id: .braveNews) { @MainActor [unowned self] _ in
-        self.dismiss(animated: true) {
-          if pageURL == nil,
-            let newTabPageController = self.tabManager.selectedTab?.newTabPageViewController
-          {
-            // Already on NTP
-            newTabPageController.scrollToBraveNews()
-          } else {
-            // Make a new tab and scroll to it
-            self.openBlankNewTab(
-              attemptLocationFieldFocus: false,
-              isPrivate: false,
-              isExternal: true
-            )
-            self.popToBVC()
-            if let newTabPageController = self.tabManager.selectedTab?.newTabPageViewController {
-              newTabPageController.scrollToBraveNews()
-            }
-          }
-        }
-        return .none
-      },
-      .init(id: .braveTalk) { @MainActor [unowned self] _ in
-        self.dismiss(animated: true) {
-          guard let url = URL(string: "https://talk.brave.com/") else { return }
-          self.popToBVC()
-          if pageURL == nil {
-            // Already on NTP
-            self.finishEditingAndSubmit(url)
-          } else {
-            self.openURLInNewTab(url, isPrivileged: false)
-          }
-        }
-        return .none
-      },
+//      .init(id: .braveWallet) { @MainActor [unowned self] _ in
+//        // Present wallet already handles dismiss + present
+//        self.presentWallet()
+//        return .none
+//      },
+//      .init(
+//        id: .braveLeo,
+//        attributes: isPrivateBrowsing ? .disabled : []
+//      ) { @MainActor [unowned self] _ in
+//        self.dismiss(animated: true) {
+//          self.openBraveLeo()
+//        }
+//        return .none
+//      },
+//      .init(id: .playlist) { @MainActor [unowned self] _ in
+//        // presentPlaylistController already handles dismiss + present
+//        self.presentPlaylistController()
+//        return .none
+//      },
+//      .init(id: .braveNews) { @MainActor [unowned self] _ in
+//        self.dismiss(animated: true) {
+//          if pageURL == nil,
+//            let newTabPageController = self.tabManager.selectedTab?.newTabPageViewController
+//          {
+//            // Already on NTP
+//            newTabPageController.scrollToBraveNews()
+//          } else {
+//            // Make a new tab and scroll to it
+//            self.openBlankNewTab(
+//              attemptLocationFieldFocus: false,
+//              isPrivate: false,
+//              isExternal: true
+//            )
+//            self.popToBVC()
+//            if let newTabPageController = self.tabManager.selectedTab?.newTabPageViewController {
+//              newTabPageController.scrollToBraveNews()
+//            }
+//          }
+//        }
+//        return .none
+//      },
+//      .init(id: .braveTalk) { @MainActor [unowned self] _ in
+//        self.dismiss(animated: true) {
+//          guard let url = URL(string: "https://talk.brave.com/") else { return }
+//          self.popToBVC()
+//          if pageURL == nil {
+//            // Already on NTP
+//            self.finishEditingAndSubmit(url)
+//          } else {
+//            self.openURLInNewTab(url, isPrivileged: false)
+//          }
+//        }
+//        return .none
+//      },
     ]
   }
 

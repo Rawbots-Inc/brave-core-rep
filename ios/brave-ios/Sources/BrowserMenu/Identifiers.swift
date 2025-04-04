@@ -34,7 +34,7 @@ extension Action.Identifier {
     title: Strings.ActionTitles.vpn,
     braveSystemImage: "leo.product.vpn",
     defaultRank: 100,
-    defaultVisibility: .visible
+    defaultVisibility: .hidden
   )
 
   public static let bookmarks: Self = .init(
@@ -61,13 +61,13 @@ extension Action.Identifier {
     defaultVisibility: .visible
   )
 
-  public static let braveLeo: Self = .init(
-    id: "BraveLeo",
-    title: Strings.ActionTitles.leoAIChat,
-    braveSystemImage: "leo.product.brave-leo",
-    defaultRank: 400,
-    defaultVisibility: .visible
-  )
+//  public static let braveLeo: Self = .init(
+//    id: "BraveLeo",
+//    title: Strings.ActionTitles.leoAIChat,
+//    braveSystemImage: "leo.product.brave-leo",
+//    defaultRank: 400,
+//    defaultVisibility: .hidden
+//  )
 
   public static let braveNews: Self = .init(
     id: "BraveNews",
@@ -90,7 +90,7 @@ extension Action.Identifier {
     title: Strings.Wallet.wallet,
     braveSystemImage: "leo.product.brave-wallet",
     defaultRank: 900,
-    defaultVisibility: .visible
+    defaultVisibility: .hidden
   )
 
   public static let playlist: Self = .init(
@@ -98,7 +98,7 @@ extension Action.Identifier {
     title: Strings.ActionTitles.playlist,
     braveSystemImage: "leo.product.playlist",
     defaultRank: 500,
-    defaultVisibility: .visible
+    defaultVisibility: .hidden
   )
 
   public static let braveRewards: Self = .init(
@@ -106,7 +106,7 @@ extension Action.Identifier {
     title: Strings.ActionTitles.rewards,
     braveSystemImage: "leo.product.bat-outline",
     defaultRank: 800,
-    defaultVisibility: .visible
+    defaultVisibility: .hidden
   )
 
   // MARK: - Page Actions

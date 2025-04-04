@@ -241,40 +241,41 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
         shouldShowPlaylistOnboardingThisSession,
         presentedViewController == nil
       {
-        Preferences.Playlist.addToPlaylistURLBarOnboardingCount.value += 1
-
-        topToolbar.layoutIfNeeded()
-        view.layoutIfNeeded()
-
-        // Ensure url bar is expanded before presenting a popover on it
-        toolbarVisibilityViewModel.toolbarState = .expanded
-
-        DispatchQueue.main.async {
-          let model = OnboardingPlaylistModel()
-          let popover = PopoverController(content: OnboardingPlaylistView(model: model))
-          popover.previewForOrigin = .init(
-            view: self.topToolbar.locationView.playlistButton,
-            action: { [weak tab] popover in
-              guard let item = tab?.playlistItem else {
-                popover.dismissPopover()
-                return
-              }
-              popover.previewForOrigin = nil
-              self.addToPlaylist(item: item) { didAddItem in
-                let folderName = PlaylistItem.getItem(uuid: item.tagId)?.playlistFolder?.title ?? ""
-                model.step = .completed(folderName: folderName)
-              }
-            }
-          )
-          popover.present(from: self.topToolbar.locationView.playlistButton, on: self)
-
-          model.onboardingCompleted = { [weak tab, weak popover] in
-            popover?.dismissPopover()
-            self.openPlaylist(tab: tab, item: tab?.playlistItem)
-          }
-        }
-
-        shouldShowPlaylistOnboardingThisSession = false
+//        Preferences.Playlist.addToPlaylistURLBarOnboardingCount.value += 1
+//
+//        topToolbar.layoutIfNeeded()
+//        view.layoutIfNeeded()
+//
+//        // Ensure url bar is expanded before presenting a popover on it
+//        toolbarVisibilityViewModel.toolbarState = .expanded
+//
+//        DispatchQueue.main.async {
+//          let model = OnboardingPlaylistModel()
+//          let popover = PopoverController(content: OnboardingPlaylistView(model: model))
+//          popover.previewForOrigin = .init(
+//            view: self.topToolbar.locationView.playlistButton,
+//            action: { [weak tab] popover in
+//              guard let item = tab?.playlistItem else {
+//                popover.dismissPopover()
+//                return
+//              }
+//              popover.previewForOrigin = nil
+//              self.addToPlaylist(item: item) { didAddItem in
+//                let folderName = PlaylistItem.getItem(uuid: item.tagId)?.playlistFolder?.title ?? ""
+//                model.step = .completed(folderName: folderName)
+//              }
+//            }
+//          )
+//          popover.present(from: self.topToolbar.locationView.playlistButton, on: self)
+//
+//          model.onboardingCompleted = { [weak tab, weak popover] in
+//            popover?.dismissPopover()
+//            self.openPlaylist(tab: tab, item: tab?.playlistItem)
+//          }
+//        }
+//
+//        shouldShowPlaylistOnboardingThisSession = false
+          return
       }
     }
   }

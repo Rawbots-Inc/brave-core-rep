@@ -468,45 +468,45 @@ class SettingsViewController: TableViewController {
           accessory: .disclosureIndicator,
           cellClass: MultilineValue1Cell.self
         ),
-        Row(
-          text: Strings.Sync.syncTitle,
-          selection: { [unowned self] in
-            if syncAPI.isInSyncGroup {
-              if !DeviceInfo.hasConnectivity() {
-                self.present(SyncAlerts.noConnection, animated: true)
-                return
-              }
-
-              let syncSettingsViewController = SyncSettingsTableViewController(
-                braveCoreMain: braveCore,
-                tabManager: tabManager,
-                windowProtection: windowProtection
-              )
-
-              self.navigationController?
-                .pushViewController(syncSettingsViewController, animated: true)
-            } else {
-              let syncWelcomeViewController = SyncWelcomeViewController(
-                braveCore: braveCore,
-                tabManager: tabManager,
-                windowProtection: windowProtection
-              )
-
-              self.navigationController?.pushViewController(
-                syncWelcomeViewController,
-                animated: true
-              )
-            }
-          },
-          image: UIImage(braveSystemNamed: "leo.product.sync"),
-          accessory: .disclosureIndicator,
-          cellClass: MultilineValue1Cell.self
-        ),
-        .boolRow(
-          title: Strings.bookmarksLastVisitedFolderTitle,
-          option: Preferences.General.showLastVisitedBookmarksFolder,
-          image: UIImage(braveSystemNamed: "leo.folder.open")
-        ),
+//        Row(
+//          text: Strings.Sync.syncTitle,
+//          selection: { [unowned self] in
+//            if syncAPI.isInSyncGroup {
+//              if !DeviceInfo.hasConnectivity() {
+//                self.present(SyncAlerts.noConnection, animated: true)
+//                return
+//              }
+//
+//              let syncSettingsViewController = SyncSettingsTableViewController(
+//                braveCoreMain: braveCore,
+//                tabManager: tabManager,
+//                windowProtection: windowProtection
+//              )
+//
+//              self.navigationController?
+//                .pushViewController(syncSettingsViewController, animated: true)
+//            } else {
+//              let syncWelcomeViewController = SyncWelcomeViewController(
+//                braveCore: braveCore,
+//                tabManager: tabManager,
+//                windowProtection: windowProtection
+//              )
+//
+//              self.navigationController?.pushViewController(
+//                syncWelcomeViewController,
+//                animated: true
+//              )
+//            }
+//          },
+//          image: UIImage(braveSystemNamed: "leo.product.sync"),
+//          accessory: .disclosureIndicator,
+//          cellClass: MultilineValue1Cell.self
+//        ),
+//        .boolRow(
+//          title: Strings.bookmarksLastVisitedFolderTitle,
+//          option: Preferences.General.showLastVisitedBookmarksFolder,
+//          image: UIImage(braveSystemNamed: "leo.folder.open")
+//        ),
         Row(
           text: Strings.Shortcuts.shortcutSettingsTitle,
           selection: { [unowned self] in
@@ -993,7 +993,7 @@ class SettingsViewController: TableViewController {
       )
     }
     let coreVersion =
-      "BraveCore \(BraveCoreVersionInfo.braveCoreVersion) (\(BraveCoreVersionInfo.chromiumVersion))"
+      "Rep Social \(BraveCoreVersionInfo.braveCoreVersion) (\(BraveCoreVersionInfo.chromiumVersion))"
     return Static.Section(
       header: .autoLayoutView(titleLabel),
       rows: [
@@ -1065,15 +1065,15 @@ class SettingsViewController: TableViewController {
           accessory: .disclosureIndicator,
           cellClass: MultilineValue1Cell.self
         ),
-        Row(
-          text: Strings.settingsLicenses,
-          selection: { [unowned self] in
-            if let url = URL(string: "\(InternalURL.baseUrl)/\(AboutLicenseHandler.path)") {
-              settingsDelegate?.settingsOpenURLInNewTab(url)
-            }
-          },
-          accessory: .disclosureIndicator
-        ),
+//        Row(
+//          text: Strings.settingsLicenses,
+//          selection: { [unowned self] in
+//            if let url = URL(string: "\(InternalURL.baseUrl)/\(AboutLicenseHandler.path)") {
+//              settingsDelegate?.settingsOpenURLInNewTab(url)
+//            }
+//          },
+//          accessory: .disclosureIndicator
+//        ),
       ]
     )
   }()

@@ -89,7 +89,7 @@ extension BrowserViewController {
             safariVC.dismissButtonStyle = .close ;
             present(safariVC, animated: true, completion: nil)
 //            let webVC = RepViewController()
-//            webVC.url = URL(string: "https://rep.run?currentTabUrl=newtab")! // URL cần load
+//            webVC.url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")! // URL cần load
 //            let navController = UINavigationController(rootViewController: webVC)
 //            present(navController, animated: true)
 //            print("URL chứa 'internal://local/about'")

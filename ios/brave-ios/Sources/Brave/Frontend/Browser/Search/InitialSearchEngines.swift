@@ -145,7 +145,7 @@ class InitialSearchEngines {
 
     // Default order and available search engines, applies to all locales
     engines = [
-      .init(id: .braveSearch),
+//      .init(id: .braveSearch),
       .init(id: .google),
       .init(id: .bing),
       .init(id: .duckduckgo),

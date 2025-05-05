@@ -35,9 +35,9 @@ struct FavoritesPreloadedData {
         list.append(FavoriteSite(url: url, title: "Reddit"))
       }
 
-      if let url = URL(string: "https://brave.com/msupport/") {
-        list.append(FavoriteSite(url: url, title: Strings.NTP.braveSupportFavoriteTitle))
-      }
+//      if let url = URL(string: "https://brave.com/msupport/") {
+//        list.append(FavoriteSite(url: url, title: Strings.NTP.braveSupportFavoriteTitle))
+//      }
 
       return list
     }

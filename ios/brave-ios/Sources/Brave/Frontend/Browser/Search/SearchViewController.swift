@@ -648,13 +648,14 @@ public class SearchViewController: SiteTableViewController, LoaderListener {
       return cell
     case .aiChat:
       let cell = TwoLineTableViewCell().then {
-        $0.textLabel?.text =
-          "\(dataSource.searchQuery) - \(Strings.AIChat.askLeoSearchSuggestionTitle)"
-        $0.textLabel?.textColor = .bravePrimary
-        $0.imageView?.image = UIImage(named: "aichat-avatar", in: .module, compatibleWith: nil)
-        $0.imageView?.tintColor = browserColors.iconDefault
-        $0.imageView?.contentMode = .center
-        $0.backgroundColor = .clear
+          $0.backgroundColor = .clear
+//        $0.textLabel?.text =
+//          "\(dataSource.searchQuery) - \(Strings.AIChat.askLeoSearchSuggestionTitle)"
+//        $0.textLabel?.textColor = .bravePrimary
+//        $0.imageView?.image = UIImage(named: "aichat-avatar", in: .module, compatibleWith: nil)
+//        $0.imageView?.tintColor = browserColors.iconDefault
+//        $0.imageView?.contentMode = .center
+//        $0.backgroundColor = .clear
       }
 
       return cell

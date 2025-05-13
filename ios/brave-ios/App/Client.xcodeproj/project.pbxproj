@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A1DF486244A2ECB00541FE4 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A1DF485244A2ECB00541FE4 /* NetworkExtension.framework */; };
 		0A5E04F923FEADA800E5A3E9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E04F823FEADA800E5A3E9 /* LaunchScreen.storyboard */; };
 		0A5E04FB23FEB53700E5A3E9 /* LaunchScreen.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0A5E04FA23FEB53700E5A3E9 /* LaunchScreen.xcassets */; };
 		270ECFC82838210F0089B8B7 /* Brave in Frameworks */ = {isa = PBXBuildFile; productRef = 270ECFC72838210F0089B8B7 /* Brave */; };
@@ -24,8 +23,6 @@
 		27462BEA29DF39EE00715268 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = 27462BE929DF39EE00715268 /* OrderedCollections */; };
 		27466BB1288EDB9C00584C90 /* RuntimeWarnings in Frameworks */ = {isa = PBXBuildFile; productRef = 27466BB0288EDB9C00584C90 /* RuntimeWarnings */; };
 		2749F5CA2D088E6500A5DAAB /* BraveCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2749F5C92D088E6500A5DAAB /* BraveCore */; };
-		2759468D29CCB62F0094BDDE /* GRDWireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2759468C29CCB62F0094BDDE /* GRDWireGuardKit */; };
-		2759468F29CCB6350094BDDE /* GRDWireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 2759468E29CCB6350094BDDE /* GRDWireGuardKit */; };
 		2787B06A2B7ED260004796F8 /* BraveCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2787B0692B7ED260004796F8 /* BraveCore */; };
 		278852E42ACDC26B005395CF /* Playlist in Frameworks */ = {isa = PBXBuildFile; productRef = 278852E32ACDC26B005395CF /* Playlist */; };
 		278852E62ACDE795005395CF /* UserAgent in Frameworks */ = {isa = PBXBuildFile; productRef = 278852E52ACDE795005395CF /* UserAgent */; };
@@ -66,9 +63,6 @@
 		2F6931B7260CFB3700ECEB38 /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F6931B6260CFB3700ECEB38 /* IntentHandler.swift */; };
 		2F6931BB260CFB3700ECEB38 /* BrowserIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2F6931B4260CFB3700ECEB38 /* BrowserIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2FC7DF7B2B5AE98E0092553B /* ActionExtensionIcons.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2FC7DF7A2B5AE98E0092553B /* ActionExtensionIcons.xcassets */; };
-		2FD860C229C3D677005AADD1 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A1DF485244A2ECB00541FE4 /* NetworkExtension.framework */; };
-		2FD860C529C3D686005AADD1 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FD860C429C3D686005AADD1 /* PacketTunnelProvider.swift */; };
-		2FD860CA29C3D686005AADD1 /* BraveWireGuard.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2FD860C129C3D677005AADD1 /* BraveWireGuard.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2FE7D51D2B509DA40039FBA4 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FE7D51C2B509DA40039FBA4 /* UniformTypeIdentifiers.framework */; };
 		2FE7D5222B509DA50039FBA4 /* ActionToBraveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FE7D5212B509DA50039FBA4 /* ActionToBraveViewController.swift */; };
 		2FE7D5292B509DA50039FBA4 /* ActionExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 2FE7D51B2B509DA40039FBA4 /* ActionExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -89,7 +83,6 @@
 		CA0391F9271E143F000EB13C /* FavoritesWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0391F4271E143F000EB13C /* FavoritesWidget.swift */; };
 		CA0391FB271E143F000EB13C /* StatsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0391F6271E143F000EB13C /* StatsWidget.swift */; };
 		CA0391FC271E143F000EB13C /* SingleStatWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA0391F7271E143F000EB13C /* SingleStatWidget.swift */; };
-		CA8B4AF0276A8339002120F7 /* BraveWidgetsExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CA0391B2271E1023000EB13C /* BraveWidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CA986FB2298C1249000C6DD8 /* BraveWidgetsModels in Frameworks */ = {isa = PBXBuildFile; productRef = CA986FB1298C1249000C6DD8 /* BraveWidgetsModels */; };
 		CA986FB4298C1254000C6DD8 /* BraveWidgetsModels in Frameworks */ = {isa = PBXBuildFile; productRef = CA986FB3298C1254000C6DD8 /* BraveWidgetsModels */; };
 		CAADEFE026E2707F0020DC4C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAADEFDF26E2707F0020DC4C /* SceneDelegate.swift */; };
@@ -122,26 +115,12 @@
 			remoteGlobalIDString = 2F6931B3260CFB3700ECEB38;
 			remoteInfo = BrowserIntents;
 		};
-		2FD860C829C3D686005AADD1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F84B21B61A090F8100AAB793 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2FD860C029C3D676005AADD1;
-			remoteInfo = BraveWireGuard;
-		};
 		2FE7D5272B509DA50039FBA4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F84B21B61A090F8100AAB793 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 2FE7D51A2B509DA40039FBA4;
 			remoteInfo = ActionExtension;
-		};
-		CA8B4AE3276A830F002120F7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F84B21B61A090F8100AAB793 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CA0391B1271E1023000EB13C;
-			remoteInfo = BraveWidgetsExtension;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -162,10 +141,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				CA8B4AF0276A8339002120F7 /* BraveWidgetsExtension.appex in Embed App Extensions */,
 				27F4439F2135E11200296C58 /* ShareExtension.appex in Embed App Extensions */,
 				2714EE762AF2D4CD002090A9 /* AutoFillProvider.appex in Embed App Extensions */,
-				2FD860CA29C3D686005AADD1 /* BraveWireGuard.appex in Embed App Extensions */,
 				2FE7D5292B509DA50039FBA4 /* ActionExtension.appex in Embed App Extensions */,
 				2F6931BB260CFB3700ECEB38 /* BrowserIntents.appex in Embed App Extensions */,
 			);
@@ -279,7 +256,6 @@
 		2F93A97E29C8CF1300C7C158 /* BraveWireGuardNightly.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = BraveWireGuardNightly.entitlements; sourceTree = "<group>"; };
 		2F93A98029C8CFAF00C7C158 /* BraveWireGuardRelease.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = BraveWireGuardRelease.entitlements; sourceTree = "<group>"; };
 		2FC7DF7A2B5AE98E0092553B /* ActionExtensionIcons.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = ActionExtensionIcons.xcassets; sourceTree = "<group>"; };
-		2FD860C129C3D677005AADD1 /* BraveWireGuard.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BraveWireGuard.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FD860C429C3D686005AADD1 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		2FD860C629C3D686005AADD1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2FE7D51B2B509DA40039FBA4 /* ActionExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ActionExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -538,7 +514,6 @@
 				5E8CD8E123D5E3DA00548FC0 /* libarchive.2.tbd in Frameworks */,
 				E6231C051B90A472005ABB0D /* libxml2.2.tbd in Frameworks */,
 				E6231C011B90A44F005ABB0D /* libz.tbd in Frameworks */,
-				2759468F29CCB6350094BDDE /* GRDWireGuardKit in Frameworks */,
 				27D972E628BD4D9900DDCF79 /* BraveNews in Frameworks */,
 				27D7FF5329BA69330096DD93 /* BraveShields in Frameworks */,
 				27FA217F2837FB0100FA2C45 /* BraveShared in Frameworks */,
@@ -547,7 +522,6 @@
 				278852E62ACDE795005395CF /* UserAgent in Frameworks */,
 				27FA21812837FB0100FA2C45 /* BraveWallet in Frameworks */,
 				278852E42ACDC26B005395CF /* Playlist in Frameworks */,
-				0A1DF486244A2ECB00541FE4 /* NetworkExtension.framework in Frameworks */,
 				27466BB1288EDB9C00584C90 /* RuntimeWarnings in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -560,15 +534,6 @@
 				27C1C5EB29B6A46300739BE5 /* Preferences in Frameworks */,
 				CA986FB4298C1254000C6DD8 /* BraveWidgetsModels in Frameworks */,
 				27FA21752837F8EA00FA2C45 /* BrowserIntentsModels in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2FD860BE29C3D676005AADD1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2759468D29CCB62F0094BDDE /* GRDWireGuardKit in Frameworks */,
-				2FD860C229C3D677005AADD1 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -845,7 +810,6 @@
 				27F443952135E11200296C58 /* ShareExtension.appex */,
 				2F6931B4260CFB3700ECEB38 /* BrowserIntents.appex */,
 				CA0391B2271E1023000EB13C /* BraveWidgetsExtension.appex */,
-				2FD860C129C3D677005AADD1 /* BraveWireGuard.appex */,
 				2FE7D51B2B509DA40039FBA4 /* ActionExtension.appex */,
 				2714EE692AF2D4CD002090A9 /* AutoFillProvider.appex */,
 				2749F5B72D088E0100A5DAAB /* WebShell.app */,
@@ -952,26 +916,6 @@
 			productReference = 2F6931B4260CFB3700ECEB38 /* BrowserIntents.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		2FD860C029C3D676005AADD1 /* BraveWireGuard */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2FD860D229C3D68F005AADD1 /* Build configuration list for PBXNativeTarget "BraveWireGuard" */;
-			buildPhases = (
-				2FD860BD29C3D676005AADD1 /* Sources */,
-				2FD860BE29C3D676005AADD1 /* Frameworks */,
-				2FD860BF29C3D676005AADD1 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = BraveWireGuard;
-			packageProductDependencies = (
-				2759468C29CCB62F0094BDDE /* GRDWireGuardKit */,
-			);
-			productName = BraveWireGuard;
-			productReference = 2FD860C129C3D677005AADD1 /* BraveWireGuard.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		2FE7D51A2B509DA40039FBA4 /* ActionExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2FE7D5312B509DA50039FBA4 /* Build configuration list for PBXNativeTarget "ActionExtension" */;
@@ -1032,10 +976,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				CA8B4AE4276A830F002120F7 /* PBXTargetDependency */,
 				27F4439E2135E11200296C58 /* PBXTargetDependency */,
 				2F6931BA260CFB3700ECEB38 /* PBXTargetDependency */,
-				2FD860C929C3D686005AADD1 /* PBXTargetDependency */,
 				2FE7D5282B509DA50039FBA4 /* PBXTargetDependency */,
 				2714EE752AF2D4CD002090A9 /* PBXTargetDependency */,
 			);
@@ -1050,7 +992,6 @@
 				27466BB0288EDB9C00584C90 /* RuntimeWarnings */,
 				27D972E528BD4D9900DDCF79 /* BraveNews */,
 				7DDE6307292FEC9500B8B585 /* SDWebImage */,
-				2759468E29CCB6350094BDDE /* GRDWireGuardKit */,
 				27C1C5EC29B6AA8800739BE5 /* Preferences */,
 				27D7FF5229BA69330096DD93 /* BraveShields */,
 				27D7FF7229BB816E0096DD93 /* PrivateCDN */,
@@ -1085,9 +1026,6 @@
 					};
 					2F6931B3260CFB3700ECEB38 = {
 						CreatedOnToolsVersion = 12.2;
-					};
-					2FD860C029C3D676005AADD1 = {
-						CreatedOnToolsVersion = 14.2;
 					};
 					2FE7D51A2B509DA40039FBA4 = {
 						CreatedOnToolsVersion = 15.0;
@@ -1179,7 +1117,6 @@
 				2FE7D51A2B509DA40039FBA4 /* ActionExtension */,
 				2F6931B3260CFB3700ECEB38 /* BrowserIntents */,
 				CA0391B1271E1023000EB13C /* BraveWidgetsExtension */,
-				2FD860C029C3D676005AADD1 /* BraveWireGuard */,
 				2714EE682AF2D4CD002090A9 /* AutoFillProvider */,
 				2749F5B62D088E0100A5DAAB /* WebShell */,
 			);
@@ -1215,13 +1152,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				44A8A37D2BADE919004D1BF1 /* PrivacyInfo.xcprivacy in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2FD860BF29C3D676005AADD1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1315,14 +1245,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2FD860BD29C3D676005AADD1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2FD860C529C3D686005AADD1 /* PacketTunnelProvider.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		2FE7D5172B509DA40039FBA4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1385,20 +1307,10 @@
 			target = 2F6931B3260CFB3700ECEB38 /* BrowserIntents */;
 			targetProxy = 2F6931B9260CFB3700ECEB38 /* PBXContainerItemProxy */;
 		};
-		2FD860C929C3D686005AADD1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2FD860C029C3D676005AADD1 /* BraveWireGuard */;
-			targetProxy = 2FD860C829C3D686005AADD1 /* PBXContainerItemProxy */;
-		};
 		2FE7D5282B509DA50039FBA4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 2FE7D51A2B509DA40039FBA4 /* ActionExtension */;
 			targetProxy = 2FE7D5272B509DA50039FBA4 /* PBXContainerItemProxy */;
-		};
-		CA8B4AE4276A830F002120F7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CA0391B1271E1023000EB13C /* BraveWidgetsExtension */;
-			targetProxy = CA8B4AE3276A830F002120F7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2224,6 +2136,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -2448,6 +2361,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3017,230 +2931,6 @@
 			};
 			name = Beta;
 		};
-		2FD860CB29C3D68F005AADD1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardDebug.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 5S7794CG3N;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.rawbots.browser.BrowserBeta.BraveWireGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		2FD860CC29C3D68F005AADD1 /* Debug (AppStore) */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardRelease.entitlements";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Brave iOS - Development WireGuard Extension";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = "Debug (AppStore)";
-		};
-		2FD860CD29C3D68F005AADD1 /* Nightly */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardNightly.entitlements";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Brave iOS Nightly Wireguard Extension";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Nightly;
-		};
-		2FD860CF29C3D68F005AADD1 /* Release (AppStore) */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardRelease.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 5S7794CG3N;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.rawbots.ios.browser.BraveWireGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = "Release (AppStore)";
-		};
-		2FD860D029C3D68F005AADD1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardRelease.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = 5S7794CG3N;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.rawbots.ios.browser.BraveWireGuard;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		2FD860D129C3D68F005AADD1 /* Beta */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/BraveWireGuard/Entitlements/BraveWireGuardBeta.entitlements";
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = "";
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = BraveWireGuard/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = BraveWireGuard;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = "";
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited).$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "Brave iOS Beta Wireguard Extension";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Beta;
-		};
 		2FE7D52A2B509DA50039FBA4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3614,6 +3304,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3714,6 +3405,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -3809,6 +3501,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3901,6 +3594,7 @@
 				CURRENT_PROJECT_VERSION = "";
 				DEBUG_ACTIVITY_MODE = "";
 				"DEBUG_ACTIVITY_MODE[sdk=iphonesimulator*]" = disable;
+				DEVELOPMENT_TEAM = KL8N8XSYF4;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
@@ -4018,19 +3712,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		2FD860D229C3D68F005AADD1 /* Build configuration list for PBXNativeTarget "BraveWireGuard" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2FD860CB29C3D68F005AADD1 /* Debug */,
-				2FD860CC29C3D68F005AADD1 /* Debug (AppStore) */,
-				2FD860CD29C3D68F005AADD1 /* Nightly */,
-				2FD860CF29C3D68F005AADD1 /* Release (AppStore) */,
-				2FD860D029C3D68F005AADD1 /* Release */,
-				2FD860D129C3D68F005AADD1 /* Beta */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		2FE7D5312B509DA50039FBA4 /* Build configuration list for PBXNativeTarget "ActionExtension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -4137,14 +3818,6 @@
 		2749F5C92D088E6500A5DAAB /* BraveCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = BraveCore;
-		};
-		2759468C29CCB62F0094BDDE /* GRDWireGuardKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = GRDWireGuardKit;
-		};
-		2759468E29CCB6350094BDDE /* GRDWireGuardKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = GRDWireGuardKit;
 		};
 		2787B0692B7ED260004796F8 /* BraveCore */ = {
 			isa = XCSwiftPackageProductDependency;

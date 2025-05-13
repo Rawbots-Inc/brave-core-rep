@@ -53,7 +53,7 @@ constexpr char16_t kBraveAccountSelfCustodyLearnMoreURL[] =
 constexpr char16_t kBraveAccountTermsOfServiceURL[] =
     u"https://brave.com/terms-of-use/";
 constexpr char16_t kBraveAccountPrivacyAgreementURL[] =
-    u"https://brave.com/privacy/browser/";
+    u"https://rep.run/privacy/privacy-policy/";
 
 constexpr char16_t kWebRTCLearnMoreURL[] =
     u"https://support.brave.com/hc/en-us/articles/"

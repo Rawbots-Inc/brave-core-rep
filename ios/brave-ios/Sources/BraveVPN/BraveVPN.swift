@@ -37,11 +37,11 @@ public class BraveVPN {
       GRDVPNHelper.clearVPNConfiguration()
       clearCredentials()
 
-      NEVPNManager.shared().removeFromPreferences { error in
-        if let error = error {
-          logAndStoreError("Remove vpn error: \(error.localizedDescription)")
-        }
-      }
+//      NEVPNManager.shared().removeFromPreferences { error in
+//        if let error = error {
+//          logAndStoreError("Remove vpn error: \(error.localizedDescription)")
+//        }
+//      }
     }
 
     if let customCredential = customCredential {
@@ -294,7 +294,7 @@ public class BraveVPN {
         if let error = error {
           logAndStoreError("configureFirstTimeUserPostCredential \(error)")
         } else {
-          NEVPNManager.shared().removeFromPreferences()
+//          NEVPNManager.shared().removeFromPreferences()
         }
 
         reconnectPending = false
@@ -346,8 +346,8 @@ public class BraveVPN {
 
     func removeConfigurationFromPreferences(for transportProtocol: TransportProtocol) {
       switch transportProtocol {
-      case .wireGuard:
-        NEVPNManager.shared().removeFromPreferences()
+//      case .wireGuard:
+//        NEVPNManager.shared().removeFromPreferences()
       case .ikEv2:
         tunnelManager.removeTunnel()
       default:

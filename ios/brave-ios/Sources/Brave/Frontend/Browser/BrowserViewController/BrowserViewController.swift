@@ -792,11 +792,11 @@ public class BrowserViewController: UIViewController {
 
   @objc func vpnConfigChanged() {
     // Load latest changes to the vpn.
-    NEVPNManager.shared().loadFromPreferences { _ in }
+//    NEVPNManager.shared().loadFromPreferences { _ in }
 
-    if case .purchased(let enabled) = BraveVPN.vpnState, enabled {
-      recordVPNUsageP3A(vpnEnabled: true)
-    }
+//    if case .purchased(let enabled) = BraveVPN.vpnState, enabled {
+//      recordVPNUsageP3A(vpnEnabled: true)
+//    }
   }
 
   @objc func sceneDidBecomeActiveNotification(_ notification: NSNotification) {

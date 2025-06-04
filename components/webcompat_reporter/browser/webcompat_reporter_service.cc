@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/strings/string_util.h"
 #include "brave/components/version_info/version_info.h"
 #include "brave/components/webcompat_reporter/browser/webcompat_report_uploader.h"
 #include "brave/components/webcompat_reporter/common/pref_names.h"
@@ -84,14 +85,16 @@ struct ReportFiller {
 
   ReportFiller& FillCookiePolicy() {
     if (!(*report_info)->cookie_policy) {
-      (*report_info)->cookie_policy = service_delegate->GetCookiePolicy();
+      (*report_info)->cookie_policy =
+          service_delegate->GetCookiePolicy((*report_info)->report_url);
     }
     return *this;
   }
 
   ReportFiller& FillScriptBlockingFlag() {
     if (!(*report_info)->block_scripts) {
-      (*report_info)->block_scripts = service_delegate->GetScriptBlockingFlag();
+      (*report_info)->block_scripts =
+          service_delegate->GetScriptBlockingFlag((*report_info)->report_url);
     }
     return *this;
   }
@@ -108,8 +111,10 @@ void ProcessContactInfo(
     return;
   }
   if (!report_info->contact || report_info->contact->empty()) {
+    profile_prefs->ClearPref(webcompat_reporter::prefs::kContactInfoPrefs);
     return;
   }
+
   profile_prefs->SetString(
       webcompat_reporter::prefs::kContactInfoPrefs,
       profile_prefs->GetBooleanOr(
@@ -170,31 +175,20 @@ void WebcompatReporterService::SetContactInfoSaveFlag(bool value) {
   profile_prefs_->SetBoolean(prefs::kContactInfoSaveFlagPrefs, value);
 }
 
-void WebcompatReporterService::GetContactInfoSaveFlag(
-    GetContactInfoSaveFlagCallback callback) {
-  if (!profile_prefs_) {
-    std::move(callback).Run(false);
-    return;
-  }
-  auto save_flag_value =
-      profile_prefs_->GetBoolean(prefs::kContactInfoSaveFlagPrefs);
-  std::move(callback).Run(std::move(save_flag_value));
-}
-
 void WebcompatReporterService::GetContactInfo(GetContactInfoCallback callback) {
   if (!profile_prefs_) {
-    std::move(callback).Run(std::nullopt);
+    std::move(callback).Run(std::nullopt, false);
     return;
   }
   auto save_flag_value =
       profile_prefs_->GetBoolean(prefs::kContactInfoSaveFlagPrefs);
   if (!save_flag_value) {
-    std::move(callback).Run(std::nullopt);
+    std::move(callback).Run(std::nullopt, save_flag_value);
     return;
   }
 
   auto contact_value = profile_prefs_->GetString(prefs::kContactInfoPrefs);
-  std::move(callback).Run(std::move(contact_value));
+  std::move(callback).Run(std::move(contact_value), save_flag_value);
 }
 
 void WebcompatReporterService::SetPrefServiceTest(PrefService* pref_service) {

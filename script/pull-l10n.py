@@ -12,10 +12,10 @@ import tempfile
 
 from lib.l10n.crowdin.common import should_use_crowdin_for_file
 from lib.l10n.crowdin.pull import pull_source_file_from_crowdin
-from lib.l10n.grd_utils import (get_override_file_path, update_xtbs_locally)
+from lib.l10n.grd_utils import (combine_override_xtb_into_original,
+                                get_override_file_path, update_xtbs_locally)
 from lib.l10n.transifex.common import should_use_transifex_for_file
-from lib.l10n.transifex.pull import (combine_override_xtb_into_original,
-                                     pull_source_files_from_transifex)
+from lib.l10n.transifex.pull import pull_source_files_from_transifex
 
 
 BRAVE_SOURCE_ROOT = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -58,6 +58,10 @@ def main():
     source_string_path = os.path.join(
         BRAVE_SOURCE_ROOT, args.source_string_path[0])
     filename = os.path.basename(source_string_path).split('.')[0]
+    if filename in ('android_webapps_strings', 'locale_settings_linux',
+                    'locale_settings_mac', 'locale_settings_win'):
+        print(f'Skipping {filename}.grd - no translations needed.')
+        return
 
     use_crowdin = service == 'Crowdin'
     should_use_service_for_file = (should_use_crowdin_for_file(

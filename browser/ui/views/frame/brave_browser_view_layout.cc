@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <utility>
 
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/views/frame/brave_contents_view_util.h"
@@ -32,6 +33,44 @@ constexpr int kSidebarSeparatorWidth = 1;
 constexpr int kSidebarSeparatorMargin = 4;
 
 }  // namespace
+
+BraveBrowserViewLayout::BraveBrowserViewLayout(
+    std::unique_ptr<BrowserViewLayoutDelegate> delegate,
+    BrowserView* browser_view,
+    views::View* window_scrim,
+    views::View* top_container,
+    WebAppFrameToolbarView* web_app_frame_toolbar,
+    views::Label* web_app_window_title,
+    TabStripRegionView* tab_strip_region_view,
+    TabStrip* tab_strip,
+    views::View* toolbar,
+    InfoBarContainerView* infobar_container,
+    views::View* contents_container,
+    views::View* left_aligned_side_panel_separator,
+    views::View* unified_side_panel,
+    views::View* right_aligned_side_panel_separator,
+    views::View* side_panel_rounded_corner,
+    ImmersiveModeController* immersive_mode_controller,
+    views::View* contents_separator)
+    : BrowserViewLayout(
+          std::move(delegate),
+          browser_view,
+          window_scrim,
+          top_container,
+          web_app_frame_toolbar,
+          web_app_window_title,
+          tab_strip_region_view,
+          tab_strip,
+          toolbar,
+          infobar_container,
+          (browser_view ? browser_view->GetContentsContainerForLayoutManager()
+                        : browser_view),
+          left_aligned_side_panel_separator,
+          unified_side_panel,
+          right_aligned_side_panel_separator,
+          side_panel_rounded_corner,
+          immersive_mode_controller,
+          contents_separator) {}
 
 BraveBrowserViewLayout::~BraveBrowserViewLayout() = default;
 
@@ -84,9 +123,6 @@ void BraveBrowserViewLayout::LayoutVerticalTabs() {
     if (IsInfobarVisible()) {
       return infobar_container_->y();
     }
-    if (IsReaderModeToolbarVisible()) {
-      return reader_mode_toolbar_->y();
-    }
     return contents_container_->y() - GetContentsMargins().top();
   };
 
@@ -132,7 +168,6 @@ void BraveBrowserViewLayout::LayoutSidePanelView(
   }
 
   LayoutSideBar(contents_container_bounds);
-  LayoutReaderModeToolbar(contents_container_bounds);
 
   UpdateContentsContainerInsets(contents_container_bounds);
 }
@@ -318,19 +353,6 @@ void BraveBrowserViewLayout::UpdateContentsContainerInsets(
   contents_container_bounds.Inset(contents_margins);
 }
 
-void BraveBrowserViewLayout::LayoutReaderModeToolbar(
-    gfx::Rect& contents_bounds) {
-  if (!IsReaderModeToolbarVisible()) {
-    return;
-  }
-
-  gfx::Rect bounds = contents_bounds;
-  bounds.set_height(reader_mode_toolbar_->GetPreferredSize().height());
-  reader_mode_toolbar_->SetBoundsRect(bounds);
-
-  contents_bounds.Inset(gfx::Insets::TLBR(bounds.height(), 0, 0, 0));
-}
-
 gfx::Insets BraveBrowserViewLayout::GetContentsMargins() const {
   if (!BraveBrowser::ShouldUseBraveWebViewRoundedCorners(
           browser_view_->browser())) {
@@ -347,16 +369,11 @@ gfx::Insets BraveBrowserViewLayout::GetContentsMargins() const {
   // no need for a top margin.
   if (browser_view_->GetTabStripVisible() ||
       browser_view_->IsToolbarVisible() ||
-      browser_view_->IsBookmarkBarVisible() || IsInfobarVisible() ||
-      IsReaderModeToolbarVisible()) {
+      browser_view_->IsBookmarkBarVisible() || IsInfobarVisible()) {
     margins.set_top(0);
   }
 
   return margins;
-}
-
-bool BraveBrowserViewLayout::IsReaderModeToolbarVisible() const {
-  return reader_mode_toolbar_ && reader_mode_toolbar_->GetVisible();
 }
 
 bool BraveBrowserViewLayout::IsFullscreenForBrowser() const {

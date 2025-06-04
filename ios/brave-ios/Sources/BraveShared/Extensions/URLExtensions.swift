@@ -32,7 +32,7 @@ extension URL {
       switch internalURL.urlType {
       case .errorPage:
         return internalURL.originalURLFromErrorPage
-      case .web3Page, .sessionRestorePage, .aboutHomePage:
+      case .web3Page, .aboutHomePage:
         return internalURL.extractedUrlParam
       case .blockedPage:
         return decodeEmbeddedInternalURL(for: .blocked)
@@ -68,7 +68,7 @@ extension URL {
     }
 
     if let internalUrl = InternalURL(self),
-      internalUrl.isSessionRestore || internalUrl.isWeb3URL || internalUrl.isHTTPBlockedPage
+      internalUrl.isWeb3URL || internalUrl.isHTTPBlockedPage
         || internalUrl.isBlockedPage
     {
       return internalUrl.extractedUrlParam?.displayURL
@@ -185,6 +185,94 @@ extension URL {
 
     return renderedString.bidiBaseDirection == .leftToRight
   }
+
+  public var strippingBlobURLAuth: URL {
+    if self.scheme == "blob",
+      var components = URLComponents(url: self, resolvingAgainstBaseURL: true)
+    {
+      components.scheme = nil
+
+      if let newURL = components.url {
+        if var newComponents = URLComponents(url: newURL, resolvingAgainstBaseURL: true) {
+          newComponents.user = nil
+          newComponents.password = nil
+          newComponents.scheme = newURL.scheme
+
+          if let url = newComponents.url, let result = URL(string: "blob:\(url.absoluteString)") {
+            return result
+          }
+        }
+      }
+    }
+    return self
+  }
+
+  /// Matches what `window.origin` would return in javascript.
+  public var windowOriginURL: URL {
+    var components = URLComponents()
+    components.scheme = self.scheme
+    components.port = self.port
+    components.host = self.host
+    return components.url ?? self
+  }
+
+  /// Returns true if we should show Shred option for the given URL.
+  public var isShredAvailable: Bool {
+    urlToShred != nil
+  }
+
+  /// The URL to shred. Extracts reader mode url if it's a reader
+  /// mode internal url.
+  public var urlToShred: URL? {
+    if let internalURL = InternalURL(self) {
+      if internalURL.isReaderModePage {
+        return internalURL.extractedUrlParam
+      }
+      // only allow reader mode InternalURL to be shred
+      return nil
+    }
+    return self
+  }
+
+  // Returns true if a string is a valid URL, with the specified optional scheme,
+  // without percent encoding, idn encoding, or modifying the URL in any way.
+  public static func isValidURLWithoutEncoding(text: String, scheme: String? = nil) -> Bool {
+    guard let components = URLComponents(string: text) else {
+      return false
+    }
+
+    // If a scheme was specified, check if it matches
+    if let scheme = scheme, !scheme.isEmpty, components.scheme != scheme {
+      return false
+    }
+
+    // A valid URL must have a non-empty host or path
+    if (components.host ?? components.path).isEmpty {
+      return false
+    }
+
+    return true
+  }
+
+  public static func uniqueFileName(_ filename: String, in folder: URL) async throws -> URL {
+    let basePath = folder.appending(path: filename)
+    let fileExtension = basePath.pathExtension
+    let filenameWithoutExtension =
+      !fileExtension.isEmpty ? String(filename.dropLast(fileExtension.count + 1)) : filename
+
+    var proposedPath = basePath
+    var count = 0
+
+    while await AsyncFileManager.default.fileExists(atPath: proposedPath.path) {
+      count += 1
+
+      let proposedFilenameWithoutExtension = "\(filenameWithoutExtension) (\(count))"
+      proposedPath = folder.appending(path: proposedFilenameWithoutExtension)
+        .appending(path: fileExtension)
+    }
+
+    return proposedPath
+  }
 }
 
 extension InternalURL {
@@ -192,7 +280,6 @@ extension InternalURL {
   enum URLType {
     case blockedPage
     case httpBlockedPage
-    case sessionRestorePage
     case errorPage
     case readerModePage
     case aboutHomePage
@@ -222,10 +309,6 @@ extension InternalURL {
 
     if isReaderModePage {
       return .readerModePage
-    }
-
-    if isSessionRestore {
-      return .sessionRestorePage
     }
 
     if isAboutHomeURL {

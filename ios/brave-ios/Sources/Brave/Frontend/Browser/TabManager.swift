@@ -74,7 +74,6 @@ class TabManager: NSObject {
 
   private(set) var allTabs = [Tab]()
   private var _selectedIndex = -1
-  private let navDelegate: TabManagerNavDelegate
   private(set) var isRestoring = false
   private(set) var isBulkDeleting = false
 
@@ -126,16 +125,12 @@ class TabManager: NSObject {
 
     self.windowId = windowId
     self.prefs = prefs
-    self.navDelegate = TabManagerNavDelegate()
     self.rewards = rewards
     self.tabGeneratorAPI = tabGeneratorAPI
     self.historyAPI = historyAPI
     self.privateBrowsingManager = privateBrowsingManager
     self.tabEventHandlers = TabEventHandlers.create(with: prefs)
     super.init()
-
-    self.navDelegate.tabManager = self
-    addNavigationDelegate(self)
 
     Preferences.Shields.blockImages.observe(from: self)
     Preferences.General.blockPopups.observe(from: self)
@@ -162,12 +157,6 @@ class TabManager: NSObject {
 
   deinit {
     syncTabsTask?.cancel()
-  }
-
-  func addNavigationDelegate(_ delegate: WKNavigationDelegate) {
-    assert(Thread.isMainThread)
-
-    self.navDelegate.insert(delegate)
   }
 
   var count: Int {
@@ -378,8 +367,7 @@ class TabManager: NSObject {
       let webView = selectedTab.webView,
       webView.url == nil
     {
-
-      selectedTab.url = selectedTab.url ?? TabManager.ntpInteralURL
+      selectedTab.setVirtualURL(selectedTab.url ?? TabManager.ntpInteralURL)
       restoreTab(selectedTab)
       Logger.module.error("Force Restored a Zombie Tab?!")
     }
@@ -508,7 +496,7 @@ class TabManager: NSObject {
         isPrivate: isPrivate
       )
       tab.lastTitle = url.absoluteDisplayString
-      tab.url = url
+      tab.setVirtualURL(url)
       tab.favicon = Favicon.default
       Task { @MainActor in
         if let icon = await FaviconFetcher.getIconFromCache(for: url) {
@@ -613,7 +601,6 @@ class TabManager: NSObject {
     isPopup: Bool = false
   ) {
     assert(Thread.isMainThread)
-
     var request = request
     let isPrivate = tab.type == .private
     let isPersistentTab =
@@ -657,14 +644,13 @@ class TabManager: NSObject {
     if !zombie {
       tab.createWebview()
     }
-    tab.navigationDelegate = self.navDelegate
 
     if let request = request {
       tab.loadRequest(request)
-      tab.url = request.url
+      tab.setVirtualURL(request.url)
     } else if !isPopup {
       tab.loadRequest(PrivilegedRequest(url: TabManager.ntpInteralURL) as URLRequest)
-      tab.url = TabManager.ntpInteralURL
+      tab.setVirtualURL(TabManager.ntpInteralURL)
     }
 
     // Ignore on restore.
@@ -738,7 +724,7 @@ class TabManager: NSObject {
     SessionTab.updateAll(
       tabs: tabs.compactMap({
         if let sessionData = $0.webView?.sessionData {
-          return ($0.id, sessionData, $0.title, $0.url ?? TabManager.ntpInteralURL)
+          return ($0.id, sessionData, $0.title ?? "", $0.url ?? TabManager.ntpInteralURL)
         }
         return nil
       })
@@ -754,7 +740,7 @@ class TabManager: NSObject {
     SessionTab.update(
       tabId: tab.id,
       interactionState: tab.webView?.sessionData ?? Data(),
-      title: tab.title,
+      title: tab.title ?? "",
       url: tab.url ?? TabManager.ntpInteralURL
     )
     if saveOrder {
@@ -796,7 +782,9 @@ class TabManager: NSObject {
     in tab: Tab
   ) {
     guard FeatureList.kBraveShredFeature.enabled else { return }
-    guard let etldP1 = url.baseDomain else { return }
+    guard let url = url.urlToShred,
+      let etldP1 = url.baseDomain
+    else { return }
     forgetTasks[tab.type]?[etldP1]?.cancel()
     let siteDomain = Domain.getOrCreate(
       forUrl: url,
@@ -814,7 +802,7 @@ class TabManager: NSObject {
         existingTab != tab
       }
       // Ensure that no othe tabs are open for this domain
-      guard !tabs.contains(where: { $0.url?.baseDomain == etldP1 }) else {
+      guard !tabs.contains(where: { $0.url?.urlToShred?.baseDomain == etldP1 }) else {
         return
       }
       forgetDataDelayed(for: url, in: tab, delay: 30)
@@ -822,7 +810,9 @@ class TabManager: NSObject {
   }
 
   @MainActor func shredData(for url: URL, in tab: Tab) {
-    guard let etldP1 = url.baseDomain else { return }
+    guard let url = url.urlToShred,
+      let etldP1 = url.baseDomain
+    else { return }
 
     // Select the next or previous tab that is not being destroyed
     if let index = allTabs.firstIndex(where: { $0 == tab }) {
@@ -830,7 +820,7 @@ class TabManager: NSObject {
       // First seach down or up for a tab that is not being destroyed
       var increasingIndex = index + 1
       while nextTab == nil, increasingIndex < allTabs.count {
-        if allTabs[increasingIndex].url?.baseDomain != etldP1 {
+        if allTabs[increasingIndex].url?.urlToShred?.baseDomain != etldP1 {
           nextTab = allTabs[increasingIndex]
         }
         increasingIndex += 1
@@ -838,7 +828,7 @@ class TabManager: NSObject {
 
       var decreasingIndex = index - 1
       while nextTab == nil, decreasingIndex > 0 {
-        if allTabs[decreasingIndex].url?.baseDomain != etldP1 {
+        if allTabs[decreasingIndex].url?.urlToShred?.baseDomain != etldP1 {
           nextTab = allTabs[decreasingIndex]
         }
         decreasingIndex -= 1
@@ -852,7 +842,7 @@ class TabManager: NSObject {
 
     // Remove all unwanted tabs
     for tab in allTabs {
-      guard tab.url?.baseDomain == etldP1 else { continue }
+      guard tab.url?.urlToShred?.baseDomain == etldP1 else { continue }
       // The Tab's WebView is not deinitialized immediately, so it's possible the
       // WebView still stores data after we shred but before the WebView is deinitialized.
       // Delete the web view to prevent data being stored after data is Shred.
@@ -873,7 +863,9 @@ class TabManager: NSObject {
     in tab: Tab,
     delay: TimeInterval
   ) {
-    guard let etldP1 = url.baseDomain else { return }
+    guard let url = url.urlToShred,
+      let etldP1 = url.baseDomain
+    else { return }
     forgetTasks[tab.type] = forgetTasks[tab.type] ?? [:]
     // Start a task to delete all data for this etldP1
     // The task may be delayed in case we want to cancel it
@@ -893,6 +885,7 @@ class TabManager: NSObject {
   }
 
   @MainActor private func forgetData(for urls: [URL], dataStore: WKWebsiteDataStore? = nil) async {
+    var urls = urls.compactMap(\.urlToShred)
     let baseDomains = Set(urls.compactMap { $0.baseDomain })
     guard !baseDomains.isEmpty else { return }
 
@@ -917,16 +910,25 @@ class TabManager: NSObject {
     if let historyAPI = self.historyAPI {
       // if we're only forgetting 1 site, we can query history by it's domain
       let query = urls.count == 1 ? urls.first?.baseDomain : nil
-      let nodes = await historyAPI.search(
-        withQuery: query,
-        options: HistorySearchOptions(
-          maxCount: 0,
-          hostOnly: false,
-          duplicateHandling: .keepAll,
-          begin: nil,
-          end: nil
+
+      let nodes = await withCheckedContinuation { continuation in
+        var historyCancellable: HistoryCancellable?
+        _ = historyCancellable
+        historyCancellable = historyAPI.search(
+          withQuery: query,
+          options: HistorySearchOptions(
+            maxCount: 0,
+            hostOnly: false,
+            duplicateHandling: .keepAll,
+            begin: nil,
+            end: nil
+          ),
+          completion: {
+            historyCancellable = nil
+            continuation.resume(returning: $0)
+          }
         )
-      ).filter { node in
+      }.filter { node in
         guard let baseDomain = node.url.baseDomain else { return false }
         return baseDomains.contains(baseDomain)
       }
@@ -942,7 +944,7 @@ class TabManager: NSObject {
 
   /// Cancel a forget data request in case we navigate back to the tab within a certain period
   @MainActor func cancelForgetData(for url: URL, in tab: Tab) {
-    guard let etldP1 = url.baseDomain else { return }
+    guard let etldP1 = url.urlToShred?.baseDomain else { return }
     forgetTasks[tab.type]?[etldP1]?.cancel()
     forgetTasks[tab.type]?.removeValue(forKey: etldP1)
   }
@@ -968,7 +970,7 @@ class TabManager: NSObject {
         // This is the only way to guarantee that the last reference to the shared persistent store
         // reaches zero and destroys all its data.
 
-        BraveWebView.removeNonPersistentStore()
+        TabWebView.removeNonPersistentStore()
       }
     }
 
@@ -1030,9 +1032,6 @@ class TabManager: NSObject {
 
     assert(count == prevCount - 1, "Make sure the tab count was actually removed")
 
-    // There's still some time between this and the webView being destroyed. We don't want to pick up any stray events.
-    tab.webView?.navigationDelegate = nil
-
     delegates.forEach { $0.get()?.tabManager(self, didRemoveTab: tab) }
     TabEvent.post(.didClose, for: tab)
 
@@ -1062,7 +1061,7 @@ class TabManager: NSObject {
       }
     }
 
-    BraveWebView.removeNonPersistentStore()
+    TabWebView.removeNonPersistentStore()
 
     allTabs = tabs(withType: .regular)
   }
@@ -1213,7 +1212,7 @@ class TabManager: NSObject {
     configuration.processPool = WKProcessPool()
   }
 
-  private func preserveScreenshot(for tab: Tab) {
+  func preserveScreenshot(for tab: Tab) {
     assert(Thread.isMainThread)
     if isRestoring { return }
 
@@ -1336,10 +1335,6 @@ class TabManager: NSObject {
   func restoreTab(_ tab: Tab) {
     guard let webView = tab.webView else { return }
     guard let sessionTab = SessionTab.from(tabId: tab.id) else {
-
-      // Restore Tab with its Last-Request URL
-      tab.navigationDelegate = navDelegate
-
       var sessionData: (String, URLRequest)?
 
       if let tabURL = tab.url {
@@ -1360,8 +1355,6 @@ class TabManager: NSObject {
     // Tab was created with no active webview session data.
     // Restore tab data from Core-Data URL, and configure it.
     if sessionTab.interactionState.isEmpty {
-      tab.navigationDelegate = navDelegate
-
       if let tabURL = sessionTab.url {
         let request =
           InternalURL.isValid(url: tabURL)
@@ -1383,8 +1376,6 @@ class TabManager: NSObject {
       return
     }
 
-    // Restore tab data from Core-Data, and configure it.
-    tab.navigationDelegate = navDelegate
     tab.restore(
       webView,
       restorationData: (sessionTab.title, sessionTab.interactionState)
@@ -1413,7 +1404,6 @@ class TabManager: NSObject {
     isRestoring = true
     for tab in savedTabs {
       allTabs.append(tab)
-      tab.navigationDelegate = self.navDelegate
       for delegate in delegates {
         delegate.get()?.tabManager(self, didAddTab: tab)
       }
@@ -1487,7 +1477,6 @@ class TabManager: NSObject {
     guard let webView = tab.webView else { return }
 
     if let interactionState = recentlyClosed.interactionState, !interactionState.isEmpty {
-      tab.navigationDelegate = navDelegate
       tab.restore(webView, restorationData: (recentlyClosed.title ?? "", interactionState))
     }
 
@@ -1531,64 +1520,6 @@ class TabManager: NSObject {
       interactionState: tab.webView?.sessionData,
       order: -1
     )
-  }
-}
-
-extension TabManager: WKNavigationDelegate {
-
-  // Note the main frame JSContext (i.e. document, window) is not available yet.
-  func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
-    if let tab = self[webView] {
-      tab.contentBlocker.clearPageStats()
-    }
-  }
-
-  // The main frame JSContext is available, and DOM parsing has begun.
-  // Do not excute JS at this point that requires running prior to DOM parsing.
-  func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
-  }
-
-  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    // only store changes if this is not an error page
-    // as we current handle tab restore as error page redirects then this ensures that we don't
-    // call storeChanges unnecessarily on startup
-
-    if let url = webView.url {
-      // tab restore uses internal pages,
-      // so don't call storeChanges unnecessarily on startup
-      if InternalURL(url)?.isSessionRestore == true {
-        return
-      }
-
-      if let tab = tabForWebView(webView) {
-        if Preferences.Privacy.privateBrowsingOnly.value
-          || (tab.isPrivate && !Preferences.Privacy.persistentPrivateBrowsing.value)
-        {
-          return
-        }
-
-        preserveScreenshot(for: tab)
-        saveTab(tab)
-      }
-    }
-  }
-
-  func tabForWebView(_ webView: WKWebView) -> Tab? {
-    objc_sync_enter(self)
-    defer { objc_sync_exit(self) }
-
-    return allTabs.first(where: { $0.webView === webView })
-  }
-
-  func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-  }
-
-  /// Called when the WKWebView's content process has gone away. If this happens for the currently selected tab
-  /// then we immediately reload it.
-  func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-    if let tab = selectedTab, tab.webView == webView {
-      webView.reload()
-    }
   }
 }
 

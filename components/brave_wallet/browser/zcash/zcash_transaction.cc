@@ -5,12 +5,12 @@
 
 #include "brave/components/brave_wallet/browser/zcash/zcash_transaction.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "base/ranges/algorithm.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_serializer.h"
 #include "brave/components/brave_wallet/common/hex_utils.h"
@@ -94,6 +94,9 @@ bool ZCashTransaction::TransparentPart::operator==(
 bool ZCashTransaction::TransparentPart::operator!=(
     const TransparentPart& other) const {
   return !(*this == other);
+}
+bool ZCashTransaction::TransparentPart::IsEmpty() const {
+  return inputs.empty() && outputs.empty();
 }
 
 base::Value::Dict ZCashTransaction::Outpoint::ToValue() const {
@@ -269,6 +272,12 @@ base::Value::Dict ZCashTransaction::ToValue() const {
     inputs_value.Append(input.ToValue());
   }
 
+  auto& orchard_inputs_value =
+      dict.Set("orchard_inputs", base::Value::List())->GetList();
+  for (auto& input : orchard_part_.inputs) {
+    orchard_inputs_value.Append(input.ToValue());
+  }
+
   auto& outputs_value = dict.Set("outputs", base::Value::List())->GetList();
   for (auto& output : transparent_part_.outputs) {
     outputs_value.Append(output.ToValue());
@@ -280,10 +289,16 @@ base::Value::Dict ZCashTransaction::ToValue() const {
     orchard_outputs_value.Append(orchard_output.ToValue());
   }
 
+  if (orchard_part_.anchor_block_height) {
+    dict.Set("anchor_block_height",
+             base::NumberToString(orchard_part_.anchor_block_height.value()));
+  }
+
   dict.Set("locktime", base::NumberToString(locktime_));
   dict.Set("to", to_);
   dict.Set("amount", base::NumberToString(amount_));
   dict.Set("fee", base::NumberToString(fee_));
+  dict.Set("expiry_height", base::NumberToString(expiry_height_));
   if (memo_) {
     dict.Set("memo", base::HexEncode(memo_.value()));
   }
@@ -297,18 +312,35 @@ std::optional<ZCashTransaction> ZCashTransaction::FromValue(
   ZCashTransaction result;
 
   auto* inputs_list = value.FindList("inputs");
-  if (!inputs_list) {
+  auto* orchard_inputs_list = value.FindList("orchard_inputs");
+  if (!inputs_list && !orchard_inputs_list) {
     return std::nullopt;
   }
-  for (auto& item : *inputs_list) {
-    if (!item.is_dict()) {
-      return std::nullopt;
+  if (inputs_list) {
+    for (auto& item : *inputs_list) {
+      if (!item.is_dict()) {
+        return std::nullopt;
+      }
+      auto input_opt = ZCashTransaction::TxInput::FromValue(item.GetDict());
+      if (!input_opt) {
+        return std::nullopt;
+      }
+      result.transparent_part_.inputs.push_back(std::move(*input_opt));
     }
-    auto input_opt = ZCashTransaction::TxInput::FromValue(item.GetDict());
-    if (!input_opt) {
-      return std::nullopt;
+  }
+
+  if (orchard_inputs_list) {
+    for (auto& item : *orchard_inputs_list) {
+      if (!item.is_dict()) {
+        return std::nullopt;
+      }
+      auto input_opt =
+          ZCashTransaction::OrchardInput::FromValue(item.GetDict());
+      if (!input_opt) {
+        return std::nullopt;
+      }
+      result.orchard_part().inputs.push_back(std::move(*input_opt));
     }
-    result.transparent_part_.inputs.push_back(std::move(*input_opt));
   }
 
   auto* outputs_list = value.FindList("outputs");
@@ -344,6 +376,16 @@ std::optional<ZCashTransaction> ZCashTransaction::FromValue(
     }
   }
 
+  auto* anchor = value.Find("anchor_block_height");
+  if (anchor) {
+    uint32_t anchor_block_height = 0;
+    if (ReadUint32StringTo(value, "anchor_block_height", anchor_block_height)) {
+      result.orchard_part().anchor_block_height = anchor_block_height;
+    } else {
+      return std::nullopt;
+    }
+  }
+
   if (!ReadUint32StringTo(value, "locktime", result.locktime_)) {
     return std::nullopt;
   }
@@ -358,6 +400,12 @@ std::optional<ZCashTransaction> ZCashTransaction::FromValue(
 
   if (!ReadUint64StringTo(value, "fee", result.fee_)) {
     return std::nullopt;
+  }
+
+  if (value.Find("expiry_height")) {
+    if (!ReadUint32StringTo(value, "expiry_height", result.expiry_height_)) {
+      return std::nullopt;
+    }
   }
 
   if (value.Find("memo")) {
@@ -376,14 +424,17 @@ bool ZCashTransaction::IsTransparentPartSigned() const {
     return false;
   }
 
-  return base::ranges::all_of(transparent_part_.inputs,
-                              [](auto& input) { return input.IsSigned(); });
+  return std::ranges::all_of(transparent_part_.inputs,
+                             [](auto& input) { return input.IsSigned(); });
 }
 
 uint64_t ZCashTransaction::TotalInputsAmount() const {
   uint64_t result = 0;
   for (auto& input : transparent_part_.inputs) {
     result += input.utxo_value;
+  }
+  for (auto& input : orchard_part_.inputs) {
+    result += input.note.amount;
   }
   return result;
 }

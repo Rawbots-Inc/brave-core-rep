@@ -35,20 +35,29 @@ class NTPBackgroundImagesService {
  public:
   class Observer {
    public:
-    // Called whenever ntp background images component is updated.
-    virtual void OnUpdated(NTPBackgroundImagesData* data) = 0;
-    virtual void OnUpdated(NTPSponsoredImagesData* data) = 0;
-    // Called when SR campaign ended.
-    virtual void OnSuperReferralEnded() = 0;
+    // Called when the background images component is updated.
+    virtual void OnBackgroundImagesDataDidUpdate(
+        NTPBackgroundImagesData* data) {}
+
+    // Called when the sponsored content component is updated. This is
+    // deprecated, use `OnSponsoredContentDidUpdate`.
+    virtual void OnSponsoredImagesDataDidUpdate(NTPSponsoredImagesData* data) {}
+
+    // Called when the sponsored content component is updated.
+    virtual void OnSponsoredContentDidUpdate(const base::Value::Dict& data) {}
+
+    // Called when the super referral campaign ends.
+    virtual void OnSuperReferralCampaignDidEnd() {}
+
    protected:
-    virtual ~Observer() {}
+    virtual ~Observer() = default;
   };
 
   static void RegisterLocalStatePrefs(PrefRegistrySimple* registry);
 
   NTPBackgroundImagesService(
-      component_updater::ComponentUpdateService* cus,
-      PrefService* local_pref);
+      component_updater::ComponentUpdateService* component_update_service,
+      PrefService* pref_service);
   virtual ~NTPBackgroundImagesService();
 
   NTPBackgroundImagesService(const NTPBackgroundImagesService&) = delete;
@@ -62,7 +71,9 @@ class NTPBackgroundImagesService {
   bool HasObserver(Observer* observer);
 
   NTPBackgroundImagesData* GetBackgroundImagesData() const;
-  NTPSponsoredImagesData* GetBrandedImagesData(bool super_referral) const;
+  NTPSponsoredImagesData* GetSponsoredImagesData(
+      bool super_referral,
+      bool supports_rich_media) const;
 
   bool test_data_used() const { return test_data_used_; }
 
@@ -70,15 +81,42 @@ class NTPBackgroundImagesService {
   std::string GetSuperReferralThemeName() const;
   std::string GetSuperReferralCode() const;
 
-  void CheckNTPSIComponentUpdateIfNeeded();
+  void MaybeCheckForSponsoredComponentUpdate();
 
  private:
-  friend class TestNTPBackgroundImagesService;
+  friend class NTPSponsoredRichMediaSourceTest;
+  friend class NTPSponsoredRichMediaWithCSPViolationBrowserTest;
+  friend class NTPSponsoredRichMediaBrowserTest;
+  friend class NTPBackgroundImagesServiceForTesting;
   friend class NTPBackgroundImagesServiceTest;
-  friend class NTPBackgroundImagesViewCounterTest;
+  friend class ViewCounterServiceTest;
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      AllowNewTabTakeoverWithRichMediaIfJavaScriptContentSettingIsSetToAllowed);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      BlockNewTabTakeoverWithRichMediaIfJavaScriptContentSettingIsSetToBlocked);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      AllowNewTabTakeOverWithImageIfJavaScriptContentSettingIsSetToAllowed);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToBlocked);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesServiceTest, InternalDataTest);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesServiceTest,
                            MultipleCampaignsTest);
+  FRIEND_TEST_ALL_PREFIXES(
+      NTPBackgroundImagesServiceTest,
+      DoNotGetSponsoredImageContentForNonHttpsSchemeTargetUrl);
+  FRIEND_TEST_ALL_PREFIXES(
+      NTPBackgroundImagesServiceTest,
+      DoNotGetSponsoredImageContentIfWallpaperUrlReferencesParent);
+  FRIEND_TEST_ALL_PREFIXES(
+      NTPBackgroundImagesServiceTest,
+      DoNotGetSponsoredImageContentIfWallpaperButtonImageRelativeUrlReferencesParent);
+  FRIEND_TEST_ALL_PREFIXES(
+      NTPBackgroundImagesServiceTest,
+      DoNotGetSponsoredRichMediaContentIfWallpaperRelativeUrlReferencesParent);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesServiceTest,
                            SponsoredImageWithMissingImageUrlTest);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesServiceTest,
@@ -99,31 +137,29 @@ class NTPBackgroundImagesService {
   FRIEND_TEST_ALL_PREFIXES(
       NTPBackgroundImagesServiceTest,
       CheckRecoverShutdownWhileMappingTableFetchingWithNonDefaultCode);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           SINotActiveInitially);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           SINotActiveWithBadData);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           NotActiveOptedOut);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           IsActiveOptedIn);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           ActiveInitiallyOptedIn);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, CanShowSponsoredImages);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, CannotShowSponsoredImages);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
+                           CannotShowSponsoredImagesIfUninitialized);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
+                           CannotShowSponsoredImagesIfMalformed);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
+                           CannotShowSponsoredImagesIfOptedOut);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, IsActiveOptedIn);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, ActiveInitiallyOptedIn);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
                            ActiveOptedInWithNTPBackgoundOption);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest, ModelTest);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           BINotActiveInitially);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           BINotActiveWithBadData);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           BINotActiveWithNTPBackgoundOptionOptedOut);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, ModelTest);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, CanShowBackgroundImages);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, CannotShowBackgroundImages);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
+                           CannotShowBackgroundImagesIfUninitialized);
+  FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
+                           CannotShowBackgroundImagesIfMalformed);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesSourceTest, SponsoredImagesTest);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesSourceTest,
                            BasicSuperReferralDataTest);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesSourceTest, BackgroundImagesTest);
-  FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesViewCounterTest,
-                           GetCurrentWallpaperTest);
 
   void OnSponsoredComponentReady(bool is_super_referral,
                                  const base::FilePath& installed_dir);
@@ -153,35 +189,45 @@ class NTPBackgroundImagesService {
   virtual void UnRegisterSuperReferralComponent();
   virtual void MarkThisInstallIsNotSuperReferralForever();
 
-  base::Time last_update_check_time_;
-  base::WallClockTimer si_update_check_timer_;
-  base::RepeatingClosure si_update_check_callback_;
+  base::Time last_update_check_at_;
+
   bool test_data_used_ = false;
-  raw_ptr<component_updater::ComponentUpdateService> component_update_service_ =
-      nullptr;
-  std::optional<std::string> sponsored_images_component_id_;
-  raw_ptr<PrefService> local_pref_ = nullptr;
-  base::FilePath bi_installed_dir_;
-  std::unique_ptr<NTPBackgroundImagesData> bi_images_data_;
-  base::FilePath si_installed_dir_;
-  base::FilePath sr_installed_dir_;
-  base::ObserverList<Observer>::Unchecked observer_list_;
-  std::unique_ptr<NTPSponsoredImagesData> si_images_data_;
-  std::unique_ptr<NTPSponsoredImagesData> sr_images_data_;
+
+  const raw_ptr<component_updater::ComponentUpdateService>
+      component_update_service_ = nullptr;
+
+  const raw_ptr<PrefService> pref_service_ = nullptr;
   PrefChangeRegistrar pref_change_registrar_;
+
+  base::FilePath background_images_installed_dir_;
+  std::unique_ptr<NTPBackgroundImagesData> background_images_data_;
+
+  base::WallClockTimer sponsored_images_update_check_timer_;
+  base::RepeatingClosure sponsored_images_update_check_callback_;
+  std::optional<std::string> sponsored_images_component_id_;
+  base::FilePath sponsored_images_installed_dir_;
+  std::unique_ptr<NTPSponsoredImagesData> sponsored_images_data_;
+  std::unique_ptr<NTPSponsoredImagesData>
+      sponsored_images_data_excluding_rich_media_;
+
+  base::FilePath super_referrals_installed_dir_;
+  std::unique_ptr<NTPSponsoredImagesData> super_referrals_images_data_;
   // This is only used for registration during initial(first) SR component
   // download. After initial download is done, it's cached to
   // |kNewTabPageCachedSuperReferralComponentInfo|. At next launch, this cached
-  // info is used for registering SR component.
-  // Why component info is temporarily stored to |initial_sr_component_info_|
-  // when mapping table is fetched instead of directly store it into that prefs?
-  // The reason is |kNewTabPageCachedSuperReferralComponentInfo| is used to
-  // check whether initial download is finished or not. Knowing initial download
-  // is done is important for super referral. If this is SR install, we should
-  // not show SI images until user chooses Brave default images. So, we should
-  // know the exact timing whether SR assets is ready to use or not.
-  std::optional<base::Value::Dict> initial_sr_component_info_;
-  base::WeakPtrFactory<NTPBackgroundImagesService> weak_factory_;
+  // info is used for registering SR component. Why component info is
+  // temporarily stored to |initial_super_referrals_component_info_| when
+  // mapping table is fetched instead of directly store it into that prefs? The
+  // reason is |kNewTabPageCachedSuperReferralComponentInfo| is used to check
+  // whether initial download is finished or not. Knowing initial download is
+  // done is important for super referral. If this is SR install, we should not
+  // show SI images until user chooses Brave default images. So, we should know
+  // the exact timing whether SR assets is ready to use or not.
+  std::optional<base::Value::Dict> initial_super_referrals_component_info_;
+
+  base::ObserverList<Observer>::Unchecked observers_;
+
+  base::WeakPtrFactory<NTPBackgroundImagesService> weak_factory_{this};
 };
 
 }  // namespace ntp_background_images

@@ -12,6 +12,8 @@ import ActionTypeLabel from '../../../common/components/action_type_label'
 import { AIChatContext } from '../../state/ai_chat_context'
 import { ConversationContext } from '../../state/conversation_context'
 import styles from './style.module.scss'
+import AttachmentButtonMenu from '../attachment_button_menu'
+import UploadedImgItem from '../uploaded_img_item'
 
 type Props = Pick<
   ConversationContext,
@@ -27,15 +29,19 @@ type Props = Pick<
   | 'setIsToolsMenuOpen'
   | 'shouldDisableUserInput'
   | 'handleVoiceRecognition'
+  | 'isGenerating'
+  | 'handleStopGenerating'
+  | 'uploadImage'
+  | 'pendingMessageImages'
+  | 'removeImage'
+  | 'conversationHistory'
 > &
-  Pick<
-    AIChatContext,
-    'isMobile' | 'hasAcceptedAgreement'
-  >
+  Pick<AIChatContext, 'isMobile' | 'hasAcceptedAgreement'>
 
 interface InputBoxProps {
   context: Props
-  onFocusInputMobile?: () => unknown
+  conversationStarted: boolean
+  maybeShowSoftKeyboard?: (querySubmitted: boolean) => unknown
 }
 
 function InputBox(props: InputBoxProps) {
@@ -43,8 +49,15 @@ function InputBox(props: InputBoxProps) {
     props.context.setInputText(e.target.value)
   }
 
+  const querySubmitted = React.useRef(false)
+
   const handleSubmit = () => {
+    querySubmitted.current = true
     props.context.submitInputTextToAPI()
+  }
+
+  const handleStopGenerating = () => {
+    props.context.handleStopGenerating()
   }
 
   const handleMic = () => {
@@ -69,18 +82,12 @@ function InputBox(props: InputBoxProps) {
     }
   }
 
-  // We don't want to handle that event on desktop
-  let handleFocusMobile
-  if (props.context.isMobile) {
-    handleFocusMobile = (event: React.FormEvent<HTMLTextAreaElement>) => {
-      if (props.onFocusInputMobile) {
-        props.onFocusInputMobile()
-      }
-    }
-  }
-
   const maybeAutofocus = (node: HTMLTextAreaElement | null) => {
-    if (node && props.context.selectedActionType) {
+    if (!node) {
+      return
+    }
+    if (props.context.selectedActionType ||
+      props.maybeShowSoftKeyboard?.(querySubmitted.current)) {
       node.focus()
     }
   }
@@ -96,16 +103,28 @@ function InputBox(props: InputBoxProps) {
           />
         </div>
       )}
+      {props.context.pendingMessageImages && (
+        <div className={styles.attachmentWrapper}>
+          {props.context.pendingMessageImages.map((img, i) =>
+            <UploadedImgItem
+              key={img.filename}
+              uploadedImage={img}
+              removeImage={() => props.context.removeImage(i)}
+            />
+          )}
+        </div>
+      )}
       <div
         className={styles.growWrap}
         data-replicated-value={props.context.inputText}
       >
         <textarea
           ref={maybeAutofocus}
-          placeholder={getLocale('placeholderLabel')}
+          placeholder={getLocale(props.conversationStarted
+            ? 'placeholderLabel'
+            : 'initialPlaceholderLabel')}
           onChange={onInputChange}
           onKeyDown={handleOnKeyDown}
-          onFocus={handleFocusMobile}
           value={props.context.inputText}
           autoFocus
           rows={1}
@@ -127,8 +146,12 @@ function InputBox(props: InputBoxProps) {
           <Button
             fab
             kind='plain-faint'
-            onClick={() =>
-              props.context.setIsToolsMenuOpen(!props.context.isToolsMenuOpen)
+            onClick={(e) =>
+              {
+                e.preventDefault()
+                e.stopPropagation()
+                props.context.setIsToolsMenuOpen(!props.context.isToolsMenuOpen)
+              }
             }
             title={getLocale('toolsMenuButtonLabel')}
           >
@@ -150,17 +173,32 @@ function InputBox(props: InputBoxProps) {
               <Icon name='microphone' />
             </Button>
           )}
+          <AttachmentButtonMenu
+            uploadImage={props.context.uploadImage}
+            conversationHistory={props.context.conversationHistory}
+          />
         </div>
         <div>
-          <Button
-            fab
-            kind='plain-faint'
-            onClick={handleSubmit}
-            disabled={props.context.shouldDisableUserInput}
-            title={getLocale('sendChatButtonLabel')}
-          >
-            <Icon name='send' />
-          </Button>
+          {props.context.isGenerating ? (
+            <Button
+              fab
+              kind='plain-faint'
+              onClick={handleStopGenerating}
+              title={getLocale('stopGenerationButtonLabel')}
+            >
+              <Icon name='stop-circle' />
+            </Button>
+          ) : (
+            <Button
+              fab
+              kind='plain-faint'
+              onClick={handleSubmit}
+              disabled={props.context.shouldDisableUserInput}
+              title={getLocale('sendChatButtonLabel')}
+            >
+              <Icon name='send' />
+            </Button>
+          )}
         </div>
       </div>
     </form>

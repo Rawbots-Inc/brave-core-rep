@@ -93,11 +93,14 @@ class ZCashTransaction {
     bool operator==(const TransparentPart& other) const;
     bool operator!=(const TransparentPart& other) const;
 
+    bool IsEmpty() const;
+
     std::vector<TxInput> inputs;
     std::vector<TxOutput> outputs;
   };
 
   using OrchardOutput = ::brave_wallet::OrchardOutput;
+  using OrchardInput = ::brave_wallet::OrchardInput;
 
   struct OrchardPart {
     OrchardPart();
@@ -109,8 +112,9 @@ class ZCashTransaction {
     bool operator==(const OrchardPart& other) const;
     bool operator!=(const OrchardPart& other) const;
 
-    // Only outputs are supported
+    std::vector<OrchardInput> inputs;
     std::vector<OrchardOutput> outputs;
+    std::optional<uint32_t> anchor_block_height;
     std::optional<std::array<uint8_t, kZCashDigestSize>> digest;
     std::optional<std::vector<uint8_t>> raw_tx;
   };

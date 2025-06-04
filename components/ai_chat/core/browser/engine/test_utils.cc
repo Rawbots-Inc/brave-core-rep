@@ -17,9 +17,10 @@ std::vector<mojom::ConversationTurnPtr> GetHistoryWithModifiedReply() {
   std::vector<mojom::ConversationTurnPtr> history;
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::HUMAN, mojom::ActionType::QUERY,
-      mojom::ConversationTurnVisibility::VISIBLE,
-      "Which show is 'This is the way' from?", std::nullopt, std::nullopt,
-      base::Time::Now(), std::nullopt, false));
+      "Which show is 'This is the way' from?", std::nullopt /* prompt */,
+      std::nullopt /* selected_text */, std::nullopt /* events */,
+      base::Time::Now(), std::nullopt /* edits */,
+      std::nullopt /* uploaded_images */, false));
 
   std::vector<mojom::ConversationEntryEventPtr> events;
   auto search_event = mojom::ConversationEntryEvent::NewSearchStatusEvent(
@@ -35,21 +36,23 @@ std::vector<mojom::ConversationTurnPtr> GetHistoryWithModifiedReply() {
 
   auto edit = mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::ASSISTANT,
-      mojom::ActionType::RESPONSE, mojom::ConversationTurnVisibility::VISIBLE,
-      "The Mandalorian.", std::nullopt, std::move(modified_events),
-      base::Time::Now(), std::nullopt, false);
+      mojom::ActionType::RESPONSE, "The Mandalorian.",
+      std::nullopt /* prompt */, std::nullopt /* selected_text*/,
+      std::move(modified_events), base::Time::Now(), std::nullopt /* edits */,
+      std::nullopt /* uploaded_images */, false);
   std::vector<mojom::ConversationTurnPtr> edits;
   edits.push_back(std::move(edit));
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::ASSISTANT,
-      mojom::ActionType::RESPONSE, mojom::ConversationTurnVisibility::VISIBLE,
-      "Mandalorian.", std::nullopt, std::move(events), base::Time::Now(),
-      std::move(edits), false));
+      mojom::ActionType::RESPONSE, "Mandalorian.", std::nullopt /* prompt */,
+      std::nullopt /* selected_text*/, std::move(events), base::Time::Now(),
+      std::move(edits), std::nullopt /* uploaded_images */, false));
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::HUMAN, mojom::ActionType::QUERY,
-      mojom::ConversationTurnVisibility::VISIBLE,
-      "Is it related to a broader series?", std::nullopt, std::nullopt,
-      base::Time::Now(), std::nullopt, false));
+      "Is it related to a broader series?", std::nullopt /* prompt */,
+      std::nullopt /* selected_text */, std::nullopt /* events */,
+      base::Time::Now(), std::nullopt /* edits */,
+      std::nullopt /* uploaded_images */, false));
 
   return history;
 }

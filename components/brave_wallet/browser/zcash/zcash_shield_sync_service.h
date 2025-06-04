@@ -11,18 +11,17 @@
 #include <string>
 #include <vector>
 
-#include "base/memory/scoped_refptr.h"
-#include "base/threading/sequence_bound.h"
 #include "base/types/expected.h"
 #include "brave/components/brave_wallet/browser/internal/orchard_block_scanner.h"
 #include "brave/components/brave_wallet/browser/internal/orchard_sync_state.h"
-#include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
-#include "mojo/public/cpp/bindings/remote.h"
+#include "brave/components/brave_wallet/browser/zcash/zcash_action_context.h"
 
 namespace brave_wallet {
 
 class OrchardStorage;
-class ZCashRpc;
+class ZCashScanBlocksTask;
+class ZCashVerifyChainStateTask;
+class ZCashWalletService;
 
 // ZCashShieldSyncService downloads and scans blockchain blocks to find
 // spendable notes related to the account.
@@ -30,7 +29,7 @@ class ZCashRpc;
 // related to the account.
 class ZCashShieldSyncService {
  public:
-  enum class ErrorCode {
+  enum ErrorCode {
     kFailedToDownloadBlocks,
     kFailedToUpdateDatabase,
     kFailedToUpdateChainTip,
@@ -38,12 +37,24 @@ class ZCashShieldSyncService {
     kFailedToReceiveTreeState,
     kFailedToInitAccount,
     kFailedToRetrieveAccount,
+    kFailedToVerifyChainState,
+    kFailedToUpdateSubtreeRoots,
+    kDatabaseError,
     kScannerError,
   };
 
   struct Error {
     ErrorCode code;
     std::string message;
+  };
+
+  struct ScanRangeResult {
+    uint32_t start_block = 0;
+    uint32_t end_block = 0;
+    size_t total_ranges = 0;
+    size_t ready_ranges = 0;
+
+    bool IsFinished() { return total_ranges == ready_ranges; }
   };
 
   class Observer {
@@ -70,26 +81,37 @@ class ZCashShieldSyncService {
             callback);
 
    private:
-    base::SequenceBound<OrchardBlockScanner> background_block_scanner_;
+    static base::expected<OrchardBlockScanner::Result,
+                          OrchardBlockScanner::ErrorCode>
+    ScanBlocksInBackground(OrchardFullViewKey full_view_key,
+                           OrchardTreeState tree_state,
+                           std::vector<zcash::mojom::CompactBlockPtr> blocks);
+    OrchardFullViewKey full_view_key_;
+    scoped_refptr<base::TaskRunner> task_runner_;
+
+    base::WeakPtrFactory<OrchardBlockScannerProxy> weak_ptr_factory_{this};
   };
 
   ZCashShieldSyncService(
-      ZCashRpc& zcash_rpc,
-      base::SequenceBound<OrchardSyncState>& zcash_orchard_sync_state,
-      const mojom::AccountIdPtr& account_id,
+      ZCashWalletService& zcash_wallet_service,
+      ZCashActionContext context,
       const mojom::ZCashAccountShieldBirthdayPtr& account_birthday,
-      const std::array<uint8_t, kOrchardFullViewKeySize>& fvk,
+      const OrchardFullViewKey& fvk,
       base::WeakPtr<Observer> observer);
   virtual ~ZCashShieldSyncService();
 
   bool IsStarted();
 
-  void StartSyncing();
+  void StartSyncing(std::optional<uint32_t> to);
 
   mojom::ZCashShieldSyncStatusPtr GetSyncStatus();
 
  private:
   FRIEND_TEST_ALL_PREFIXES(ZCashShieldSyncServiceTest, ScanBlocks);
+  FRIEND_TEST_ALL_PREFIXES(ZCashShieldSyncServiceTest,
+                           ReorgEvent_ChainTipAfter);
+  FRIEND_TEST_ALL_PREFIXES(ZCashShieldSyncServiceTest,
+                           ReorgEvent_ChainTipBelow);
 
   void SetOrchardBlockScannerProxyForTesting(
       std::unique_ptr<OrchardBlockScannerProxy> block_scanner);
@@ -104,85 +126,56 @@ class ZCashShieldSyncService {
                      OrchardStorage::Error> result);
   void InitAccount();
   void OnAccountInit(
-      base::expected<OrchardStorage::AccountMeta, OrchardStorage::Error> error);
-
-  // Get last known block in the blockchain
-  void UpdateChainTip();
-  void OnGetLatestBlock(
-      base::expected<zcash::mojom::BlockIDPtr, std::string> result);
+      base::expected<OrchardStorage::Result, OrchardStorage::Error> error);
 
   // Chain reorg flow
   // Chain reorg happens when latest blocks are removed from the blockchain
   // We assume that there is a limit of reorg depth - kChainReorgBlockDelta
+  void VerifyChainState();
+  void OnChainStateVerified(
+      base::expected<bool, ZCashShieldSyncService::Error> result);
 
-  // Verifies that last known scanned block hash is unchanged
-  void VerifyChainState(OrchardStorage::AccountMeta account_meta);
-  void OnGetTreeStateForChainVerification(
-      OrchardStorage::AccountMeta account_meta,
-      base::expected<zcash::mojom::TreeStatePtr, std::string> tree_state);
-
-  // Resolves block hash for the block we are going to fallback
-  void GetTreeStateForChainReorg(uint32_t new_block_id);
-  void OnGetTreeStateForChainReorg(
-      uint32_t new_block_height,
-      base::expected<zcash::mojom::TreeStatePtr, std::string> tree_state);
-  void OnDatabaseUpdatedForChainReorg(
-      uint32_t new_block_height,
-      base::expected<OrchardStorage::Result, OrchardStorage::Error> result);
+  uint32_t GetSpendableBalance();
 
   // Update spendable notes state
-  void UpdateSpendableNotes();
+  void UpdateSpendableNotes(const ScanRangeResult& scan_range_result);
   void OnGetSpendableNotes(
-      base::expected<std::vector<OrchardNote>, OrchardStorage::Error> result);
+      const ScanRangeResult& scan_range_result,
+      base::expected<std::optional<OrchardSyncState::SpendableNotesBundle>,
+                     OrchardStorage::Error> result);
 
-  // Download, scan, update flow
-  // Download next bunch of blocks
-  void DownloadBlocks();
-  void OnBlocksDownloaded(
-      base::expected<std::vector<zcash::mojom::CompactBlockPtr>, std::string>
-          result);
-  // Process a bunch of downloaded blocks to resolve related notes and
-  // nullifiers
-  void ScanBlocks();
-  void OnBlocksScanned(uint32_t last_block_height,
-                       std::string last_block_hash,
-                       base::expected<OrchardBlockScanner::Result,
-                                      OrchardBlockScanner::ErrorCode> result);
-  void UpdateNotes(OrchardBlockScanner::Result result,
-                   uint32_t latest_scanned_block,
-                   std::string latest_scanned_block_hash);
-  void UpdateNotesComplete(
-      uint32_t new_latest_scanned_block,
-      base::expected<OrchardStorage::Result, OrchardStorage::Error> result);
+  void StartBlockScanning();
+  void OnScanRangeResult(
+      base::expected<ScanRangeResult, ZCashShieldSyncService::Error> result);
 
   ZCashRpc& zcash_rpc();
   base::SequenceBound<OrchardSyncState>& sync_state();
 
-  uint32_t GetSpendableBalance();
   std::optional<Error> error() { return error_; }
 
   // Params
-  raw_ref<ZCashRpc> zcash_rpc_;
-  raw_ref<base::SequenceBound<OrchardSyncState>> zcash_orchard_sync_state_;
-  mojom::AccountIdPtr account_id_;
+  raw_ref<ZCashWalletService> zcash_wallet_service_;
+  ZCashActionContext context_;
   // Birthday of the account will be used to resolve initial scan range.
   mojom::ZCashAccountShieldBirthdayPtr account_birthday_;
-  base::FilePath db_dir_path_;
   base::WeakPtr<Observer> observer_;
-  std::string chain_id_;
+  std::optional<uint32_t> to_;
 
   std::unique_ptr<OrchardBlockScannerProxy> block_scanner_;
 
   std::optional<OrchardStorage::AccountMeta> account_meta_;
   // Latest scanned block
-  std::optional<size_t> latest_scanned_block_;
-  // Latest block in the blockchain
-  std::optional<size_t> chain_tip_block_;
-  std::optional<std::vector<zcash::mojom::CompactBlockPtr>> downloaded_blocks_;
+  std::optional<uint32_t> latest_scanned_block_;
+
+  std::unique_ptr<ZCashVerifyChainStateTask> verify_chain_state_task_;
+  bool chain_state_verified_ = false;
+
+  std::unique_ptr<ZCashScanBlocksTask> scan_blocks_task_;
+  std::optional<ScanRangeResult> latest_scanned_block_result_;
+
   // Local cache of spendable notes to fast check on discovered nullifiers
-  std::optional<std::vector<OrchardNote>> spendable_notes_;
+  std::optional<OrchardSyncState::SpendableNotesBundle> spendable_notes_bundle_;
   std::optional<Error> error_;
-  bool stopped_ = false;
 
   mojom::ZCashShieldSyncStatusPtr current_sync_status_;
 

@@ -29,6 +29,7 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/types/expected.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_credential_manager.h"
+#include "brave/components/ai_chat/core/browser/ai_chat_metrics.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/model_service.h"
 #include "brave/components/ai_chat/core/browser/text_embedder.h"
@@ -65,7 +66,8 @@ class AIChatCredentialManager;
 // the in-memory conversation history.
 class ConversationHandler : public mojom::ConversationHandler,
                             public mojom::UntrustedConversationHandler,
-                            public ModelService::Observer {
+                            public ModelService::Observer,
+                            public ConversationHandlerForMetrics {
  public:
   // |invalidation_token| is an optional parameter that will be passed back on
   // the next call to |GetPageContent| so that the implementer may determine if
@@ -127,6 +129,10 @@ class ConversationHandler : public mojom::ConversationHandler,
       text_embedder_ = std::move(text_embedder);
     }
     TextEmbedder* GetTextEmbedderForTesting() { return text_embedder_.get(); }
+
+    base::WeakPtr<AssociatedContentDelegate> GetWeakPtr() {
+      return weak_ptr_factory_.GetWeakPtr();
+    }
 
    protected:
     // Content has navigated
@@ -249,7 +255,10 @@ class ConversationHandler : public mojom::ConversationHandler,
   void GetModels(GetModelsCallback callback) override;
   void ChangeModel(const std::string& model_key) override;
   void GetIsRequestInProgress(GetIsRequestInProgressCallback callback) override;
-  void SubmitHumanConversationEntry(const std::string& input) override;
+  void SubmitHumanConversationEntry(
+      const std::string& input,
+      std::optional<std::vector<mojom::UploadedImagePtr>> uploaded_images)
+      override;
   void SubmitHumanConversationEntry(mojom::ConversationTurnPtr turn);
   void SubmitHumanConversationEntryWithAction(
       const std::string& input,
@@ -257,6 +266,7 @@ class ConversationHandler : public mojom::ConversationHandler,
   void ModifyConversation(uint32_t turn_index,
                           const std::string& new_text) override;
   void SubmitSummarizationRequest() override;
+  void SubmitSuggestion(const std::string& suggestion_title) override;
   std::vector<std::string> GetSuggestedQuestionsForTest();
   void SetSuggestedQuestionForTest(std::string title, std::string prompt);
   void GenerateQuestions() override;
@@ -267,6 +277,8 @@ class ConversationHandler : public mojom::ConversationHandler,
   void GetAPIResponseError(GetAPIResponseErrorCallback callback) override;
   void ClearErrorAndGetFailedMessage(
       ClearErrorAndGetFailedMessageCallback callback) override;
+  void StopGenerationAndMaybeGetHumanEntry(
+      StopGenerationAndMaybeGetHumanEntryCallback callback) override;
 
   void SubmitSelectedText(const std::string& selected_text,
                           mojom::ActionType action_type);
@@ -279,8 +291,8 @@ class ConversationHandler : public mojom::ConversationHandler,
                                   mojom::ActionType action_type,
                                   mojom::APIError error);
   void OnAssociatedContentTitleChanged();
-  void OnFaviconImageDataChanged();
   void OnUserOptedIn();
+  size_t GetConversationHistorySize() override;
 
   // Some associated content may provide some conversation that the user wants
   // to continue, e.g. Brave Search.
@@ -291,6 +303,10 @@ class ConversationHandler : public mojom::ConversationHandler,
   }
 
   std::string get_conversation_uuid() const { return metadata_->uuid; }
+
+  bool should_send_page_contents() const override;
+
+  mojom::APIError current_error() const override;
 
   void SetEngineForTesting(std::unique_ptr<EngineConsumer> engine_for_testing) {
     engine_ = std::move(engine_for_testing);
@@ -335,7 +351,8 @@ class ConversationHandler : public mojom::ConversationHandler,
                            OnGetStagedEntriesFromContent);
   FRIEND_TEST_ALL_PREFIXES(ConversationHandlerUnitTest,
                            OnGetStagedEntriesFromContent_FailedChecks);
-  FRIEND_TEST_ALL_PREFIXES(ConversationHandlerUnitTest, SelectedLanguage);
+  FRIEND_TEST_ALL_PREFIXES(ConversationHandlerUnitTest_NoAssociatedContent,
+                           SelectedLanguage);
   FRIEND_TEST_ALL_PREFIXES(PageContentRefineTest, LocalModelsUpdater);
   FRIEND_TEST_ALL_PREFIXES(PageContentRefineTest, TextEmbedder);
   FRIEND_TEST_ALL_PREFIXES(PageContentRefineTest, TextEmbedderInitialized);
@@ -343,9 +360,13 @@ class ConversationHandler : public mojom::ConversationHandler,
   struct Suggestion {
     std::string title;
     std::optional<std::string> prompt;
+    mojom::ActionType action_type = mojom::ActionType::SUGGESTION;
 
     explicit Suggestion(std::string title);
     Suggestion(std::string title, std::string prompt);
+    Suggestion(std::string title,
+               std::string prompt,
+               mojom::ActionType action_type);
     Suggestion(const Suggestion&) = delete;
     Suggestion& operator=(const Suggestion&) = delete;
     Suggestion(Suggestion&&);
@@ -354,13 +375,12 @@ class ConversationHandler : public mojom::ConversationHandler,
   };
 
   void InitEngine();
-  void BuildAssociatedContentInfo();
+  void UpdateAssociatedContentInfo();
   mojom::ConversationEntriesStatePtr GetStateForConversationEntries();
   bool IsContentAssociationPossible();
   int GetContentUsedPercentage();
   void AddToConversationHistory(mojom::ConversationTurnPtr turn);
-  void PerformAssistantGeneration(const std::string& input,
-                                  std::string page_content = "",
+  void PerformAssistantGeneration(std::string page_content = "",
                                   bool is_video = false,
                                   std::string invalidation_token = "");
   void SetAPIError(const mojom::APIError& error);
@@ -389,7 +409,6 @@ class ConversationHandler : public mojom::ConversationHandler,
                                      bool is_video,
                                      std::string invalidation_token);
   void OnGetRefinedPageContent(
-      const std::string& input,
       EngineConsumer::GenerationDataCallback data_received_callback,
       EngineConsumer::GenerationCompletedCallback data_completed_callback,
       std::string page_content,
@@ -411,7 +430,6 @@ class ConversationHandler : public mojom::ConversationHandler,
   void OnConversationTitleChanged(std::string_view title);
   void OnConversationUIConnectionChanged(mojo::RemoteSetElementId id);
   void OnSelectedLanguageChanged(const std::string& selected_language);
-  void OnAssociatedContentFaviconImageDataChanged();
   void OnAPIRequestInProgressChanged();
   void OnStateForConversationEntriesChanged();
 

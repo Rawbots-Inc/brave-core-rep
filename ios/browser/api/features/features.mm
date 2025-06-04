@@ -10,7 +10,7 @@
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/brave_component_updater/browser/features.h"
 #include "brave/components/brave_news/common/features.h"
-#include "brave/components/brave_rewards/common/features.h"
+#include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_search/common/features.h"
 #include "brave/components/brave_search_conversion/features.h"
 #include "brave/components/brave_shields/core/common/features.h"
@@ -23,11 +23,11 @@
 #include "brave/components/p3a/features.h"
 #include "brave/components/playlist/common/features.h"
 #include "brave/components/skus/common/features.h"
+#include "brave/ios/browser/api/translate/features.h"
 #include "brave/ios/browser/playlist/features.h"
 #include "brave/ios/browser/ui/browser_menu/features.h"
 #import "build/blink_buildflags.h"
 #include "build/build_config.h"
-#include "ios/components/security_interstitials/https_only_mode/feature.h"
 #include "net/base/features.h"
 
 @interface Feature () {
@@ -212,6 +212,11 @@
       initWithFeature:&brave_shields::features::kBraveIOSDebugAdblock];
 }
 
++ (Feature*)kBraveIOSEnableFarblingPlugins {
+  return [[Feature alloc]
+      initWithFeature:&brave_shields::features::kBraveIOSEnableFarblingPlugins];
+}
+
 + (Feature*)kBraveShowStrictFingerprintingMode {
   return
       [[Feature alloc] initWithFeature:&brave_shields::features::
@@ -314,11 +319,6 @@
   return [[Feature alloc] initWithFeature:&net::features::kBraveHttpsByDefault];
 }
 
-+ (Feature*)kHttpsOnlyMode {
-  return [[Feature alloc]
-      initWithFeature:&security_interstitials::features::kHttpsOnlyMode];
-}
-
 + (Feature*)kBlockAllCookiesToggle {
   return [[Feature alloc]
       initWithFeature:&brave_shields::features::kBlockAllCookiesToggle];
@@ -327,6 +327,16 @@
 + (Feature*)kModernBrowserMenuEnabled {
   return [[Feature alloc]
       initWithFeature:&brave::features::kModernBrowserMenuEnabled];
+}
+
++ (Feature*)kBraveTranslateEnabled {
+  return [[Feature alloc]
+      initWithFeature:&brave::features::kBraveTranslateEnabled];
+}
+
++ (Feature*)kBraveAppleTranslateEnabled {
+  return [[Feature alloc]
+      initWithFeature:&brave::features::kBraveAppleTranslateEnabled];
 }
 
 @end

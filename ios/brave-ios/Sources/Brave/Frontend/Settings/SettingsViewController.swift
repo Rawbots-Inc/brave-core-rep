@@ -10,7 +10,9 @@ import BraveStore
 import BraveUI
 import BraveVPN
 import BraveWallet
+import Combine
 import Data
+import DataImporter
 import Growth
 import LocalAuthentication
 import NetworkExtension
@@ -67,9 +69,15 @@ class SettingsViewController: TableViewController {
   private let cryptoStore: CryptoStore?
   private let windowProtection: WindowProtection?
   private let ipfsAPI: IpfsAPI
+  private let altIconsModel = AltIconsModel()
 
   private let featureSectionUUID: UUID = .init()
+  private let displaySectionUUID: UUID = .init()
+
   private let walletRowUUID: UUID = .init()
+  private let appIconRowUUID: UUID = .init()
+
+  private var cancellables: Set<AnyCancellable> = []
 
   init(
     profile: Profile,
@@ -136,6 +144,23 @@ class SettingsViewController: TableViewController {
       name: .NEVPNStatusDidChange,
       object: nil
     )
+
+    self.altIconsModel.$selectedAltAppIcon
+      .dropFirst()
+      .receive(on: RunLoop.main)
+      .sink { [weak self] _ in
+        guard let self,
+          let indexPath = self.dataSource.indexPath(
+            rowUUID: appIconRowUUID.uuidString,
+            sectionUUID: displaySectionUUID.uuidString
+          )
+        else {
+          return
+        }
+        dataSource.sections[indexPath.section].rows[indexPath.row].image = selectedAppIcon
+        self.tableView.reloadData()
+      }
+      .store(in: &cancellables)
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -257,7 +282,25 @@ class SettingsViewController: TableViewController {
             UIApplication.shared.open(settingsUrl)
           },
           cellClass: MultilineButtonCell.self
-        )
+        ),
+        .init(
+          text: Strings.importBrowsingDataSettingsMenuTitle,
+          selection: { [unowned self] in
+            let controller = UIHostingController(
+              rootView: DataImportView(
+                openURL: { [unowned self] url in
+                  self.settingsDelegate?.settingsOpenURLInNewTab(url)
+                  self.dismiss(animated: true)
+                },
+                onDismiss: { [weak self] in
+                  self?.navigationController?.setNavigationBarHidden(false, animated: false)
+                }
+              )
+            )
+            self.navigationController?.pushViewController(controller, animated: true)
+          },
+          cellClass: MultilineButtonCell.self
+        ),
       ]
     )
 
@@ -391,17 +434,19 @@ class SettingsViewController: TableViewController {
       )
     )
 
-    section.rows.append(
-      Row(
-        text: Strings.BraveTranslate.settingsMenuTitle,
-        selection: { [unowned self] in
-          let translateSettings = UIHostingController(rootView: BraveTranslateSettingsView())
-          self.navigationController?.pushViewController(translateSettings, animated: true)
-        },
-        image: UIImage(braveSystemNamed: "leo.product.translate"),
-        accessory: .disclosureIndicator
+    if FeatureList.kBraveTranslateEnabled.enabled {
+      section.rows.append(
+        Row(
+          text: Strings.BraveTranslate.settingsMenuTitle,
+          selection: { [unowned self] in
+            let translateSettings = UIHostingController(rootView: BraveTranslateSettingsView())
+            self.navigationController?.pushViewController(translateSettings, animated: true)
+          },
+          image: UIImage(braveSystemNamed: "leo.product.translate"),
+          accessory: .disclosureIndicator
+        )
       )
-    )
+    }
 
     return section
   }
@@ -433,9 +478,7 @@ class SettingsViewController: TableViewController {
               }
 
               let syncSettingsViewController = SyncSettingsTableViewController(
-                syncAPI: syncAPI,
-                syncProfileService:
-                  syncProfileServices,
+                braveCoreMain: braveCore,
                 tabManager: tabManager,
                 windowProtection: windowProtection
               )
@@ -444,8 +487,7 @@ class SettingsViewController: TableViewController {
                 .pushViewController(syncSettingsViewController, animated: true)
             } else {
               let syncWelcomeViewController = SyncWelcomeViewController(
-                syncAPI: syncAPI,
-                syncProfileServices: syncProfileServices,
+                braveCore: braveCore,
                 tabManager: tabManager,
                 windowProtection: windowProtection
               )
@@ -623,10 +665,18 @@ class SettingsViewController: TableViewController {
     return tabs
   }()
 
+  private var selectedAppIcon: UIImage? {
+    if let altIcon = altIconsModel.selectedAltAppIcon {
+      return UIImage(named: altIcon, in: .module, with: nil)
+    }
+    return Bundle.main.primaryIconName.flatMap { UIImage(named: $0) }
+  }
+
   private lazy var displaySection: Static.Section = {
     var display = Static.Section(
       header: .title(Strings.displaySettingsSection),
-      rows: []
+      rows: [],
+      uuid: displaySectionUUID.uuidString
     )
 
     display.rows.append(
@@ -684,6 +734,20 @@ class SettingsViewController: TableViewController {
       self.navigationController?.pushViewController(optionsViewController, animated: true)
     }
     display.rows.append(row)
+    display.rows.append(
+      Row(
+        text: Strings.AltAppIcon.changeAppIcon,
+        selection: { [unowned self] in
+          let controller = UIHostingController(rootView: AltIconsView(model: altIconsModel))
+          controller.title = Strings.AltAppIcon.changeAppIcon
+          navigationController?.pushViewController(controller, animated: true)
+        },
+        image: selectedAppIcon,
+        accessory: .disclosureIndicator,
+        cellClass: AppIconCell.self,
+        uuid: appIconRowUUID.uuidString
+      )
+    )
     display.rows.append(
       Row(
         text: Strings.NTP.settingsTitle,
@@ -807,8 +871,7 @@ class SettingsViewController: TableViewController {
       selection: { [unowned self] in
         let model = AIChatViewModel(
           braveCore: self.braveCore,
-          webView: self.tabManager.selectedTab?.webView,
-          script: BraveLeoScriptHandler.self,
+          webDelegate: self.tabManager.selectedTab?.leoTabHelper,
           braveTalkScript: nil
         )
 
@@ -989,10 +1052,7 @@ class SettingsViewController: TableViewController {
         Row(
           text: Strings.privacyPolicy,
           selection: { [unowned self] in
-            // Show privacy policy
-            let privacy = SettingsContentViewController().then { $0.url = .brave.privacy }
-            privacy.navigationItem.title = Strings.privacyPolicy
-            self.navigationController?.pushViewController(privacy, animated: true)
+            settingsDelegate?.settingsOpenURLInNewTab(.brave.privacy)
           },
           accessory: .disclosureIndicator,
           cellClass: MultilineValue1Cell.self
@@ -1000,10 +1060,7 @@ class SettingsViewController: TableViewController {
         Row(
           text: Strings.termsOfUse,
           selection: { [unowned self] in
-            // Show terms of use
-            let toc = SettingsContentViewController().then { $0.url = .brave.termsOfUse }
-            toc.navigationItem.title = Strings.termsOfUse
-            self.navigationController?.pushViewController(toc, animated: true)
+            settingsDelegate?.settingsOpenURLInNewTab(.brave.termsOfUse)
           },
           accessory: .disclosureIndicator,
           cellClass: MultilineValue1Cell.self
@@ -1011,10 +1068,9 @@ class SettingsViewController: TableViewController {
         Row(
           text: Strings.settingsLicenses,
           selection: { [unowned self] in
-            let licenses = SettingsContentViewController().then {
-              $0.url = URL(string: "\(InternalURL.baseUrl)/\(AboutLicenseHandler.path)")
+            if let url = URL(string: "\(InternalURL.baseUrl)/\(AboutLicenseHandler.path)") {
+              settingsDelegate?.settingsOpenURLInNewTab(url)
             }
-            self.navigationController?.pushViewController(licenses, animated: true)
           },
           accessory: .disclosureIndicator
         ),
@@ -1385,5 +1441,29 @@ class SettingsViewController: TableViewController {
     if dataSource.sections.isEmpty { return }
     dataSource.sections[0] = Static.Section()
     Preferences.VPN.vpnSettingHeaderWasDismissed.value = true
+  }
+}
+
+private class AppIconCell: UITableViewCell, Cell {
+  func configure(row: Row) {
+    var content = defaultContentConfiguration()
+    content.image = row.image
+    content.text = row.text
+    content.imageProperties.cornerRadius = 6
+    let scaledValue = UIFontMetrics.default.scaledValue(for: 24)
+    content.imageProperties.maximumSize = .init(width: scaledValue, height: scaledValue)
+    if #available(iOS 18, *) {
+      content.imageProperties.strokeColor = UIColor(white: 0, alpha: 0.1)
+      content.imageProperties.strokeWidth = 1
+    }
+    contentConfiguration = content
+    if #unavailable(iOS 18) {
+      // Have to grab the image view from the UIListContentView as the standard `imageView` is nil
+      // when using the content configuration API
+      let imageView = contentView.subviews.compactMap({ $0 as? UIImageView }).first
+      imageView?.layer.borderColor = UIColor(white: 0, alpha: 0.1).cgColor
+      imageView?.layer.borderWidth = 1
+    }
+    accessoryType = .disclosureIndicator
   }
 }

@@ -42,8 +42,10 @@ class WebcompatReporterService : public KeyedService,
     virtual std::optional<std::string> GetChannelName() const = 0;
     virtual std::optional<std::vector<ComponentInfo>> GetComponentInfos()
         const = 0;
-    virtual std::optional<std::string> GetCookiePolicy() const = 0;
-    virtual std::optional<std::string> GetScriptBlockingFlag() const = 0;
+    virtual std::optional<std::string> GetCookiePolicy(
+        const std::optional<std::string>& current_url) const = 0;
+    virtual std::optional<std::string> GetScriptBlockingFlag(
+        const std::optional<std::string>& current_url) const = 0;
   };
 
   WebcompatReporterService(
@@ -58,8 +60,6 @@ class WebcompatReporterService : public KeyedService,
   void Bind(mojo::PendingReceiver<mojom::WebcompatReporterHandler> receiver);
 
   void SubmitWebcompatReport(mojom::ReportInfoPtr report_info) override;
-
-  void GetContactInfoSaveFlag(GetContactInfoSaveFlagCallback callback) override;
 
   void SetContactInfoSaveFlag(bool value) override;
 

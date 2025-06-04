@@ -59,6 +59,8 @@ class AccountResolverDelegateForTest : public AccountResolverDelegate {
       const std::string* from_account_id,
       const std::string* from_address) override;
   bool ValidateAccountId(const mojom::AccountIdPtr& account_id) override;
+  std::optional<std::string> ResolveAddress(
+      const mojom::AccountIdPtr& account_id) override;
 
  private:
   std::vector<mojom::AccountIdPtr> accounts_;
@@ -98,6 +100,8 @@ class AccountUtils {
   mojom::AccountInfoPtr EnsureBtcTestAccount(uint32_t index);
   mojom::AccountInfoPtr EnsureZecAccount(uint32_t index);
   mojom::AccountInfoPtr EnsureZecTestAccount(uint32_t index);
+  mojom::AccountInfoPtr EnsureAdaAccount(uint32_t index);
+  mojom::AccountInfoPtr EnsureAdaTestAccount(uint32_t index);
 
   mojom::AccountInfoPtr CreateEthAccount(const std::string& name);
   mojom::AccountInfoPtr CreateSolAccount(const std::string& name);
@@ -107,6 +111,8 @@ class AccountUtils {
   mojom::AccountInfoPtr CreateBtcTestAccount(const std::string& name);
   mojom::AccountInfoPtr CreateZecAccount(const std::string& name);
   mojom::AccountInfoPtr CreateZecTestAccount(const std::string& name);
+  mojom::AccountInfoPtr CreateAdaAccount(const std::string& name);
+  mojom::AccountInfoPtr CreateAdaTestAccount(const std::string& name);
 
   mojom::AccountInfoPtr CreateEthHWAccount();
   mojom::AccountInfoPtr CreateBtcHWAccount();
@@ -124,6 +130,8 @@ class AccountUtils {
   std::vector<mojom::AccountInfoPtr> AllBtcTestAccounts();
   std::vector<mojom::AccountInfoPtr> AllZecAccounts();
   std::vector<mojom::AccountInfoPtr> AllZecTestAccounts();
+  std::vector<mojom::AccountInfoPtr> AllAdaAccounts();
+  std::vector<mojom::AccountInfoPtr> AllAdaTestAccounts();
 
  private:
   raw_ptr<KeyringService> keyring_service_;

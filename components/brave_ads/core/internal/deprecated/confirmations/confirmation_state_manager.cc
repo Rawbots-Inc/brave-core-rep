@@ -5,14 +5,14 @@
 
 #include "brave/components/brave_ads/core/internal/deprecated/confirmations/confirmation_state_manager.h"
 
+#include <algorithm>
 #include <utility>
 
 #include "base/check.h"
-#include "base/debug/dump_without_crashing.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
-#include "base/ranges/algorithm.h"
+#include "base/trace_event/trace_event.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/confirmation_tokens/confirmation_token_info.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/confirmation_tokens/confirmation_tokens_value_util.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/payment_tokens/payment_token_value_util.h"
@@ -89,34 +89,30 @@ void ConfirmationStateManager::SaveState() {
 }
 
 std::string ConfirmationStateManager::ToJson() {
-  const base::Value::Dict dict =
+  TRACE_EVENT(kTraceEventCategory, "ConfirmationStateManager::ToJson");
+
+  std::string json;
+  CHECK(base::JSONWriter::Write(
       base::Value::Dict()
           .Set("unblinded_tokens",
                ConfirmationTokensToValue(confirmation_tokens_.GetAll()))
           .Set("unblinded_payment_tokens",
-               PaymentTokensToValue(payment_tokens_.GetAllTokens()));
-
-  // Write to JSON
-  std::string json;
-  CHECK(base::JSONWriter::Write(dict, &json));
+               PaymentTokensToValue(payment_tokens_.GetAllTokens())),
+      &json));
   return json;
 }
 
 bool ConfirmationStateManager::FromJson(const std::string& json) {
+  TRACE_EVENT(kTraceEventCategory, "ConfirmationStateManager::FromJson", "json",
+              json.size());
+
   const std::optional<base::Value::Dict> dict =
       base::JSONReader::ReadDict(json);
   confirmation_tokens_.RemoveAll();
   payment_tokens_.RemoveAllTokens();
 
   if (!dict) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
-                              "Malformed confirmation JSON state");
-    base::debug::DumpWithoutCrashing();
-
     BLOG(0, "Malformed confirmation JSON state");
-
     return false;
   }
 
@@ -142,8 +138,8 @@ void ConfirmationStateManager::ParseConfirmationTokensFromDictionary(
   if (wallet_ && !filtered_confirmation_tokens.empty()) {
     const std::string public_key_base64 = wallet_->public_key_base64;
 
-    filtered_confirmation_tokens.erase(
-        base::ranges::remove_if(
+    auto to_remove =
+        std::ranges::remove_if(
             filtered_confirmation_tokens,
             [&public_key_base64](
                 const ConfirmationTokenInfo& confirmation_token) {
@@ -152,8 +148,9 @@ void ConfirmationStateManager::ParseConfirmationTokensFromDictionary(
               return !unblinded_token_base64 ||
                      !crypto::Verify(*unblinded_token_base64, public_key_base64,
                                      confirmation_token.signature_base64);
-            }),
-        filtered_confirmation_tokens.cend());
+            });
+
+    filtered_confirmation_tokens.erase(to_remove.begin(), to_remove.end());
   }
 
   confirmation_tokens_.Set(filtered_confirmation_tokens);

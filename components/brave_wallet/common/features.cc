@@ -40,8 +40,14 @@ BASE_FEATURE(kBraveWalletZCashFeature,
 #endif
 );
 
+BASE_FEATURE(kBraveWalletCardanoFeature,
+             "BraveWalletCardano",
+             base::FEATURE_DISABLED_BY_DEFAULT);
+const base::FeatureParam<int> kCardanoRpcThrottle{&kBraveWalletCardanoFeature,
+                                                  "rpc_throttle", 1};
+
 const base::FeatureParam<bool> kZCashShieldedTransactionsEnabled{
-    &kBraveWalletZCashFeature, "zcash_shielded_transactions_enabled", false};
+    &kBraveWalletZCashFeature, "zcash_shielded_transactions_enabled", true};
 
 BASE_FEATURE(kBraveWalletAnkrBalancesFeature,
              "BraveWalletAnkrBalances",

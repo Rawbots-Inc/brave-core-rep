@@ -48,8 +48,7 @@ class BraveBrowserWindow : public BrowserWindow {
   virtual speedreader::SpeedreaderBubbleView* ShowSpeedreaderBubble(
       speedreader::SpeedreaderTabHelper* tab_helper,
       speedreader::SpeedreaderBubbleLocation location);
-  virtual void ShowReaderModeToolbar() {}
-  virtual void HideReaderModeToolbar() {}
+  virtual void UpdateReaderModeToolbar() {}
 #endif
 
 #if defined(TOOLKIT_VIEWS)
@@ -72,6 +71,7 @@ class BraveBrowserWindow : public BrowserWindow {
 
   // Returns true if all tabs in this window is being dragged.
   virtual bool IsInTabDragging() const;
+  virtual void ReadyToListenFullscreenChanges() {}
 };
 
 #endif  // BRAVE_BROWSER_UI_BRAVE_BROWSER_WINDOW_H_

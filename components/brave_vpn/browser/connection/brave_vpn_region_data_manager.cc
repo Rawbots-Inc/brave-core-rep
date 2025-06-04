@@ -106,10 +106,6 @@ void BraveVPNRegionDataManager::SetDeviceRegionWithTimezone(
       continue;
     }
 
-    const std::string* region_name = timezones.GetDict().FindString("name");
-    if (!region_name) {
-      continue;
-    }
     const auto* timezone_list_value = timezones.GetDict().FindList("timezones");
     if (!timezone_list_value) {
       continue;
@@ -121,10 +117,10 @@ void BraveVPNRegionDataManager::SetDeviceRegionWithTimezone(
         continue;
       }
       if (current_time_zone == timezone.GetString()) {
-        VLOG(2) << "Found default region: " << *region_name;
-        // Get new region name as timezone data could use old name.
-        std::string_view new_name =
-            GetMigratedNameIfNeeded(local_prefs_, *region_name);
+        const std::string* country_iso =
+            timezones.GetDict().FindString(kRegionCountryIsoCodeKey);
+        // Get region name of |country_iso| from region list.
+        const std::string new_name = GetCountryRegionNameFrom(*country_iso);
         SetDeviceRegion(new_name);
         // Use device region as a default selected region.
         if (local_prefs_->GetString(prefs::kBraveVPNSelectedRegionV2).empty()) {
@@ -134,6 +130,19 @@ void BraveVPNRegionDataManager::SetDeviceRegionWithTimezone(
       }
     }
   }
+}
+
+std::string BraveVPNRegionDataManager::GetCountryRegionNameFrom(
+    const std::string& country_iso) const {
+  CHECK(!regions_.empty());
+  for (const auto& region : regions_) {
+    if (region->country_iso_code == country_iso) {
+      return region->name;
+    }
+  }
+
+  // Fallback to first region item.
+  return regions_[0]->name;
 }
 
 void BraveVPNRegionDataManager::LoadCachedRegionData() {
@@ -227,9 +236,9 @@ void BraveVPNRegionDataManager::OnFetchRegionList(
     CHECK_IS_TEST();
   }
   api_request_.reset();
-  std::optional<base::Value> value = base::JSONReader::Read(region_list);
-  if (value && value->is_list() &&
-      ParseAndCacheRegionList(value->GetList(), true)) {
+  std::optional<base::Value::List> value =
+      base::JSONReader::ReadList(region_list);
+  if (value && ParseAndCacheRegionList(*value, true)) {
     VLOG(2) << "Got valid region list";
     // Set default device region and it'll be updated when received valid
     // timezone info.
@@ -270,11 +279,17 @@ void BraveVPNRegionDataManager::OnFetchTimezones(
     bool success) {
   api_request_.reset();
 
-  std::optional<base::Value> value = base::JSONReader::Read(timezones_list);
-  if (success && value && value->is_list()) {
-    VLOG(2) << "Got valid timezones list";
-    SetDeviceRegionWithTimezone(value->GetList());
-  } else {
+  if (success) {
+    std::optional<base::Value::List> value =
+        base::JSONReader::ReadList(timezones_list);
+    success = value.has_value();
+    if (success) {
+      SetDeviceRegionWithTimezone(*value);
+      VLOG(2) << "Got valid timezones list";
+    }
+  }
+
+  if (!success) {
     VLOG(2) << "Failed to get invalid timezones list";
   }
 

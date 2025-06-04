@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_wallet/browser/ethereum_provider_impl.h"
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <tuple>
@@ -167,13 +168,13 @@ void EthereumProviderImpl::AddEthereumChain(const std::string& json_payload,
     return RejectInvalidParams(std::move(id), std::move(callback));
   }
 
-  auto json_value = base::JSONReader::Read(
+  auto json_value = base::JSONReader::ReadDict(
       json_payload,
       base::JSON_PARSE_CHROMIUM_EXTENSIONS | base::JSON_ALLOW_TRAILING_COMMAS);
-  if (!json_value || !json_value->is_dict()) {
+  if (!json_value) {
     return RejectInvalidParams(std::move(id), std::move(callback));
   }
-  const auto& root = json_value->GetDict();
+  const auto& root = *json_value;
 
   const auto* params = root.FindList(brave_wallet::kParams);
   if (!params || params->empty()) {
@@ -743,15 +744,14 @@ void EthereumProviderImpl::OnSignMessageRequestProcessed(
 
   base::Value formed_response;
   if (account_id->kind != mojom::AccountKind::kHardware) {
-    auto signature_with_err = keyring_service_->SignMessageByDefaultKeyring(
+    auto signature = keyring_service_->SignMessageByDefaultKeyring(
         account_id, message, is_eip712);
-    if (!signature_with_err.signature) {
-      formed_response =
-          GetProviderErrorDictionary(mojom::ProviderError::kInternalError,
-                                     signature_with_err.error_message);
+    if (!signature.has_value()) {
+      formed_response = GetProviderErrorDictionary(
+          mojom::ProviderError::kInternalError, signature.error());
       reject = true;
     } else {
-      formed_response = base::Value(ToHex(*signature_with_err.signature));
+      formed_response = base::Value(ToHex(signature.value()));
     }
   } else {
     if (!hw_signature) {  // Missing hardware signature.
@@ -1003,14 +1003,14 @@ void EthereumProviderImpl::CommonRequestOrSendAsync(
     }
     AddSuggestToken(std::move(token), std::move(callback), std::move(id));
   } else if (method == kRequestPermissionsMethod) {
-    std::vector<std::string> restricted_methods;
-    if (!ParseRequestPermissionsParams(normalized_json_request,
-                                       &restricted_methods)) {
+    std::optional<base::flat_set<std::string>> restricted_methods =
+        ParseRequestPermissionsParams(normalized_json_request);
+    if (!restricted_methods) {
       SendErrorOnRequest(error, error_message, std::move(callback),
                          std::move(id));
       return;
     }
-    if (!base::Contains(restricted_methods, "eth_accounts")) {
+    if (!restricted_methods->contains("eth_accounts")) {
       SendErrorOnRequest(error, error_message, std::move(callback),
                          std::move(id));
       return;
@@ -1485,11 +1485,11 @@ void EthereumProviderImpl::OnGetBlockByNumber(
     mojom::ProviderError error,
     const std::string& error_message) {
   if (events_listener_.is_bound() && error == mojom::ProviderError::kSuccess) {
-    base::ranges::for_each(eth_subscriptions_,
-                           [this, &result](const std::string& subscription_id) {
-                             events_listener_->MessageEvent(subscription_id,
-                                                            result.Clone());
-                           });
+    std::ranges::for_each(eth_subscriptions_,
+                          [this, &result](const std::string& subscription_id) {
+                            events_listener_->MessageEvent(subscription_id,
+                                                           result.Clone());
+                          });
   }
 }
 

@@ -8,14 +8,14 @@
 #include <memory>
 
 #include "base/feature_list.h"
+#include "brave/browser/brave_rewards/rewards_util.h"
 #include "brave/components/brave_adaptive_captcha/server_util.h"
-#include "brave/components/brave_rewards/common/features.h"
+#include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_rewards/resources/grit/brave_rewards_resources.h"
 #include "brave/components/brave_rewards/resources/grit/rewards_page_generated_map.h"
 #include "brave/components/constants/webui_url_constants.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/favicon_source.h"
-#include "chrome/browser/ui/webui/webui_util.h"
 #include "components/favicon_base/favicon_url_parser.h"
 #include "components/grit/brave_components_resources.h"
 #include "components/grit/brave_components_strings.h"
@@ -23,6 +23,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_ui.h"
 #include "content/public/browser/web_ui_data_source.h"
+#include "ui/webui/webui_util.h"
 
 namespace brave_rewards {
 
@@ -122,6 +123,7 @@ static constexpr webui::LocalizedString kStrings[] = {
      IDS_REWARDS_AUTHORIZE_UPHOLD_INSUFFICIENT_CAPABILITIES_TEXT},
     {"authorizeUpholdInsufficientCapabilitiesTitle",
      IDS_REWARDS_AUTHORIZE_UPHOLD_INSUFFICIENT_CAPABILITIES_TITLE},
+    {"batUtilityTitle", IDS_REWARDS_BAT_UTILITY_TITLE},
     {"benefitsStoreSubtext", IDS_REWARDS_BENEFITS_STORE_SUBTEXT},
     {"benefitsStoreText", IDS_REWARDS_BENEFITS_STORE_TEXT},
     {"benefitsTitle", IDS_REWARDS_BENEFITS_TITLE},
@@ -232,7 +234,6 @@ static constexpr webui::LocalizedString kStrings[] = {
     {"onboardingTitle", IDS_REWARDS_ONBOARDING_TITLE},
     {"payoutAccountBalanceLabel", IDS_REWARDS_PAYOUT_ACCOUNT_BALANCE_LABEL},
     {"payoutAccountConnectedLabel", IDS_REWARDS_PAYOUT_ACCOUNT_CONNECTED_LABEL},
-    {"payoutAccountDetailsTitle", IDS_REWARDS_PAYOUT_ACCOUNT_DETAILS_TITLE},
     {"payoutAccountLabel", IDS_REWARDS_PAYOUT_ACCOUNT_LABEL},
     {"payoutAccountLink", IDS_REWARDS_PAYOUT_ACCOUNT_LINK},
     {"payoutAccountLoggedOutTitle",
@@ -247,7 +248,6 @@ static constexpr webui::LocalizedString kStrings[] = {
     {"payoutPendingText", IDS_REWARDS_PAYMENT_PENDING},
     {"payoutProcessingText", IDS_REWARDS_PAYMENT_PROCESSING},
     {"payoutSupportLink", IDS_REWARDS_PAYMENT_SUPPORT},
-    {"recurringListEmptyText", IDS_REWARDS_RECURRING_LIST_EMPTY_TEXT},
     {"recurringNextContributionLabel",
      IDS_REWARDS_RECURRING_NEXT_CONTRIBUTION_LABEL},
     {"recurringTitle", IDS_REWARDS_RECURRING_TITLE},
@@ -266,6 +266,14 @@ static constexpr webui::LocalizedString kStrings[] = {
     {"tosUpdateLink", IDS_REWARDS_TOS_UPDATE_LINK_TEXT},
     {"tosUpdateRequiredText", IDS_REWARDS_TOS_UPDATE_TEXT},
     {"tosUpdateRequiredTitle", IDS_REWARDS_TOS_UPDATE_HEADING},
+    {"unsupportedRegionText1",
+     IDS_BRAVE_REWARDS_UNSUPPORTED_REGION_NOTICE_SUBHEADER},
+    {"unsupportedRegionText2",
+     IDS_BRAVE_REWARDS_UNSUPPORTED_REGION_NOTICE_TEXT_1},
+    {"unsupportedRegionText3",
+     IDS_BRAVE_REWARDS_UNSUPPORTED_REGION_NOTICE_TEXT_2},
+    {"unsupportedRegionTitle",
+     IDS_BRAVE_REWARDS_UNSUPPORTED_REGION_NOTICE_HEADER},
     {"viewStoreLink", IDS_REWARDS_VIEW_STORE_LINK},
     {"wdpCheckboxLabel", IDS_REWARDS_WDP_CHECKBOX_LABEL},
     {"wdpOptInText", IDS_REWARDS_WDP_OPT_IN_TEXT},
@@ -277,6 +285,7 @@ void CreateAndAddRewardsPageDataSource(content::WebUI& web_ui,
                                        const std::string& host) {
   auto* browser_context = web_ui.GetWebContents()->GetBrowserContext();
   auto* source = content::WebUIDataSource::CreateAndAdd(browser_context, host);
+  auto* profile = Profile::FromWebUI(&web_ui);
 
   webui::SetupWebUIDataSource(source, kRewardsPageGenerated,
                               IDR_NEW_BRAVE_REWARDS_PAGE_HTML);
@@ -305,16 +314,17 @@ void CreateAndAddRewardsPageDataSource(content::WebUI& web_ui,
   source->AddString("platform", "desktop");
 #endif
 
-  source->AddBoolean("isBubble", host == kRewardsPageTopHost);
+  source->AddBoolean("isAutoResizeBubble", host == kRewardsPageTopHost);
 
   source->AddBoolean(
       "animatedBackgroundEnabled",
       base::FeatureList::IsEnabled(features::kAnimatedBackgroundFeature));
 
+  source->AddBoolean("isUnsupportedRegion", !IsSupportedForProfile(profile));
+
   content::URLDataSource::Add(
-      browser_context,
-      std::make_unique<FaviconSource>(Profile::FromWebUI(&web_ui),
-                                      chrome::FaviconUrlFormat::kFavicon2));
+      browser_context, std::make_unique<FaviconSource>(
+                           profile, chrome::FaviconUrlFormat::kFavicon2));
 }
 
 }  // namespace brave_rewards

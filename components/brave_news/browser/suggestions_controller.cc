@@ -62,7 +62,7 @@ base::flat_map<std::string, double> GetVisitWeightings(
   // Normalize (between 0 and 1) the visit counts by dividing
   // by the maximum number of visits.
   auto max_visits =
-      base::ranges::max(weightings, [](const auto& a, const auto& b) {
+      std::ranges::max(weightings, [](const auto& a, const auto& b) {
         return a.second < b.second;
       }).second;
 
@@ -97,7 +97,7 @@ double GetVisitWeighting(
 }
 
 SuggestionsController::PublisherSimilarities ParseSimilarityResponse(
-    base::Value records_v,
+    const base::Value& records_v,
     const std::string& locale) {
   if (!records_v.is_dict()) {
     return {};
@@ -315,7 +315,8 @@ void SuggestionsController::EnsureSimilarityMatrixIsUpdating(
                                 controller->locale_ = locale;
                                 controller->similarities_ =
                                     ParseSimilarityResponse(
-                                        api_request_result.TakeBody(), locale);
+                                        api_request_result.value_body(),
+                                        locale);
                                 controller->on_current_update_complete_
                                     ->Signal();
                                 controller->is_update_in_progress_ = false;

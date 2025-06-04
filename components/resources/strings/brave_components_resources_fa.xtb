@@ -106,7 +106,7 @@
 <translation id="4541978218358617681">آگهی</translation>
 <translation id="1776831331757823105">ساعت</translation>
 <translation id="7791543448312431591">افزودن</translation>
-<translation id="7679334366167089823">برای تماشای آگهی‌هایی که به حریم‌خصوصی احترام می‌گذارند، توکن کسب کنید.</translation>
+<translation id="6216996674668969227">با مشاهده تبلیغات حافظ حریم خصوصی، توکن دریافت کنید.</translation>
 <translation id="7191394989411626168">با خاموش کردن کارت‌ها، همه کارت‌هایی که در حال حاضر قابل مشاهده هستند پنهان خواهند شد. با این وجود، ممکن است همچنان از کارت‌های جدید مطلع شوید.</translation>
 <translation id="6820526586005233839">آگهی‌های Brave موقتاً متوقف شد</translation>
 <translation id="5190407395832551012">برای ایمن نگه داشتن «پاداش‌های Brave» از سوءاستفاده، به‌طور تصادفی از کاربران می‌خواهیم یک کپچا حل کنند. برای ازسرگیری آگهی‌ها، روی “حل کردن” کلیک کنید.</translation>
@@ -172,6 +172,7 @@
 <translation id="3110968385867124099">گزارش این صفحه امکان‌پذیر نیست، زیرا از طریق HTTP/HTTPS ارائه نشده است.</translation>
 <translation id="7907023135990310743">این صفحه یک صفحه وب محلی است و برای گزارش واجد شرایط نیست.</translation>
 <translation id="8740275226259417070">این صفحه خطا است. نمی‌توان آن را به‌عنوان سایت خراب گزارش کرد.</translation>
+<translation id="6367576083705149078">اگر اطلاعات تماس خود را ارائه دهید، برای گزارش‌های آتی ذخیره خواهد شد.</translation>
 <translation id="6806248680442980382">از شما بابت کمک به بهبود Brave برای همه، متشکریم. این گزارش فقط حاوی اطلاعات لازم برای تعمیر این سایت است.</translation>
 <translation id="6476216365964140603">جزئیات بیشتر (اختیاری)</translation>
 <translation id="6145852496180774737">از این طریق با من تماس بگیرید: (اختیاری)</translation>
@@ -471,6 +472,7 @@
 <translation id="3349204812119681938">جوایز مرورگر بریو را از ابتدا شروع کن.</translation>
 <translation id="4915997950539925115">با بازنشانی، نمایه Brave Rewards فعلی شما حذف می‌شود و Brave Rewards دیگر فعال نمی‌شود. اگر بعداً دوباره Brave Rewards را فعال کنید، با نمایه جدیدی شروع خواهید کرد. برای کسب اطلاعات بیشتر، <ph name="LINK_BEGIN"/>مقاله پشتیبانی ما در مورد بازنشانی<ph name="LINK_END"/> را بخوانید.</translation>
 <translation id="4806029412510565611">متوجهم که نمایه Brave Rewards فعلی و داده‌های Brave Rewards من از روی دستگاهم حذف خواهد شد و <ph name="LINK_BEGIN"/>مقاله پشتیبانی درباره بازنشانی<ph name="LINK_END"/> را خوانده‌ام.</translation>
+<translation id="8835777704176513489">پاداش‌ها را غیرفعال و از نو تنظیم کن</translation>
 <translation id="7717357606512850995">بررسی وضعیت</translation>
 <translation id="6473937687348632190">پرداخت پاداش های <ph name="MONTH"/> انجام شده است.</translation>
 <translation id="1711367267038576241">پرداخت پاداش‌های <ph name="MONTH"/> در <ph name="DATE"/> انجام خواهد شد.</translation>
@@ -499,6 +501,11 @@
       =0 {این ماه <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> دیده‌اید}
       =1 {ممکن است بتوانید برای <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> که این ماه دیده‌اید، هزینه دریافت کنید.}
       other {ممکن است بتوانید برای <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> که این ما دیده‌اید، هزینه دریافت کنید.}
+    }</translation>
+<translation id="8611388433418909120">{ADS_VIEWED, plural,
+      =0 {شما <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> در این ماه دیده‌اید}
+      =1 {بابت مشاهده این <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> در این ماه درآمد داشته‌اید}
+      other {بابت مشاهده این <ph name="COUNT_BEGIN"/># تبلیغ<ph name="COUNT_END"/> در این ماه درآمد داشته‌اید}
     }</translation>
 <translation id="6067959437127691361">استفاده از پاداش‌های Brave، به حمایت از تولیدکنندگان محتوا کمک می‌کند و به شما اجازه دریافت توکن توجه اولیه را می‌دهد.</translation>
 <translation id="944736176598169208">پاداش‌ها</translation>
@@ -540,7 +547,7 @@
 <translation id="2529827670795983639">به نظر می‌رسد که این مورد کار نمی‌کند. آگهی‌های Brave در حالت توقف موقت باقی خواهد ماند. اگر در کپچا به کمک نیاز دارید، با ما تماس بگیرید.</translation>
 <translation id="261607053214862521">تعداد تلاش‌ها به حداکثر مجاز رسیده است</translation>
 <translation id="2323171459178104277">حل شد!</translation>
-<translation id="1512837998731269583">آگهی‌ها و درآمدها اکنون ادامه خواهند یافت. سپاسگزاریم از اینکه به ما کمک می‌کنید از «پاداش‌های Brave» و آگهی‌های مبتنی بر حریم خصوصی محافظت کنیم.</translation>
+<translation id="1565888393553870503">تبلیغات Brave از سر گرفته خواهد شد. از کمک شما در محافظت از پاداش‌های Brave سپاسگزاریم.</translation>
 <translation id="3247549836099021862">تماس با پشتیبانی</translation>
 <translation id="5234764350956374838">لغو کردن</translation>
 <translation id="7859066142771796818">از توکن‌ها برای خرید کارت‌های هدیه، مبادله با ارزهای دیگر، حمایت از تولیدکنندگان محتوا و موارد دیگر استفاده کنید.</translation>
@@ -567,7 +574,7 @@
 <translation id="4934459911359992410"><ph name="LINK_BEGIN"/>بیشتر بدانید<ph name="LINK_END"/></translation>
 <translation id="4214852687527104244">نگران نباشید.</translation>
 <translation id="5027616819996705541">همچنان می‌توانید به‌صورت محرمانه به مرور اینترنت بپردازید!</translation>
-<translation id="1886682615222609631">درآمد تاکنون</translation>
+<translation id="1450735350187803276">تبلیغ‌هایی که در این ماه مشاهده کرده‌اید</translation>
 <translation id="7649070708921625228">راهنما</translation>
 <translation id="6042308850641462728">بیشتر</translation>
 <translation id="6245259297588415877">پدیدآورندگان</translation>
@@ -669,9 +676,7 @@
 <translation id="2446517297521536638">کنترل کنید چه نوع تبلیغات Brave را می‌بینید و هر چند وقت یکبار. هر چه بیشتر ببینید، بیشتر می‌توانید درآمد کسب کنید.</translation>
 <translation id="5860033963881614850">خاموش</translation>
 <translation id="5916664084637901428">روشن</translation>
-<translation id="4284417062730522399"><ph name="NUM"/> تبلیغات دریافت‌شده در این ماه</translation>
-<translation id="7697696066810593560">شما تا اینجا در این ماه به میزان <ph name="NUM"/> دریافت کرده‌اید</translation>
-<translation id="6733193230212030816">تخمین زده می‌شود که میزان درآمد شما در این محدوده قرار داشته باشد: <ph name="RANGE"/></translation>
+<translation id="3977723631999461201"><ph name="NUM"/> تبلیغ در این ماه دریافت شد</translation>
 <translation id="7924320838799747606">موجودی شما</translation>
 <translation id="8714473477079007268">کیف پول <ph name="PROVIDER"/></translation>
 <translation id="3175337080016717494">حساب پرداخت</translation>
@@ -680,15 +685,7 @@
 <translation id="8414447476773253869">برای مشاهده موجودی خود، وارد حساب <ph name="PROVIDER"/> شوید</translation>
 <translation id="615483366383024791">حساب پرداخت</translation>
 <translation id="1060062421977823695">درآمد BAT شما به این حساب پرداخت خواهد شد.</translation>
-<translation id="2544805415966048917">آنچه ارسال خواهید کرد</translation>
-<translation id="6708522254106492579">حداکثر <ph name="AMOUNT"/> BAT</translation>
-<translation id="7666058404763778706">یک روش خودکار برای پشتیبانی از وب‌سایت‌ها و سازندگان محتوا، بر اساس مدت زمانی که در محتوای آن‌ها سپری می‌کنید.</translation>
-<translation id="4319242254058427792">کمک خودکار غیرفعال است</translation>
-<translation id="1091835891554961609">سازندگان تأییدشده‌ای که از آن‌ها بازدید می‌کنید، در حین مرور کردن اینجا نمایش داده می‌شوند.</translation>
-<translation id="7714706530499503523">کمک خودکار، کمک‌های ماهانه‌ای را به صورت خودکار برای سازندگان مورد تأیید Brave واریز می‌کند. میزان این کمک‌ها بر اساس مدت زمانی که کاربر در محتوای آن‌ها سپری می‌کند، تعیین می‌گردد.</translation>
-<translation id="2358028754328876971">کمک خودکار چگونه عمل می‌کند؟</translation>
-<translation id="2870560284913253234">سایت</translation>
-<translation id="1184072843013036520">محصولات برند Brave را دریافت کنید.</translation>
+<translation id="2310070536993781610">از کد تخفیف BRAVEREWARDS استفاده کنید تا 10% تخفیف روی تمام محصولات فروشگاه کالاهای Brave دریافت کنید.</translation>
 <translation id="1170674812179664523">فروشگاه محصولات Brave</translation>
 <translation id="8673202990286883068">مزایای شما</translation>
 <translation id="3699766258844277472">هنوز هیچ کمک تکرارشونده‌ای را تنظیم نکرده‌اید.</translation>
@@ -713,8 +710,11 @@
 <translation id="7160424977552599351">از کیف پول Web3 خود استفاده کنید</translation>
 <translation id="6369571967625114920">«آگهی‌های خصوصی Brave» هنوز در منطقه‌تان در دسترس نیست.</translation>
 <translation id="5309155375926073606">بله، مایلم در «جستجوی Brave» نیز همکاری کنم و با <ph name="LINK_BEGIN"/>پروژه کاوش وب<ph name="LINK_END"/> موافقت می‌کنم.</translation>
-<translation id="7285849890826812669">در چند جستجو و مرور داده ناشناس همکاری کنید تا «جستجوی Brave» را با «پروژه کاوش وب» پالایش کنید. این مورد کاملاً منبع باز است.</translation>
+<translation id="4622826307953794521">با مشارکت در پروژه کشف وب، داده‌های جستجو و مرور ناشناس خود را برای بهبود جستجوی Brave به اشتراک بگذارید. این پروژه کاملاً متن‌باز است.</translation>
 <translation id="4174337572777167894">پروژه کشف وب</translation>
+<translation id="9034669711835382440">انجمن</translation>
+<translation id="845020633253356720">مشاهده فروشگاه</translation>
+<translation id="7777123407058400802">توکن اساسی توجه - BAT</translation>
 <translation id="7090992647511817643">حساب</translation>
 <translation id="4822132585477111396">آی دی زنجیره</translation>
 <translation id="3269475789479462358">دامنه</translation>
@@ -942,8 +942,11 @@
 <translation id="7080614857771109950">از دارایی‌های سازگار EVM در بلاکچین اتریوم (ERC-20،‏ ERC-721،‏ ERC-1551،‏ ERC-1155) پشتیبانی می‌کند</translation>
 <translation id="6577166808959668729">از دارایی‌های سازگار SLP در بلاکچین Solana پشتیبانی می‌کند</translation>
 <translation id="4541295941776129088">ذخیره دارایی FIL</translation>
+<translation id="6030958132571544682">ذخیره‌سازی دارایی‌های FIL Testnet</translation>
 <translation id="29759539656432505">ذخیره دارایی‌های BTC</translation>
+<translation id="2399555431746923964">ذخیره‌سازی دارایی‌های BTC Testnet</translation>
 <translation id="8749751940551938347">ذخیره دارایی‌های ZEC</translation>
+<translation id="3451958544919449297">ذخیره‌سازی دارایی‌های ZEC Testnet</translation>
 <translation id="8500387257977999003">کلید خصوصی <ph name="PROTOCOL"/></translation>
 <translation id="8275038454117074363">وارد کردن</translation>
 <translation id="232925166623833246">وارد کردن از کیف پول سخت‌افزاری</translation>
@@ -1000,7 +1003,7 @@
 <translation id="453788800165937690">هشدار: هرگز کلید خصوصی خود را به اشتراک نگذارید. هرکسی که این کلید خصوصی را داشته باشد، می‌تواند دارایی‌های شما را برای همیشه به دست آورد.</translation>
 <translation id="2416098547200943834">توجه: کلید خصوصی در قالب یک JSON با رمزنگاری هگز که شامل اطلاعات کلید خصوصی و پروتکل است ارائه می‌شود. <ph name="LINK_START"/>بیشتر بدانید<ph name="LINK_END"/>.</translation>
 <translation id="7657130382217527063">توجه: کلید خصوصی باید در قالب یک JSON با رمزنگاری هگز که شامل اطلاعات کلید خصوصی و پروتکل است ارائه شود. <ph name="LINK_START"/>بیشتر بدانید<ph name="LINK_END"/>.</translation>
-<translation id="1505724566145200403">توجه: فقط از کلیدهای گسترده zprv (یا vprv برای Testnet) پشتیبانی می‌شود.</translation>
+<translation id="4482913669726886926">توجه: فقط از کلیدهای گسترش‌یافته ‎ <ph name="FORMAT"/> پشتیبانی می‌شوند.</translation>
 <translation id="42126664696688958">گرفتن خروجی</translation>
 <translation id="1366855498335432549">واریز</translation>
 <translation id="790104325876206743">تنظیمات حساب</translation>
@@ -1022,7 +1025,7 @@
 <translation id="3792938779249970121">انتخاب حساب</translation>
 <translation id="6797737193502014008">جستجوی حساب‌ها</translation>
 <translation id="3505920073976671674">انتخاب شبکه</translation>
-<translation id="6857856707736769720">انتخاب از</translation>
+<translation id="2556155338676955870">انتخاب دارایی</translation>
 <translation id="6323024765179772761">جستجوی سکه‌ها</translation>
 <translation id="6998989275928107238">به</translation>
 <translation id="1506421160138798546">برآورد</translation>
@@ -1143,6 +1146,12 @@
 <translation id="8214232307424031138">وارد شد</translation>
 <translation id="9065572743819293042">تراکنش‌های اخیر</translation>
 <translation id="1702356231547761669">هش تراکنش</translation>
+<translation id="6030778062363728902">یادداشت</translation>
+<translation id="1288859203671057247">می‌توانید پیامی بنویسید...</translation>
+<translation id="5466702869935634816">پیام (اختیاری)</translation>
+<translation id="5715145706082194046">افزودن یادداشت</translation>
+<translation id="1922741261173258284">حذف یادداشت</translation>
+<translation id="1762915190843068679">یادداشت نباید بیش از 512 نویسه باشد.</translation>
 <translation id="8941851657764077659">حداکثر کارمزد اولویت‌دار</translation>
 <translation id="8047527352810290817">ویرایش گس</translation>
 <translation id="9091334651803050473">اگر هزینه بیشتری بپردازید، ماینرها تراکنش شما را در اولویت قرار می‌دهند، هرچند تضمینی برای آن وجود ندارد.</translation>
@@ -1259,6 +1268,27 @@
 <translation id="6153197326949684688">فروش با <ph name="OFFRAMP_PROVIDER"/></translation>
 <translation id="7902920577183739843">با Sardine خرید کنید</translation>
 <translation id="3301984548406568819">داده‌های مالی و معاملاتی توسط شرکای onramp ما پردازش می‌شود. Brave چنین داده‌هایی را جمع آوری نمی‌کند و به آنها دسترسی ندارد.</translation>
+<translation id="5795821518596541838">شریک تراکنش‌ها</translation>
+<translation id="1916136859742693273">کیف پول Brave از Meld.io برای تجمیع و نمایش ارائه‌دهندگان مختلف رمزارز در منطقه شما استفاده می‌کند. برای تکمیل تراکنش، اطلاعاتی از جمله آدرس کیف پول و کد کشور شما را با Meld.io به اشتراک خواهیم گذاشت. برای اطلاعات بیشتر لطفاً شرایط استفاده Meld را مطالعه کنید.</translation>
+<translation id="245827814248186739">من <ph name="LINK_BEFORE"/>شرایط استفاده 
+Meld‏<ph name="LINK_AFTER"/> را خوانده‌ام و با آن موافقم</translation>
+<translation id="2050829168433446009">بهترین گزینه</translation>
+<translation id="2803020719327054687">نرخ تبادل با کارمزدها</translation>
+<translation id="27867052127960599">کارمزدها</translation>
+<translation id="5914491493054850112">قیمت <ph name="CURRENCY"/></translation>
+<translation id="638391338232902087">با <ph name="PROVIDER"/> خرید کنید</translation>
+<translation id="2803778066587058297">سرمایه</translation>
+<translation id="1275718070701477396">انتخاب شد</translation>
+<translation id="7509108671781225188">هیچ رمزارزی موجود نیست</translation>
+<translation id="3799031411423890455">دریافت بهترین قیمت‌ها...</translation>
+<translation id="8544603592370093978">خرید ‎<ph name="ASSET"/></translation>
+<translation id="7463545687475534731">هیچ ارائه‌دهنده‌ای برای ‎<ph name="ASSET"/> پیدا نشد</translation>
+<translation id="3372351687823322070">دارایی دیگری را جستجو کنید.</translation>
+<translation id="2619949734919284401">برای ‎<ph name="PROVIDER"/> هیچ نتیجه‌ای یافت نشد</translation>
+<translation id="3319146983769202287">کلیدواژه دیگری را امتحان کنید یا املای خود را بررسی کنید.</translation>
+<translation id="4196022627437957774">می‌خواهید یک حساب ‎<ph name="ACCOUNT_TYPE"/> دیگر ایجاد کنید؟</translation>
+<translation id="5982914754413312620">برای اینکه یک ‎<ph name="TOKEN_SYMBOL"/> دریافت کنید، به یک حساب ‎<ph name="ACCOUNT_TYPE"/> نیاز خواهید داشت.</translation>
+<translation id="3067168166931605141">نام حساب</translation>
 <translation id="6534275647567011533">خرید با Transak</translation>
 <translation id="5973390321030037823">خرید از طریق لینک</translation>
 <translation id="1932640759496708012">خرید با Coinbase Pay</translation>
@@ -1312,6 +1342,10 @@
 <translation id="6990756606864308319">خطایی در تلاش برای <ph name="SEND_SWAP_OR_BRIDGE"/><ph name="AMOUNT_BEFORE"/><ph name="AMOUNT"/><ph name="AMOUNT_AFTER"/> به <ph name="VALUE_BEFORE"/><ph name="VALUE"/><ph name="VALUE_AFTER"/> وجود داشت</translation>
 <translation id="6449575669814542383">در حال تأیید <ph name="AMOUNT_BEFORE"/><ph name="AMOUNT"/><ph name="AMOUNT_AFTER"/> به <ph name="EXCHANGE_BEFORE"/><ph name="EXCHANGE"/><ph name="EXCHANGE_AFTER"/></translation>
 <translation id="8036159955043245753">برای لغو تراکنش فعلی شما، تراکنش جدیدی ایجاد خواهد شد.</translation>
+<translation id="4056435949094149644">مبادله</translation>
+<translation id="7694836973509310467">اتصال</translation>
+<translation id="997000407026317399"><ph name="SWAPPING_OR_BRIDGING_BEFORE"/><ph name="SWAPPING_OR_BRIDGING"/><ph name="SWAPPING_OR_BRIDGING_AFTER"/> روی <ph name="NETWORK_BEFORE"/><ph name="NETWORK"/><ph name="NETWORK_AFTER"/></translation>
+<translation id="6934057383578424432">هنگام تلاش برای <ph name="SWAP_OR_BRIDGE_BEFORE"/><ph name="SWAP_OR_BRIDGE"/><ph name="SWAP_OR_BRIDGE_AFTER"/> روی <ph name="NETWORK_BEFORE"/><ph name="NETWORK"/><ph name="NETWORK_AFTER"/>، خطایی پیش آمد</translation>
 <translation id="6622332794280225311">{PENDING_TRANSACTIONS, plural,
       =1 {{PENDING_TRANSACTIONS} تراکنش معلق بیشتر.}
       other {{PENDING_TRANSACTIONS} تراکنش معلق بیشتر.}
@@ -1428,12 +1462,6 @@
 <translation id="3253669416991680932">این کیف پول سخت‌افزاری از این عملیات پشتیبانی نمی‌کند.</translation>
 <translation id="7457027586454688423">رمز Brave Wallet خود را وارد کنید</translation>
 <translation id="7553242001898162573">رمز عبور خود را وارد کنید</translation>
-<translation id="2873714185189940594">برنامه Rainbow Bridge باز شود؟</translation>
-<translation id="2069777099181262239">Rainbow Bridge سرویس مستقلی است که به شما کمک می‌کند تا بین دارایی‌ها از میان شبکه‌ها پل بزنید و از رمزارزتان روی شبکه‌های دیگر و یا اکوسیستم‌های DApp استفاده کنید. پل زدن بین دارایی با شبکه‌های دیگر، خطرات احتمالی به همراه دارد.</translation>
-<translation id="7387899248733396663">درباره Rainbow Bridge بیشتر بدانید</translation>
-<translation id="3890567288132019108">درباره کاهش خطر احتمالی در Rainbow Bridge بیشتر بدانید</translation>
-<translation id="1792917191129448067">باز کردن برنامه Rainbow Bridge</translation>
-<translation id="1522775706527775647">پل زدن به Aurora</translation>
 <translation id="4903322403594141291">درباره کیف پول شجاع بیشتر بدانید</translation>
 <translation id="4427684901715566795">گذر واژه باید حاوی این موارد باشد:</translation>
 <translation id="8521329076169776625">حداقل ۸ نویسه</translation>
@@ -1706,6 +1734,27 @@
 <translation id="803703704549420287">پاک کردن فیلترها</translation>
 <translation id="1472675084647422956">بیشتر ببینید</translation>
 <translation id="4522570452068850558">جزئیات</translation>
+<translation id="8713438253026855351">تغییر به حساب محافظت‌شده</translation>
+<translation id="3526789880090101085">حساب محافظت‌شده</translation>
+<translation id="2298396008562701154">در حال حاضر این حساب از تراکنش‌های شفاف پشتیبانی می‌کند که به این معنی است که برای همه در بلاکچین قابل مشاهده هستند.</translation>
+<translation id="3987095760757102811">ارتقا به حساب محافظت‌شده به این معنی است که این تراکنش‌ها جزئیات فرستنده، گیرنده و مبلغ را پنهان می‌کنند.</translation>
+<translation id="3819528427777765709">محافظت‌شده</translation>
+<translation id="2142946302539262412">یکپارچه</translation>
+<translation id="4438043733494739848">شفاف</translation>
+<translation id="1950406774300125954">غیرهمگام</translation>
+<translation id="68413355604013935">غیرهمگام (<ph name="BLOCKS"/> بلوک عقب‌تر)</translation>
+<translation id="1597233669965903034">حساب خود را همگام‌سازی کنید تا به آخرین تراکنش‌ها و موجودی دسترسی پیدا کنید.</translation>
+<translation id="7499262814309712782">همگام‌سازی حساب</translation>
+<translation id="2804568727504456403">همگام‌سازی <ph name="ACCOUNT"/></translation>
+<translation id="813913629614996137">در حال آغاز...</translation>
+<translation id="4404141491825711928">در حال پردازش بلوک:</translation>
+<translation id="4983989175143324911"><ph name="BLOCKS"/> باقیمانده</translation>
+<translation id="1703172100615786285"><ph name="BLOCKS"/> از <ph name="TOTAL_BLOCKS"/></translation>
+<translation id="5055918601206839704">محدوده‌ها:</translation>
+<translation id="1178581264944972037">مکث</translation>
+<translation id="7714298753782862705">همگام‌سازی کامل شد. اکنون می‌توانید این پنجره را ببندید.</translation>
+<translation id="7716113567047550378">لطفاً این پنجره را قبل از اتمام همگام‌سازی نبندید.</translation>
+<translation id="5123590959308755060">ادامه استفاده از کیف پول در یک تب جدید</translation>
 <translation id="7144878232160441200">سعی مجدد</translation>
 <translation id="9094621390791852268">پیش‌نمایش تراکنش ناموفق بود.</translation>
 <translation id="4982713341035600933">تغییر موجودی تخمینی</translation>
@@ -1902,6 +1951,7 @@
 <translation id="8652827551752428289">نمایش تاریخچه</translation>
 <translation id="5030659775136592441">نمایش مدیر نشانک</translation>
 <translation id="6919203766034706175">تنظیمات وارد کنید</translation>
+<translation id="6159704524780747483">چت با Open AI</translation>
 <translation id="1199430163665775722">ویرایش موتورهای جستجو</translation>
 <translation id="4276265845501430443">نمایش راهنما</translation>
 <translation id="8104889575691864804">نمایش منوی برنامه</translation>
@@ -1958,6 +2008,7 @@
 <translation id="5950760360751948276">نوار نشانک همیشه نمایش داده شود</translation>
 <translation id="2960757369920422313">نمایش نوار نشانک در NTP</translation>
 <translation id="522953399371747698">پنهان کردن نوار نشانک</translation>
+<translation id="9079813619990532635">تمام نشانک‌ها را صادر کنید</translation>
 <translation id="134184943774258988">قابلیت مشاهده دکمه همه نشانک‌ها را تغییر دهید</translation>
 <translation id="2158862020143233462">تغییر وضعیت محافظ‌ها</translation>
 <translation id="3010280727642018218">تغییر وضعیت جاوا اسکریپت</translation>
@@ -1979,18 +2030,20 @@
 <translation id="4138119885026877702">بازنشانی همه به حالت پیش‌فرض</translation>
 <translation id="8247915960543694908">یک میانبر جدید ایجاد کنید. کلیدهای مورد نظر را فشار دهید تا یک کلید ترکیبی جدید ایجاد شود</translation>
 <translation id="1344005710343072293">این ترکیب برای <ph name="COMMAND"/> استفاده می‌شود. ذخیره آن میانبر را لغو می‌کند.</translation>
-<translation id="831931573200952705">این ترکیب برای <ph name="COMMAND"/>  استفاده می‌شود و قابل تغییر نیست.</translation>
+<translation id="831931573200952705">این ترکیب برای <ph name="COMMAND"/> استفاده می‌شود و قابل تغییر نیست.</translation>
 <translation id="3537006124004887164">این ترکیب برای <ph name="COMMAND"/> استفاده می‌شود و قابل تغییر نیست. سعی کنید آن را در تنظیمات سیستم، از طریق «میانبرهای برنامه» تغییر دهید.</translation>
 <translation id="8536713137312218707">فرمان‌های سریع</translation>
 <translation id="712598284361781729">نمای تقسیم جدید</translation>
 <translation id="1130188644637295274">باز کردن در نمای تقسیم</translation>
 <translation id="6459036216700972269">لغو جداسازی زبانه‌ها</translation>
 <translation id="4235382917338421035">جابه‌جایی موقعیت‌های زبانه</translation>
+<translation id="4288085058450834672">نمایش برنامه‌ها</translation>
 <translation id="4144468798716165316">دستورات سریع</translation>
 <translation id="3617523374417810198">نمای تقسیم جدید</translation>
 <translation id="8571323456914890254">باز کردن در نمای تقسیم</translation>
 <translation id="5329136173514538969">لغو جداسازی زبانه‌ها</translation>
 <translation id="7595612919377246359">جابه‌جایی موقعیت‌های زبانه</translation>
+<translation id="2367972762794486313">نمایش برنامه‌ها</translation>
 <translation id="8591883849678260674">مشاهده اصلی</translation>
 <translation id="1969654232209826429">حداقل بخوانید</translation>
 <translation id="4101707289420716287">خاموش کردن تندخوان</translation>
@@ -2026,7 +2079,7 @@
 <translation id="8637805148029768813">ویژگی خلاصه‌نویس در حال حاضر فقط برای مقالات منتخب و سایر صفحات وب طولانی در دسترس است.</translation>
 <translation id="1223498995510244364">خلاصه کردن</translation>
 <translation id="7491773233732232424">درباره Leo</translation>
-<translation id="5208096220706490232"><ph name="LINK_BEFORE"/>Brave Leo یک دستیار هوشمند و خصوصی هوش مصنوعی است که استفاده شما از اینترنت را بهبود می‌بخشد. Leo برای استفاده‌ای با دسترسی محدود رایگان است. نسخه پرمیوم Brave Leo مدل‌های بیشتر و حدود بالاتری را ارائه می‌کند و به مشترکان امکان دسترسی زودهنگام به ویژگی‌های جدید را می‌دهد. مدل پیش‌فرض برای همه کاربران در حال حاضر Mixtral 8x7B است. برای جزئیات بیشتر به <ph name="LINK_BEFORE"/>ویکی Brave<ph name="LINK_AFTER"/> مراجعه کنید.</translation>
+<translation id="4885527781814382758">Brave Leo یک دستیار خصوصی هوشمند هوش مصنوعی است که استفاده شما از اینترنت را بهبود می‌بخشد. Leo برای استفاده‌ با دسترسی محدود رایگان است. نسخه پرمیوم Brave Leo مدل‌های بیشتری را ارائه می‌دهد، محدودیت‌های بیشتری دارد و به مشترکان امکان دسترسی زودهنگام به ویژگی‌های جدید را می‌دهد. مدل پیش‌فرض به‌طور دوره‌ای تغییر خواهد کرد. برای جزئیات بیشتر به <ph name="LINK_BEFORE"/>مرکز کمک Brave‏‎<ph name="LINK_AFTER"/> مراجعه کنید.</translation>
 <translation id="7189603330209995455">به‌طور پیش‌فرض، وقتی سؤالی از Leo می‌پرسید، ممکن است محتوای صفحه وبی را که مشاهده می‌کنید یا هر متنی را که در صفحه‌ای برجسته می‌کنید برای Brave Leo ارسال و از آن استفاده کند تا پاسخی ارائه کند. صحت پاسخ‌ها تضمین نمی‌شود و ممکن است شامل اطلاعات غلط، گمراه‌کننده یا نادرست باشد. Leo از داده‌های «جست‌وجوی Brave» برای بهبود کیفیت پاسخ استفاده می‌کند. از ارسال اطلاعات حساس یا خصوصی خودداری کنید و در پاسخ‌های مربوط به سلامت، امور مالی، ایمنی شخصی یا موارد مشابه احتیاط کنید. هر زمان که بخواهید می‌توانید گزینه‌های Leo را در «تنظیمات» تنظیم کنید. به «تنظیمات &gt; Leo» بروید.</translation>
 <translation id="3038772045018370764">Leo شناسه‌هایی مانند آدرس IP شما را که می‌توان آن را به شما پیوند داد جمع آوری نمی‌کند. از هیچ داده‌ای برای آموزش مدل‌های هوش مصنوعی استفاده نمی‌شود و  مدل‌های هوش مصنوعی هیچ داده شخصی‌ای را حفظ نمی‌کنند (به جز Anthropic که داده‌ها را تا 30 روز، قبل از حذف آنها، نگه می‌دارد). برای اطلاعات بیشتر به <ph name="LINK_BEFORE"/>خطمشی حفظ حریم خصوصی<ph name="LINK_AFTER"/> مراجعه کنید.</translation>
 <translation id="7839853125981164613">درخواستی اینجا وارد کنید</translation>
@@ -2034,19 +2087,26 @@
 <translation id="4567071417854988869">این ویدیو را خلاصه کن</translation>
 <translation id="7921782882718083488">این صفحه را خلاصه کن</translation>
 <translation id="7932221068776853847">برای توقف ارسال محتوای این صفحه به Leo و شروع مکالمه‌ای جدید، اتصال را قطع کنید</translation>
+<translation id="2712650703044366764">این مدل دارای نقطه پایان نامعتبر است. لطفاً تنظیماتتان را بررسی کنید و دوباره تلاش کنید.</translation>
 <translation id="1167803637855350748">هنگام اتصال به Leo خطای شبکه رخ داد، اتصالتان را بررسی کنید و دوباره امتحان کنید.</translation>
 <translation id="1996126325390835277">به محدودیت نرخ پریمیوم رسیده‌اید. لطفاً چند ساعت دیگر دوباره امتحان کنید.</translation>
+<translation id="3683964919745779766">شما به حد مجاز نرخ برای این مدل رسیده‌اید یا موجودی اعتبارتان تمام شده است. لطفاً بعداً دوباره تلاش کنید.</translation>
+<translation id="7692501701960747469">کلید API تنظیم‌شده برای این مدل نامعتبر است. لطفاً تنظیمات خود را بررسی کنید و دوباره تلاش کنید.</translation>
+<translation id="7905602379229309187">این نقطه پایان در حال حاضر تحت بار سنگین است. لطفاً بعداً دوباره تلاش کنید.</translation>
+<translation id="8151638057146502721">پیکربندی کنید</translation>
 <translation id="4177458398826096846">سلام، من Leo هستم. یک دستیار هوش مصنوعی که کاملاً توسط Brave میزبانی می‌شود. من برای کار از Llama 3.1 8B استفاده می‌کنم، مدلی که توسط Meta ایجاد شده است تا کارا بوده و در بسیاری از زمینه‌ها کاربرد داشته باشد. <ph name="LINK_BEFORE"/>کسب اطلاعات بیشتر<ph name="LINK_AFTER"/></translation>
 <translation id="6500567629965936637">سلام من Leo هستم؛ یک دستیار هوش مصنوعی که به‌طور کامل تحت میزبانی Brave است. من با Mixtral 8x7b که یک مدل ساخته‌شده توسط هوش مصنوعی Mistral برای انجام کارهای پیشرفته است، کار می‌کنم. <ph name="LINK_BEFORE"/>بیشتر بدانید<ph name="LINK_AFTER"/></translation>
 <translation id="4590776109659811206">سلام، من Leo هستم. Brave واسطه‌ی ارتباطی من با شماست و با  Claude Instant که مدل ساخته‌شده توسط Anthropic که وظیفه‌ آن انجام امور مرتبط با پردازش متن و گفتگو است،‌ کار می‌کنم. <ph name="LINK_BEFORE"/>بیشتر بدانید<ph name="LINK_AFTER"/></translation>
-<translation id="8583558415545871403">سلام، من Leo هستم. من توسط Brave پراکسی شده‌ام و تحت پشتیبانی Claude 3 Haiku قرار دارم که نوعی مدل ساخته‌شده توسط شرکت Anthropic برای انجام وظایف مرتبط با مکالمه و پردازش متن است.</translation>
-<translation id="1107977270364670952">سلام، من Leo هستم. من توسط Brave پراکسی شده‌ام و تحت پشتیبانی Claude 3.5 Sonnet قرار دارم که نوعی مدل ساخته‌شده توسط شرکت Anthropic برای انجام وظایف مرتبط با مکالمه و پردازش متن است.</translation>
+<translation id="2001874998841390450">سلام، من Leo هستم. از طریق Brave ارائه می‌شوم و با مدل Claude Haiku که شرکت Anthropic برای انجام وظایف گفت‌وگویی و پردازش متن ساخته است، پشتیبانی می‌شوم. <ph name="LINK_BEFORE"/>اطلاعات بیشتر<ph name="LINK_AFTER"/></translation>
+<translation id="3408745502133272006">سلام، من Leo هستم. از طریق Brave ارائه می‌شوم و با مدل Claude Sonnet که شرکت Anthropic برای انجام وظایف گفت‌وگویی و پردازش متن ساخته است، پشتیبانی می‌شوم. <ph name="LINK_BEFORE"/>اطلاعات بیشتر<ph name="LINK_AFTER"/></translation>
 <translation id="6206029817087805290"><ph name="MODEL_NAME"/> توسط <ph name="COMPANY_NAME"/></translation>
 <translation id="963346402440669081">پریمیوم</translation>
 <translation id="6187065185557150870">چت</translation>
+<translation id="4685048769603134644">باز کردن تمام‌صفحه</translation>
 <translation id="2961040541145689181">چت جدید</translation>
 <translation id="7557539689487606886">تبدیل عضویت به Premium</translation>
 <translation id="1691256669639196606">مدیریت اشتراک</translation>
+<translation id="3840096463915153852">سابقه گفتگو</translation>
 <translation id="2304783958703511257">تنظیمات پیشرفته</translation>
 <translation id="3037594989275592390">مدل‌های زبانی</translation>
 <translation id="5543505256451301851">۷ روز رایگان امتحان کنید</translation>
@@ -2057,6 +2117,9 @@
 <translation id="4165928407303989823">در همین موضوع بمان</translation>
 <translation id="2389665228467129817">برای مدت طولانی‌تری چت کنید</translation>
 <translation id="8556044455877152001"><ph name="PRICE_VALUE"/> دلار در ماه</translation>
+<translation id="9031958221569934724"><ph name="PRICE_VALUE"/>$ دلار آمریکا /سال</translation>
+<translation id="1028627582482425924">یک سال</translation>
+<translation id="36366199652730057">مقرون‌به‌صرفه‌ترین</translation>
 <translation id="5151923271944811339">به مدل رایگان تغییر دهید</translation>
 <translation id="5474757891469990756">بازگشایی قفل توانایی‌های کامل Leo با نسخه پرمیوم:</translation>
 <translation id="3453542753968940696">اولویت دسترسی به مدل‌های قدرتمند با مهارت‌های مختلف.</translation>
@@ -2070,11 +2133,14 @@
 <translation id="6393149565874086128">افزودن بازخورد</translation>
 <translation id="3521125531016408657">دوست داشتن پاسخ</translation>
 <translation id="8202517001427388906">دوست نداشتن پاسخ</translation>
+<translation id="3177073390279208955">ارسال امتیاز، گفتگو، مدل، زبان، نسخه و وضعیت پرمیوم</translation>
 <translation id="1379399209929302811">بازخورد خود را درباره هوش مصنوعی Brave ارائه دهید</translation>
 <translation id="8442999546461118871">موضوع بازخورد خود را انتخاب کنید</translation>
 <translation id="9018766373792005944">بازخورد شما درباره چیست؟</translation>
 <translation id="7355096922131918313">اینجا بازخورد خود را ارائه دهید</translation>
 <translation id="3027575440738035995">Leo Premium دسترسی به مجموعه‌ای گسترده‌تر از مدل‌های زبانی را برای پاسخ‌های دقیق‌تر به شما ارائه می‌کند. <ph name="LINK_BEFORE"/>بیشتر بدانید<ph name="LINK_AFTER"/></translation>
+<translation id="8261506727792406068">پاک کنید</translation>
+<translation id="6574153208133461043">آیا از حذف این گفتگو مطمئن هستید؟ این عمل بازگشت‌ناپذیر است.</translation>
 <translation id="7488762544858401571">ویرایش شده</translation>
 <translation id="1406205536570262057">ویرایش پاسخ</translation>
 <translation id="2399439821649319175">غیر مفید</translation>
@@ -2083,8 +2149,12 @@
 <translation id="2313959174679245365">ممکن است میزان پاسخ شما ثبت نشده باشد، لطفاً اتصال شبکه را بررسی کرده و دوباره تلاش کنید.</translation>
 <translation id="98413980871833152">ممکن است بازخورد شما ثبت نشده باشد، لطفاً پس از بررسی اتصال شبکه دوباره امتحان کنید.</translation>
 <translation id="8742658901413346500">این مکالمه طولانی است و Leo ممکن است به زودی برخی چیز‌ها را از حافظه پاک کند. شما با تبدیل حساب خود به نسخه پریمیوم می‌توانید مکالمه طولانی‌تری داشته باشید یا برای بازنشانی مجدد آن، چت را پاک کنید.</translation>
-<translation id="7550152963854770123">پاک کردن چت</translation>
+<translation id="6495402307502950726">پاک کردن گفتگو</translation>
+<translation id="903201991022343217">شروع گفتگوی جدید</translation>
+<translation id="8171760814579050200">تغییر نام گفتگو</translation>
+<translation id="7754678742055438573">حذف گفتگو</translation>
 <translation id="7494736170250048402">ارسال پیام به Leo</translation>
+<translation id="8650874793377330048">توقف پاسخگویی</translation>
 <translation id="8712637175834984815">متوجه شدم</translation>
 <translation id="1093419424466417703">این صفحه برای Leo خیلی طولانی است. ممکن است برخی از مطالب از مکالمه حذف شده باشد. Leo توانست <ph name="PERCENTAGE"/> از محتوای صفحه را بخواند.</translation>
 <translation id="2186990448773134544">محتوای صفحه با اعمال فرایند استخراج مرتبطترین اطلاعات از صفحه اصلاح شده است،‌ زیرا برای Leo خیلی طولانی بود.</translation>
@@ -2092,6 +2162,11 @@
 <translation id="4370698775470316661">این مکالمه طولانی است و قادر به ادامه دادن نیستید. ممکن است مدل‌های دیگری موجود باشد که Leo قادر است با آن‌ها دقت خود را در مکالمه‌های بلند حفظ کند.</translation>
 <translation id="5719170755629028558">در حال بهبود پاسخ شما با جستجوی Brave…</translation>
 <translation id="5794962229997281366">جستجوی پاسخ بهبودیافته برای <ph name="SEARCH_TERMS"/>.</translation>
+<translation id="8103700533980268469">این اطلاعیه را ببندید</translation>
+<translation id="2315654674554095762">از این پس Leo گفتگوهای شما را به خاطر خواهد سپرد تا بتوانید به آن‌ها رجوع کنید. این گفتگوها به‌صورت رمزنگاری‌شده روی دستگاهتان ذخیره می‌شوند و هر وقت بخواهید می‌توانید آن‌ها را حذف کنید.</translation>
+<translation id="7821251979960635244">سابقه گفتگوهای شما پس از شروع گفتگو در اینجا نمایش داده خواهد شد.</translation>
+<translation id="887511360213807449">سابقه غیرفعال است</translation>
+<translation id="5380979378058584412">برای مشاهده گفتگوهای قبلی خود با Leo، باید سابقه گفتگوها را فعال کنید.</translation>
 <translation id="6291843235651817590">چت عمومی</translation>
 <translation id="8193130769524604031">وظایف چت پیشرفته</translation>
 <translation id="3185367320601718531">مکالمه و تولید متن</translation>
@@ -2135,6 +2210,8 @@
 <translation id="49269513399674318">از میکروفون استفاده کنید</translation>
 <translation id="3895031624234442305">سفارشی کردن مدل‌ها</translation>
 <translation id="4572010449071015143">شروع مکالمه جدید</translation>
+<translation id="345901077335355561">به گفتگوی فعال برگردید</translation>
+<translation id="6287023598025162715">گفتگوی جدید</translation>
 <translation id="6303294677342628402">سپر ایمنی</translation>
 <translation id="8458987127502506209">فعال کردن Brave سپرها</translation>
 <translation id="7509914170164691086">سپرهای <ph name="LINK_BEFORE"/>برای<ph name="LINK_AFTER"/> روشن است</translation>
@@ -2163,6 +2240,8 @@
 <translation id="6196640612572343990">مسدود کردن کوکی‌های شخص ثالث</translation>
 <translation id="693506469193748756">وقتی این سایت را می‌بندم مرا فراموش کن</translation>
 <translation id="5471580724041424345">وقتی سایتی را می‌بندید، کوکی‌ها و سایر داده‌های سایت را پاک می‌کند.</translation>
+<translation id="6486971767955110687">ذخیره‌سازی اطلاعات تماس برای گزارش‌های خرابی وبسایت</translation>
+<translation id="4085787265464238844">اگر اطلاعات تماس خود را ارائه دهید، برای گزارش‌های آتی ذخیره خواهد شد</translation>
 <translation id="6883611015375728278">مسدود کردن همه کوکی‌ها</translation>
 <translation id="5657156137487675418">مجاز کردن همه کوکی‌ها</translation>
 <translation id="8366221601425141146">اثر انگشت مسدود شده است</translation>
@@ -2217,8 +2296,8 @@
 <translation id="6821108091726602352">با مشارکت در پروژه کاوش وب Brave، به ما در برطرف کردن مشکل وب کمک کنید. با اشتراک‌گذاری سیگنال‌های جستجوی کاملاً ناشناس، می‌توانید به Brave کمک کنید شاخص جستجو را رشد دهد.</translation>
 <translation id="6764845498618413165">بیشتر بدانید.</translation>
 <translation id="7818938154803162778">حتماً، کمک خواهم کرد</translation>
-<translation id="7821773512278295352">فایروال Brave + ‏VPN: مت‏صل</translation>
-<translation id="6019088868713395120">فایروال Brave +‏ VPN: قطع</translation>
+<translation id="958268166261124668">Brave VPN: وصل شد</translation>
+<translation id="6021669293402055982">Brave VPN: قطع شد</translation>
 <translation id="3541307549916475335">رابط کاربر پانل Brave VPN</translation>
 <translation id="7143207342074048698">در حال اتصال</translation>
 <translation id="1202549130170287307">در حال قطع اتصال</translation>
@@ -2230,7 +2309,6 @@
 <translation id="3357036723290257445">آیا قبلاً Brave VPN را خریداری کرده‌اید؟</translation>
 <translation id="8814357473522731680">تحت پشتیبانی</translation>
 <translation id="8652175077544655965">بستن تنظیمات</translation>
-<translation id="3099126540952997993">فایروال + VPN</translation>
 <translation id="5908163815855240493">رفتن به بخش اصلی</translation>
 <translation id="7805768142964895445">وضعیت</translation>
 <translation id="5747552184818312860">تاریخ انقضا</translation>
@@ -2254,6 +2332,7 @@
 <translation id="2542131205769293399">بررسی وضعیت خرید شما امکان پذیر نیست. احتمالا این مشکل از شبکه است. مجدداً تلاش کنید یا با پشتیبانی تماس بگیرید.</translation>
 <translation id="4613076894734402086">ویرایش روش پرداخت</translation>
 <translation id="427718751211990320">تاریخ انقضای اطلاعات کاربری گذشته است.</translation>
+<translation id="3323234188356372126">Brave VPN در احراز هویت سرور VPN با مشکل مواجه شده است. لطفاً با پشتیبانی تماس بگیرید یا بعداً دوباره امتحان کنید.</translation>
 <translation id="8670619630771851260">بار کردن اطلاعات کاربری امکان‌پذیر نیست.</translation>
 <translation id="1594643509610625766">توکن دیگر معتبر نیست.</translation>
 <translation id="8373427068383038263">به نظر می‌رسد که آخرین پرداخت شما برای <ph name="VALUE"/> انجام نشده است. تا زمانی که مشکل پرداخت حل نشود، دسترسی به این اشتراک موقتاً متوقف خواهد شد. سعی کنید روش پرداختتان را ویرایش کنید، یا با پشتیبانی Brave تماس بگیرید.</translation>
@@ -2300,10 +2379,9 @@ Brave یک سرویس کمکی دارد که با فیلتر کردن روشی �
 <translation id="7423206764347669977">تغییر تنظیمات</translation>
 <translation id="9061845622728745852">منطقه زمانی</translation>
 <translation id="8295393906499561642">جلسه منقضی شد</translation>
+<translation id="7070578590391442755">امکان احراز هویت VPN وجود ندارد</translation>
 <translation id="3312623558576021182">لطفاً برای تازه‌سازی جلسه VPN خود وارد <ph name="BRAVE_ACCOUNT_BEGIN"/>حساب Brave<ph name="BRAVE_ACCOUNT_END"/> خود شوید.</translation>
-<translation id="6021669293402055982">Brave VPN: قطع شد</translation>
 <translation id="7861195049821776142">Brave VPN: در حال قطع اتصال</translation>
-<translation id="958268166261124668">Brave VPN: وصل شد</translation>
 <translation id="2061807837510296780">Brave VPN: در حال اتصال</translation>
 <translation id="1313124107969703758">Brave VPN: خطا</translation>
 <translation id="8273420301954598554">وضعیت: متصل</translation>
@@ -2312,13 +2390,15 @@ Brave یک سرویس کمکی دارد که با فیلتر کردن روشی �
 <translation id="8048263175525832621">Brave VPN: اتصال قطع است</translation>
 <translation id="1498770726476841108">مدیریت حساب</translation>
 <translation id="6825718953004242472">حذف آیکون</translation>
+<translation id="6819278685469225453">از هر برنامه در دستگاه خود محافظت کنید</translation>
+<translation id="3960619311638643872">Brave VPN</translation>
+<translation id="4295077644587784828">حریم خصوصی و امنیت بیشتر در فضای آنلاین.</translation>
+<translation id="8425213833346101688">تغییر</translation>
+<translation id="8703188411226330709">شروع نسخه آزمایشی رایگان</translation>
 <translation id="3287942014983548982">از اینجا باز کنید</translation>
 <translation id="8234327602319965815"><ph name="OPEN_HERE_SUFFIX"/>, فعلاً باز است,
     دکمه Tab و سپس Enter را فشار دهید تا به زبانه باز بروید</translation>
 <translation id="1538335063514960365">دکمه اینجا را انتخاب کنید، Enter را فشار دهید تا این آدرس وب به جای خروج از زبانه، در زبانه فعلی باز شود</translation>
 <translation id="451189393813405346">از Leo بپرسید</translation>
 <translation id="8525248723479742219">بعداً پخش کنید</translation>
-<translation id="1450735350187803276">تبلیغاتی که این ماه مشاهده شده‌اند</translation>
-<translation id="3960619311638643872">Brave VPN</translation>
-<translation id="8425213833346101688">تغییر</translation>
 </translationbundle>

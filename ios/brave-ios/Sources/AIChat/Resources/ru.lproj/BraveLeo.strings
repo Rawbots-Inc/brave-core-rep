@@ -31,8 +31,8 @@
 /* The title for the label showing status if the subscription */
 "aichat.advancedSettingsSubscriptionStatusTitle" = "Статус";
 
-/* The title for the button that allows the user to view the AppStore Receipt */
-"aichat.advancedSettingsViewReceiptTitle" = "Просмотр квитанции AppStore";
+/* The title for the button that allows the user to view the App Store Receipt */
+"aichat.advancedSettingsViewReceiptTitle" = "Посмотреть квитанцию App Store";
 
 /* The subtitle for the error showing there is an error from App Store */
 "aichat.appStoreErrorSubTitle" = "Не удалось установить соединение с App Store. Повторите попытку позже.";
@@ -137,7 +137,7 @@
 "aichat.infoAboutPageContext" = "Ответы формируются на основе содержимого страницы";
 
 /* The model intro message when you first enter the chat assistant */
-"aichat.introMessageClaudeHaikuMessageDescription" = "Здравствуйте! Я Leo — чат-бот на основе модели Claude 3 Haiku компании Anthropic. Я использую прокси-сервер Brave. Вы можете общаться со мной в чате и получать помощь с задачами, связанными с текстами.";
+"aichat.introMessageClaudeHaikuMessageDescription" = "Привет, я Лео. Я использую прокси-сервер Brave и работаю на основе Claude Haiku, модели, созданной Anthropic для решения задач по обработке разговоров и текстов.";
 
 /* The model and creator for intro message - Claude Haiku is the model -- Anthropic is the creator */
 "aichat.introMessageClaudeHaikuModelDescription" = "Claude Haiku от Anthropic";
@@ -146,7 +146,7 @@
 "aichat.introMessageClaudeHaikuModelPurposeDescription" = "Сверхбыстрый чат";
 
 /* The model intro message when you first enter the chat assistant */
-"aichat.introMessageClaudeSonnetMessageDescription" = "Здравствуйте! Я Leo — чат-бот на основе модели Claude 3.5 Sonnet компании Anthropic. Я использую прокси-сервер Brave и помогаю писать и обрабатывать тексты.";
+"aichat.introMessageClaudeSonnetMessageDescription" = "Привет, я Лео. Я использую прокси-сервер Brave и работаю на основе Claude Sonnet модели, созданной Anthropic для решения задач по обработке разговоров и текстов.";
 
 /* The model and creator for intro message - Claude Sonnet is the model -- Anthropic is the creator */
 "aichat.introMessageClaudeSonnetModelDescription" = "Claude Sonnet от Anthropic";
@@ -338,7 +338,7 @@
 "aichat.resetLeoDataActionTitle" = "Сбросить чат с Leo и удалить данные";
 
 /* The title of a button that will reset data for leo */
-"aichat.resetLeoDataAlertButtonTitle" = "Сбросить";
+"aichat.resetLeoDataAlertButtonTitle" = "Сброс";
 
 /* The description for the error whre leo data reset */
 "aichat.resetLeoDataErrorDescription" = "Действительно сбросить чат с Leo и удалить данные?";
@@ -372,6 +372,9 @@
 
 /* The description indicating voice inputs from user is not store or shared and these inpurs are totally private. */
 "aichat.speechRecognizerDisclaimer" = "Brave не хранит и не передает данные о голосовом поиске.";
+
+/* Title showing the user has no subscription. */
+"aichat.subscriptionNoneTitle" = "Нет";
 
 /* The title for the button to generate suggestions */
 "aichat.suggestionsGenerationButtonTitle" = "Предположить вопросы…";

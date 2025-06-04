@@ -11,7 +11,7 @@ import {
   externalWalletProviderFromString
 } from '../../shared/lib/external_wallet'
 
-import { AppModel } from '../lib/app_model'
+import { AppModel, defaultModel } from '../lib/app_model'
 import { AppState, Notification, defaultState } from '../lib/app_state'
 import { RewardsPageProxy } from './rewards_page_proxy'
 import { createStateManager } from '../../shared/lib/state_manager'
@@ -49,14 +49,40 @@ function parseCreatorPlatform(value: string) {
   return ''
 }
 
+function openTab(url: string) {
+  window.open(url, '__blank', 'noopener noreferrer')
+}
+
+function createModelForUnsupportedRegion(): AppModel {
+  const stateManager = createStateManager<AppState>(defaultState())
+  stateManager.update({
+    loading: false,
+    isUnsupportedRegion: true
+  })
+  return {
+    ...defaultModel(),
+    getState: stateManager.getState,
+    addListener: stateManager.addListener,
+    openTab,
+    getString(key) { return loadTimeData.getString(key) }
+  }
+}
+
 export function createModel(): AppModel {
+  if (loadTimeData.getBoolean('isUnsupportedRegion')) {
+    return createModelForUnsupportedRegion()
+  }
+
+  const searchParams = new URLSearchParams(location.search)
   const browserProxy = RewardsPageProxy.getInstance()
   const pageHandler = browserProxy.handler
   const adsHistoryAdapter = createAdsHistoryAdapter()
   const stateManager = createStateManager<AppState>(defaultState())
-  const isBubble = loadTimeData.getBoolean('isBubble')
   const platform = normalizePlatform(loadTimeData.getString('platform'))
-  const creatorParam = new URLSearchParams(location.search).get('creator') ?? ''
+  const creatorParam = searchParams.get('creator') ?? ''
+  const isAutoResizeBubble = loadTimeData.getBoolean('isAutoResizeBubble')
+  const isBubble = isAutoResizeBubble || searchParams.has('bubble')
+  let lastPublisherRefresh = 0
 
   // Expose the state manager for devtools diagnostic purposes.
   Object.assign(self, {
@@ -66,6 +92,7 @@ export function createModel(): AppModel {
   stateManager.update({
     embedder: {
       isBubble,
+      isAutoResizeBubble,
       platform,
       animatedBackgroundEnabled:
         loadTimeData.getBoolean('animatedBackgroundEnabled')
@@ -198,6 +225,11 @@ export function createModel(): AppModel {
       id = (await pageHandler.getPublisherIdForActiveTab()).publisherId
     }
 
+    if (Date.now() - lastPublisherRefresh > 1000 * 10) {
+      await pageHandler.refreshPublisher(id)
+      lastPublisherRefresh = Date.now()
+    }
+
     const [{ publisherInfo }, { publisherBanner }] = await Promise.all([
       pageHandler.getPublisherInfo(id),
       pageHandler.getPublisherBanner(id)
@@ -327,9 +359,9 @@ export function createModel(): AppModel {
     openTab(url) {
       if (isBubble) {
         pageHandler.openTab(url)
-        return
+      } else {
+        openTab(url)
       }
-      window.open(url, '_blank', 'noopener,noreferrer')
     },
 
     getString(key) {

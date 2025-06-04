@@ -68,7 +68,11 @@ bool BraveTabStrip::IsVerticalTabsFloating() const {
   auto* vertical_region_view =
       browser_view->vertical_tab_strip_widget_delegate_view()
           ->vertical_tab_strip_region_view();
-  DCHECK(vertical_region_view);
+
+  if (!vertical_region_view) {
+    // Could be null while closing a window.
+    return false;
+  }
 
   return vertical_region_view->state() ==
              VerticalTabStripRegionView::State::kFloating ||
@@ -172,9 +176,9 @@ void BraveTabStrip::MaybeStartDrag(
       auto* tab_strip_model = controller_->GetBrowser()->tab_strip_model();
       // Make sure both tiled tabs are in selection.
       new_selection.AddIndexToSelection(
-          tab_strip_model->GetIndexOfTab(tile->first));
+          tab_strip_model->GetIndexOfTab(tile->first.Get()));
       new_selection.AddIndexToSelection(
-          tab_strip_model->GetIndexOfTab(tile->second));
+          tab_strip_model->GetIndexOfTab(tile->second.Get()));
       new_selection.set_active(tab_strip_model->active_index());
       tab_strip_model->SetSelectionFromModel(new_selection);
     }
@@ -235,7 +239,7 @@ bool BraveTabStrip::IsFirstTabInTile(const Tab* tab) const {
 
   auto tile = GetTileForTab(tab);
   DCHECK(tile) << "This must be called only when IsTabTiled() returned true";
-  return browser->tab_strip_model()->GetIndexOfTab(tile->first) == *index;
+  return browser->tab_strip_model()->GetIndexOfTab(tile->first.Get()) == *index;
 }
 
 TabTiledState BraveTabStrip::GetTiledStateForTab(int index) const {
@@ -267,7 +271,8 @@ std::optional<TabTile> BraveTabStrip::GetTileForTab(const Tab* tab) const {
     return std::nullopt;
   }
 
-  return data->GetTile(browser->tab_strip_model()->GetTabHandleAt(*index));
+  return data->GetTile(
+      browser->tab_strip_model()->GetTabAtIndex(*index)->GetHandle());
 }
 
 void BraveTabStrip::UpdateTabContainer() {
@@ -327,7 +332,7 @@ void BraveTabStrip::UpdateTabContainer() {
       auto* tab = original_container->GetTabAtModelIndex(i);
       // At this point, we don't have group views in the container. So before
       // restoring groups, clears group for tabs.
-      tab->set_group(std::nullopt);
+      tab->SetGroup(std::nullopt);
       tab_container_->AddTab(
           tab->parent()->RemoveChildViewT(tab), i,
           tab->data().pinned ? TabPinned::kPinned : TabPinned::kUnpinned);
@@ -423,6 +428,10 @@ void BraveTabStrip::UpdateTabContainer() {
     // In order to update shadow state, call ActiveStateChanged().
     tab_at(active_index.value())->ActiveStateChanged();
   }
+
+  // Called only at startup or vertical tab mode changed.
+  // To make initial tabs layout properly.
+  DeprecatedLayoutImmediately();
 }
 
 bool BraveTabStrip::ShouldShowVerticalTabs() const {

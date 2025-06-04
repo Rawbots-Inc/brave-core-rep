@@ -1932,17 +1932,6 @@ extension Strings {
   }
 }
 
-// MARK:-  SettingsContentViewController.swift
-extension Strings {
-  public static let settingsContentLoadErrorMessage = NSLocalizedString(
-    "SettingsContentLoadErrorMessage",
-    tableName: "BraveShared",
-    bundle: .module,
-    value: "Could not load page.",
-    comment: "Error message that is shown in settings when there was a problem loading"
-  )
-}
-
 // MARK:-  SearchInputView.swift
 extension Strings {
   public static let searchInputViewTextFieldAccessibilityLabel = NSLocalizedString(
@@ -2168,6 +2157,14 @@ extension Strings {
       bundle: .module,
       value: "Close default browser callout",
       comment: ""
+    )
+  public static let importBrowsingDataSettingsMenuTitle =
+    NSLocalizedString(
+      "importBrowsingDataSettingsMenuTitle",
+      tableName: "BraveShared",
+      bundle: .module,
+      value: "Import Browsing Data",
+      comment: "Title of the button in settings where the user can import browsing data from other browsers."
     )
   public static let enablePullToRefresh =
     NSLocalizedString(
@@ -2726,7 +2723,7 @@ extension Strings {
     "TranslatePage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Translate",
+    value: "Translate Page",
     comment: "Title of an action that allows the user to translate the current web-page to another language"
   )
   public static let findInPage = NSLocalizedString(
@@ -9534,6 +9531,35 @@ extension Strings {
       bundle: .module,
       value: "Shortcut Button",
       comment: "A title shown when letting the user choose a button's purpose from a list of destinations"
+    )
+  }
+}
+
+extension Strings {
+  public struct AltAppIcon {
+    public static let changeAppIcon = NSLocalizedString(
+      "altAppIcon.changeAppIcon",
+      bundle: .module,
+      value: "Change App Icon",
+      comment: "The title for the screen that lets the user select a custom app icon"
+    )
+    public static let defaultAppIcon = NSLocalizedString(
+      "altAppIcon.defaultAppIcon",
+      bundle: .module,
+      value: "Default",
+      comment: "A label shown next to the default Brave app icon"
+    )
+    public static let braveIconsHeader = NSLocalizedString(
+      "altAppIcon.braveIconsHeader",
+      bundle: .module,
+      value: "Brave Icons",
+      comment: "A label shown above a list of icons designed by Brave"
+    )
+    public static let errorTitle = NSLocalizedString(
+      "altAppIcon.errorTitle",
+      bundle: .module,
+      value: "Failed to Change App Icon",
+      comment: "A title shown if some sort of error occurs while changing the app icon"
     )
   }
 }

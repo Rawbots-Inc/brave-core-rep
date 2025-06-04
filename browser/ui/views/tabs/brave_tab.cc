@@ -16,42 +16,26 @@
 #include "brave/browser/ui/views/frame/vertical_tab_strip_region_view.h"
 #include "brave/browser/ui/views/frame/vertical_tab_strip_widget_delegate_view.h"
 #include "brave/browser/ui/views/tabs/vertical_tab_utils.h"
-#include "brave/browser/ui/views/view_shadow.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/views/tabs/alert_indicator_button.h"
 #include "chrome/browser/ui/views/tabs/tab_close_button.h"
 #include "chrome/browser/ui/views/tabs/tab_slot_controller.h"
-#include "ui/compositor/layer.h"
-#include "ui/compositor/paint_recorder.h"
 #include "ui/gfx/favicon_size.h"
-#include "ui/gfx/skia_paint_util.h"
 #include "ui/views/animation/ink_drop.h"
 #include "ui/views/controls/label.h"
 #include "ui/views/view_class_properties.h"
 
-namespace {
-
-constexpr ViewShadow::ShadowParameters kShadow{
-    .offset_x = 0,
-    .offset_y = 1,
-    .blur_radius = 4,
-    .shadow_color = SkColorSetA(SK_ColorBLACK, 0.07 * 255)};
-
-}  // namespace
-
-BraveTab::BraveTab(TabSlotController* controller) : Tab(controller) {}
-
 BraveTab::~BraveTab() = default;
 
-std::u16string BraveTab::GetTooltipText(const gfx::Point& p) const {
+std::u16string BraveTab::GetRenderedTooltipText(const gfx::Point& p) const {
   auto* browser = controller_->GetBrowser();
   if (browser &&
       brave_tabs::AreTooltipsEnabled(browser->profile()->GetPrefs())) {
     return Tab::GetTooltipText(data_.title,
                                GetAlertStateToShow(data_.alert_state));
   }
-  return Tab::GetTooltipText(p);
+  return TabSlotView::GetTooltipText();
 }
 
 int BraveTab::GetWidthOfLargestSelectableRegion() const {
@@ -77,8 +61,6 @@ void BraveTab::ActiveStateChanged() {
   // see comment on UpdateEnabledForMuteToggle();
   // https://github.com/brave/brave-browser/issues/23476/
   alert_indicator_button_->UpdateEnabledForMuteToggle();
-
-  UpdateShadowForActiveTab();
 }
 
 std::optional<SkColor> BraveTab::GetGroupColor() const {
@@ -169,32 +151,6 @@ bool BraveTab::IsAtMinWidthForVerticalTabStrip() const {
          width() <= tabs::kVerticalTabMinWidth;
 }
 
-void BraveTab::UpdateShadowForActiveTab() {
-  bool can_render_shadows =
-      tabs::features::HorizontalTabsUpdateEnabled() ||
-      tabs::utils::ShouldShowVerticalTabs(controller()->GetBrowser());
-
-  if (IsActive() && can_render_shadows) {
-    if (!view_shadow_) {
-      view_shadow_ = std::make_unique<ViewShadow>(
-          this, tabs::GetTabCornerRadius(*this), kShadow);
-      layer()->SetFillsBoundsOpaquely(false);
-    }
-
-    gfx::Insets shadow_insets;
-    if (!tabs::utils::ShouldShowVerticalTabs(controller()->GetBrowser())) {
-      // For horizontal tabs, inset the shadow layer to match the visual rounded
-      // rectangle of the tab, which is inset from the tab view.
-      shadow_insets = gfx::Insets::VH(brave_tabs::kHorizontalTabVerticalSpacing,
-                                      brave_tabs::kHorizontalTabInset);
-    }
-    view_shadow_->SetInsets(shadow_insets);
-  } else if (view_shadow_) {
-    view_shadow_.reset();
-    DestroyLayer();
-  }
-}
-
 void BraveTab::SetData(TabRendererData data) {
   const bool data_changed = data != data_;
   Tab::SetData(std::move(data));
@@ -208,6 +164,6 @@ void BraveTab::SetData(TabRendererData data) {
   if (data_changed &&
       tabs::utils::ShouldShowVerticalTabs(controller()->GetBrowser()) &&
       data_.pinned) {
-    set_group(std::nullopt);
+    SetGroup(std::nullopt);
   }
 }

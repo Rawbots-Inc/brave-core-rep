@@ -111,9 +111,11 @@ public class SearchEngines {
       return defaultEngine
     }
 
-    let defaultEngineName = initialSearchEngines.defaultSearchEngine.rawValue
+    let defaultEngineName = engineType.option.value ?? ""
 
-    let defaultEngine = orderedEngines.first(where: { $0.engineID == defaultEngineName })
+    let defaultEngine = orderedEngines.first(where: {
+      $0.engineID?.caseInsensitiveCompare(defaultEngineName) == .orderedSame
+    })
     return defaultEngine ?? orderedEngines.first
   }
 
@@ -123,7 +125,9 @@ public class SearchEngines {
   func setInitialDefaultEngine(_ engine: String) {
     // update engine
     DefaultEngineType.standard.option.value = engine
-    DefaultEngineType.privateMode.option.value = engine
+    // set Brave Search as the DSE for private mode
+    DefaultEngineType.privateMode.option.value =
+      InitialSearchEngines.SearchEngineID.braveSearch.rawValue
 
     let priorityEngine = initialSearchEngines.priorityEngine?.rawValue
     let defEngine = defaultEngine(forType: .standard)
@@ -145,6 +149,11 @@ public class SearchEngines {
   func updateDefaultEngine(_ engine: String, forType type: DefaultEngineType) {
     let originalEngine = defaultEngine(forType: type)
     type.option.value = engine
+    if type == .standard {
+      Preferences.Search.userPickedDSEName.value = engine
+    } else {
+      Preferences.Search.userPickedPrivateDSEName.value = engine
+    }
 
     // The default engine is always enabled.
     guard let newDefaultEngine = defaultEngine(forType: type) else {
@@ -468,6 +477,7 @@ public class SearchEngines {
     case braveSearch = 8
     case naver = 9
     case daum = 10
+    case yahoojp = 11
 
     init(engine: OpenSearchEngine) {
       guard
@@ -489,6 +499,7 @@ public class SearchEngines {
       case .braveSearch: self = .braveSearch
       case .naver: self = .naver
       case .daum: self = .daum
+      case .yahoojp: self = .yahoojp
       }
     }
   }

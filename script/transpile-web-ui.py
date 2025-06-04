@@ -41,7 +41,9 @@ def main():
                              webpack_aliases=args.webpack_alias,
                              output_module=args.output_module,
                              extra_modules=args.extra_modules,
-                             public_asset_path=args.public_asset_path)
+                             public_asset_path=args.public_asset_path,
+                             sync_wasm=args.sync_wasm,
+                             no_iife=args.no_iife)
     transpile_web_uis(transpile_options)
     generate_grd(output_path_absolute, args.grd_name[0], args.resource_name[0],
                  resource_path_prefix)
@@ -77,6 +79,8 @@ def parse_args():
                         help='Extra paths to find modules',
                         required=False,
                         default=[])
+    parser.add_argument('--sync_wasm', action='store_true')
+    parser.add_argument('--no_iife', action='store_true')
 
     args = parser.parse_args()
     # validate args
@@ -125,6 +129,14 @@ def transpile_web_uis(options):
     # via in a custom variable, comma-separated and with
     # "[name]=[path]" syntax.
     args.append("--env=brave_entries=" + ",".join(options['entry_points']))
+
+    if options['sync_wasm']:
+        args.append("--env=sync_wasm")
+
+    # Webpack will by default wrap the output in an IIFE, which is not
+    # desirable for some bundles.
+    if options['no_iife']:
+        args.append("--env=no_iife")
 
     # We should use webpack-cli env param to not pollute environment
     env["ROOT_GEN_DIR"] = options['root_gen_dir']

@@ -1,0 +1,12 @@
+diff --git a/ios/web_view/BUILD.gn b/ios/web_view/BUILD.gn
+index fd159617244fc156026104395d28f2f6909c2538..032b5a4686af6ad162dfddad58fc293939927464 100644
+--- a/ios/web_view/BUILD.gn
++++ b/ios/web_view/BUILD.gn
+@@ -445,6 +445,7 @@ source_set("web_view_sources") {
+     "//components/version_info:channel",
+   ]
+   configs += [ ":config" ]
++  import("//brave/ios/web_view/sources.gni") sources -= brave_ios_web_view_excluded_sources public_deps -= brave_ios_web_view_excluded_public_deps
+ }
+ 
+ action("web_view_umbrella_header") {

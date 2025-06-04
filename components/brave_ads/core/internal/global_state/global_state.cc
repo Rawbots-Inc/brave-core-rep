@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "base/check.h"
+#include "base/location.h"
 #include "base/task/sequenced_task_runner.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/token_generator_interface.h"
 #include "brave/components/brave_ads/core/internal/ads_core/ads_core.h"
@@ -145,6 +146,11 @@ mojom::BuildChannelInfo& GlobalState::BuildChannel() {
 mojom::Flags& GlobalState::Flags() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   return mojom_flags_;
+}
+
+mojom::ContentSettings& GlobalState::ContentSettings() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  return mojom_content_settings_;
 }
 
 void GlobalState::PostDelayedTask(base::OnceClosure task,

@@ -10,9 +10,10 @@
 #include "base/memory/weak_ptr.h"
 #include "base/observer_list.h"
 #include "base/threading/sequence_bound.h"
+#include "brave/components/brave_ads/core/internal/common/database/database_transaction_callback.h"
 #include "brave/components/brave_ads/core/internal/database/database_manager_observer.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
-#include "brave/components/brave_ads/core/public/ads_client/ads_client_callback.h"
+#include "brave/components/brave_ads/core/public/ads_callback.h"
 
 namespace base {
 class FilePath;
@@ -42,13 +43,21 @@ class DatabaseManager final {
 
   // Run a database transaction. The callback takes one argument -
   // `mojom::DBTransactionResultInfoPtr` containing the info of the transaction.
-  void RunDBTransaction(mojom::DBTransactionInfoPtr mojom_db_transaction,
-                        RunDBTransactionCallback callback);
+  void RunTransaction(mojom::DBTransactionInfoPtr mojom_db_transaction,
+                      RunDBTransactionCallback callback,
+                      uint64_t trace_id);
+
+  // Shutdowns the database.
+  void Shutdown(ShutdownCallback callback);
 
  private:
   void CreateOrOpenCallback(
       ResultCallback callback,
       mojom::DBTransactionResultInfoPtr mojom_db_transaction_result);
+  void OnRunTransactionCallback(
+      RunDBTransactionCallback callback,
+      mojom::DBTransactionResultInfoPtr mojom_db_transaction_result);
+  void OnShutdownCallback(ShutdownCallback callback, bool success);
 
   // Create the database from scratch.
   void Create(ResultCallback callback) const;
@@ -76,7 +85,7 @@ class DatabaseManager final {
   void NotifyDatabaseIsReady() const;
 
   const scoped_refptr<base::SequencedTaskRunner> database_task_runner_;
-  const base::SequenceBound<Database> database_;
+  base::SequenceBound<Database> database_;
 
   base::ObserverList<DatabaseManagerObserver> observers_;
 

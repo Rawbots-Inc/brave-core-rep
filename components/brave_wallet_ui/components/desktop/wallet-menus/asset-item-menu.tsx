@@ -26,13 +26,15 @@ import {
 import { getLocale } from '../../../../common/locale'
 import Amount from '../../../utils/amount'
 import {
-  makeAndroidFundWalletRoute,
   makeDepositFundsRoute,
   makeFundWalletRoute,
   makeSendRoute,
   makeSwapOrBridgeRoute
 } from '../../../utils/routes-utils'
-import { getAssetIdKey } from '../../../utils/asset-utils'
+import {
+  getAssetIdKey,
+  getDoesCoinSupportSwapOrBridge
+} from '../../../utils/asset-utils'
 
 // Components
 import {
@@ -46,10 +48,6 @@ import {
   PopupButtonText,
   ButtonIcon
 } from './wellet-menus.style'
-
-const coinSupportsSwap = (coin: BraveWallet.CoinType) => {
-  return [BraveWallet.CoinType.ETH, BraveWallet.CoinType.SOL].includes(coin)
-}
 
 interface Props {
   asset: BraveWallet.BlockchainToken
@@ -80,15 +78,14 @@ export const AssetItemMenu = (props: Props) => {
     checkIsAssetSellSupported
   } = useMultiChainSellAssets()
 
-  const { foundAndroidBuyToken, foundMeldBuyToken } =
-    useFindBuySupportedToken(asset)
+  const { foundMeldBuyToken } = useFindBuySupportedToken(asset)
 
   // Memos
   const isAssetsBalanceZero = React.useMemo(() => {
     return new Amount(assetBalance).isZero()
   }, [assetBalance])
 
-  const isSwapSupported = coinSupportsSwap(asset.coin) && account !== undefined
+  const isSwapOrBridgeSupported = getDoesCoinSupportSwapOrBridge(asset.coin)
 
   const isSellSupported = React.useMemo(() => {
     return account !== undefined && checkIsAssetSellSupported(asset)
@@ -96,30 +93,27 @@ export const AssetItemMenu = (props: Props) => {
 
   // Methods
   const onClickBuy = React.useCallback(() => {
-    if (foundAndroidBuyToken) {
-      history.push(makeAndroidFundWalletRoute(getAssetIdKey(asset)))
-      return
-    }
     if (foundMeldBuyToken) {
       history.push(makeFundWalletRoute(foundMeldBuyToken, account))
     }
-  }, [foundMeldBuyToken, history, account, foundAndroidBuyToken, asset])
+  }, [foundMeldBuyToken, history, account])
 
   const onClickSend = React.useCallback(() => {
     history.push(makeSendRoute(asset, account))
   }, [account, history, asset])
 
-  const onClickSwap = React.useCallback(() => {
-    if (account) {
+  const onClickSwapOrBridge = React.useCallback(
+    (routeType: 'swap' | 'bridge') => {
       history.push(
         makeSwapOrBridgeRoute({
           fromToken: asset,
           fromAccount: account,
-          routeType: 'swap'
+          routeType
         })
       )
-    }
-  }, [account, history, asset])
+    },
+    [account, history, asset]
+  )
 
   const onClickDeposit = React.useCallback(() => {
     history.push(makeDepositFundsRoute(getAssetIdKey(asset)))
@@ -145,7 +139,7 @@ export const AssetItemMenu = (props: Props) => {
 
   return (
     <StyledWrapper yPosition={42}>
-      {(foundMeldBuyToken || foundAndroidBuyToken) && (
+      {foundMeldBuyToken && (
         <PopupButton onClick={onClickBuy}>
           <ButtonIcon name='coins-alt1' />
           <PopupButtonText>{getLocale('braveWalletBuy')}</PopupButtonText>
@@ -157,11 +151,17 @@ export const AssetItemMenu = (props: Props) => {
           <PopupButtonText>{getLocale('braveWalletSend')}</PopupButtonText>
         </PopupButton>
       )}
-      {isSwapSupported && !isAssetsBalanceZero && (
-        <PopupButton onClick={onClickSwap}>
-          <ButtonIcon name='currency-exchange' />
-          <PopupButtonText>{getLocale('braveWalletSwap')}</PopupButtonText>
-        </PopupButton>
+      {isSwapOrBridgeSupported && (
+        <>
+          <PopupButton onClick={() => onClickSwapOrBridge('swap')}>
+            <ButtonIcon name='currency-exchange' />
+            <PopupButtonText>{getLocale('braveWalletSwap')}</PopupButtonText>
+          </PopupButton>
+          <PopupButton onClick={() => onClickSwapOrBridge('bridge')}>
+            <ButtonIcon name='web3-bridge' />
+            <PopupButtonText>{getLocale('braveWalletBridge')}</PopupButtonText>
+          </PopupButton>
+        </>
       )}
       <PopupButton onClick={onClickDeposit}>
         <ButtonIcon name='money-bag-coins' />

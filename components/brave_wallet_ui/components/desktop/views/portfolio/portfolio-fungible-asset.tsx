@@ -35,14 +35,18 @@ import {
   getPriceIdForToken
 } from '../../../../utils/pricing-utils'
 import { networkSupportsAccount } from '../../../../utils/network-utils'
-import { getAssetIdKey } from '../../../../utils/asset-utils'
+import {
+  getAssetIdKey,
+  getDoesCoinSupportSwapOrBridge
+} from '../../../../utils/asset-utils'
 import { getLocale } from '../../../../../common/locale'
 import { makeNetworkAsset } from '../../../../options/asset-options'
 import { isRewardsAssetId } from '../../../../utils/rewards_utils'
 import {
-  makeAndroidFundWalletRoute,
   makeDepositFundsRoute,
-  makeFundWalletRoute
+  makeFundWalletRoute,
+  makeSendRoute,
+  makeSwapOrBridgeRoute
 } from '../../../../utils/routes-utils'
 import {
   getStoredPortfolioTimeframe //
@@ -61,6 +65,9 @@ import {
 import {
   EditTokenModal //
 } from '../../popup-modals/edit_token_modal/edit_token_modal'
+import {
+  PortfolioAssetActionButton //
+} from './components/portfolio_asset_action_button/portfolio_asset_action_button'
 
 // Hooks
 import {
@@ -87,7 +94,7 @@ import {
 
 // Styled Components
 import { StyledWrapper, ButtonRow } from './style'
-import { Row, Column, LeoSquaredButton } from '../../../shared/style'
+import { Row, Column } from '../../../shared/style'
 import {
   TokenDetailsModal //
 } from './components/token-details-modal/token-details-modal'
@@ -210,7 +217,7 @@ export const PortfolioFungibleAsset = () => {
   )
 
   // custom hooks
-  const { foundAndroidBuyToken, foundMeldBuyToken } = useFindBuySupportedToken(
+  const { foundMeldBuyToken } = useFindBuySupportedToken(
     selectedAssetFromParams
   )
 
@@ -249,6 +256,9 @@ export const PortfolioFungibleAsset = () => {
       : skipToken,
     querySubscriptionOptions60s
   )
+  const isSwapOrBridgeSupported =
+    selectedAssetFromParams &&
+    getDoesCoinSupportSwapOrBridge(selectedAssetFromParams.coin)
 
   const selectedAssetTransactions = React.useMemo(() => {
     const nativeAsset = makeNetworkAsset(selectedAssetsNetwork)
@@ -354,30 +364,39 @@ export const PortfolioFungibleAsset = () => {
     updateUserAssetVisible
   ])
 
-  const onSelectBuy = React.useCallback(() => {
-    if (foundAndroidBuyToken && selectedAssetFromParams) {
-      history.push(
-        makeAndroidFundWalletRoute(getAssetIdKey(selectedAssetFromParams))
-      )
-      return
-    }
+  const onClickBuy = React.useCallback(() => {
     if (foundMeldBuyToken) {
       history.push(makeFundWalletRoute(foundMeldBuyToken))
     }
-  }, [
-    history,
-    foundAndroidBuyToken,
-    foundMeldBuyToken,
-    selectedAssetFromParams
-  ])
+  }, [history, foundMeldBuyToken])
 
-  const onSelectDeposit = React.useCallback(() => {
+  const onClickDeposit = React.useCallback(() => {
     if (selectedAssetFromParams) {
       history.push(
         makeDepositFundsRoute(getAssetIdKey(selectedAssetFromParams))
       )
     }
   }, [history, selectedAssetFromParams])
+
+  const onClickSend = React.useCallback(() => {
+    if (selectedAssetFromParams) {
+      history.push(makeSendRoute(selectedAssetFromParams))
+    }
+  }, [history, selectedAssetFromParams])
+
+  const onClickSwapOrBridge = React.useCallback(
+    (routeType: 'swap' | 'bridge') => {
+      if (selectedAssetFromParams) {
+        history.push(
+          makeSwapOrBridgeRoute({
+            fromToken: selectedAssetFromParams,
+            routeType
+          })
+        )
+      }
+    },
+    [history, selectedAssetFromParams]
+  )
 
   // asset not found
   if (!selectedAssetFromParams && !isLoadingRewards && !isLoadingTokens) {
@@ -438,19 +457,38 @@ export const PortfolioFungibleAsset = () => {
         />
         <Row padding='0px 20px'>
           <ButtonRow>
-            {(foundMeldBuyToken || foundAndroidBuyToken) && !isRewardsToken && (
-              <div>
-                <LeoSquaredButton onClick={onSelectBuy}>
-                  {getLocale('braveWalletBuy')}
-                </LeoSquaredButton>
-              </div>
+            {foundMeldBuyToken && !isRewardsToken && (
+              <PortfolioAssetActionButton
+                text={getLocale('braveWalletBuy')}
+                icon='coins-alt1'
+                onClick={onClickBuy}
+              />
+            )}
+            <PortfolioAssetActionButton
+              text={getLocale('braveWalletSend')}
+              icon='send'
+              onClick={onClickSend}
+            />
+            {isSwapOrBridgeSupported && (
+              <>
+                <PortfolioAssetActionButton
+                  text={getLocale('braveWalletSwap')}
+                  icon='currency-exchange'
+                  onClick={() => onClickSwapOrBridge('swap')}
+                />
+                <PortfolioAssetActionButton
+                  text={getLocale('braveWalletBridge')}
+                  icon='web3-bridge'
+                  onClick={() => onClickSwapOrBridge('bridge')}
+                />
+              </>
             )}
             {isSelectedAssetDepositSupported && (
-              <div>
-                <LeoSquaredButton onClick={onSelectDeposit}>
-                  {getLocale('braveWalletAccountsDeposit')}
-                </LeoSquaredButton>
-              </div>
+              <PortfolioAssetActionButton
+                text={getLocale('braveWalletAccountsDeposit')}
+                icon='money-bag-coins'
+                onClick={onClickDeposit}
+              />
             )}
           </ButtonRow>
         </Row>

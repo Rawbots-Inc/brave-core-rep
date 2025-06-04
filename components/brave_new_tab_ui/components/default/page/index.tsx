@@ -24,6 +24,7 @@ interface HasImageProps {
   imageHasLoaded: boolean
   imageSrc?: string
   colorForBackground?: string
+  hasSponsoredRichMediaBackground: boolean
 }
 
 type AppProps = {
@@ -47,6 +48,15 @@ function getItemRowCount(p: PageProps): number {
   }
   return Math.max(left, right) + 1 // extra 1 for footer
 }
+
+const pointerEventPassthrough = css`
+ // Allow clicks to pass through to background.
+ pointer-events: none;
+ // Restore click events for child elements.
+ & > * {
+  pointer-events: auto;
+ }
+`
 
 const StyledPage = styled('div') <PageProps>`
   /* Increase the explicit row count when adding new widgets
@@ -108,6 +118,8 @@ const StyledPage = styled('div') <PageProps>`
     flex-direction: column;
     align-items: center;
   }
+
+  ${p => p.hasSponsoredRichMediaBackground && pointerEventPassthrough}
 `
 
 export const Page: React.FunctionComponent<React.PropsWithChildren<PageProps>> = (props) => {
@@ -170,12 +182,14 @@ export const Page: React.FunctionComponent<React.PropsWithChildren<PageProps>> =
 export const GridItemStats = styled('section')`
   grid-column: 1 / span 2;
   ${singleColumnSmallViewport}
+  ${pointerEventPassthrough}
 `
 
 export const GridItemClock = styled('section')`
   grid-column: 3;
   justify-self: center;
   ${singleColumnSmallViewport}
+  ${pointerEventPassthrough}
 `
 
 export const GridItemWidgetStack = styled('section')`
@@ -189,6 +203,7 @@ export const GridItemWidgetStack = styled('section')`
 export const GridItemTopSites = styled('section')`
   grid-column: 1;
   ${singleColumnSmallViewport}
+  ${pointerEventPassthrough}
 `
 
 export const GridItemSponsoredImageClickArea = styled.section<{ otherWidgetsHidden: boolean }>`
@@ -259,7 +274,7 @@ export const BrandedWallpaperNotification = styled('div')`
 `
 
 export const GridItemNavigation = styled('section')`
-  grid-column: 2 / span 2;
+  grid-column: 3;
   grid-row: -2 / span 1;
   align-self: end;
   margin: 0 24px 24px 0;
@@ -298,6 +313,8 @@ export const Footer = styled('footer') <{}>`
     flex-direction: row;
     align-items: flex-end;
   }
+
+  ${pointerEventPassthrough}
 `
 
 export const FooterContent = styled('div')`
@@ -315,6 +332,10 @@ export const FooterContent = styled('div')`
 
 // Gets the value of the CSS `background` property.
 function getBackground(p: HasImageProps) {
+  if (p.hasSponsoredRichMediaBackground) {
+    return ''
+  }
+
   if (!p.hasImage) {
     return p.colorForBackground || `linear-gradient(to bottom right, #4D54D1, #A51C7B 50%, #EE4A37 100%)`
   }

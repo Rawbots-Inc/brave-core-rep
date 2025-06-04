@@ -31,20 +31,19 @@
 class NTPBackgroundImagesServiceObserverBridge
     : public ntp_background_images::NTPBackgroundImagesService::Observer {
  public:
-  NTPBackgroundImagesServiceObserverBridge(
+  explicit NTPBackgroundImagesServiceObserverBridge(
       id<NTPBackgroundImagesServiceObserver> bridge)
       : bridge_(bridge) {}
 
-  void OnUpdated(
+  void OnBackgroundImagesDataDidUpdate(
       ntp_background_images::NTPBackgroundImagesData* data) override {
     [bridge_ onUpdatedNTPBackgroundImagesData:data];
   }
 
-  void OnUpdated(ntp_background_images::NTPSponsoredImagesData* data) override {
+  void OnSponsoredImagesDataDidUpdate(
+      ntp_background_images::NTPSponsoredImagesData* data) override {
     [bridge_ onUpdatedNTPSponsoredImagesData:data];
   }
-
-  void OnSuperReferralEnded() override {}
 
  private:
   __weak id<NTPBackgroundImagesServiceObserver> bridge_;
@@ -89,7 +88,8 @@ class NTPBackgroundImagesServiceObserverBridge
 }
 
 - (NTPSponsoredImageData*)sponsoredImageData {
-  auto* data = _service->GetBrandedImagesData(/* super_referral */ false);
+  auto* data = _service->GetSponsoredImagesData(/*super_referral=*/false,
+                                                /*supports_rich_media=*/false);
   if (data == nullptr) {
     return nil;
   }
@@ -97,7 +97,8 @@ class NTPBackgroundImagesServiceObserverBridge
 }
 
 - (NTPSponsoredImageData*)superReferralImageData {
-  auto* data = _service->GetBrandedImagesData(/* super_referral */ true);
+  auto* data = _service->GetSponsoredImagesData(/* super_referral=*/true,
+                                                /*supports_rich_media=*/false);
   if (data == nullptr) {
     return nil;
   }
@@ -113,7 +114,7 @@ class NTPBackgroundImagesServiceObserverBridge
 }
 
 - (void)updateSponsoredImageComponentIfNeeded {
-  _service->CheckNTPSIComponentUpdateIfNeeded();
+  _service->MaybeCheckForSponsoredComponentUpdate();
 }
 
 - (NSString*)superReferralCode {

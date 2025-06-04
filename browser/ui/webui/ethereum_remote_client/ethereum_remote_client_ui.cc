@@ -9,13 +9,12 @@
 
 #include "brave/browser/ui/webui/brave_webui_source.h"
 #include "brave/components/ethereum_remote_client_page/resources/grit/ethereum_remote_client_page_generated_map.h"
-#include "ui/resources/grit/webui_resources.h"
+#include "ui/webui/resources/grit/webui_resources.h"
 
 EthereumRemoteClientUI::EthereumRemoteClientUI(content::WebUI* web_ui,
                                                const std::string& name)
     : WebUIController(web_ui) {
   CreateAndAddWebUIDataSource(web_ui, name, kEthereumRemoteClientPageGenerated,
-                              kEthereumRemoteClientPageGeneratedSize,
                               IDR_BRAVE_WEBUI_ETHEREUM_REMOTE_CLIENT_PAGE_HTML,
                               true /*disable_trusted_types_csp*/);
 }

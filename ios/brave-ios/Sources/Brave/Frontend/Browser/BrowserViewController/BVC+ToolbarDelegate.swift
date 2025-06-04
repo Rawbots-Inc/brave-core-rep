@@ -31,7 +31,7 @@ extension BrowserViewController: TopToolbarDelegate {
     if tabManager.tabsForCurrentMode.isEmpty {
       return
     }
-    displayPageZoom(visible: false)
+    clearPageZoomDialog()
 
     if tabManager.selectedTab == nil {
       tabManager.selectTab(tabManager.tabsForCurrentMode.first)
@@ -221,11 +221,14 @@ extension BrowserViewController: TopToolbarDelegate {
     } else {
       showSearchController()
 
+      let locationLastReplacement = topToolbar.locationLastReplacement
+      let isPasting = topToolbar.isPastingInURLBar
       Task {
         await searchController?.setSearchQuery(
           query: text,
           showSearchSuggestions: URLBarHelper.shared.shouldShowSearchSuggestions(
-            using: topToolbar.locationLastReplacement
+            using: locationLastReplacement,
+            isPasting: isPasting
           )
         )
       }
@@ -342,21 +345,14 @@ extension BrowserViewController: TopToolbarDelegate {
     guard let host = url.host, supportedPages.contains(host) else {
       return false
     }
-    let controller = ChromeWebViewController(privateBrowsing: false)
-    controller.loadURL(url.absoluteString)
+    let controller = ChromeWebUIController(braveCore: braveCore, isPrivateBrowsing: false)
+    controller.webView.load(URLRequest(url: url))
     controller.title = url.host?.capitalizeFirstLetter
     let webView = controller.webView
-    webView.isFindInteractionEnabled = true
     controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
       systemItem: .search,
       primaryAction: .init { [weak webView] _ in
-        guard let findInteraction = webView?.findInteraction,
-          !findInteraction.isFindNavigatorVisible
-        else {
-          return
-        }
-        findInteraction.searchText = ""
-        findInteraction.presentFindNavigator(showingReplace: false)
+        webView?.findInPageController.startFindInPage()
       }
     )
     let container = UINavigationController(rootViewController: controller)
@@ -478,6 +474,8 @@ extension BrowserViewController: TopToolbarDelegate {
       browser.tabManager.allTabs.forEach {
         if $0.url?.baseDomain == currentDomain {
           $0.reload()
+          // Domain specific shield setting changed, reset selectors cache.
+          $0.contentBlocker.resetSelectorsCache()
         }
       }
     }
@@ -914,35 +912,10 @@ extension BrowserViewController: TopToolbarDelegate {
 
     present(navigationController, animated: true)
   }
-}
 
-extension BrowserViewController: ToolbarDelegate {
-  func tabToolbarDidPressSearch(_ tabToolbar: ToolbarProtocol, button: UIButton) {
-    topToolbar.tabLocationViewDidTapLocation(topToolbar.locationView)
-  }
-
-  func tabToolbarDidPressBack(_ tabToolbar: ToolbarProtocol, button: UIButton) {
-    tabManager.selectedTab?.goBack()
-    resetExternalAlertProperties(tabManager.selectedTab)
-    recordNavigationActionP3A(isNavigationActionForward: false)
-  }
-
-  func tabToolbarDidLongPressBack(_ tabToolbar: ToolbarProtocol, button: UIButton) {
-    UIImpactFeedbackGenerator(style: .heavy).vibrate()
-    showBackForwardList()
-  }
-
-  func tabToolbarDidPressForward(_ tabToolbar: ToolbarProtocol, button: UIButton) {
-    tabManager.selectedTab?.goForward()
-    resetExternalAlertProperties(tabManager.selectedTab)
-    recordNavigationActionP3A(isNavigationActionForward: true)
-  }
-
-  func tabToolbarDidPressShare() {
-    navigationHelper.openShareSheet()
-  }
-
-  func tabToolbarDidPressMenu(_ tabToolbar: ToolbarProtocol) {
+  func presentMenu(from tabToolbar: ToolbarProtocol) {
+    /// The selected tab's url, or the extracted url from
+    /// error page or reader mode page
     let selectedTabURL: URL? = {
       guard let url = tabManager.selectedTab?.url else { return nil }
 
@@ -957,8 +930,10 @@ extension BrowserViewController: ToolbarDelegate {
       }
       return url
     }()
+    /// The selected tab's url
+    let selectedTabOriginalURL = tabManager.selectedTab?.url
 
-    displayPageZoom(visible: false)
+    clearPageZoomDialog()
 
     var activities: [UIActivity] = []
     if let url = selectedTabURL, let tab = tabManager.selectedTab {
@@ -998,11 +973,12 @@ extension BrowserViewController: ToolbarDelegate {
           }
           Divider()
           destinationMenuSection(menuController, isShownOnWebPage: isShownOnWebPage)
-          if let tabURL = selectedTabURL {
+          if let tabURL = selectedTabURL, let originalTabURL = selectedTabOriginalURL {
             Divider()
             PageActionsMenuSection(
               browserViewController: self,
               tabURL: tabURL,
+              originalTabURL: originalTabURL,
               activities: activities
             )
           }
@@ -1019,6 +995,37 @@ extension BrowserViewController: ToolbarDelegate {
       menuController.popoverPresentationController?.popoverLayoutMargins = .init(equalInset: 4)
       menuController.popoverPresentationController?.permittedArrowDirections = [.up, .down]
     }
+  }
+}
+
+extension BrowserViewController: ToolbarDelegate {
+  func tabToolbarDidPressSearch(_ tabToolbar: ToolbarProtocol, button: UIButton) {
+    topToolbar.tabLocationViewDidTapLocation(topToolbar.locationView)
+  }
+
+  func tabToolbarDidPressBack(_ tabToolbar: ToolbarProtocol, button: UIButton) {
+    tabManager.selectedTab?.goBack()
+    tabManager.selectedTab?.resetExternalAlertProperties()
+    recordNavigationActionP3A(isNavigationActionForward: false)
+  }
+
+  func tabToolbarDidLongPressBack(_ tabToolbar: ToolbarProtocol, button: UIButton) {
+    UIImpactFeedbackGenerator(style: .heavy).vibrate()
+    showBackForwardList()
+  }
+
+  func tabToolbarDidPressForward(_ tabToolbar: ToolbarProtocol, button: UIButton) {
+    tabManager.selectedTab?.goForward()
+    tabManager.selectedTab?.resetExternalAlertProperties()
+    recordNavigationActionP3A(isNavigationActionForward: true)
+  }
+
+  func tabToolbarDidPressShare() {
+    navigationHelper.openShareSheet()
+  }
+
+  func tabToolbarDidPressMenu(_ tabToolbar: ToolbarProtocol) {
+    presentMenu(from: tabToolbar)
   }
 
   func tabToolbarDidPressAddTab(_ tabToolbar: ToolbarProtocol, button: UIButton) {

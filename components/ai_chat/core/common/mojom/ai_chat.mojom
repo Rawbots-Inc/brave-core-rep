@@ -6,6 +6,7 @@
 module ai_chat.mojom;
 
 import "brave/components/ai_chat/core/common/mojom/untrusted_frame.mojom";
+import "brave/components/ai_chat/core/common/mojom/tab_tracker.mojom";
 import "mojo/public/mojom/base/time.mojom";
 import "url/mojom/url.mojom";
 
@@ -14,17 +15,14 @@ enum CharacterType {
   ASSISTANT
 };
 
-enum ConversationTurnVisibility {
-  VISIBLE,
-  HIDDEN // does not get added to chat history, used as a flag internally
-};
-
 enum APIError {
   None,
   ConnectionIssue,
   RateLimitReached,
   ContextLimitReached,
-  InvalidEndpointURL
+  InvalidEndpointURL,
+  InvalidAPIKey,
+  ServiceOverloaded
 };
 
 enum ModelEngineType {
@@ -77,29 +75,24 @@ enum ContentType {
   VideoTranscript,
 };
 
-// A piece of content associated with a conversation.
-// TODO(petemill): Rename to AssociatedContent and have hostname/url/title be
-// part of a detail property (which would have different structure possibilities
-// depending on content type.
-struct SiteInfo {
-  string? uuid;
+// Represents the content that is associated with a conversation.
+struct AssociatedContent {
+  string uuid;
+
   ContentType content_type;
-  // Web page specific fields, if available and allowed
-  string? title;
-  string? hostname;
-  url.mojom.Url? url;
+  string title;
+
+  // This is the ID of the content currently loaded in the tab.
+  int32 content_id;
+
+  url.mojom.Url url;
 
   // Percentage of the content that has been utilized by remote LLM (0-100)
   int32 content_used_percentage;
+
   // Indicates content has been refined through extracting most relevant parts
   // from long page content
   bool is_content_refined;
-
-  // Indicates if the URL scheme is of a type that allows for
-  // content association.
-  // TODO(petemill): SiteInfo should just not exist if content-associated is
-  // not possible.
-  bool is_content_association_possible;
 };
 
 struct Conversation {
@@ -113,7 +106,7 @@ struct Conversation {
   // Model key, if different than default
   string? model_key;
 
-  SiteInfo associated_content;
+  AssociatedContent? associated_content;
 };
 
 struct ContentArchive {
@@ -126,6 +119,10 @@ struct ConversationArchive {
   array<ContentArchive> associated_content;
 };
 
+// Which action the user was taking for the entry. This can be used
+// to provide better prompts (via the server) and for metrics.
+// Keep all items even if they're unused (they can be renamed as such) and only
+// add new items to the end, as this is serialized to the database as an int.
 enum ActionType {
   UNSPECIFIED,
   RESPONSE,
@@ -149,6 +146,8 @@ enum ActionType {
   // Change length
   SHORTEN,
   EXPAND,
+  CONVERSATION_STARTER,
+  SUGGESTION,
 };
 
 struct PageContentRefineEvent {
@@ -163,6 +162,16 @@ struct SearchStatusEvent {
   bool is_searching = true;
 };
 
+struct WebSource {
+  string title;
+  url.mojom.Url url;
+  url.mojom.Url favicon_url;
+};
+
+struct WebSourcesEvent {
+  array<WebSource> sources;
+};
+
 struct CompletionEvent {
   string completion;
 };
@@ -175,12 +184,19 @@ struct ConversationTitleEvent {
   string title;
 };
 
+struct UploadedImage {
+  string filename;
+  uint32 filesize;
+  array<uint8> image_data;
+};
+
 // Events that occur during a conversation turn (only assistant for now)
 union ConversationEntryEvent {
   CompletionEvent completion_event;
   PageContentRefineEvent page_content_refine_event;
   SearchQueriesEvent search_queries_event;
   SearchStatusEvent search_status_event;
+  WebSourcesEvent sources_event;
 
   // These events don't normally get added to the conversation entry
   // but are used in engine responses.
@@ -201,13 +217,15 @@ struct ConversationTurn {
 
   CharacterType character_type;
   ActionType action_type;
-  ConversationTurnVisibility visibility;
+
   // The text that is displayed to the user. This might be different than
   // the text sent to the AI engine to represent this turn, which might be more
   // verbose.
-  // TODO(petemill): Store the text sent to the AI engine to aid in regeneration
-  // and error retries.
   string text;
+
+  // Optional actual prompt used instead of |text| for the entry
+  string? prompt;
+
   string? selected_text;
   // Ordered list of events that occurred during this turn
   // TODO(petemill): ConversationTurn's |text| and |selected_text| might move
@@ -223,6 +241,10 @@ struct ConversationTurn {
   // instead of the original turn text when submitting the turn to the AI
   // engine or displaying the most recent text to users.
   array<ConversationTurn>? edits;
+
+  // Due to server limitation, we only support one image in one turn for the
+  // entire conversation. Each turns will share the same image.
+  array<UploadedImage>? uploaded_images;
 
   // Whether the turn was generated from Brave Search SERP.
   bool from_brave_search_SERP = false;
@@ -277,6 +299,8 @@ struct Model {
   string key;
   // display name, for users
   string display_name;
+  // whether accept image as input
+  bool vision_support;
 };
 
 struct ModelWithSubtitle {
@@ -340,6 +364,9 @@ interface Service {
       string conversation_uuid,
       pending_receiver<ConversationHandler> conversation,
       pending_remote<ConversationUI> conversation_ui);
+
+  // Bind metrics interface
+  BindMetrics(pending_receiver<Metrics> metrics);
 };
 
 interface ServiceObserver {
@@ -367,6 +394,8 @@ interface AIChatUIHandler {
   RefreshPremiumSession();
   ManagePremium();
   HandleVoiceRecognition(string conversation_uuid);
+  ShowSoftKeyboard();
+  UploadImage(string conversation_uuid) => (UploadedImage? uploaded_image);
 
   // This might be a no-op if the UI isn't closeable
   CloseUI();
@@ -382,15 +411,13 @@ interface AIChatUIHandler {
       pending_receiver<ConversationHandler> conversation,
       pending_remote<ConversationUI> conversation_ui);
 
+  // Associates an open tab with a conversation.
+  AssociateTab(TabData tab, string conversation_uuid);
+
   // Make a completely new conversation, which may
   // be bound to the associated conversation, if this UI has a target
   NewConversation(pending_receiver<ConversationHandler> conversation,
       pending_remote<ConversationUI> conversation_ui);
-
-  // TODO(petemill): WebUI clients won't need this when they can
-  // request via FaviconSource URLs via trusted webui.
-  GetFaviconImageData(string conversation_uuid) => (
-      array<uint8>? favicon_image_data);
 };
 
 // UI-side handler for messages from the browser WebUI
@@ -408,7 +435,7 @@ struct ConversationState {
   string current_model_key;
   array<string> suggested_questions;
   SuggestionGenerationStatus suggestion_status;
-  SiteInfo associated_content_info;
+  AssociatedContent? associated_content;
   bool should_send_content;
   APIError error;
   // TODO(petemill): include conversation history, once
@@ -453,16 +480,20 @@ interface ConversationHandler {
   // are ready.
   GenerateQuestions();
 
-  SubmitHumanConversationEntry(string input);
+  SubmitHumanConversationEntry(
+      string input, array<UploadedImage>? uploaded_images);
   SubmitHumanConversationEntryWithAction(string input, ActionType action_type);
   ModifyConversation(uint32 turn_index, string new_text);
   SubmitSummarizationRequest();
 
-  // Get associated page information. If there is none then |site_info| will be
-  // |null|. If the reason for that is it's still being fetched, then
-  // |is_fetching| will be |true|.
+  // Submit one of the generated suggested questions for response from
+  // the assistant.
+  SubmitSuggestion(string suggestion);
+
+  // Get associated page information. If there is none then |associated_content|
+  // will be |null|.
   GetAssociatedContentInfo() => (
-      SiteInfo associated_content_info, bool should_send_content);
+      AssociatedContent? associated_content, bool should_send_content);
 
   SetShouldSendPageContents(bool should_send);
 
@@ -472,6 +503,10 @@ interface ConversationHandler {
   // Reset the current error state and returns the
   // most recent message from the conversation to the caller.
   ClearErrorAndGetFailedMessage() => (ConversationTurn turn);
+
+  // Stops a generation and if the last entry was a human entry returns it
+  // to the caller.
+  StopGenerationAndMaybeGetHumanEntry() => (ConversationTurn? human_entry);
 
   // Send a user-rating for a chat
   // message. |turn_id| is the index of the message in the
@@ -505,7 +540,6 @@ interface UntrustedConversationUI {
   // to the most recent entry.
   OnConversationHistoryUpdate();
   OnEntriesUIStateChanged(ConversationEntriesState state);
-  OnFaviconImageDataChanged();
 };
 
 interface ConversationUI {
@@ -524,15 +558,22 @@ interface ConversationUI {
   // Browser window.
   OnSuggestedQuestionsChanged(
       array<string> questions, SuggestionGenerationStatus status);
-  // Associated page information has changed. If there is none then |site_info|
-  // will be |null|. If the reason for that is it's still being fetched, then
-  // |is_fetching| will be |true|.
-  OnAssociatedContentInfoChanged(SiteInfo info, bool should_send_page_contents);
-  OnFaviconImageDataChanged();
+  // Associated page information has changed. If there is none then |associated_content|
+  // will be |null|.
+  OnAssociatedContentInfoChanged(AssociatedContent? associated_content, bool should_send_page_contents);
   OnConversationDeleted();
+};
+
+interface Metrics {
+  // Notify metrics service that a full page prompt is being sent
+  OnSendingPromptWithFullPage();
+
+  // Notify metrics service if a quick action is being used
+  OnQuickActionStatusChange(bool is_enabled);
 };
 
 [EnableIf=is_android]
 interface IAPSubscription {
   GetPurchaseTokenOrderId() => (string token, string order_id);
+  SetLinkStatus(int32 status);
 };

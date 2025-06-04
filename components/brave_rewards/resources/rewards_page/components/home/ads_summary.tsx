@@ -14,7 +14,7 @@ import { style } from './ads_summary.style'
 
 export function AdsSummary() {
   const { getString } = useLocaleContext()
-  const [adsInfo] = useAppState((state) => [state.adsInfo])
+  const adsInfo = useAppState((state) => state.adsInfo)
 
   function renderRow(text: string, adType: AdType) {
     if (!adsInfo) {
@@ -37,7 +37,7 @@ export function AdsSummary() {
   }
 
   return (
-    <div {...style}>
+    <div data-css-scope={style.scope}>
       {renderRow(getString('adTypeNewTabPageLabel'), 'new-tab-page')}
       {renderRow(getString('adTypeNotificationLabel'), 'notification')}
       {renderRow(getString('adTypeSearchResultLabel'), 'search-result')}

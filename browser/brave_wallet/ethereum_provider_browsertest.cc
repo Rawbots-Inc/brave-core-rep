@@ -83,10 +83,6 @@ class EthereumProviderBrowserTest : public InProcessBrowserTest {
     https_server_.ServeFilesFromDirectory(test_data_dir);
     https_server_.SetSSLConfig(net::EmbeddedTestServer::CERT_TEST_NAMES);
     ASSERT_TRUE(https_server()->Start());
-
-    keyring_service_ =
-        BraveWalletServiceFactory::GetServiceForContext(browser()->profile())
-            ->keyring_service();
   }
 
   content::WebContents* web_contents() {
@@ -95,8 +91,13 @@ class EthereumProviderBrowserTest : public InProcessBrowserTest {
 
   net::EmbeddedTestServer* https_server() { return &https_server_; }
 
+  KeyringService* keyring_service() {
+    return BraveWalletServiceFactory::GetServiceForContext(browser()->profile())
+        ->keyring_service();
+  }
+
   void RestoreWallet() {
-    ASSERT_TRUE(keyring_service_->RestoreWalletSync(
+    ASSERT_TRUE(keyring_service()->RestoreWalletSync(
         kMnemonicDripCaution, kTestWalletPassword, false));
   }
 
@@ -108,7 +109,6 @@ class EthereumProviderBrowserTest : public InProcessBrowserTest {
  private:
   content::ContentMockCertVerifier mock_cert_verifier_;
   net::test_server::EmbeddedTestServer https_server_;
-  raw_ptr<KeyringService, DanglingUntriaged> keyring_service_ = nullptr;
 };
 
 IN_PROC_BROWSER_TEST_F(EthereumProviderBrowserTest, InactiveTabRequest) {
@@ -134,7 +134,13 @@ IN_PROC_BROWSER_TEST_F(EthereumProviderBrowserTest, InactiveTabRequest) {
   EXPECT_EQ(base::Value(true), result_first.value);
 }
 
-IN_PROC_BROWSER_TEST_F(EthereumProviderBrowserTest, ActiveTabRequest) {
+// This test is flaky on MacOS CI, but mostly works locally.
+#if BUILDFLAG(IS_MAC)
+#define MAYBE_ActiveTabRequest DISABLED_ActiveTabRequest
+#else
+#define MAYBE_ActiveTabRequest ActiveTabRequest
+#endif
+IN_PROC_BROWSER_TEST_F(EthereumProviderBrowserTest, MAYBE_ActiveTabRequest) {
   RestoreWallet();
   GURL url = https_server()->GetURL("a.com", "/ethereum_provider.html");
 

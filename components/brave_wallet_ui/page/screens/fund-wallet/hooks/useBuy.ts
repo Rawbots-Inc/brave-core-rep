@@ -156,21 +156,6 @@ export const useBuy = () => {
     )
 
   // Memos and Queries
-  const tokenPriceIds: string[] = useMemo(() => {
-    return meldSupportedBuyAssets?.map((asset) => getAssetPriceId(asset)) ?? []
-  }, [meldSupportedBuyAssets])
-
-  const { data: spotPriceRegistry, isLoading: isLoadingSpotPrices } =
-    useGetTokenSpotPricesQuery(
-      tokenPriceIds.length > 0
-        ? {
-            ids: tokenPriceIds,
-            toCurrency: selectedCurrency?.currencyCode || defaultFiatCurrency
-          }
-        : skipToken,
-      querySubscriptionOptions60s
-    )
-
   const selectedAsset = useMemo(() => {
     if (!currencyCode || !meldSupportedBuyAssets || !chainId) {
       return DEFAULT_ASSET
@@ -183,6 +168,16 @@ export const useBuy = () => {
       ) ?? DEFAULT_ASSET
     )
   }, [meldSupportedBuyAssets, currencyCode, chainId])
+
+  const { data: spotPriceRegistry } = useGetTokenSpotPricesQuery(
+    selectedAsset
+      ? {
+          ids: [getAssetPriceId(selectedAsset)],
+          toCurrency: selectedCurrency?.currencyCode || defaultFiatCurrency
+        }
+      : skipToken,
+    querySubscriptionOptions60s
+  )
 
   const selectedAccount = useMemo(() => {
     if (!accountFromParams) {
@@ -459,10 +454,25 @@ export const useBuy = () => {
         }).unwrap()
         setIsCreatingWidgetFor(undefined)
 
-        if (widget) {
-          const { widgetUrl } = widget
-          chrome.tabs.create({ url: widgetUrl })
+        if (!widget) {
+          return 
         }
+
+        const { widgetUrl } = widget
+        if (chrome.tabs !== undefined) {
+          chrome.tabs.create({ url: widgetUrl }, () => {
+            if (chrome.runtime.lastError) {
+              console.error(
+                'tabs.create failed: ' + chrome.runtime.lastError.message
+              )
+            }
+          })
+        } else {
+          // Tabs.create is desktop specific. Using window.open for android.
+          window.open(widgetUrl, '_blank', 'noopener noreferrer')
+        }
+
+
       } catch (error) {
         console.error('createMeldBuyWidget failed', error)
         setIsCreatingWidgetFor(undefined)
@@ -547,9 +557,7 @@ export const useBuy = () => {
     selectedAccount,
     amount,
     isLoadingAssets,
-    isLoadingSpotPrices,
     formattedCryptoEstimate,
-    spotPriceRegistry,
     fiatCurrencies,
     cryptoCurrencies: meldSupportedBuyAssets,
     countries,

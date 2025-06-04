@@ -19,8 +19,8 @@ void ExpectConversationEquals(base::Location location,
                               const mojom::ConversationPtr& b);
 
 void ExpectAssociatedContentEquals(base::Location location,
-                                   const mojom::SiteInfoPtr& a,
-                                   const mojom::SiteInfoPtr& b);
+                                   const mojom::AssociatedContentPtr& a,
+                                   const mojom::AssociatedContentPtr& b);
 
 void ExpectConversationEntryEquals(base::Location location,
                                    const mojom::ConversationTurnPtr& a,
@@ -40,7 +40,8 @@ mojom::Conversation* GetConversation(
 
 std::vector<mojom::ConversationTurnPtr> CreateSampleChatHistory(
     size_t num_query_pairs,
-    int32_t future_hours = 0);
+    int32_t future_hours = 0,
+    size_t num_uploaded_images_per_query = 0);
 
 std::vector<mojom::ConversationTurnPtr> CloneHistory(
     std::vector<mojom::ConversationTurnPtr>& history);

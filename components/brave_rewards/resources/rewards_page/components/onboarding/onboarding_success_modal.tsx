@@ -22,7 +22,7 @@ interface Props {
 export function OnboardingSuccessModal(props: Props) {
   const model = React.useContext(AppModelContext)
   const { getString } = useLocaleContext()
-  const [showWdpModal, setShowWdpModal] = React.useState(true)
+  const [showWdpModal, setShowWdpModal] = React.useState(false)
 
   if (showWdpModal) {
     return (
@@ -38,7 +38,7 @@ export function OnboardingSuccessModal(props: Props) {
   return (
     <Modal className='onboarding-success' onEscape={props.onClose}>
       <Modal.Header onClose={props.onClose} />
-      <div {...style}>
+      <div data-css-scope={style.scope}>
         <div className='success-icon' />
         <div className='title'>
           {getString('onboardingSuccessTitle')}

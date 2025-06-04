@@ -11,6 +11,10 @@ export const style = scoped.css`
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    @container style(--is-wide-view) {
+      gap: 24px;
+    }
   }
 
   .loading {
@@ -37,12 +41,16 @@ export const style = scoped.css`
       flex: 1 1 50%;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 24px;
 
       &:empty {
         display: none;
       }
     }
+  }
+
+  h3 {
+    padding: 8px;
   }
 
   h4 {

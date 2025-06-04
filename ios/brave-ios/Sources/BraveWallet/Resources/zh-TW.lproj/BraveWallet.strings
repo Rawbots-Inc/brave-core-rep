@@ -10,7 +10,7 @@
 /* The title displayed on the account details screen */
 "wallet.accountDetailsTitle" = "帳戶詳細資訊";
 
-/* The error shown below the account name field when adding or renaming a wallet account if the length is longer than max characters. '%lld' refers to a number (for example \"Account name must be at 30 characters or less\") */
+/* The error shown below the account name field when adding or renaming a wallet account if the length is longer than max characters. '%lld' refers to a number (for example "Account name must be at 30 characters or less") */
 "wallet.accountNameLengthError" = "帳戶名稱的長度不得超過 %lld 個字元";
 
 /* A button title for displaying their accounts private key */
@@ -112,10 +112,10 @@
 /* The label of badge beside the filter option that allows users to select which networks to filter assets by, when all networks are selected. Used in Portfolio/NFT filters and display settings. */
 "wallet.allNetworksLabel" = "所有網路";
 
-/* A title displayed above two numbers (the amount and transaction fee) showing the user the breakdown of the amount transferred and transaction fee for any Solana transaction. The \"+\" is a literal plus as the label below will show such as \"0.004 SOL + 0.00064 SOL\" */
+/* A title displayed above two numbers (the amount and transaction fee) showing the user the breakdown of the amount transferred and transaction fee for any Solana transaction. The "+" is a literal plus as the label below will show such as "0.004 SOL + 0.00064 SOL" */
 "wallet.amountAndFee" = "金額 + 手續費";
 
-/* A title displayed above two numbers (the amount and gas) showing the user the breakdown of the amount transferred and gas fee. The \"+\" is a literal plus as the label below will show such as \"0.004 ETH + 0.00064 ETH\" */
+/* A title displayed above two numbers (the amount and gas) showing the user the breakdown of the amount transferred and gas fee. The "+" is a literal plus as the label below will show such as "0.004 ETH + 0.00064 ETH" */
 "wallet.amountAndGas" = "金額 + 燃料費";
 
 /* A placeholder on a text field to describe an amount of some currency. '%@' will be replaced with a currency code such as 'USD' or 'BAT' */
@@ -229,7 +229,7 @@
 /* Type of biometrics. This will be used in Biometric setup screen. */
 "wallet.biometricsSetupTouchId" = "Touch ID";
 
-/* The label displayed in Add Account above the private key box when adding or importing a Bitcoin account. The '%@' is the standard supported for the selected network (for example \"Only zprv extended keys are supported.\") */
+/* The label displayed in Add Account above the private key box when adding or importing a Bitcoin account. The '%@' is the standard supported for the selected network (for example "Only zprv extended keys are supported.") */
 "wallet.bitcoinImportExtendedKeyWarning" = "僅支援 %@ 擴充金鑰。";
 
 /* The title for Brave Fee label in Swap. The fee percentage is displayed beside the label. */
@@ -274,8 +274,26 @@
 /* The description of a buy button on the buy/send/swap/deposit modal */
 "wallet.buyDescription" = "透過 Wyre 使用 Apple Pay、信用卡或金融卡購買加密資產。";
 
+/* A part of the message in a transaction status screen. It will follow the amount of tokens that users were attempt to approve but cancelled after. For exapmple: 10 ETH allowance has not been approve under account 0x345...436 */
+"wallet.cancelERC20ApprovalTxRevertMsg" = "Allowance 尚未核准，係根據";
+
+/* A description of transaction status view indicating this transaction is submitted to chain which is cancelling another transaction. */
+"wallet.cancellingTransactionDescription" = "已提交取消申請";
+
+/* A title of transaction status view indicating this transaction is submitted to chain which is cancelling another transaction. */
+"wallet.cancellingTransactionTitle" = "交易取消中";
+
 /* The title for the button to cancel a submitted transaction. */
 "wallet.cancelTransactionButtonTitle" = "取消交易";
+
+/* The button title that for user to cancel a submitted transaction inside transaction status view. */
+"wallet.cancelTransactionStatusButtonTitle" = "取消交易";
+
+/* The description inside the view when asking user to confirm they want to cancel a transaction. */
+"wallet.cancelTransactionStatusConfirmationDescription" = "將建立一個新交易以取消您的現有交易。";
+
+/* A part of the message in a transaction status screen. It will follow the amount of tokens that users were attempt to send but cancelled after. For exapmple: 10 ETH has been reverted to account 0x345...436 */
+"wallet.cancelTxRevertMsg" = "已回復為";
 
 /* The x-axis label on an asset or portfolio chart describing that x-axis values are defined by the date of the price */
 "wallet.chartAxisDateLabel" = "日期";
@@ -337,13 +355,13 @@
 /* 1. A button title to confirm a transaction. It is shown below details about a given transaction. 2. A button title to confirm to grant permission of a dapp connect request. It is displayed at the bottom of last step to grant permission in new site connection screen. */
 "wallet.confirm" = "確認";
 
-/* The subtitle shown on transaction confirmation for an ERC 20 Approve transaction where the '%@' will be the name of the symbol being approved. For example: \"By granting this permission, you are allowing this app to withdraw your DAI and automate transactions for you.\" */
+/* The subtitle shown on transaction confirmation for an ERC 20 Approve transaction where the '%@' will be the name of the symbol being approved. For example: "By granting this permission, you are allowing this app to withdraw your DAI and automate transactions for you." */
 "wallet.confirmationViewAllowSpendSubtitle" = "授予此權限，表示您同意此應用程式提領您的 %@，並為您將交易自動化。";
 
-/* The title shown on transaction confirmation for an ERC 20 Approve transaction where the '%@' will be the name of the symbol being approved. For example: \"Allow this app to spend your DAI?\" */
+/* The title shown on transaction confirmation for an ERC 20 Approve transaction where the '%@' will be the name of the symbol being approved. For example: "Allow this app to spend your DAI?" */
 "wallet.confirmationViewAllowSpendTitle" = "要允許此應用程式支付您的 %@？ ";
 
-/* The label shown beside the current allowance for a ERC20 approve transaction where the current allowance is a number followed by the symbol name. For example, \"Current Allowance  100 DAI\". */
+/* The label shown beside the current allowance for a ERC20 approve transaction where the current allowance is a number followed by the symbol name. For example, "Current Allowance  100 DAI". */
 "wallet.confirmationViewCurrentAllowance" = "目前額度";
 
 /* The title shown on the button to edit permissions / the allowance for an ERC 20 Approve transaction while confirming a transaction. */
@@ -366,6 +384,12 @@
 
 /* The warning shown on transaction confirmation for an ERC 20 Approve transaction when the proposed allowance is unlimited. */
 "wallet.confirmationViewUnlimitedWarning" = "要求核准無上限額度";
+
+/* When a cancellation transaction has been confirmed, we will display which account the amount of value has been reverted to. For example: 10 ETH has been reverted to account 0x123...456 */
+"wallet.confirmedTransactionCancellationAccount" = "帳戶";
+
+/* A title of transaction status view indicating this transaction is confirmed on the chain which has cancelled another transaction. */
+"wallet.confirmedTransactionCancellationTitle" = "交易已取消！";
 
 /* A title of a button which will close this transaction status view. */
 "wallet.confirmedTransactionCloseButtonTitle" = "關閉";
@@ -493,7 +517,7 @@
 /* The title displayed on the add custom token screen */
 "wallet.customTokenTitle" = "新增自訂資產";
 
-/* The title of the notification which will prompt at the top of the browser when users are visiting web3 site that is not yet connected with Brave Wallet. The '%@' will be the site attempting to connect. For example: \"app.uniswap.org wants to interact with Brave Wallet\" */
+/* The title of the notification which will prompt at the top of the browser when users are visiting web3 site that is not yet connected with Brave Wallet. The '%@' will be the site attempting to connect. For example: "app.uniswap.org wants to interact with Brave Wallet" */
 "wallet.dappsConnectionNotificationOriginTitle" = "%@ 想與 Brave 錢包互動";
 
 /* The title of the notification which will prompt at the top of the browser when users are visiting web3 site that is not yet connected with Brave Wallet. */
@@ -523,37 +547,37 @@
 /* Describes what range of data to show on the graph (all data available) */
 "wallet.dateIntervalAll" = "全部";
 
-/* An abbreivated form of \"1 Day\" used to describe what range of data to show on the graph (past day) */
+/* An abbreivated form of "1 Day" used to describe what range of data to show on the graph (past day) */
 "wallet.dateIntervalDay" = "1D";
 
 /* Describes what range of data to show on the graph (past day) */
 "wallet.dateIntervalDayAccessibilityLabel" = "1 天";
 
-/* An abbreivated form of \"1 Hour\" used to describe what range of data to show on the graph (past hour) */
+/* An abbreivated form of "1 Hour" used to describe what range of data to show on the graph (past hour) */
 "wallet.dateIntervalHour" = "1H";
 
 /* Describes what range of data to show on the graph (past hour) */
 "wallet.dateIntervalHourAccessibilityLabel" = "1 小時";
 
-/* An abbreivated form of \"1 Month\" used to describe what range of data to show on the graph (past month) */
+/* An abbreivated form of "1 Month" used to describe what range of data to show on the graph (past month) */
 "wallet.dateIntervalMonth" = "1M";
 
 /* Describes what range of data to show on the graph (past month) */
 "wallet.dateIntervalMonthAccessibilityLabel" = "1 個月";
 
-/* An abbreivated form of \"3 Months\" used to describe what range of data to show on the graph (past 3 months) */
+/* An abbreivated form of "3 Months" used to describe what range of data to show on the graph (past 3 months) */
 "wallet.dateIntervalThreeMonths" = "3M";
 
 /* Describes what range of data to show on the graph (past 3 months) */
 "wallet.dateIntervalThreeMonthsAccessibilityLabel" = "3 個月";
 
-/* An abbreivated form of \"1 Week\" used to describe what range of data to show on the graph (past week) */
+/* An abbreivated form of "1 Week" used to describe what range of data to show on the graph (past week) */
 "wallet.dateIntervalWeek" = "1W";
 
 /* Describes what range of data to show on the graph (past week) */
 "wallet.dateIntervalWeekAccessibilityLabel" = "1 週";
 
-/* An abbreivated form of \"1 Year\" used to describe what range of data to show on the graph (past year) */
+/* An abbreivated form of "1 Year" used to describe what range of data to show on the graph (past year) */
 "wallet.dateIntervalYear" = "1Y";
 
 /* Describes what range of data to show on the graph (past year) */
@@ -577,10 +601,10 @@
 /* A title of the view shown over a dapps website that requests the user decrypt a message. */
 "wallet.decryptRequestTitle" = "解密要求";
 
-/* The default account name when adding an account and not entering a custom name. '%@' refers to a coin type and '%lld' refers to a number (for example \"Ethereum Account 2\") */
+/* The default account name when adding an account and not entering a custom name. '%@' refers to a coin type and '%lld' refers to a number (for example "Ethereum Account 2") */
 "wallet.defaultAccountName" = "%1$@ 帳戶 %2$lld";
 
-/* The default account name when adding an account and not entering a custom name. '%@' refers to a coin type and '%lld' refers to a number (for example \"Filecoin Testnet Account 2\") */
+/* The default account name when adding an account and not entering a custom name. '%@' refers to a coin type and '%lld' refers to a number (for example "Filecoin Testnet Account 2") */
 "wallet.defaultTestnetAccountName" = "%1$@ 測試網帳戶 %2$lld";
 
 /* The title of the option inside the context menu for custom asset row in edit user asset screen. Or the title of the option inside the context menu for custom network row which is not being currently selected in networks list screen. */
@@ -604,6 +628,9 @@
 /* A button title which when pressed displays a new screen with additional details/information */
 "wallet.detailsButtonTitle" = "詳細資訊";
 
+/* An error message that will get displayed when user is trying to add an existed custom token. */
+"wallet.duplicationTokenError" = "此代幣被加入您的資產。";
+
 /* A button title displayed under a Gas Fee title that allows the user to adjust the gas fee/transactions priority, on accounts tab for editing an account name, etc. */
 "wallet.editButtonTitle" = "編輯";
 
@@ -625,7 +652,7 @@
 /* The placeholder for custom nonce textfield. */
 "wallet.editNoncePlaceholder" = "輸入自訂 Nonce 值";
 
-/* The header text shown above the rows to selected the allowance for an ERC 20 Approve transaction. The '%@' becomes the name of the account approving the transaction. For example: \"Spend limit permission allows Account 1 to withdraw and spend up to the following amount:\" */
+/* The header text shown above the rows to selected the allowance for an ERC 20 Approve transaction. The '%@' becomes the name of the account approving the transaction. For example: "Spend limit permission allows Account 1 to withdraw and spend up to the following amount:" */
 "wallet.editPermissionsAllowanceHeader" = "支出限制授權允許 %@ 提領和支出最多以下金額：";
 
 /* The value to show when the permissions / allowance of an ERC 20 Approve transaction are the maximum allowance or unlimited spending ammount. */
@@ -637,7 +664,7 @@
 /* The header text shown in the row that displays the proposed allowance value. */
 "wallet.editPermissionsProposedAllowanceHeader" = "建議額度";
 
-/* The title of the button shown beside the custom allowance input field to make the custom allowance value \"Unlimited\". */
+/* The title of the button shown beside the custom allowance input field to make the custom allowance value "Unlimited". */
 "wallet.editPermissionsSetUnlimited" = "設定無上限";
 
 /* The title of the detail view to edit the permissions / allowance of an ERC 20 Approve transaction. */
@@ -664,7 +691,7 @@
 /* The singular word that will be used in `editSiteConnectionConnectedAccount`. */
 "wallet.editSiteConnectionAccountSingular" = "帳戶";
 
-/* The amount of current permitted wallet accounts to the dapp site. It is displayed below the origin url of the dapp site in edit site connection screen. '%lld' refers to a number, %@ is `account` for singular and `accounts` for plural (for example \"1 account connected\" or \"2 accounts connected\") */
+/* The amount of current permitted wallet accounts to the dapp site. It is displayed below the origin url of the dapp site in edit site connection screen. '%lld' refers to a number, %@ is `account` for singular and `accounts` for plural (for example "1 account connected" or "2 accounts connected") */
 "wallet.editSiteConnectionConnectedAccount" = "已連結 %1$lld 個%2$@";
 
 /* The navigation title of the screen for users to edit dapps site connection with users' Brave Wallet accounts. */
@@ -683,7 +710,7 @@
 "wallet.ensDomainInterstitialPageButtonProceed" = "使用 Infura 伺服器繼續操作";
 
 /* Description displayed when users chose Brave to ask them if they want the ENS to be resolved every time they enter one. The first '%@' will be replaced with a link to Infura's terms of use page. The second '%@' will be replaced with the value of 'Web3DomainInterstitialPageTAndU'. The third '%@' will be replaced with a link to Infura's privacy policy page. The last '%@' will be replaced with the value of 'Web3DomainInterstitialPagePrivacyPolicy'. */
-"wallet.ensDomainInterstitialPageDescription" = "Brave 將會使用 Infura 來解析 Ethereum Name Service (ENS) 上的 .eth 網域名稱。Brave 會隱藏您的 IP 位址。如果您啟用這項功能，Infura 將會看到有人正在嘗試造訪這些 .eth 網域，但不會看到其他資料。查看 Infura 的<a href=%1$@>%2$@</a>和<a href=%3$@>%4$@</a>。";
+"wallet.ensDomainInterstitialPageDescription" = "Brave 將會使用 Infura 來解析 Ethereum Name Service (ENS) 上的 .eth 網域名稱。Brave 會隱藏您的 IP 位址。如果您啟用這項功能，Infura 將會看到有人正在嘗試造訪這些 .eth 網域，但不會看到其他資料。查看 Infura 的 <a href=%1$@>%2$@</a>和<a href=%3$@>%4$@</a>。";
 
 /* Title displayed when users chose Brave to ask them if they want the ENS domain to be resolved every time they enter one. */
 "wallet.ensDomainInterstitialPageTitle" = "是否在 Brave 中啟用 Ethereum Name Service (ENS) 支援？";
@@ -937,7 +964,7 @@
 /* The title of the sort option that sorts lowest value to highest value. Used in Portfolio/NFT filters and display settings. */
 "wallet.lowToHighSortOption" = "低至高";
 
-/* The amount of current permitted wallet accounts to the dapp site. It is displayed below the origin url of the dapp site in manage site connections screen. '%lld' refers to a number, %@ is `account` for singular and `accounts` for plural (for example \"1 account\" or \"2 accounts\") */
+/* The amount of current permitted wallet accounts to the dapp site. It is displayed below the origin url of the dapp site in manage site connections screen. '%lld' refers to a number, %@ is `account` for singular and `accounts` for plural (for example "1 account" or "2 accounts") */
 "wallet.manageSiteConnectionsAccount" = "%1$lld 個%2$@";
 
 /* The plural word that will beused in `manageSiteConnectionsAccount`. */
@@ -1003,7 +1030,7 @@
 /* The title of the section for secondary networks in the network selection view. */
 "wallet.networkSelectionSecondaryNetworks" = "次要網路";
 
-/* A VoiceOver label that will be read out when a user focuses on the show test networks button in the network selection view. \"%@\" will be replaced with the network name such as \"Solana\" or \"Ethereum\" */
+/* A VoiceOver label that will be read out when a user focuses on the show test networks button in the network selection view. "%@" will be replaced with the network name such as "Solana" or "Ethereum" */
 "wallet.networkSelectionTestnetAccessibilityLabel" = "查看 %@ 測試網路";
 
 /* The title of the section for test networks in the network selection view. */
@@ -1030,7 +1057,7 @@
 /* The transaction edit error alert button which will dismiss the alert. */
 "wallet.newSiteConnectScreenTitle" = "連線";
 
-/* 1. A button title next indicating the user to go to the next transaction. Will sit next to a label such as \"1 of 4\" where tapping next would move them to the second transaction. 2. Title of the button for users to click to the next step during the process of dapp permission requests. */
+/* 1. A button title next indicating the user to go to the next transaction. Will sit next to a label such as "1 of 4" where tapping next would move them to the second transaction. 2. Title of the button for users to click to the next step during the process of dapp permission requests. */
 "wallet.next" = "下一筆";
 
 /* The title of one of the dropdown options to group NFTs. This group will display all user's visible NFTs. */
@@ -1076,7 +1103,7 @@
 "wallet.nftDiscoveryCalloutDescription" = "Brave 錢包可使用第三方服務來自動顯示您的 NFT。Brave 將與 SimpleHash 分享您的錢包位址，以提供此服務。深入瞭解。";
 
 /* This is the same `Learn more` at the end of `nftDiscoveryCalloutDescription`, but we need a separat translation to detect the range of it in order to build some attributed strings. */
-"wallet.nftDiscoveryCalloutDescriptionLearnMore" = "深入了解";
+"wallet.nftDiscoveryCalloutDescriptionLearnMore" = "了解更多";
 
 /* The title of the button that user clicks to disable NFT discovery. */
 "wallet.nftDiscoveryCalloutDisable" = "不用了，謝謝，我會手動執行";
@@ -1158,6 +1185,9 @@
 
 /* The title of the last step of creating a new wallet. */
 "wallet.onbordingCompletedTitle" = "搞定了！";
+
+/* The message will be displayed when a cancel/speed-up tx has been dropped or replaced on chain. */
+"wallet.originalTransactionIsConfirmed" = "原始交易已確認。";
 
 /* The label read out when a user is using VoiceOver and highlights the ellipsis button on the portfolio page */
 "wallet.otherWalletActionsAccessibilityTitle" = "其他錢包選項";
@@ -1271,7 +1301,7 @@
 "wallet.restoreWalletBackButtonTitle" = "還原帳戶";
 
 /* The button title for showing the restore wallet screen. As in to use your recovery phrase to bring a wallet into Brave */
-"wallet.restoreWalletButtonTitle" = "還原";
+"wallet.restoreWalletButtonTitle" = "恢復";
 
 /* A button title when 12 recovery-word grids are displayed for users to restore regular wallet. Users can click this button to display the 24 recovery-word grids to restore legacy wallet. */
 "wallet.restoreWalletImportFromLegacyBraveWallet" = "我的復原詞句有 24 個字";
@@ -1393,7 +1423,7 @@
 /* An error that appears below the send crypto address text field, when the input `To` address is not a valid Bitcoin address. */
 "wallet.sendErrorBtcAddressNotValid" = "不是有效的 BTC 位址";
 
-/* An error that appears below the send crypto address text field, when the input `To` domain/url that we cannot resolve to a wallet address. The '%@' will be replaced with the coin type Ex. `Domain doesn\'t have a linked ETH address` */
+/* An error that appears below the send crypto address text field, when the input `To` domain/url that we cannot resolve to a wallet address. The '%@' will be replaced with the coin type Ex. `Domain doesn't have a linked ETH address` */
 "wallet.sendErrorDomainNotRegistered" = "網域沒有已連結的 %@ 位址";
 
 /* An error that appears below the send crypto address text field, when the input `To` Filecoin address that is invalid */
@@ -1429,7 +1459,7 @@
 /* The title of the settings option inside the menu when user clicks the three dots button beside assets search button. */
 "wallet.settings" = "設定";
 
-/* The title that appears before the current default base currency code. Example: \"Default base currency: USD\" */
+/* The title that appears before the current default base currency code. Example: "Default base currency: USD" */
 "wallet.settingsDefaultBaseCurrencyTitle" = "預設基礎貨幣";
 
 /* The footer beneath the toggle for allowing biometrics to unlock the wallet in wallet settings. */
@@ -1457,7 +1487,7 @@
 "wallet.settingsResetTransactionFooter" = "執行開發工作或清除本機伺服器狀態時，清除交易或許很有幫助";
 
 /* The title of a button that will reset transaction and nonce information. As in to erase the users transaction history and reset nonce value starting from 0x0 */
-"wallet.settingsResetTransactionTitle" = "清除交易和 Nonce 資訊";
+"wallet.settingsResetTransactionTitle" = "清除交易 & Nonce 的資訊";
 
 /* The title of a button that will reset the wallet. As in to erase the users wallet from the device */
 "wallet.settingsResetWalletAlertButtonTitle" = "重設錢包";
@@ -1595,7 +1625,7 @@
 "wallet.siweVersionLabel" = "版本";
 
 /* The button title to skip recovery phrase backup */
-"wallet.skipButtonTitle" = "略過";
+"wallet.skipButtonTitle" = "跳過";
 
 /* Title on the button that users can click to enable Brave to resolve the SNS domain they entered. */
 "wallet.snsDomainInterstitialPageButtonProceed" = "使用 SNS 伺服器繼續操作";
@@ -1618,7 +1648,7 @@
 /* The title displayed above the System Program AllocateWithSeed instruction type for Solana Instruction details. */
 "wallet.solanaAllocateWithSeedInstructionName" = "以種子分配";
 
-/* The label displayed beside the formatted amount of an instruction type. Ex. \"Amount: 0.1 SOL\" */
+/* The label displayed beside the formatted amount of an instruction type. Ex. "Amount: 0.1 SOL" */
 "wallet.solanaAmount" = "金額";
 
 /* The title displayed above the Token Program Approved Checked instruction type for Solana Instruction details. */
@@ -1681,19 +1711,19 @@
 /* The title displayed above the System Program InitializeNonceAccount instruction type for Solana Instruction details. */
 "wallet.solanaInitializeNonceAccountInstructionName" = "初始化隨機帳戶";
 
-/* The label displayed beside the Accounts for an instruction type we don't support decoding. Ex. \"Accounts: <solana_public_key>\" */
+/* The label displayed beside the Accounts for an instruction type we don't support decoding. Ex. "Accounts: <solana_public_key>" */
 "wallet.solanaInstructionAccounts" = "帳戶";
 
-/* The label displayed beside the address for the Address Lookup Table Account. Ex. \"Address Lookup Table Account: B1A2...\" */
+/* The label displayed beside the address for the Address Lookup Table Account. Ex. "Address Lookup Table Account: B1A2..." */
 "wallet.solanaInstructionAddressLookupAcc" = "位址查詢表格帳戶";
 
-/* The label displayed beside the address for the Address Lookup Table Account. Ex. \"Address Lookup Table Index: 1\" */
+/* The label displayed beside the address for the Address Lookup Table Account. Ex. "Address Lookup Table Index: 1" */
 "wallet.solanaInstructionAddressLookupIndex" = "位址查詢表格索引";
 
-/* The label displayed beside the Data for an instruction type we don't support decoding. Ex. \"Data: [1, 20, 3, 5, 50]]\" */
+/* The label displayed beside the Data for an instruction type we don't support decoding. Ex. "Data: [1, 20, 3, 5, 50]]" */
 "wallet.solanaInstructionData" = "資料";
 
-/* The label displayed beside the Program Id for an instruction type we don't support decoding. Ex. \"Program Id: 1111223344aabbccd\" */
+/* The label displayed beside the Program Id for an instruction type we don't support decoding. Ex. "Program Id: 1111223344aabbccd" */
 "wallet.solanaInstructionProgramId" = "程式 ID";
 
 /* The title displayed above the Token Program Mint To Checked instruction type for Solana Instruction details. */
@@ -1720,13 +1750,13 @@
 /* The title displayed above the Token Program Sync Native instruction type for Solana Instruction details. */
 "wallet.solanaSyncNativeInstructionName" = "同步原生";
 
-/* The title displayed beside the name of any Solana System Program instruction type. '%@' will be replaced with the instruction's name, ex. \"System Program - Transfer\" */
+/* The title displayed beside the name of any Solana System Program instruction type. '%@' will be replaced with the instruction's name, ex. "System Program - Transfer" */
 "wallet.solanaSystemProgramName" = "系統程式 - %@";
 
 /* The title displayed above the Token Program Thaw Account instruction type for Solana Instruction details. */
 "wallet.solanaThawAccountInstructionName" = "解凍帳戶";
 
-/* The title displayed beside the name of any Solana Token Program instruction type. '%@' will be replaced with the instruction's name, ex. \"Token Program - Initialize Mint\" */
+/* The title displayed beside the name of any Solana Token Program instruction type. '%@' will be replaced with the instruction's name, ex. "Token Program - Initialize Mint" */
 "wallet.solanaTokenProgramName" = "代幣方案 - %@";
 
 /* The title displayed above the Token Program Transfer Checked instruction type for Solana Instruction details. */
@@ -1753,6 +1783,12 @@
 /* The label of the sort option that sorts assets by their fiat value. Used in Portfolio/NFT filters and display settings. */
 "wallet.sortAssetsTitle" = "排序資產";
 
+/* The title of the banner which will be displayed at the top of the transaction status screen when transaction is in submitted status and user wants to speed it up. */
+"wallet.speedUpBannerTitle" = "花的時間比預期久嗎？";
+
+/* The button title for the button inside speed up banner. */
+"wallet.speedUpButtonTitle" = "加速";
+
 /* The title for the button to speed up a submitted transaction. */
 "wallet.speedUpTransactionButtonTitle" = "加速";
 
@@ -1772,7 +1808,7 @@
 "wallet.swap" = "交換";
 
 /* The description displayed below the name of the token being swapped from and to. Tthe '%@' will be the token's network name. */
-"wallet.swapConfirmationNetworkDesc" = "(%@)";
+"wallet.swapConfirmationNetworkDesc" = "於 %@";
 
 /* A title displayed in transaction confirmation above the network / gas fee for a Swap transaction. */
 "wallet.swapConfirmationNetworkFee" = "網路費";
@@ -1870,11 +1906,11 @@
 /* The title shown for ERC20 approvals when the user doesn't have the visible asset added */
 "wallet.transactionApprovalTitle" = "已核准";
 
-/* The title shown for ERC20 approvals. The first '%@' becomes the  amount, the second '%@' becomes the symbol for the cryptocurrency. For example: \"Approved 150.0 BAT\" */
+/* The title shown for ERC20 approvals. The first '%@' becomes the  amount, the second '%@' becomes the symbol for the cryptocurrency. For example: "Approved 150.0 BAT" */
 "wallet.transactionApproveSymbolTitle" = "已核准 %1$@ %2$@";
 
 /* Text of toggle for a confirmation prompt when there's a backlog of wallet transactions */
-"wallet.transactionBacklogAcknowledgement" = "清除並取代未完成的交易";
+"wallet.transactionBacklogAcknowledgement" = "清除 & 取代未完成的交易";
 
 /* Additional information, when users have previously clear and replace the incomplete transaction(s) */
 "wallet.transactionBacklogAfterReplacement" = "目前不必執行額外的動作。只需等待未經確認的交易清除即可。";
@@ -1912,13 +1948,13 @@
 /* A title displayed beside a number describing the cost of the transaction in SOL for any Solana transaction */
 "wallet.transactionFee" = "交易費";
 
-/* A VoiceOver label that will be read out when a user focuses a transactions \"from address\" and \"to address\" labels. \"%@\" will be replaced with either an account name or a truncated ethereum address such as \"Account 1\" or \"0x1234***3003\" */
+/* A VoiceOver label that will be read out when a user focuses a transactions "from address" and "to address" labels. "%@" will be replaced with either an account name or a truncated ethereum address such as "Account 1" or "0x1234***3003" */
 "wallet.transactionFromToAccessibilityLabel" = "來源：%1$@。目的地：%2$@";
 
 /* The description of the transactions row in Account Details when user has zero or multiple Transactions. */
 "wallet.transactionsDescription" = "%d 筆交易";
 
-/* A title shown for a send transaction. The first '%@' becomes the  amount, the second '%@' becomes the symbol for the cryptocurrency and the last '%@' becomes the fiat amount. For example: \"Sent 0.0054 ETH ($22.44)\" */
+/* A title shown for a send transaction. The first '%@' becomes the  amount, the second '%@' becomes the symbol for the cryptocurrency and the last '%@' becomes the fiat amount. For example: "Sent 0.0054 ETH ($22.44)" */
 "wallet.transactionSendTitle" = "已傳送 %1$@ %2$@ (%3$@)";
 
 /* The description of the transactions row in Account Details when user has 1 Transaction. */
@@ -1954,7 +1990,7 @@
 /* The title which is displayed above a list of transactions */
 "wallet.transactionsTitle" = "交易";
 
-/* A transactions gas fee. The first '%@' becomes the fee amount, the second '%@' becomes the symbol for the fee's currency and the last '%@' becomes the fiat amount. For example: \"Fee: 0.0054 ETH ($22.44)\" */
+/* A transactions gas fee. The first '%@' becomes the fee amount, the second '%@' becomes the symbol for the fee's currency and the last '%@' becomes the fiat amount. For example: "Fee: 0.0054 ETH ($22.44)" */
 "wallet.transactionSummaryFee" = "費用：%1$@ %2$@ (%3$@)";
 
 /* The label used to describe a transaction type. Used like 'Send from' or 'Approved from'. */
@@ -1966,13 +2002,13 @@
 /* The label to describe an Swap transaction. */
 "wallet.transactionSummarySwapOn" = "交換";
 
-/* A title shown for a swap transaction. The first '%@' becomes the from amount, the second '%@' becomes the symbol for the from currency, the third '%@' becomes the to amount, and the last '%@' becomes the to symbol. For example: \"Swapped 0.0054 ETH to 1.5 DAI\" */
+/* A title shown for a swap transaction. The first '%@' becomes the from amount, the second '%@' becomes the symbol for the from currency, the third '%@' becomes the to amount, and the last '%@' becomes the to symbol. For example: "Swapped 0.0054 ETH to 1.5 DAI" */
 "wallet.transactionSwappedTitle" = "%1$@ %2$@ 已兌換成 %3$@ %4$@";
 
 /* Explains that this transaction is an ERC20 approval transaction and is displayed among other transaction info */
 "wallet.transactionTypeApprove" = "核准";
 
-/* A title shown for a erc 20 transfer. The first '%@' becomes the symbol for the cryptocurrency For example: \"Sent ETH\" */
+/* A title shown for a erc 20 transfer. The first '%@' becomes the symbol for the cryptocurrency For example: "Sent ETH" */
 "wallet.transactionUnknownSendTitle" = "已傳送 %@";
 
 /* The description of one of the 'Transak' provider. */
@@ -2020,6 +2056,58 @@
 /* Blockchain function name for non-native token transfers. */
 "wallet.txFunctionTypeTokenTransfer" = "令牌转移";
 
+/* The transaction type (verb) in the submitted transaction status screen. This copy indicates this is a ERC20 Approval transaction waitings for getting completed. */
+"wallet.txStatusApproving" = "核准中";
+
+/* The status inside transaction status screen, indicates this transaction is completed/confirmed on the blockchain. */
+"wallet.txStatusCompleted" = "已完成";
+
+/* A message explains an ERC20 Approval transaction is confirmed on the blockchain. */
+"wallet.txStatusERC20ApprovalMsg" = "已核准，在您的";
+
+/* The message after the title when an ERC20 Approval transaction failed to be confirmed on the blockchain. */
+"wallet.txStatusERC20ApprovalTxErrorMsg" = "嘗試核准時發生錯誤";
+
+/* The title of the message when a ERC20 Approval transaction failed to be confirmed on the blockchain. */
+"wallet.txStatusERC20ApprovalTxErrorTitle" = "無法核准";
+
+/* The word of preposition. Indicates some ERC20 token is approved on the following account. For example: Approving 0.1 ETH `on` Account 1. */
+"wallet.txStatusOn" = "於";
+
+/* The transaction type (verb) in the submitted transaction status screen. This copy indicates this is a send transaction waitings for getting completed. */
+"wallet.txStatusSending" = "正在傳送";
+
+/* The message after the title when a send transaction failed to be confirmed on the blockchain.
+The message after the title when a swap transaction failed to be confirmed on the blockchain. */
+"wallet.txStatusSendTxErrorMsg" = "嘗試傳送時發生錯誤";
+
+/* The title of the message when a send transaction failed to be confirmed on the blockchain. */
+"wallet.txStatusSendTxErrorTitle" = "無法傳送";
+
+/* A message explains a send transaction is confirmed on the blockchain. */
+"wallet.txStatusSentMsg" = "已傳送到帳號";
+
+/* The message when a sign transaction is completed/confirmed on the blockchain. */
+"wallet.txStatusSignedConfirmedMsg" = "交易已完成簽署，將由 Dapp 傳送到網路，正等待確認。";
+
+/* The text in the disclosure view in transaction status screen. */
+"wallet.txStatusSubmittedDisclosure" = "您可以安心跳過此畫面。";
+
+/* A message explains an ETH Swap transaction is confirmed on the blockchain. */
+"wallet.txStatusSwappedMsg" = "已新增至您的";
+
+/* The transaction type (verb) in the submitted transaction status screen. This copy indicates this is a swap transaction waitings for getting completed. */
+"wallet.txStatusSwapping" = "兌換";
+
+/* The title of the message when a swap transaction failed to be confirmed on the blockchain. */
+"wallet.txStatusSwapTxErrorTitle" = "無法交換";
+
+/* The word of preposition. Indicates the following account is the account receiving a certain amount of tokens. For example: Sending 0.1 ETH `to` Account 1. */
+"wallet.txStatusTo" = "目的地";
+
+/* The title for the button. User would tap on this button to view the transaction status in the `Activity` tab. */
+"wallet.txStatusViewInActivity" = "在活動中檢視";
+
 /* Description displayed when users chose Brave to ask them if they want the Unstoppable Domains to be resolved every time they enter one. The first '%@' will be replaced with a list of supported TLDs like '.x' or '.bitcoin'. The second '%@' be replaced with a link to Infura's terms of use page. The third '%@' will be replaced with the value of 'Web3DomainInterstitialPageTAndU'. The fourth '%@' will be replaced with a link to Infura's privacy policy page. The last '%@' will be replaced with the value of 'Web3DomainInterstitialPagePrivacyPolicy'. */
 "wallet.udDomainInterstitialPageDescription" = "Brave 將會使用 Infura 來解析 Unstoppable Domains 上的 .crypto (以及 %1$@) 網域名稱。如果您啟用這項功能，Infura 將會看到有人正在嘗試造訪這些網域，但不會看到其他資料。查看 Infura 的<a href=%2$@>%3$@</a>和<a href=%4$@>%5$@</a>。";
 
@@ -2031,6 +2119,12 @@
 
 /* The title for the options to resolve Unstoppable Domains domain names. */
 "wallet.udResolveMethodTitle" = "解析 Unstoppable Domains 網域名稱";
+
+/* The title will be displayed when a cancel tx has been dropped or replaced on chain. */
+"wallet.unableToCancel" = "無法取消";
+
+/* The title will be displayed when a speed-up tx has been dropped or replaced on chain. */
+"wallet.unableToSpeedUp" = "無法加速";
 
 /* An error message displayed when an unspecified problem occurs. */
 "wallet.unknownError" = "不明錯誤";
@@ -2099,7 +2193,7 @@
 "wallet.walletTypeNone" = "無";
 
 /* The message of a confirmation dialog when attempting to remove an account. Or the title of a confirmation dialog when attempting to remove all wallet connection for one or more websites */
-"wallet.warningAlertConfirmation" = "您確定嗎？";
+"wallet.warningAlertConfirmation" = "是否確定？";
 
 /* The title shown on the settings menu to Web3 settings. */
 "wallet.web3" = "Web3";

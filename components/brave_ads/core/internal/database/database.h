@@ -6,6 +6,7 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_ADS_CORE_INTERNAL_DATABASE_DATABASE_H_
 #define BRAVE_COMPONENTS_BRAVE_ADS_CORE_INTERNAL_DATABASE_DATABASE_H_
 
+#include <cstdint>
 #include <memory>
 
 #include "base/files/file_path.h"
@@ -13,13 +14,12 @@
 #include "base/memory/weak_ptr.h"
 #include "base/sequence_checker.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
-#include "brave/components/brave_ads/core/public/export.h"
 #include "sql/database.h"
 #include "sql/meta_table.h"
 
 namespace brave_ads {
 
-class ADS_EXPORT Database final {
+class Database final {
  public:
   explicit Database(base::FilePath path);
 
@@ -28,16 +28,21 @@ class ADS_EXPORT Database final {
 
   ~Database();
 
-  mojom::DBTransactionResultInfoPtr RunDBTransaction(
-      mojom::DBTransactionInfoPtr mojom_db_transaction);
+  mojom::DBTransactionResultInfoPtr RunTransaction(
+      mojom::DBTransactionInfoPtr mojom_db_transaction,
+      uint64_t trace_id);
+
+  void Poison();
 
  private:
-  mojom::DBTransactionResultInfo::StatusCode RunDBActions(
+  mojom::DBTransactionResultInfo::StatusCode RunActions(
       const mojom::DBTransactionInfoPtr& mojom_db_transaction,
-      const mojom::DBTransactionResultInfoPtr& mojom_db_transaction_result);
+      const mojom::DBTransactionResultInfoPtr& mojom_db_transaction_result,
+      uint64_t trace_id);
 
   mojom::DBTransactionResultInfo::StatusCode MaybeRaze(
-      const mojom::DBTransactionInfoPtr& mojom_db_transaction);
+      const mojom::DBTransactionInfoPtr& mojom_db_transaction,
+      uint64_t trace_id);
 
   bool InitializeMetaTable();
 
@@ -47,18 +52,17 @@ class ADS_EXPORT Database final {
 
   mojom::DBTransactionResultInfo::StatusCode Execute(
       const mojom::DBActionInfoPtr& mojom_db_action);
-
-  mojom::DBTransactionResultInfo::StatusCode RunStatement(
+  mojom::DBTransactionResultInfo::StatusCode ExecuteWithBindings(
       const mojom::DBActionInfoPtr& mojom_db_action);
-
-  mojom::DBTransactionResultInfo::StatusCode StepStatement(
+  mojom::DBTransactionResultInfo::StatusCode ExecuteQueryWithBindings(
       const mojom::DBActionInfoPtr& mojom_db_action,
       const mojom::DBTransactionResultInfoPtr& mojom_db_transaction_result);
 
   mojom::DBTransactionResultInfo::StatusCode Migrate();
 
   mojom::DBTransactionResultInfo::StatusCode MaybeVacuum(
-      const mojom::DBTransactionInfoPtr& mojom_db_transaction);
+      const mojom::DBTransactionInfoPtr& mojom_db_transaction,
+      uint64_t trace_id);
 
   void ErrorCallback(int error, sql::Statement* statement);
 

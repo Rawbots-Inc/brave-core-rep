@@ -12,7 +12,6 @@ import Tooltip from '@brave/leo/react/tooltip'
 import { AppModelContext, useAppState } from '../lib/app_model_context'
 import { RouterContext } from '../lib/router'
 import { formatMessage } from '../../shared/lib/locale_context'
-import { useCallbackWrapper } from '../lib/callback_wrapper'
 import { useLocaleContext } from '../lib/locale_strings'
 import { NewTabLink } from '../../shared/components/new_tab_link'
 import { WalletProviderIcon } from '../../shared/components/icons/wallet_provider_icon'
@@ -21,7 +20,8 @@ import {
   ExternalWalletProvider,
   isSelfCustodyProvider,
   getExternalWalletProviderName,
-  isExternalWalletProviderAllowed
+  isExternalWalletProviderAllowed,
+  isExternalWalletProviderDisabled
 } from '../../shared/lib/external_wallet'
 
 import * as routes from '../lib/app_routes'
@@ -35,19 +35,12 @@ export function ConnectAccount() {
   const model = React.useContext(AppModelContext)
   const router = React.useContext(RouterContext)
   const { getString } = useLocaleContext()
-  const wrapCallback = useCallbackWrapper()
 
-  const [
-    countryCode,
-    regions,
-    providers,
-    externalWallet
-  ] = useAppState((state) => [
-    state.countryCode,
-    state.rewardsParameters?.walletProviderRegions ?? null,
-    state.externalWalletProviders,
-    state.externalWallet
-  ])
+  const countryCode = useAppState((state) => state.countryCode)
+  const regions = useAppState(
+      (state) => state.rewardsParameters?.walletProviderRegions ?? null)
+  let providers = useAppState((state) => state.externalWalletProviders)
+  const externalWallet = useAppState((state) => state.externalWallet)
 
   const [loadingState, setLoadingState] = React.useState<LoadingState>('')
   const [selectedProvider, setSelectedProvider] =
@@ -64,6 +57,10 @@ export function ConnectAccount() {
       }
     }
   }, [])
+
+  providers = providers.filter((name) => {
+    return !isExternalWalletProviderDisabled(regions && regions[name] || null)
+  })
 
   function onBack() {
     router.setRoute(routes.home)
@@ -136,9 +133,9 @@ export function ConnectAccount() {
       if (allowed) {
         setSelectedProvider(provider)
         setLoadingState('loading')
-        model.beginExternalWalletLogin(provider).then(wrapCallback((ok) => {
+        model.beginExternalWalletLogin(provider).then((ok) => {
           setLoadingState(ok ? '' : 'error')
-        }))
+        })
       }
     }
 
@@ -160,10 +157,6 @@ export function ConnectAccount() {
   }
 
   function renderCustodialSection() {
-    if (!providers) {
-      return null
-    }
-
     const entries = providers.filter((name) => !isSelfCustodyProvider(name))
     if (entries.length === 0) {
       return null
@@ -193,10 +186,6 @@ export function ConnectAccount() {
   }
 
   function renderSelfCustodySection() {
-    if (!providers) {
-      return null
-    }
-
     const entries = providers.filter(isSelfCustodyProvider)
     if (entries.length === 0) {
       return null
@@ -260,7 +249,7 @@ export function ConnectAccount() {
   }
 
   return (
-    <div {...style}>
+    <div data-css-scope={style.scope}>
       <div className='brave-rewards-logo' />
       <nav>
         <Button kind='outline' size='small' fab onClick={onBack}>

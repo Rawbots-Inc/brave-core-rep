@@ -5,6 +5,7 @@
 
 #include "brave/components/api_request_helper/api_request_helper.h"
 
+#include <algorithm>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -18,7 +19,6 @@
 #include "base/json/json_writer.h"
 #include "base/memory/raw_ptr.h"
 #include "base/metrics/histogram_functions.h"
-#include "base/ranges/algorithm.h"
 #include "base/strings/string_split.h"
 #include "base/task/thread_pool.h"
 #include "base/time/time.h"
@@ -147,9 +147,7 @@ bool APIRequestResult::IsResponseCodeValid() const {
   return response_code_ >= 100 && response_code_ <= 599;
 }
 
-base::Value APIRequestResult::TakeBody() {
-  CHECK(!body_consumed_);
-  body_consumed_ = true;
+base::Value APIRequestResult::TakeBody() && {
   return std::move(value_body_);
 }
 

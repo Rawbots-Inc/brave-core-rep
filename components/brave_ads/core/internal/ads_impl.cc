@@ -9,13 +9,14 @@
 #include <optional>
 #include <utility>
 
-#include "base/debug/dump_without_crashing.h"
 #include "base/functional/bind.h"
+#include "base/trace_event/trace_event.h"
 #include "brave/components/brave_ads/core/internal/account/wallet/wallet_util.h"
 #include "brave/components/brave_ads/core/internal/ads_client/ads_client_util.h"
 #include "brave/components/brave_ads/core/internal/ads_core/ads_core_util.h"
 #include "brave/components/brave_ads/core/internal/ads_notifier_manager.h"
 #include "brave/components/brave_ads/core/internal/common/logging_util.h"
+#include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ads_database_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/notification_ads/notification_ad_manager.h"
 #include "brave/components/brave_ads/core/internal/database/database_maintenance.h"
 #include "brave/components/brave_ads/core/internal/database/database_manager.h"
@@ -27,19 +28,10 @@
 #include "brave/components/brave_ads/core/internal/legacy_migration/confirmations/legacy_confirmation_migration.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_events.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client.h"
+#include "brave/components/brave_ads/core/public/ads_constants.h"
 #include "brave/components/brave_ads/core/public/service/ads_service_callback.h"
 
 namespace brave_ads {
-
-namespace {
-
-void FailedToInitialize(InitializeCallback callback) {
-  BLOG(0, "Failed to initialize ads");
-
-  std::move(callback).Run(/*success=*/false);
-}
-
-}  // namespace
 
 AdsImpl::AdsImpl(AdsClient& ads_client,
                  const base::FilePath& database_path,
@@ -72,9 +64,18 @@ void AdsImpl::SetFlags(mojom::FlagsPtr mojom_flags) {
   flags.environment_type = mojom_flags->environment_type;
 }
 
+void AdsImpl::SetContentSettings(
+    mojom::ContentSettingsPtr mojom_content_settings) {
+  auto& content_settings = GlobalState::GetInstance()->ContentSettings();
+  content_settings.allow_javascript = mojom_content_settings->allow_javascript;
+}
+
 void AdsImpl::Initialize(mojom::WalletInfoPtr mojom_wallet,
                          InitializeCallback callback) {
   BLOG(1, "Initializing ads");
+
+  TRACE_EVENT_NESTABLE_ASYNC_BEGIN0(kTraceEventCategory, "AdsImpl::Initialize",
+                                    TRACE_ID_LOCAL(this));
 
   if (is_initialized_) {
     BLOG(1, "Already initialized ads");
@@ -92,7 +93,7 @@ void AdsImpl::Shutdown(ShutdownCallback callback) {
 
   NotificationAdManager::GetInstance().RemoveAll(/*should_close=*/true);
 
-  std::move(callback).Run(/*success=*/true);
+  DatabaseManager::GetInstance().Shutdown(std::move(callback));
 }
 
 void AdsImpl::GetInternals(GetInternalsCallback callback) {
@@ -180,6 +181,21 @@ void AdsImpl::TriggerInlineContentAdEvent(
   GetAdHandler().TriggerInlineContentAdEvent(placement_id, creative_instance_id,
                                              mojom_ad_event_type,
                                              std::move(callback));
+}
+
+void AdsImpl::ParseAndSaveCreativeNewTabPageAds(
+    base::Value::Dict dict,
+    ParseAndSaveCreativeNewTabPageAdsCallback callback) {
+  if (task_queue_.should_queue()) {
+    return task_queue_.Add(base::BindOnce(
+        &AdsImpl::ParseAndSaveCreativeNewTabPageAds, weak_factory_.GetWeakPtr(),
+        std::move(dict), std::move(callback)));
+  }
+
+  const bool success =
+      database::ParseAndSaveCreativeNewTabPageAds(std::move(dict));
+
+  std::move(callback).Run(success);
 }
 
 void AdsImpl::MaybeServeNewTabPageAd(MaybeServeNewTabPageAdCallback callback) {
@@ -413,8 +429,20 @@ void AdsImpl::CreateOrOpenDatabaseCallback(mojom::WalletInfoPtr mojom_wallet,
       std::move(mojom_wallet), std::move(callback)));
 }
 
+void AdsImpl::FailedToInitialize(InitializeCallback callback) {
+  TRACE_EVENT_NESTABLE_ASYNC_END1(kTraceEventCategory, "AdsImpl::Initialize",
+                                  TRACE_ID_LOCAL(this), "success", false);
+
+  BLOG(0, "Failed to initialize ads");
+
+  std::move(callback).Run(/*success=*/false);
+}
+
 void AdsImpl::SuccessfullyInitialized(mojom::WalletInfoPtr mojom_wallet,
                                       InitializeCallback callback) {
+  TRACE_EVENT_NESTABLE_ASYNC_END1(kTraceEventCategory, "AdsImpl::Initialize",
+                                  TRACE_ID_LOCAL(this), "success", true);
+
   BLOG(1, "Successfully initialized ads");
 
   is_initialized_ = true;
@@ -447,12 +475,6 @@ void AdsImpl::LoadClientStateCallback(mojom::WalletInfoPtr mojom_wallet,
                                       InitializeCallback callback,
                                       bool success) {
   if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
-                              "Failed to load client state");
-    base::debug::DumpWithoutCrashing();
-
     return FailedToInitialize(std::move(callback));
   }
 
@@ -488,12 +510,6 @@ void AdsImpl::LoadConfirmationStateCallback(mojom::WalletInfoPtr mojom_wallet,
                                             InitializeCallback callback,
                                             bool success) {
   if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
-                              "Failed to load confirmation state");
-    base::debug::DumpWithoutCrashing();
-
     BLOG(0, "Failed to load confirmation state");
     return FailedToInitialize(std::move(callback));
   }

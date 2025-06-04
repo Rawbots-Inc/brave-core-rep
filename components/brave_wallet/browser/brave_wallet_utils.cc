@@ -12,11 +12,9 @@
 
 #include "base/check.h"
 #include "base/containers/span.h"
-#include "base/logging.h"
 #include "base/notreached.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/time/time.h"
 #include "base/values.h"
@@ -33,12 +31,10 @@
 #include "brave/components/brave_wallet/common/value_conversion_utils.h"
 #include "brave/components/constants/brave_services_key.h"
 #include "brave/components/version_info/version_info.h"
-#include "brave/third_party/bip39wally-core-native/include/wally_bip39.h"
 #include "components/prefs/pref_service.h"
 #include "components/prefs/scoped_user_pref_update.h"
 #include "crypto/random.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
-#include "third_party/boringssl/src/include/openssl/evp.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
@@ -46,35 +42,17 @@ namespace brave_wallet {
 
 namespace {
 
-std::string GenerateMnemonicInternal(uint8_t* entropy, size_t size) {
-  char* words = nullptr;
-  std::string result;
-  if (bip39_mnemonic_from_bytes(nullptr, entropy, size, &words) != WALLY_OK) {
-    LOG(ERROR) << __func__ << ": bip39_mnemonic_from_bytes failed";
-    return result;
-  }
-  result = words;
-  wally_free_string(words);
-  return result;
-}
-
-bool IsValidEntropySize(size_t entropy_size) {
-  // entropy size should be 128, 160, 192, 224, 256 bits
-  if (entropy_size < 16 || entropy_size > 32 || entropy_size % 4 != 0) {
-    LOG(ERROR) << __func__ << ": Entropy should be 16, 20, 24, 28, 32 bytes";
-    return false;
-  }
-  return true;
-}
-
-// Addresses taken from https://docs.unstoppabledomains.com/developer-toolkit/
-// smart-contracts/uns-smart-contracts/#proxyreader
-const base::flat_map<std::string, std::string>
+const base::flat_map<std::string_view, std::string_view>
     kUnstoppableDomainsProxyReaderContractAddressMap = {
+        // https://github.com/unstoppabledomains/uns/blob/abd9e12409094dd6ea8611ebffdade8db49c4b56/uns-config.json#L76
         {brave_wallet::mojom::kMainnetChainId,
-         "0xc3C2BAB5e3e52DBF311b2aAcEf2e40344f19494E"},
+         "0x578853aa776Eef10CeE6c4dd2B5862bdcE767A8B"},
+        // https://github.com/unstoppabledomains/uns/blob/abd9e12409094dd6ea8611ebffdade8db49c4b56/uns-config.json#L221
         {brave_wallet::mojom::kPolygonMainnetChainId,
-         "0xA3f32c8cd786dc089Bd1fC175F2707223aeE5d00"}};
+         "0x91EDd8708062bd4233f4Dd0FCE15A7cb4d500091"},
+        // https://github.com/unstoppabledomains/uns/blob/abd9e12409094dd6ea8611ebffdade8db49c4b56/uns-config.json#L545
+        {brave_wallet::mojom::kBaseMainnetChainId,
+         "0x78c4b414e1abdf0de267deda01dffd4cd0817a16"}};
 
 constexpr const char kEnsRegistryContractAddress[] =
     "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e";
@@ -231,90 +209,6 @@ base::flat_map<std::string, std::string> MakeBraveServicesKeyHeaders() {
   return {
       {kBraveServicesKeyHeader, BUILDFLAG(BRAVE_SERVICES_KEY)},
   };
-}
-
-std::string GenerateMnemonic(size_t entropy_size) {
-  if (!IsValidEntropySize(entropy_size)) {
-    return "";
-  }
-
-  std::vector<uint8_t> entropy(entropy_size);
-  crypto::RandBytes(entropy);
-
-  return GenerateMnemonicInternal(entropy.data(), entropy.size());
-}
-
-std::string GenerateMnemonicForTest(const std::vector<uint8_t>& entropy) {
-  return GenerateMnemonicInternal(const_cast<uint8_t*>(entropy.data()),
-                                  entropy.size());
-}
-
-std::unique_ptr<std::vector<uint8_t>> MnemonicToSeed(
-    base::cstring_view mnemonic,
-    std::string_view passphrase) {
-  if (!IsValidMnemonic(mnemonic)) {
-    return nullptr;
-  }
-
-  std::unique_ptr<std::vector<uint8_t>> seed =
-      std::make_unique<std::vector<uint8_t>>(64);
-  const std::string salt = base::StrCat({"mnemonic", passphrase});
-  int rv = PKCS5_PBKDF2_HMAC(mnemonic.data(), mnemonic.length(),
-                             reinterpret_cast<const uint8_t*>(salt.data()),
-                             salt.length(), 2048, EVP_sha512(), seed->size(),
-                             seed->data());
-  return rv == 1 ? std::move(seed) : nullptr;
-}
-
-std::unique_ptr<std::vector<uint8_t>> MnemonicToEntropy(
-    base::cstring_view mnemonic) {
-  if (!IsValidMnemonic(mnemonic)) {
-    return nullptr;
-  }
-
-  const std::vector<std::string> words = SplitString(
-      mnemonic, " ", base::TRIM_WHITESPACE, base::SPLIT_WANT_NONEMPTY);
-  // size in bytes
-  size_t entropy_size = 0;
-  switch (words.size()) {
-    case 12:
-      entropy_size = 16;
-      break;
-    case 15:
-      entropy_size = 20;
-      break;
-    case 18:
-      entropy_size = 24;
-      break;
-    case 21:
-      entropy_size = 28;
-      break;
-    case 24:
-      entropy_size = 32;
-      break;
-    default:
-      return nullptr;
-  }
-  DCHECK(IsValidEntropySize(entropy_size)) << entropy_size;
-
-  std::unique_ptr<std::vector<uint8_t>> entropy =
-      std::make_unique<std::vector<uint8_t>>(entropy_size);
-
-  size_t written;
-  if (bip39_mnemonic_to_bytes(nullptr, mnemonic.c_str(), entropy->data(),
-                              entropy->size(), &written) != WALLY_OK) {
-    LOG(ERROR) << "bip39_mnemonic_to_bytes failed";
-    return nullptr;
-  }
-  return entropy;
-}
-
-bool IsValidMnemonic(base::cstring_view mnemonic) {
-  if (bip39_mnemonic_validate(nullptr, mnemonic.c_str()) != WALLY_OK) {
-    LOG(ERROR) << __func__ << ": Invalid mnemonic: " << mnemonic;
-    return false;
-  }
-  return true;
 }
 
 bool EncodeString(std::string_view input, std::string* output) {
@@ -550,7 +444,7 @@ std::string GetDefaultBaseCryptocurrency(PrefService* prefs) {
   return prefs->GetString(kDefaultBaseCryptocurrency);
 }
 
-std::string GetUnstoppableDomainsProxyReaderContractAddress(
+std::string_view GetUnstoppableDomainsProxyReaderContractAddress(
     std::string_view chain_id) {
   std::string chain_id_lower = base::ToLowerASCII(chain_id);
   if (kUnstoppableDomainsProxyReaderContractAddressMap.contains(
@@ -836,6 +730,8 @@ std::string GetPrefKeyForCoinType(mojom::CoinType coin) {
       return kFilecoinPrefKey;
     case mojom::CoinType::SOL:
       return kSolanaPrefKey;
+    case mojom::CoinType::ADA:
+      return kCardanoPrefKey;
   }
   NOTREACHED() << coin;
 }
@@ -883,6 +779,10 @@ std::string WalletInternalErrorMessage() {
   return l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR);
 }
 
+std::string WalletParsingErrorMessage() {
+  return l10n_util::GetStringUTF8(IDS_WALLET_PARSING_ERROR);
+}
+
 mojom::BlockchainTokenPtr GetBitcoinNativeToken(std::string_view chain_id) {
   auto network = NetworkManager::GetKnownChain(chain_id, mojom::CoinType::BTC);
   CHECK(network);
@@ -906,6 +806,21 @@ mojom::BlockchainTokenPtr GetZcashNativeToken(std::string_view chain_id) {
   auto result = NetworkToNativeToken(*network);
   result->logo = "zec.png";
   result->coingecko_id = "zec";
+
+  return result;
+}
+
+mojom::BlockchainTokenPtr GetCardanoNativeToken(std::string_view chain_id) {
+  auto network = NetworkManager::GetKnownChain(chain_id, mojom::CoinType::ADA);
+  CHECK(network);
+
+  auto result = NetworkToNativeToken(*network);
+  result->logo = "ada.png";
+  if (chain_id == mojom::kCardanoMainnet) {
+    result->coingecko_id = "ada";
+  } else {
+    result->coingecko_id = "";
+  }
 
   return result;
 }

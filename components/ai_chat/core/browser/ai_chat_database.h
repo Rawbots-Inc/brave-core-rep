@@ -19,6 +19,10 @@
 
 namespace ai_chat {
 
+extern const int kLowestSupportedDatabaseVersion;
+extern const int kCompatibleDatabaseVersionNumber;
+extern const int kCurrentDatabaseVersion;
+
 // Persists AI Chat conversations and associated content. Conversations are
 // mainly formed of their conversation entries. Edits to conversation entries
 // should be handled with removal and re-adding so that other classes can make
@@ -46,9 +50,10 @@ class AIChatDatabase {
                        mojom::ConversationTurnPtr first_entry);
 
   // Update any properties of associated content metadata or full-text content
-  bool AddOrUpdateAssociatedContent(std::string_view conversation_uuid,
-                                    mojom::SiteInfoPtr associated_content,
-                                    std::optional<std::string> content);
+  bool AddOrUpdateAssociatedContent(
+      std::string_view conversation_uuid,
+      mojom::AssociatedContentPtr associated_content,
+      std::optional<std::string> content);
 
   // Adds a new conversation entry to the conversation with the provided UUID
   bool AddConversationEntry(
@@ -76,6 +81,7 @@ class AIChatDatabase {
 
  private:
   friend class AIChatDatabaseTest;
+  friend class AIChatDatabaseMigrationTest;
 
   sql::Database& GetDB();
 

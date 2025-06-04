@@ -22,17 +22,18 @@ export interface CharCountContext {
   inputTextCharCountDisplay: string
 }
 
+export type UploadedImageData = Mojom.UploadedImage
+
 export type ConversationContext = SendFeedbackState & CharCountContext & {
+  historyInitialized: boolean
   conversationUuid?: string
   conversationHistory: Mojom.ConversationTurn[]
-  associatedContentInfo?: Mojom.SiteInfo
+  associatedContentInfo?: Mojom.AssociatedContent
   allModels: Mojom.Model[]
   currentModel?: Mojom.Model
   suggestedQuestions: string[]
   isGenerating: boolean
   suggestionStatus: Mojom.SuggestionGenerationStatus
-  faviconUrl?: string
-  faviconCacheKey?: string
   currentError: Mojom.APIError | undefined
   apiHasError: boolean
   shouldDisableUserInput: boolean
@@ -52,6 +53,7 @@ export type ConversationContext = SendFeedbackState & CharCountContext & {
   updateShouldSendPageContents: (shouldSend: boolean) => void
   retryAPIRequest: () => void
   handleResetError: () => void
+  handleStopGenerating: () => Promise<void>
   setInputText: (text: string) => void
   submitInputTextToAPI: () => void
   resetSelectedActionType: () => void
@@ -59,6 +61,12 @@ export type ConversationContext = SendFeedbackState & CharCountContext & {
   setIsToolsMenuOpen: (isOpen: boolean) => void
   handleVoiceRecognition?: () => void
   conversationHandler?: Mojom.ConversationHandlerRemote
+
+  showAttachments: boolean
+  setShowAttachments: (show: boolean) => void
+  uploadImage: () => void
+  removeImage: (index: number) => void
+  pendingMessageImages: Mojom.UploadedImage[] | null
 }
 
 export const defaultCharCountContext: CharCountContext = {
@@ -68,6 +76,7 @@ export const defaultCharCountContext: CharCountContext = {
 }
 
 const defaultContext: ConversationContext = {
+  historyInitialized: false,
   conversationHistory: [],
   allModels: [],
   suggestedQuestions: [],
@@ -91,11 +100,17 @@ const defaultContext: ConversationContext = {
   updateShouldSendPageContents: () => { },
   retryAPIRequest: () => { },
   handleResetError: () => { },
+  handleStopGenerating: async () => { },
   setInputText: () => { },
   submitInputTextToAPI: () => { },
   resetSelectedActionType: () => { },
   handleActionTypeClick: () => { },
   setIsToolsMenuOpen: () => { },
+  showAttachments: false,
+  setShowAttachments: () => { },
+  uploadImage: () => { },
+  removeImage: () => { },
+  pendingMessageImages: null,
   ...defaultSendFeedbackState,
   ...defaultCharCountContext
 }
@@ -153,7 +168,15 @@ export const ConversationReactContext =
 
 export function ConversationContextProvider(props: React.PropsWithChildren) {
   const [context, setContext] =
-    React.useState<ConversationContext>(defaultContext)
+    React.useState<ConversationContext>({
+      ...defaultContext,
+      setShowAttachments: (showAttachments: boolean) => {
+        setContext((value) => ({
+          ...value,
+          showAttachments
+        }))
+      }
+    })
 
   const aiChatContext = useAIChat()
   const { conversationHandler, callbackRouter, selectedConversationId, updateSelectedConversationId } = useActiveChat()
@@ -187,7 +210,8 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
       const { conversationHistory } =
         await conversationHandler.getConversationHistory()
       setPartialContext({
-        conversationHistory
+        conversationHistory,
+        historyInitialized: true
       })
     }
 
@@ -199,7 +223,7 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
         currentModelKey,
         suggestedQuestions,
         suggestionStatus,
-        associatedContentInfo,
+        associatedContent,
         shouldSendContent,
         error
       } } = await conversationHandler.getState()
@@ -209,7 +233,7 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
         ...getModelContext(currentModelKey, models),
         suggestedQuestions,
         suggestionStatus,
-        associatedContentInfo,
+        associatedContentInfo: associatedContent,
         shouldSendPageContents: shouldSendContent,
         currentError: error
       })
@@ -258,7 +282,7 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
 
     id = callbackRouter.onAssociatedContentInfoChanged.addListener(
       (
-        associatedContentInfo: Mojom.SiteInfo,
+        associatedContentInfo: Mojom.AssociatedContent,
         shouldSendPageContents: boolean
       ) => {
         setPartialContext({
@@ -266,13 +290,6 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
           shouldSendPageContents
         })
       }
-    )
-    listenerIds.push(id)
-
-    id = callbackRouter.onFaviconImageDataChanged.addListener(() =>
-      setPartialContext({
-        faviconCacheKey: new Date().getTime().toFixed(0)
-      })
     )
     listenerIds.push(id)
 
@@ -289,23 +306,6 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
       }
     }
   }, [conversationHandler, callbackRouter])
-
-  // Update favicon
-  React.useEffect(() => {
-    if (!context.conversationUuid || !aiChatContext.uiHandler) {
-      return
-    }
-    aiChatContext.uiHandler.getFaviconImageData(context.conversationUuid)
-      .then(({ faviconImageData }) => {
-        if (!faviconImageData) {
-          return
-        }
-        const blob = new Blob([new Uint8Array(faviconImageData)], { type: 'image/*' })
-        setPartialContext({
-          faviconUrl: URL.createObjectURL(blob)
-        })
-      })
-  }, [context.conversationUuid, context.faviconCacheKey])
 
   // Update the location when the visible conversation changes
   const isVisible = useIsConversationVisible(context.conversationUuid)
@@ -393,6 +393,12 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     })
   }
 
+  React.useEffect(() => {
+    try {
+      getAPI().metrics.onQuickActionStatusChange(!!context.selectedActionType)
+    } catch (e) {}
+  }, [context.selectedActionType])
+
   const handleActionTypeClick = (actionType: Mojom.ActionType) => {
     setPartialContext({
       selectedActionType: actionType
@@ -439,17 +445,24 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
       aiChatContext.dismissStorageNotice()
     }
 
+    if (aiChatContext.isStandalone) {
+      getAPI().metrics.onSendingPromptWithFullPage()
+    }
+
     if (context.selectedActionType) {
       conversationHandler.submitHumanConversationEntryWithAction(
         context.inputText,
         context.selectedActionType
       )
     } else {
-      conversationHandler.submitHumanConversationEntry(context.inputText)
+      conversationHandler.submitHumanConversationEntry(
+        context.inputText,
+        context.pendingMessageImages)
     }
 
     setPartialContext({
-      inputText: ''
+      inputText: '',
+      pendingMessageImages: null
     })
     resetSelectedActionType()
   }
@@ -475,12 +488,49 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     })
   }
 
+  const handleStopGenerating = async () => {
+    const { humanEntry } =
+      await conversationHandler.stopGenerationAndMaybeGetHumanEntry()
+    if (humanEntry) {
+      setPartialContext({
+        inputText: humanEntry.text
+      })
+    }
+  }
+
   const handleVoiceRecognition = () => {
     if (!context.conversationUuid) {
       console.error('No conversationUuid found')
       return
     }
     aiChatContext.uiHandler?.handleVoiceRecognition(context.conversationUuid)
+  }
+
+  const uploadImage = () => {
+    if (!context.conversationUuid) {
+      console.error('No conversationUuid found')
+      return
+    }
+    // For now we only allow uploading 1 image per conversation.
+    if (context.pendingMessageImages) {
+      setPartialContext({
+        pendingMessageImages: null
+      })
+    }
+    aiChatContext.uiHandler?.uploadImage(context.conversationUuid)
+    .then(({uploadedImage}) => {
+      if (uploadedImage) {
+        setPartialContext({
+          pendingMessageImages: [uploadedImage]
+        })
+      }
+    })
+  }
+
+  const removeImage = (index: number) => {
+    setPartialContext({
+      pendingMessageImages: null
+    })
   }
 
   const store: ConversationContext = {
@@ -498,6 +548,7 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
       setHasDismissedLongConversationInfo(true),
     retryAPIRequest: () => conversationHandler.retryAPIRequest(),
     handleResetError,
+    handleStopGenerating,
     // Experimentally don't cache model key locally, browser should notify of model change quickly
     setCurrentModel: (model) => conversationHandler.changeModel(model.key),
     generateSuggestedQuestions: () => conversationHandler.generateQuestions(),
@@ -506,9 +557,12 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
     setInputText: (inputText) => setPartialContext({ inputText }),
     handleActionTypeClick,
     submitInputTextToAPI,
+    isGenerating: context.isGenerating,
     switchToBasicModel,
     setIsToolsMenuOpen: (isToolsMenuOpen) => setPartialContext({ isToolsMenuOpen }),
     handleVoiceRecognition,
+    uploadImage,
+    removeImage,
     conversationHandler
   }
 
@@ -521,4 +575,18 @@ export function ConversationContextProvider(props: React.PropsWithChildren) {
 
 export function useConversation() {
   return React.useContext(ConversationReactContext)
+}
+
+export function useIsNewConversation() {
+  const conversationContext = useConversation()
+  const aiChatContext = useAIChat()
+
+  // A conversation is new if it isn't in the list of visible conversations.
+  return !aiChatContext.visibleConversations.find(c => c.uuid === conversationContext.conversationUuid)
+}
+
+export function useSupportsAttachments() {
+  const aiChatContext = useAIChat()
+  const isNew = useIsNewConversation()
+  return aiChatContext.isStandalone && isNew
 }

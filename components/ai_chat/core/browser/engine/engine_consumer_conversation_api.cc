@@ -102,7 +102,6 @@ void EngineConsumerConversationAPI::GenerateAssistantResponse(
     const bool& is_video,
     const std::string& page_content,
     const ConversationHistory& conversation_history,
-    const std::string& human_input,
     const std::string& selected_language,
     GenerationDataCallback data_received_callback,
     GenerationCompletedCallback completed_callback) {
@@ -119,6 +118,19 @@ void EngineConsumerConversationAPI::GenerateAssistantResponse(
   }
   // history
   for (const auto& message : conversation_history) {
+    if (message->uploaded_images) {
+      size_t counter = 0;
+      for (const auto& uploaded_image : message->uploaded_images.value()) {
+        // Only send the first uploaded_image becasue llama-vision seems to take
+        // the last one if there are multiple images
+        if (counter++ > 0) {
+          break;
+        }
+        conversation.push_back({mojom::CharacterType::HUMAN,
+                                ConversationEventType::UploadImage,
+                                GetImageDataURL(uploaded_image->image_data)});
+      }
+    }
     if (message->selected_text.has_value() &&
         !message->selected_text->empty()) {
       conversation.push_back({mojom::CharacterType::HUMAN,
@@ -128,11 +140,7 @@ void EngineConsumerConversationAPI::GenerateAssistantResponse(
     ConversationEvent event;
     event.role = message->character_type;
 
-    const std::string& text = (message->edits && !message->edits->empty())
-                                  ? message->edits->back()->text
-                                  : message->text;
-    const auto& last_turn = conversation_history.back();
-    event.content = (message == last_turn) ? human_input : text;
+    event.content = EngineConsumer::GetPromptForEntry(message);
 
     // TODO(petemill): Shouldn't the server handle the map of mojom::ActionType
     // to prompts in addition to SUMMARIZE_PAGE (e.g. PARAPHRASE, EXPLAIN,

@@ -13,10 +13,10 @@
 #include "base/check_is_test.h"
 #include "base/functional/bind.h"
 #include "brave/browser/ui/color/brave_color_id.h"
+#include "brave/browser/ui/views/split_view/split_view.h"
 #include "brave/browser/ui/views/split_view/split_view_location_bar_model_delegate.h"
 #include "brave/components/vector_icons/vector_icons.h"
 #include "cc/paint/paint_flags.h"
-#include "chrome/browser/ui/toolbar/chrome_location_bar_model_delegate.h"
 #include "components/omnibox/browser/location_bar_model_impl.h"
 #include "components/omnibox/browser/omnibox_prefs.h"
 #include "components/prefs/pref_service.h"
@@ -36,8 +36,9 @@
 #include "ui/views/widget/widget_delegate.h"
 
 SplitViewLocationBar::SplitViewLocationBar(PrefService* prefs,
-                                           views::View* parent_web_view)
+                                           SplitView* split_view)
     : prefs_(prefs),
+      split_view_(split_view),
       location_bar_model_delegate_(
           std::make_unique<SplitViewLocationBarModelDelegate>()),
       location_bar_model_(std::make_unique<LocationBarModelImpl>(
@@ -45,8 +46,8 @@ SplitViewLocationBar::SplitViewLocationBar(PrefService* prefs,
           content::kMaxURLDisplayChars)) {
   set_owned_by_client();
 
-  if (parent_web_view) {
-    view_observation_.Observe(parent_web_view);
+  if (split_view_) {
+    view_observation_.Observe(split_view_->secondary_contents_container());
   } else {
     CHECK_IS_TEST();
   }
@@ -159,7 +160,7 @@ void SplitViewLocationBar::OnPaintBorder(gfx::Canvas* canvas) {
   flags.setColor(cp->GetColor(kColorBraveSplitViewInactiveWebViewBorder));
   flags.setAntiAlias(true);
   flags.setStyle(cc::PaintFlags::kStroke_Style);
-  flags.setStrokeWidth(2);
+  flags.setStrokeWidth(SplitView::kInactiveBorderThickness);
   canvas->DrawPath(path, flags);
 }
 
@@ -213,7 +214,11 @@ void SplitViewLocationBar::UpdateBounds() {
     return;
   }
 
-  gfx::Point point;
+  // Inactive splitview tab's border is 2px.
+  // Outer 1px border color is same color with toolbar and inner border's color
+  // is inactive border color. locate this mini urlbar to inner border's origin.
+  gfx::Point point(SplitView::kInactiveBorderThickness,
+                   SplitView::kInactiveBorderThickness);
   views::View::ConvertPointToWidget(view, &point);
 
   auto* widget = GetWidget();

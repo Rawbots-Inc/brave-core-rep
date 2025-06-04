@@ -128,7 +128,7 @@ class RunableConfiguration:
 
     rebase_benchmark.pageset_repeat = 2 if online_rebase else 1
 
-    REBASE_TIMEOUT = 240 * rebase_benchmark.pageset_repeat
+    REBASE_TIMEOUT = 10 * 60 * rebase_benchmark.pageset_repeat
 
     rebase_out_dir = os.path.join(self.out_dir, 'rebase_artifacts')
     result = self.RunSingleTest(rebase_runner_config, rebase_benchmark,
@@ -236,6 +236,7 @@ class RunableConfiguration:
     if self.common_options.verbose:
       args.extend(['--show-stdout', '--verbose'])
 
+    args.append('--browser-logging-verbosity=non-verbose')
     success, _ = perf_test_utils.GetProcessOutput(
         args, cwd=path_util.GetChromiumPerfDir(), timeout=timeout)
     if success and not local_run:

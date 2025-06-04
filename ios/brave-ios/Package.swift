@@ -21,6 +21,7 @@ var package = Package(
     .library(name: "DesignSystem", targets: ["DesignSystem", "NalaAssets"]),
     .library(name: "BraveWallet", targets: ["BraveWallet"]),
     .library(name: "Data", targets: ["Data"]),
+    .library(name: "DataImporter", targets: ["DataImporter"]),
     .library(name: "Storage", targets: ["Storage"]),
     .library(name: "BrowserIntentsModels", targets: ["BrowserIntentsModels"]),
     .library(name: "BraveWidgetsModels", targets: ["BraveWidgetsModels"]),
@@ -167,6 +168,20 @@ var package = Package(
       plugins: ["LoggerPlugin"]
     ),
     .target(
+      name: "DataImporter",
+      dependencies: [
+        "BraveCore",
+        "BraveShared",
+        "BraveStrings",
+        "BraveUI",
+        "DesignSystem",
+        "Strings",
+        .product(name: "Collections", package: "swift-collections"),
+        .product(name: "Introspect", package: "SwiftUI-Introspect"),
+      ],
+      plugins: ["LoggerPlugin"]
+    ),
+    .target(
       name: "BraveWallet",
       dependencies: [
         "Data",
@@ -288,6 +303,7 @@ var package = Package(
       dependencies: [
         "BraveCore",
         "BraveShared",
+        "BraveStrings",
         "BraveUI",
         "DesignSystem",
         "Preferences",
@@ -453,6 +469,7 @@ var braveTarget: PackageDescription.Target = .target(
     "BraveUI",
     "DesignSystem",
     "Data",
+    "DataImporter",
     "Storage",
     "Fuzi",
     "SnapKit",
@@ -487,6 +504,7 @@ var braveTarget: PackageDescription.Target = .target(
   ],
   resources: [
     .copy("Assets/About/Licenses.html"),
+    .copy("Assets/About/AboutHome.html"),
     .copy("Assets/__firefox__.js"),
     .copy("Assets/AllFramesAtDocumentEnd.js"),
     .copy("Assets/AllFramesAtDocumentEndSandboxed.js"),
@@ -496,7 +514,6 @@ var braveTarget: PackageDescription.Target = .target(
     .copy("Assets/MainFrameAtDocumentEndSandboxed.js"),
     .copy("Assets/MainFrameAtDocumentStart.js"),
     .copy("Assets/MainFrameAtDocumentStartSandboxed.js"),
-    .copy("Assets/SessionRestore.html"),
     .copy("Assets/Fonts/FiraSans-Bold.ttf"),
     .copy("Assets/Fonts/FiraSans-BoldItalic.ttf"),
     .copy("Assets/Fonts/FiraSans-Book.ttf"),
@@ -574,9 +591,6 @@ var braveTarget: PackageDescription.Target = .target(
       "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Paged/TrackingProtectionStats.js"
     ),
     .copy(
-      "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Paged/RewardsReportingScript.js"
-    ),
-    .copy(
       "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Paged/WalletEthereumProviderScript.js"
     ),
     .copy(
@@ -592,12 +606,6 @@ var braveTarget: PackageDescription.Target = .target(
     .copy("Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Sandboxed/FaviconScript.js"),
     .copy(
       "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Sandboxed/ResourceDownloaderScript.js"
-    ),
-    .copy(
-      "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Sandboxed/SelectorsPollerScript.js"
-    ),
-    .copy(
-      "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Sandboxed/ProceduralFilters.js"
     ),
     .copy(
       "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/Sandboxed/SiteStateListenerScript.js"
@@ -648,7 +656,7 @@ package.targets.append(braveTarget)
 let iosRootDirectory = URL(string: #file)!.deletingLastPathComponent().absoluteString.dropLast()
 let isStripAbsolutePathsFromDebugSymbolsEnabled = {
   do {
-    let env = try String(contentsOfFile: "\(iosRootDirectory)/../../.env")
+    let env = try String(contentsOfFile: "\(iosRootDirectory)/../../.env", encoding: .utf8)
       .split(separator: "\n")
       .map { $0.split(separator: "=").map { $0.trimmingCharacters(in: .whitespacesAndNewlines) } }
     return env.contains(where: { $0.first == "use_remoteexec" && $0.last == "true" })

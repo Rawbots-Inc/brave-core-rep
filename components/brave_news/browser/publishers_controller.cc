@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_news/browser/publishers_controller.h"
 
+#include <algorithm>
 #include <iterator>
 #include <memory>
 #include <optional>
@@ -17,7 +18,6 @@
 #include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/one_shot_event.h"
-#include "base/ranges/algorithm.h"
 #include "base/strings/strcat.h"
 #include "brave/components/api_request_helper/api_request_helper.h"
 #include "brave/components/brave_news/browser/network.h"
@@ -48,8 +48,8 @@ mojom::PublisherPtr FindMatchPreferringLocale(
       continue;
     }
 
-    auto locale_it = base::ranges::find(publisher->locales, preferred_locale,
-                                        &mojom::LocaleInfo::locale);
+    auto locale_it = std::ranges::find(publisher->locales, preferred_locale,
+                                       &mojom::LocaleInfo::locale);
     // If the match is in our preferred locale, return it.
     if (locale_it != publisher->locales.end()) {
       return publisher->Clone();
@@ -265,7 +265,7 @@ void PublishersController::EnsurePublishersIsUpdating(
                 << ", final_url: " << api_request_result.final_url();
         // TODO(petemill): handle bad status or response
         std::optional<Publishers> publisher_list =
-            ParseCombinedPublisherList(api_request_result.TakeBody());
+            ParseCombinedPublisherList(api_request_result.value_body());
 
         // Update failed, we'll just reuse whatever publishers we had before.
         if (!publisher_list) {

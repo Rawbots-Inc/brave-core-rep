@@ -5,6 +5,8 @@
 
 package org.chromium.chrome.browser.settings;
 
+import static org.chromium.base.ThreadUtils.runOnUiThread;
+
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -27,6 +29,7 @@ import com.airbnb.lottie.model.KeyPath;
 
 import org.chromium.base.BravePreferenceKeys;
 import org.chromium.base.ContextUtils;
+import org.chromium.base.ThreadUtils;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.ObservableSupplierImpl;
 import org.chromium.base.task.PostTask;
@@ -92,8 +95,6 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
 
         super.onActivityCreated(savedInstanceState);
 
-        initBraveNewsController();
-
         View view = getView();
         if (view != null) {
             mParentLayout = (LinearLayout) view.findViewById(R.id.layout_parent);
@@ -116,10 +117,16 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
             BraveTouchUtils.ensureMinTouchTarget(mLayoutPopularSources);
             BraveTouchUtils.ensureMinTouchTarget(mLayoutSuggestions);
             BraveTouchUtils.ensureMinTouchTarget(mTvSearch);
-
-            setData();
-            onClickViews();
         }
+
+        Runnable onBraveNewsControllerReady =
+                () -> {
+                    if (view != null) {
+                        setData();
+                        onClickViews();
+                    }
+                };
+        initBraveNewsController(onBraveNewsControllerReady);
     }
 
     @Override
@@ -192,14 +199,22 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
                 view -> { openBraveNewsPreferencesDetails(BraveNewsPreferencesType.Suggestions); });
 
         mLayoutChannels.setOnClickListener(
-                view -> { openBraveNewsPreferencesDetails(BraveNewsPreferencesType.Channels); });
+                view -> {
+                    openBraveNewsPreferencesDetails(BraveNewsPreferencesType.Channels);
+                });
 
-        mLayoutFollowing.setOnClickListener(view -> {
-            if (BraveNewsUtils.getFollowingPublisherList().size() > 0
-                    || BraveNewsUtils.getFollowingChannelList().size() > 0) {
-                openBraveNewsPreferencesDetails(BraveNewsPreferencesType.Following);
-            }
-        });
+        mLayoutFollowing.setOnClickListener(
+                view -> {
+                    List<Publisher> followingPublisherList =
+                            BraveNewsUtils.getFollowingPublisherList();
+                    List<Channel> followingChannelList = BraveNewsUtils.getFollowingChannelList();
+                    assert followingPublisherList != null;
+                    assert followingChannelList != null;
+                    if ((followingPublisherList != null && followingPublisherList.size() > 0)
+                            || (followingChannelList != null && followingChannelList.size() > 0)) {
+                        openBraveNewsPreferencesDetails(BraveNewsPreferencesType.Following);
+                    }
+                });
     }
 
     private void onShowNewsToggle(boolean isEnable) {
@@ -263,13 +278,24 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
                 getActivity(), BraveNewsPreferencesDetails.class, fragmentArgs);
     }
 
-    private void initBraveNewsController() {
+    private void initBraveNewsController(final Runnable action) {
+        ThreadUtils.assertOnUiThread();
         if (mBraveNewsController != null) {
+            if (action != null) {
+                action.run();
+            }
             return;
         }
 
-        mBraveNewsController =
-                BraveNewsControllerFactory.getInstance().getBraveNewsController(this);
+        BraveNewsControllerFactory.getInstance()
+                .getBraveNewsController(this)
+                .then(
+                        braveNewsController -> {
+                            mBraveNewsController = braveNewsController;
+                            if (action != null) {
+                                action.run();
+                            }
+                        });
     }
 
     private void updateFollowerCount() {
@@ -339,7 +365,10 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
             mBraveNewsController.close();
         }
         mBraveNewsController = null;
-        initBraveNewsController();
+        runOnUiThread(
+                () -> {
+                    initBraveNewsController(null);
+                });
     }
 
     @Override

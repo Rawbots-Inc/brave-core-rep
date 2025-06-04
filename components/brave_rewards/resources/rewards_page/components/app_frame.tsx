@@ -33,6 +33,18 @@ function getCurrentNavRoute(route: string) {
   return routes.home
 }
 
+function scrollRouteContentIntoView(route: string) {
+  const elem = document.querySelector(`[data-app-route="${route}"]`)
+  if (!(elem instanceof HTMLElement) || !elem.offsetParent) {
+    return
+  }
+  elem.offsetParent.scrollTo({
+    top: elem.offsetTop - 16,
+    left: 0,
+    behavior: 'smooth'
+  })
+}
+
 function NavList() {
   const { getString } = useLocaleContext()
   const current = getCurrentNavRoute(useRoute())
@@ -40,7 +52,11 @@ function NavList() {
 
   function onLinkClick(event: React.MouseEvent<HTMLAnchorElement>) {
     event.preventDefault()
-    router.setRoute(event.currentTarget.getAttribute('href') ?? '')
+    const route = event.currentTarget.getAttribute('href')
+    if (route) {
+      router.setRoute(route)
+      scrollRouteContentIntoView(route)
+    }
   }
 
   function renderLink(route: string, icon: string, text: string) {
@@ -87,13 +103,10 @@ function MoreMenu(props: { children: React.ReactNode }) {
   const { getString } = useLocaleContext()
   const tabOpener = React.useContext(TabOpenerContext)
   const eventHub = React.useContext(EventHubContext)
-  const isBubble = useAppState((state) => state.embedder.isBubble)
+  const embedder = useAppState((state) => state.embedder)
+  const hideReset = embedder.isBubble && embedder.platform === 'desktop'
 
   function onReset() {
-    if (isBubble) {
-      tabOpener.openTab(urls.resetURL)
-      return
-    }
     eventHub.dispatch('open-modal', 'reset')
   }
 
@@ -111,7 +124,7 @@ function MoreMenu(props: { children: React.ReactNode }) {
         <span>{getString('helpButtonLabel')}</span>
       </leo-menu-item>
       {
-        !isBubble &&
+        !hideReset &&
           <leo-menu-item class='reset' onClick={onReset}>
             <Icon name='history' />
             <span>{getString('resetRewardsButtonLabel')}</span>
@@ -128,6 +141,7 @@ interface Props {
 function PanelFrame(props: Props) {
   const tabOpener = React.useContext(TabOpenerContext)
   const { getString } = useLocaleContext()
+  const embedder = useAppState((state) => state.embedder)
   const [isScrolled, setIsScrolled] = React.useState(false)
 
   function onExpand() {
@@ -144,11 +158,14 @@ function PanelFrame(props: Props) {
   }
 
   return (
-    <div className='panel-frame' {...style}>
+    <div className='panel-frame' data-css-scope={style.scope}>
       <header className={isScrolled ? 'overlapped' : ''}>
-        <button className='expand-button' onClick={onExpand}>
-          <Icon name='expand' />
-        </button>
+        {
+          embedder.platform === 'desktop' && embedder.isBubble &&
+            <button className='expand-button' onClick={onExpand}>
+              <Icon name='expand' />
+            </button>
+        }
         <h4>{getString('rewardsPageTitle')}</h4>
         <MoreMenu><Icon name='more-vertical' /></MoreMenu>
       </header>
@@ -165,7 +182,7 @@ function PanelFrame(props: Props) {
 function PageFrame(props: Props) {
   const { getString } = useLocaleContext()
   return (
-    <div className='page-frame' {...style}>
+    <div className='page-frame' data-css-scope={style.scope}>
       <div className='sidebar'>
         <header>
           <div className='brave-rewards-logo' />
@@ -195,6 +212,11 @@ function PageFrame(props: Props) {
 
 export function AppFrame(props: Props) {
   const viewType = useBreakpoint()
+  const route = useRoute()
+
+  React.useEffect(() => {
+    scrollRouteContentIntoView(route)
+  }, [])
 
   if (viewType === 'narrow') {
     return <PanelFrame {...props} />

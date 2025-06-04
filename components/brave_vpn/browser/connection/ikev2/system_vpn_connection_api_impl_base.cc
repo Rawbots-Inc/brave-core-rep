@@ -14,6 +14,7 @@
 #include "brave/components/brave_vpn/browser/api/brave_vpn_api_request.h"
 #include "brave/components/brave_vpn/browser/connection/brave_vpn_connection_manager.h"
 #include "brave/components/brave_vpn/browser/connection/brave_vpn_region_data_manager.h"
+#include "brave/components/brave_vpn/common/brave_vpn_constants.h"
 #include "brave/components/brave_vpn/common/brave_vpn_data_types.h"
 #include "brave/components/brave_vpn/common/brave_vpn_utils.h"
 
@@ -310,11 +311,12 @@ void SystemVPNConnectionAPIImplBase::OnGetProfileCredentials(
 
   VLOG(2) << __func__ << " : received profile credential";
 
-  std::optional<base::Value> value = base::JSONReader::Read(profile_credential);
-  if (value && value->is_dict()) {
+  std::optional<base::Value::Dict> value =
+      base::JSONReader::ReadDict(profile_credential);
+  if (value) {
     constexpr char kUsernameKey[] = "eap-username";
     constexpr char kPasswordKey[] = "eap-password";
-    const auto& dict = value->GetDict();
+    const auto& dict = *value;
     const std::string* username = dict.FindString(kUsernameKey);
     const std::string* password = dict.FindString(kPasswordKey);
     if (!username || !password) {
@@ -324,7 +326,8 @@ void SystemVPNConnectionAPIImplBase::OnGetProfileCredentials(
     }
 
     connection_info_.SetConnectionInfo(manager_->target_vpn_entry_name(),
-                                       GetHostname(), *username, *password);
+                                       GetHostname(), *username, *password,
+                                       SmartRoutingEnabled(), kProxyUrl);
     // Let's create os vpn entry with |connection_info_|.
     CreateVPNConnection();
     return;

@@ -19,7 +19,7 @@
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-shared.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_provider.h"
-#include "brave/components/brave_rewards/common/pref_names.h"
+#include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/ntp_background_images/browser/brave_ntp_custom_background_service.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
 #include "brave/components/ntp_background_images/browser/ntp_p3a_helper.h"
@@ -29,6 +29,9 @@
 #include "brave/components/ntp_background_images/common/pref_names.h"
 #include "brave/components/p3a_utils/bucket.h"
 #include "brave/components/time_period_storage/weekly_storage.h"
+#include "components/content_settings/core/browser/host_content_settings_map.h"
+#include "components/content_settings/core/common/content_settings.h"
+#include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/web_ui_data_source.h"
@@ -36,6 +39,8 @@
 
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
 #endif
+
+namespace ntp_background_images {
 
 namespace {
 
@@ -56,8 +61,6 @@ constexpr char kObsoleteCountToBrandedWallpaperPref[] =
 constexpr base::TimeDelta kP3AReportInterval = base::Days(1);
 
 }  // namespace
-
-namespace ntp_background_images {
 
 // static
 void ViewCounterService::RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
@@ -91,23 +94,28 @@ void ViewCounterService::MigrateObsoleteProfilePrefs(PrefService* prefs) {
 }
 
 ViewCounterService::ViewCounterService(
-    NTPBackgroundImagesService* service,
-    BraveNTPCustomBackgroundService* custom_service,
+    HostContentSettingsMap* host_content_settings_map,
+    NTPBackgroundImagesService* background_images_service,
+    BraveNTPCustomBackgroundService* custom_background_service,
     brave_ads::AdsService* ads_service,
     PrefService* prefs,
     PrefService* local_state,
     std::unique_ptr<NTPP3AHelper> ntp_p3a_helper,
     bool is_supported_locale)
-    : service_(service),
+    : host_content_settings_map_(host_content_settings_map),
+      background_images_service_(background_images_service),
       ads_service_(ads_service),
       prefs_(prefs),
       local_state_prefs_(local_state),
       is_supported_locale_(is_supported_locale),
       model_(prefs),
-      custom_bi_service_(custom_service),
+      custom_background_service_(custom_background_service),
       ntp_p3a_helper_(std::move(ntp_p3a_helper)) {
-  DCHECK(service_);
-  ntp_background_images_service_observation_.Observe(service_);
+  DCHECK(background_images_service_);
+  ntp_background_images_service_observation_.Observe(
+      background_images_service_);
+
+  host_content_settings_map_->AddObserver(this);
 
   new_tab_count_state_ =
       std::make_unique<WeeklyStorage>(local_state, kNewTabsCreated);
@@ -120,58 +128,71 @@ ViewCounterService::ViewCounterService(
   pref_change_registrar_.Add(
       brave_rewards::prefs::kEnabled,
       base::BindRepeating(&ViewCounterService::OnPreferenceChanged,
-                          base::Unretained(this)));
-  pref_change_registrar_.Add(prefs::kNewTabPageSuperReferralThemesOption,
+                          weak_ptr_factory_.GetWeakPtr()));
+  pref_change_registrar_.Add(
+      prefs::kNewTabPageSuperReferralThemesOption,
       base::BindRepeating(&ViewCounterService::OnPreferenceChanged,
-      base::Unretained(this)));
+                          weak_ptr_factory_.GetWeakPtr()));
   pref_change_registrar_.Add(
       prefs::kNewTabPageShowSponsoredImagesBackgroundImage,
       base::BindRepeating(&ViewCounterService::OnPreferenceChanged,
-                          base::Unretained(this)));
+                          weak_ptr_factory_.GetWeakPtr()));
   pref_change_registrar_.Add(
       prefs::kNewTabPageShowBackgroundImage,
       base::BindRepeating(&ViewCounterService::OnPreferenceChanged,
-                          base::Unretained(this)));
+                          weak_ptr_factory_.GetWeakPtr()));
 
-  OnUpdated(GetCurrentBrandedWallpaperData());
-  OnUpdated(GetCurrentWallpaperData());
+  OnBackgroundImagesDataDidUpdate(
+      background_images_service_->GetBackgroundImagesData());
+  OnSponsoredImagesDataDidUpdate(GetSponsoredImagesData());
 
   UpdateP3AValues();
 }
 
-ViewCounterService::~ViewCounterService() = default;
+ViewCounterService::~ViewCounterService() {
+  host_content_settings_map_->RemoveObserver(this);
+}
+
+void ViewCounterService::OnContentSettingChanged(
+    const ContentSettingsPattern& /*primary_pattern*/,
+    const ContentSettingsPattern& /*secondary_pattern*/,
+    ContentSettingsTypeSet content_type_set) {
+  if (content_type_set.Contains(ContentSettingsType::JAVASCRIPT)) {
+    ResetModel();
+  }
+}
 
 void ViewCounterService::BrandedWallpaperWillBeDisplayed(
     const std::string& wallpaper_id,
     const std::string& creative_instance_id,
     const std::string& campaign_id) {
-  if (ads_service_) {
-    ads_service_->TriggerNewTabPageAdEvent(
-        wallpaper_id, creative_instance_id,
-        brave_ads::mojom::NewTabPageAdEventType::kViewedImpression,
-        /*intentional*/ base::DoNothing());
-
-    if (ntp_p3a_helper_) {
-      // Should only report to P3A if rewards is disabled, as required by spec.
-      ntp_p3a_helper_->RecordView(creative_instance_id, campaign_id);
-    }
+  if (ntp_p3a_helper_) {
+    // Report P3A viewed impression ad event if Brave Rewards are disabled.
+    ntp_p3a_helper_->RecordView(creative_instance_id, campaign_id);
   }
+
+  MaybeTriggerNewTabPageAdEvent(
+      wallpaper_id, creative_instance_id,
+      brave_ads::mojom::NewTabPageAdEventType::kViewedImpression);
 
   branded_new_tab_count_state_->AddDelta(1);
   UpdateP3AValues();
 }
 
-NTPBackgroundImagesData* ViewCounterService::GetCurrentWallpaperData() const {
-  return service_->GetBackgroundImagesData();
-}
+NTPSponsoredImagesData* ViewCounterService::GetSponsoredImagesData() const {
+  const bool supports_rich_media =
+      host_content_settings_map_->GetDefaultContentSetting(
+          ContentSettingsType::JAVASCRIPT) == CONTENT_SETTING_ALLOW;
 
-NTPSponsoredImagesData* ViewCounterService::GetCurrentBrandedWallpaperData()
-    const {
-  auto* sr_data = service_->GetBrandedImagesData(true /* for_sr */);
-  if (sr_data && IsSuperReferralWallpaperOptedIn())
-    return sr_data;
+  NTPSponsoredImagesData* images_data =
+      background_images_service_->GetSponsoredImagesData(
+          /*super_referral=*/true, supports_rich_media);
+  if (images_data && IsSuperReferralWallpaperOptedIn()) {
+    return images_data;
+  }
 
-  return service_->GetBrandedImagesData(false);
+  return background_images_service_->GetSponsoredImagesData(
+      /*super_referral=*/false, supports_rich_media);
 }
 
 std::optional<base::Value::Dict>
@@ -182,12 +203,13 @@ ViewCounterService::GetNextWallpaperForDisplay() {
 
 std::optional<base::Value::Dict>
 ViewCounterService::GetCurrentWallpaperForDisplay() {
-  if (!ShouldShowBrandedWallpaper()) {
+  if (!ShouldShowSponsoredImages()) {
     return GetCurrentWallpaper();
   }
 
   if (std::optional<base::Value::Dict> branded_wallpaper =
           GetCurrentBrandedWallpaper()) {
+    current_wallpaper_ = branded_wallpaper->Clone();
     return branded_wallpaper;
   }
 
@@ -199,33 +221,33 @@ ViewCounterService::GetCurrentWallpaperForDisplay() {
 
 std::optional<base::Value::Dict> ViewCounterService::GetCurrentWallpaper()
     const {
-  if (!IsBackgroundWallpaperActive())
+  if (!CanShowBackgroundImages()) {
     return std::nullopt;
+  }
 
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
   if (ShouldShowCustomBackground()) {
-    if (auto background = custom_bi_service_->GetBackground();
+    if (auto background = custom_background_service_->GetBackground();
         !background.empty()) {
       return background;
     }
   }
 #endif
 
-  auto* data = GetCurrentWallpaperData();
-  if (!data) {
+  const NTPBackgroundImagesData* const images_data =
+      background_images_service_->GetBackgroundImagesData();
+  if (!images_data) {
     CHECK_IS_TEST();
     return std::nullopt;
   }
 
-  auto background =
-      data->GetBackgroundAt(model_.current_wallpaper_image_index());
-  background.Set(kWallpaperRandomKey, true);
-  return background;
+  return images_data->GetBackgroundAt(model_.current_wallpaper_image_index())
+      .Set(kWallpaperRandomKey, true);
 }
 
 std::optional<base::Value::Dict>
 ViewCounterService::GetCurrentBrandedWallpaper() {
-  NTPSponsoredImagesData* images_data = GetCurrentBrandedWallpaperData();
+  NTPSponsoredImagesData* images_data = GetSponsoredImagesData();
   if (!images_data) {
     return std::nullopt;
   }
@@ -240,14 +262,57 @@ ViewCounterService::GetCurrentBrandedWallpaper() {
   return GetNextBrandedWallpaperWhichMatchesConditions();
 }
 
+void ViewCounterService::GetCurrentBrandedWallpaper(
+    base::OnceCallback<
+        void(const std::optional<GURL>& url,
+             const std::optional<std::string>& placement_id,
+             const std::optional<std::string>& creative_instance_id,
+             const std::optional<GURL>& target_url)> callback) const {
+  auto failed = [&callback]() {
+    std::move(callback).Run(/*url=*/std::nullopt,
+                            /*placement_id=*/std::nullopt,
+                            /*creative_instance_id=*/std::nullopt,
+                            /*target_url=*/std::nullopt);
+  };
+
+  if (!current_wallpaper_) {
+    return failed();
+  }
+
+  const std::string* const url =
+      current_wallpaper_->FindString(ntp_background_images::kWallpaperURLKey);
+  if (!url) {
+    return failed();
+  }
+
+  const std::string* const creative_instance_id =
+      current_wallpaper_->FindString(
+          ntp_background_images::kCreativeInstanceIDKey);
+  if (!creative_instance_id) {
+    return failed();
+  }
+
+  const std::string* const placement_id =
+      current_wallpaper_->FindString(ntp_background_images::kWallpaperIDKey);
+  if (!placement_id) {
+    return failed();
+  }
+
+  const std::string* const target_url =
+      current_wallpaper_->FindStringByDottedPath(
+          ntp_background_images::kLogoDestinationURLPath);
+  if (!target_url) {
+    return failed();
+  }
+
+  std::move(callback).Run(GURL(*url), *placement_id, *creative_instance_id,
+                          GURL(*target_url));
+}
+
 std::optional<brave_ads::ConditionMatcherMap>
 ViewCounterService::GetConditionMatchers(const base::Value::Dict& dict) {
-  // For non-Rewards users, condition matchers should be included in the
-  // "photo.json" file under the NTP (New Tab Page) sponsored images component,
-  // within "campaigns2", falling back to "campaigns", or the root "campaign"
-  // for backwards compatibility.
-
-  const auto* const list = dict.FindList(kWallpaperConditionMatchersKey);
+  const base::Value::List* const list =
+      dict.FindList(kWallpaperConditionMatchersKey);
   if (!list || list->empty()) {
     return std::nullopt;
   }
@@ -255,16 +320,19 @@ ViewCounterService::GetConditionMatchers(const base::Value::Dict& dict) {
   brave_ads::ConditionMatcherMap condition_matchers;
 
   for (const auto& value : *list) {
-    const auto& condition_matcher = value.GetDict();
+    const base::Value::Dict* condition_matcher_dict = value.GetIfDict();
+    if (!condition_matcher_dict) {
+      continue;
+    }
 
-    const auto* const pref_path =
-        condition_matcher.FindString(kWallpaperConditionMatcherPrefPathKey);
+    const std::string* const pref_path = condition_matcher_dict->FindString(
+        kWallpaperConditionMatcherPrefPathKey);
     if (!pref_path) {
       continue;
     }
 
-    const auto* const condition =
-        condition_matcher.FindString(kWallpaperConditionMatcherKey);
+    const std::string* const condition =
+        condition_matcher_dict->FindString(kWallpaperConditionMatcherKey);
     if (!condition) {
       continue;
     }
@@ -327,34 +395,40 @@ ViewCounterService::GetCurrentBrandedWallpaperFromAdInfo() const {
   DCHECK(ads_service_);
 
   const std::optional<brave_ads::NewTabPageAdInfo> ad =
-      ads_service_->MaybeGetPrefetchedNewTabPageAdForDisplay();
+      ads_service_->MaybeGetPrefetchedNewTabPageAd();
   if (!ad) {
     return std::nullopt;
   }
 
-  std::optional<base::Value::Dict> branded_wallpaper_data =
-      GetCurrentBrandedWallpaperData()->GetBackgroundFromAdInfo(*ad);
-  if (!branded_wallpaper_data) {
+  NTPSponsoredImagesData* images_data = GetSponsoredImagesData();
+  if (!images_data) {
+    return std::nullopt;
+  }
+
+  std::optional<base::Value::Dict> background = images_data->GetBackground(*ad);
+  if (!background) {
     ads_service_->OnFailedToPrefetchNewTabPageAd(ad->placement_id,
                                                  ad->creative_instance_id);
   }
 
-  return branded_wallpaper_data;
+  return background;
 }
 
 std::optional<base::Value::Dict>
 ViewCounterService::GetCurrentBrandedWallpaperFromModel() const {
   size_t current_campaign_index;
-  size_t current_background_index;
-  std::tie(current_campaign_index, current_background_index) =
+  size_t current_creative_index;
+  std::tie(current_campaign_index, current_creative_index) =
       model_.GetCurrentBrandedImageIndex();
-  return GetCurrentBrandedWallpaperData()->GetBackgroundAt(
-      current_campaign_index, current_background_index);
+  return GetSponsoredImagesData()->GetBackgroundAt(current_campaign_index,
+                                                   current_creative_index);
 }
 
 std::vector<TopSite> ViewCounterService::GetTopSitesData() const {
-  if (auto* data = GetCurrentBrandedWallpaperData())
-    return data->top_sites;
+  if (const NTPSponsoredImagesData* const images_data =
+          GetSponsoredImagesData()) {
+    return images_data->top_sites;
+  }
 
   return {};
 }
@@ -363,24 +437,44 @@ void ViewCounterService::Shutdown() {
   ntp_background_images_service_observation_.Reset();
 }
 
-void ViewCounterService::OnUpdated(NTPBackgroundImagesData* data) {
+void ViewCounterService::OnBackgroundImagesDataDidUpdate(
+    NTPBackgroundImagesData* data) {
   if (data) {
     DVLOG(2) << __func__ << ": NTP BI component is updated.";
     ResetModel();
   }
 }
 
-void ViewCounterService::OnUpdated(NTPSponsoredImagesData* data) {
+void ViewCounterService::OnSponsoredImagesDataDidUpdate(
+    NTPSponsoredImagesData* data) {
   if (data) {
     DVLOG(2) << __func__ << ": NTP SI/SR component is updated.";
     ResetModel();
   }
 }
 
-void ViewCounterService::OnSuperReferralEnded() {
+void ViewCounterService::OnSponsoredContentDidUpdate(
+    const base::Value::Dict& data) {
+  if (ads_service_) {
+    ads_service_->ParseAndSaveCreativeNewTabPageAds(
+        data,
+        base::BindOnce(
+            &ViewCounterService::ParseAndSaveCreativeNewTabPageAdsCallback,
+            weak_ptr_factory_.GetWeakPtr()));
+  }
+}
+
+void ViewCounterService::OnSuperReferralCampaignDidEnd() {
   // Need to reset model because SI images are shown only for every 4th NTP but
   // we've shown SR images for every NTP.
   ResetModel();
+}
+
+void ViewCounterService::ParseAndSaveCreativeNewTabPageAdsCallback(
+    bool success) {
+  if (success) {
+    MaybePrefetchNewTabPageAd();
+  }
 }
 
 void ViewCounterService::ResetModel() {
@@ -390,20 +484,22 @@ void ViewCounterService::ResetModel() {
   model_.set_show_wallpaper(
       prefs_->GetBoolean(prefs::kNewTabPageShowBackgroundImage));
 
-  // SR/SI
-  if (auto* data = GetCurrentBrandedWallpaperData()) {
+  if (const NTPSponsoredImagesData* const images_data =
+          GetSponsoredImagesData()) {
     std::vector<size_t> campaigns_total_branded_images_count;
-    for (const auto& campaign : data->campaigns) {
-      campaigns_total_branded_images_count.push_back(
-          campaign.backgrounds.size());
+    campaigns_total_branded_images_count.reserve(images_data->campaigns.size());
+    for (const auto& campaign : images_data->campaigns) {
+      campaigns_total_branded_images_count.push_back(campaign.creatives.size());
     }
-    model_.set_always_show_branded_wallpaper(data->IsSuperReferral());
+    model_.set_always_show_branded_wallpaper(images_data->IsSuperReferral());
     model_.SetCampaignsTotalBrandedImageCount(
         campaigns_total_branded_images_count);
   }
-  // BI
-  if (auto* data = GetCurrentWallpaperData()) {
-    model_.set_total_image_count(data->backgrounds.size());
+
+  if (const NTPBackgroundImagesData* const images_data =
+          background_images_service_->GetBackgroundImagesData()) {
+    model_.set_total_image_count(
+        static_cast<int>(images_data->backgrounds.size()));
   }
 }
 
@@ -433,37 +529,46 @@ void ViewCounterService::RegisterPageView() {
   new_tab_count_state_->AddDelta(1);
   UpdateP3AValues();
   // This will be no-op when component is not ready.
-  service_->CheckNTPSIComponentUpdateIfNeeded();
+  background_images_service_->MaybeCheckForSponsoredComponentUpdate();
   model_.RegisterPageView();
   MaybePrefetchNewTabPageAd();
 }
 
 void ViewCounterService::BrandedWallpaperLogoClicked(
     const std::string& creative_instance_id,
-    const std::string& destination_url,
+    const std::string& /*destination_url*/,
     const std::string& wallpaper_id) {
-  if (!ads_service_) {
-    return;
+  if (ntp_p3a_helper_) {
+    // Report P3A clicked ad event to if Brave Rewards are disabled.
+    ntp_p3a_helper_->RecordNewTabPageAdEvent(
+        brave_ads::mojom::NewTabPageAdEventType::kClicked,
+        creative_instance_id);
   }
 
-  ads_service_->TriggerNewTabPageAdEvent(
+  MaybeTriggerNewTabPageAdEvent(
       wallpaper_id, creative_instance_id,
-      brave_ads::mojom::NewTabPageAdEventType::kClicked,
-      /*intentional*/ base::DoNothing());
+      brave_ads::mojom::NewTabPageAdEventType::kClicked);
+}
 
-  if (ntp_p3a_helper_) {
-    // Should only report to P3A if ads are disabled, as required by spec.
-    ntp_p3a_helper_->RecordClickAndMaybeLand(creative_instance_id);
+void ViewCounterService::MaybeTriggerNewTabPageAdEvent(
+    const std::string& placement_id,
+    const std::string& creative_instance_id,
+    brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type) {
+  if (ads_service_) {
+    ads_service_->TriggerNewTabPageAdEvent(placement_id, creative_instance_id,
+                                           mojom_ad_event_type,
+                                           /*intentional*/ base::DoNothing());
   }
 }
 
-bool ViewCounterService::ShouldShowBrandedWallpaper() const {
-  return IsBrandedWallpaperActive() && model_.ShouldShowBrandedWallpaper();
+bool ViewCounterService::ShouldShowSponsoredImages() const {
+  return CanShowSponsoredImages() && model_.ShouldShowSponsoredImages();
 }
 
 bool ViewCounterService::ShouldShowCustomBackground() const {
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
-  return custom_bi_service_ && custom_bi_service_->ShouldShowCustomBackground();
+  return custom_background_service_ &&
+         custom_background_service_->ShouldShowCustomBackground();
 #else
   return false;
 #endif
@@ -480,31 +585,35 @@ void ViewCounterService::OnTabURLChanged(const GURL& url) {
   }
 }
 
-bool ViewCounterService::IsBrandedWallpaperActive() const {
-  if (!GetCurrentBrandedWallpaperData()) {
+bool ViewCounterService::CanShowSponsoredImages() const {
+  if (!GetSponsoredImagesData()) {
     return false;
   }
 
   // We show SR regardless of ntp background images option because SR works
   // like theme.
-  if (GetCurrentBrandedWallpaperData()->IsSuperReferral() &&
-      IsSuperReferralWallpaperOptedIn())
+  if (GetSponsoredImagesData()->IsSuperReferral() &&
+      IsSuperReferralWallpaperOptedIn()) {
     return true;
+  }
 
   // We don't show SI if user disables bg image.
-  if (!prefs_->GetBoolean(prefs::kNewTabPageShowBackgroundImage))
+  if (!prefs_->GetBoolean(prefs::kNewTabPageShowBackgroundImage)) {
     return false;
+  }
 
   return IsSponsoredImagesWallpaperOptedIn();
 }
 
-bool ViewCounterService::IsBackgroundWallpaperActive() const {
+bool ViewCounterService::CanShowBackgroundImages() const {
 #if !BUILDFLAG(IS_ANDROID)
-  if (!prefs_->GetBoolean(prefs::kNewTabPageShowBackgroundImage))
+  if (!prefs_->GetBoolean(prefs::kNewTabPageShowBackgroundImage)) {
     return false;
+  }
 #endif
 
-  return !!GetCurrentWallpaperData() || ShouldShowCustomBackground();
+  return !!background_images_service_->GetBackgroundImagesData() ||
+         ShouldShowCustomBackground();
 }
 
 bool ViewCounterService::IsSponsoredImagesWallpaperOptedIn() const {
@@ -519,20 +628,20 @@ bool ViewCounterService::IsSuperReferralWallpaperOptedIn() const {
 }
 
 bool ViewCounterService::IsSuperReferral() const {
-  return service_->IsSuperReferral();
+  return background_images_service_->IsSuperReferral();
 }
 
 std::string ViewCounterService::GetSuperReferralThemeName() const {
-  return service_->GetSuperReferralThemeName();
+  return background_images_service_->GetSuperReferralThemeName();
 }
 
 std::string ViewCounterService::GetSuperReferralCode() const {
-  return service_->GetSuperReferralCode();
+  return background_images_service_->GetSuperReferralCode();
 }
 
 void ViewCounterService::MaybePrefetchNewTabPageAd() {
-  NTPSponsoredImagesData* images_data = GetCurrentBrandedWallpaperData();
-  if (!ads_service_ || !IsBrandedWallpaperActive() ||
+  NTPSponsoredImagesData* images_data = GetSponsoredImagesData();
+  if (!ads_service_ || !CanShowSponsoredImages() ||
       !prefs_->GetBoolean(brave_rewards::prefs::kEnabled) || !images_data ||
       images_data->IsSuperReferral()) {
     return;
@@ -545,7 +654,7 @@ void ViewCounterService::UpdateP3AValues() {
   uint64_t new_tab_count = new_tab_count_state_->GetHighestValueInWeek();
   p3a_utils::RecordToHistogramBucket(kNewTabsCreatedHistogramName,
                                      kNewTabsCreatedMetricBuckets,
-                                     new_tab_count);
+                                     static_cast<int>(new_tab_count));
 
   uint64_t branded_new_tab_count =
       branded_new_tab_count_state_->GetHighestValueInWeek();
@@ -553,8 +662,9 @@ void ViewCounterService::UpdateP3AValues() {
     UMA_HISTOGRAM_EXACT_LINEAR(kSponsoredNewTabsHistogramName, 0,
                                std::size(kSponsoredNewTabsBuckets) + 1);
   } else {
-    double ratio = (branded_new_tab_count /
-                    static_cast<double>(new_tab_count)) * 100;
+    double ratio = (static_cast<double>(branded_new_tab_count) /
+                    static_cast<double>(new_tab_count)) *
+                   100;
     p3a_utils::RecordToHistogramBucket(kSponsoredNewTabsHistogramName,
                                        kSponsoredNewTabsBuckets,
                                        static_cast<int>(ratio));
@@ -562,7 +672,7 @@ void ViewCounterService::UpdateP3AValues() {
 
   p3a_update_timer_.Start(FROM_HERE, base::Time::Now() + kP3AReportInterval,
                           base::BindOnce(&ViewCounterService::UpdateP3AValues,
-                                         base::Unretained(this)));
+                                         weak_ptr_factory_.GetWeakPtr()));
 }
 
 }  // namespace ntp_background_images

@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "brave/browser/brave_ads/ads_service_factory.h"
-#include "brave/browser/brave_federated/brave_federated_service_factory.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/browser/brave_wallet/brave_wallet_service_factory.h"
 #include "brave/browser/misc_metrics/profile_misc_metrics_service_factory.h"
@@ -20,6 +19,7 @@
 #include "brave/browser/url_sanitizer/url_sanitizer_service_factory.h"
 #include "brave/components/brave_shields/content/browser/brave_shields_p3a.h"
 #include "brave/components/brave_shields/content/browser/brave_shields_util.h"
+#include "brave/components/brave_webtorrent/browser/buildflags/buildflags.h"
 #include "brave/components/constants/pref_names.h"
 #include "brave/components/content_settings/core/browser/brave_content_settings_pref_provider.h"
 #include "brave/components/ntp_background_images/browser/ntp_p3a_util.h"
@@ -135,6 +135,9 @@ void BraveProfileManager::InitProfileUserPrefs(Profile* profile) {
   ProfileManager::InitProfileUserPrefs(profile);
   RecordInitialP3AValues(profile);
   brave::SetDefaultSearchVersion(profile, profile->IsNewProfile());
+#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
+  brave::SetWebTorrentEnabled(profile, profile->IsNewProfile());
+#endif
   brave::SetDefaultThirdPartyCookieBlockValue(profile);
   perf::MaybeEnableBraveFeatureForPerfTesting(profile);
   MigrateHttpsUpgradeSettings(profile);
@@ -154,7 +157,6 @@ void BraveProfileManager::DoFinalInitForServices(Profile* profile,
   DCHECK(status);
   status->UpdateGCMDriverStatus();
 #endif
-  brave_federated::BraveFederatedServiceFactory::GetForBrowserContext(profile);
   brave::URLSanitizerServiceFactory::GetForBrowserContext(profile);
   misc_metrics::ProfileMiscMetricsServiceFactory::GetServiceForContext(profile);
 #if BUILDFLAG(ENABLE_REQUEST_OTR)
@@ -214,8 +216,7 @@ void BraveProfileManager::MigrateProfileNames() {
         !storage.IsDefaultProfileName(
             entry->GetName(),
             /*include_check_for_legacy_profile_name=*/false)) {
-      auto icon_index = entry->GetAvatarIconIndex();
-      entry->SetLocalProfileName(storage.ChooseNameForNewProfile(icon_index),
+      entry->SetLocalProfileName(storage.ChooseNameForNewProfile(),
                                  /*is_default_name=*/true);
     }
   }

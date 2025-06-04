@@ -29,14 +29,16 @@ module.exports = function RunCommand (options) {
   const v8Dir = path.join(config.srcDir, 'v8')
   const catapultDir = path.join(config.srcDir, 'third_party', 'catapult')
   const devtoolsFrontendDir = path.join(config.srcDir, 'third_party', 'devtools-frontend', 'src')
-  const ffmpegDir = path.join(config.srcDir, 'third_party', 'ffmpeg')
   const tfliteDir = path.join(config.srcDir, 'third_party', 'tflite', 'src')
+  const searchEngineDataDir = path.join(
+      config.srcDir, 'third_party', 'search_engines_data', 'resources')
   const patchDir = path.join(config.braveCoreDir, 'patches')
   const v8PatchDir = path.join(patchDir, 'v8')
   const catapultPatchDir = path.join(patchDir, 'third_party', 'catapult')
   const devtoolsFrontendPatchDir = path.join(patchDir, 'third_party', 'devtools-frontend', 'src')
-  const ffmpegPatchDir = path.join(patchDir, 'third_party', 'ffmpeg')
   const tflitePatchDir = path.join(patchDir, 'third_party', 'tflite', 'src')
+  const searchEngineDataPatchDir =
+      path.join(patchDir, 'third_party', 'search_engines_data', 'resources')
 
   Promise.all([
     // chromium
@@ -47,10 +49,10 @@ module.exports = function RunCommand (options) {
     updatePatches(catapultDir, catapultPatchDir),
     // third_party/devtools-frontend/src
     updatePatches(devtoolsFrontendDir, devtoolsFrontendPatchDir),
-    // third_party/ffmpeg
-    updatePatches(ffmpegDir, ffmpegPatchDir),
     // third_party/tflite/src
-    updatePatches(tfliteDir, tflitePatchDir)
+    updatePatches(tfliteDir, tflitePatchDir),
+    // third_party/search_engines_data
+    updatePatches(searchEngineDataDir, searchEngineDataPatchDir),
   ])
   .then(() => {
     console.log('Done.')

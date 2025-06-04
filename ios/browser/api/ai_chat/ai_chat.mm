@@ -58,8 +58,8 @@
     profile_ = profile;
     delegate_ = delegate;
 
-    model_service_ = ai_chat::ModelServiceFactory::GetForBrowserState(profile_);
-    service_ = ai_chat::AIChatServiceFactory::GetForBrowserState(profile_);
+    model_service_ = ai_chat::ModelServiceFactory::GetForProfile(profile_);
+    service_ = ai_chat::AIChatServiceFactory::GetForProfile(profile_);
 
     current_content_ = std::make_unique<ai_chat::AssociatedContentDriverIOS>(
         profile_->GetSharedURLLoaderFactory(), delegate);
@@ -110,12 +110,11 @@
 
 - (void)submitHumanConversationEntry:(NSString*)text {
   current_conversation_->SubmitHumanConversationEntry(
-      ai_chat::mojom::ConversationTurn::New(
-          std::nullopt, ai_chat::mojom::CharacterType::HUMAN,
-          ai_chat::mojom::ActionType::UNSPECIFIED,
-          ai_chat::mojom::ConversationTurnVisibility::VISIBLE,
-          base::SysNSStringToUTF8(text), std::nullopt, std::nullopt,
-          base::Time::Now(), std::nullopt, false));
+      base::SysNSStringToUTF8(text), std::nullopt);
+}
+
+- (void)submitSuggestion:(NSString*)text {
+  current_conversation_->SubmitSuggestion(base::SysNSStringToUTF8(text));
 }
 
 - (void)submitSummarizationRequest {

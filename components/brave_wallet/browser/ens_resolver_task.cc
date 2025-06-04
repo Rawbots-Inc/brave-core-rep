@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_wallet/browser/ens_resolver_task.h"
 
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <utility>
@@ -13,7 +14,6 @@
 #include "base/containers/contains.h"
 #include "base/json/json_writer.h"
 #include "base/no_destructor.h"
-#include "base/ranges/algorithm.h"
 #include "base/strings/string_util.h"
 #include "base/values.h"
 #include "brave/components/api_request_helper/api_request_helper.h"
@@ -545,14 +545,12 @@ void EnsResolverTask::OnFetchOffchainDone(APIRequestResult api_request_result) {
 
   offchain_lookup_attemps_left_--;
   DCHECK_GE(offchain_lookup_attemps_left_, 0);
-  DCHECK_EQ(offchain_lookup_data_->callback_function.size(), 4u);
-  UNSAFE_TODO(eth_abi::Span4 callback_selector(
-      offchain_lookup_data_->callback_function.begin(), 4u));
 
-  offchain_callback_call_ = eth_abi::TupleEncoder()
-                                .AddBytes(*bytes_result)
-                                .AddBytes(offchain_lookup_data_->extra_data)
-                                .EncodeWithSelector(callback_selector);
+  offchain_callback_call_ =
+      eth_abi::TupleEncoder()
+          .AddBytes(*bytes_result)
+          .AddBytes(offchain_lookup_data_->extra_data)
+          .EncodeWithSelector(offchain_lookup_data_->callback_function);
 
   offchain_lookup_data_.reset();
 }

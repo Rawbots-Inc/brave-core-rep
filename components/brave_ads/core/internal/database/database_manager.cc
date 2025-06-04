@@ -50,6 +50,8 @@ void DatabaseManager::RemoveObserver(DatabaseManagerObserver* const observer) {
 }
 
 void DatabaseManager::CreateOrOpen(ResultCallback callback) {
+  CHECK(callback);
+
   NotifyWillCreateOrOpenDatabase();
 
   mojom::DBTransactionInfoPtr mojom_db_transaction =
@@ -58,21 +60,37 @@ void DatabaseManager::CreateOrOpen(ResultCallback callback) {
   mojom_db_action->type = mojom::DBActionInfo::Type::kInitialize;
   mojom_db_transaction->actions.push_back(std::move(mojom_db_action));
 
-  RunDBTransaction(
+  RunTransaction(
       std::move(mojom_db_transaction),
       base::BindOnce(&DatabaseManager::CreateOrOpenCallback,
-                     weak_factory_.GetWeakPtr(), std::move(callback)));
+                     weak_factory_.GetWeakPtr(), std::move(callback)),
+      /*trace_id=*/0);
 }
 
-void DatabaseManager::RunDBTransaction(
+void DatabaseManager::RunTransaction(
     mojom::DBTransactionInfoPtr mojom_db_transaction,
-    RunDBTransactionCallback callback) {
+    RunDBTransactionCallback callback,
+    uint64_t trace_id) {
   CHECK(mojom_db_transaction);
   CHECK(callback);
 
-  database_.AsyncCall(&Database::RunDBTransaction)
-      .WithArgs(std::move(mojom_db_transaction))
-      .Then(std::move(callback));
+  // Wrap `callback` with `DatabaseManager::OnRunTransactionCallback` to ensure
+  // it's not called after `DatabaseManager` deletion.
+  database_.AsyncCall(&Database::RunTransaction)
+      .WithArgs(std::move(mojom_db_transaction), trace_id)
+      .Then(base::BindOnce(&DatabaseManager::OnRunTransactionCallback,
+                           weak_factory_.GetWeakPtr(), std::move(callback)));
+}
+
+void DatabaseManager::Shutdown(ShutdownCallback callback) {
+  CHECK(callback);
+
+  // Wrap `callback` with `DatabaseManager::OnShutdownCallback` to ensure it's
+  // not called after `DatabaseManager` deletion.
+  database_.AsyncCall(&Database::Poison)
+      .Then(base::BindOnce(&DatabaseManager::OnShutdownCallback,
+                           weak_factory_.GetWeakPtr(), std::move(callback),
+                           /*success=*/true));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -80,7 +98,7 @@ void DatabaseManager::RunDBTransaction(
 void DatabaseManager::CreateOrOpenCallback(
     ResultCallback callback,
     mojom::DBTransactionResultInfoPtr mojom_db_transaction_result) {
-  if (database::IsError(mojom_db_transaction_result)) {
+  if (!database::IsTransactionSuccessful(mojom_db_transaction_result)) {
     BLOG(0, "Failed to create or open database");
 
     NotifyFailedToCreateOrOpenDatabase();
@@ -110,6 +128,20 @@ void DatabaseManager::CreateOrOpenCallback(
   MaybeMigrate(from_version, std::move(callback));
 }
 
+void DatabaseManager::OnRunTransactionCallback(
+    RunDBTransactionCallback callback,
+    mojom::DBTransactionResultInfoPtr mojom_db_transaction_result) {
+  CHECK(callback);
+  CHECK(mojom_db_transaction_result);
+  std::move(callback).Run(std::move(mojom_db_transaction_result));
+}
+
+void DatabaseManager::OnShutdownCallback(ShutdownCallback callback,
+                                         bool success) {
+  CHECK(callback);
+  std::move(callback).Run(success);
+}
+
 void DatabaseManager::Create(ResultCallback callback) const {
   BLOG(1, "Create database for schema version " << database::kVersionNumber);
 
@@ -121,11 +153,11 @@ void DatabaseManager::Create(ResultCallback callback) const {
 void DatabaseManager::CreateCallback(ResultCallback callback,
                                      bool success) const {
   if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
+    // TODO(https://github.com/brave/brave-browser/issues/43317): Failed to
+    // create database.
+    SCOPED_CRASH_KEY_STRING64("Issue43317", "failure_reason",
                               "Failed to create database");
-    SCOPED_CRASH_KEY_NUMBER("Issue32066", "sqlite_schema_version",
+    SCOPED_CRASH_KEY_NUMBER("Issue43317", "sqlite_schema_version",
                             database::kVersionNumber);
     base::debug::DumpWithoutCrashing();
 
@@ -158,11 +190,11 @@ void DatabaseManager::RazeAndCreateCallback(ResultCallback callback,
                                             int from_version,
                                             bool success) const {
   if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
+    // TODO(https://github.com/brave/brave-browser/issues/43331): Failed to raze
+    // database.
+    SCOPED_CRASH_KEY_STRING64("Issue43331", "failure_reason",
                               "Failed to raze database");
-    SCOPED_CRASH_KEY_NUMBER("Issue32066", "from_sqlite_schema_version",
+    SCOPED_CRASH_KEY_NUMBER("Issue43331", "from_sqlite_schema_version",
                             from_version);
     base::debug::DumpWithoutCrashing();
 
@@ -212,13 +244,13 @@ void DatabaseManager::MigrateFromVersionCallback(int from_version,
   const int to_version = database::kVersionNumber;
 
   if (!success) {
-    // TODO(https://github.com/brave/brave-browser/issues/32066): Detect
-    // potential defects using `DumpWithoutCrashing`.
-    SCOPED_CRASH_KEY_NUMBER("Issue32066", "from_sqlite_schema_version",
+    // TODO(https://github.com/brave/brave-browser/issues/43326): Database
+    // migration failed.
+    SCOPED_CRASH_KEY_NUMBER("Issue43326", "from_sqlite_schema_version",
                             from_version);
-    SCOPED_CRASH_KEY_NUMBER("Issue32066", "to_sqlite_schema_version",
+    SCOPED_CRASH_KEY_NUMBER("Issue43326", "to_sqlite_schema_version",
                             to_version);
-    SCOPED_CRASH_KEY_STRING64("Issue32066", "failure_reason",
+    SCOPED_CRASH_KEY_STRING64("Issue43326", "failure_reason",
                               "Database migration failed");
     base::debug::DumpWithoutCrashing();
 

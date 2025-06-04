@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include <algorithm>
 #include <optional>
 
 #include "base/functional/bind.h"
@@ -12,6 +13,7 @@
 #include "base/strings/strcat.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/test/bind.h"
+#include "base/test/run_until.h"
 #include "base/test/scoped_feature_list.h"
 #include "brave/app/brave_command_ids.h"
 #include "brave/browser/ui/brave_browser.h"
@@ -21,6 +23,7 @@
 #include "brave/browser/ui/sidebar/sidebar_service_factory.h"
 #include "brave/browser/ui/sidebar/sidebar_utils.h"
 #include "brave/browser/ui/tabs/features.h"
+#include "brave/browser/ui/tabs/split_view_browser_data.h"
 #include "brave/browser/ui/views/frame/brave_browser_view.h"
 #include "brave/browser/ui/views/side_panel/brave_side_panel.h"
 #include "brave/browser/ui/views/side_panel/brave_side_panel_resize_widget.h"
@@ -71,7 +74,7 @@ namespace sidebar {
 
 class SidebarBrowserTest : public InProcessBrowserTest {
  public:
-  SidebarBrowserTest() = default;
+  SidebarBrowserTest() : scoped_features_(tabs::features::kBraveSplitView) {}
   ~SidebarBrowserTest() override = default;
 
   void PreRunTestOnMainThread() override {
@@ -272,17 +275,18 @@ class SidebarBrowserTest : public InProcessBrowserTest {
   int GetFirstPanelItemIndex() {
     auto const items = model()->GetAllSidebarItems();
     auto const iter =
-        base::ranges::find(items, true, &SidebarItem::open_in_panel);
+        std::ranges::find(items, true, &SidebarItem::open_in_panel);
     return std::distance(items.cbegin(), iter);
   }
 
   int GetFirstWebItemIndex() {
     const auto items = model()->GetAllSidebarItems();
     auto const iter =
-        base::ranges::find(items, false, &SidebarItem::open_in_panel);
+        std::ranges::find(items, false, &SidebarItem::open_in_panel);
     return std::distance(items.cbegin(), iter);
   }
 
+  base::test::ScopedFeatureList scoped_features_;
   raw_ptr<views::View, DanglingUntriaged> item_added_bubble_anchor_ = nullptr;
   std::unique_ptr<base::RunLoop> run_loop_;
   base::WeakPtrFactory<SidebarBrowserTest> weak_factory_{this};
@@ -396,15 +400,15 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, WebTypePanelTest) {
   // activated.
   auto items = model()->GetAllSidebarItems();
   auto iter =
-      base::ranges::find(items, GURL("chrome://settings/"), &SidebarItem::url);
+      std::ranges::find(items, GURL("chrome://settings/"), &SidebarItem::url);
   EXPECT_NE(items.end(), iter);
   controller()->ActivateItemAt(std::distance(items.begin(), iter));
   EXPECT_EQ(0, tab_model()->active_index());
   EXPECT_EQ(tab_model()->GetWebContentsAt(0)->GetVisibleURL(), iter->url);
 
   // Activate second sidebar item(wallet) and check it's loaded at current tab.
-  iter = base::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
-                            &SidebarItem::built_in_item_type);
+  iter = std::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
+                           &SidebarItem::built_in_item_type);
   EXPECT_NE(items.end(), iter);
   controller()->ActivateItemAt(std::distance(items.begin(), iter));
   EXPECT_EQ(0, tab_model()->active_index());
@@ -417,8 +421,8 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, IterateBuiltInWebTypeTest) {
   // Click builtin wallet item and it's loaded at current active tab.
   const auto items = model()->GetAllSidebarItems();
   const auto wallet_item_iter =
-      base::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
-                         &SidebarItem::built_in_item_type);
+      std::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
+                        &SidebarItem::built_in_item_type);
   ASSERT_NE(wallet_item_iter, items.cend());
   const int wallet_item_index = std::distance(items.cbegin(), wallet_item_iter);
   auto wallet_item = model()->GetAllSidebarItems()[wallet_item_index];
@@ -580,20 +584,44 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, EventDetectWidgetTest) {
   auto* widget = GetEventDetectWidget();
   auto* service = SidebarServiceFactory::GetForProfile(browser()->profile());
   auto* browser_view = BrowserView::GetBrowserViewForBrowser(browser());
-  auto* contents_container = browser_view->contents_container();
+  auto* contents_container =
+      BraveBrowserView::From(browser_view)->GetContentsBoundingView();
   auto* prefs = browser()->profile()->GetPrefs();
+  auto* sidebar_container = GetSidebarContainerView();
 
   // Check widget is located on left side when sidebar on left.
   prefs->SetBoolean(prefs::kSidePanelHorizontalAlignment, false);
   service->SetSidebarShowOption(
       SidebarService::ShowSidebarOption::kShowOnMouseOver);
+  ASSERT_TRUE(
+      base::test::RunUntil([&]() { return sidebar_container->width() == 0; }));
   EXPECT_EQ(contents_container->GetBoundsInScreen().x(),
             widget->GetWindowBoundsInScreen().x());
 
   // Check widget is located on right side when sidebar on right.
   prefs->SetBoolean(prefs::kSidePanelHorizontalAlignment, true);
+  ASSERT_TRUE(
+      base::test::RunUntil([&]() { return sidebar_container->width() == 0; }));
   EXPECT_EQ(contents_container->GetBoundsInScreen().right(),
             widget->GetWindowBoundsInScreen().right());
+
+  auto* tab_strip_model = browser()->tab_strip_model();
+  brave::NewSplitViewForTab(browser());
+  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser());
+  ASSERT_TRUE(split_view_data);
+  ASSERT_TRUE(split_view_data->IsTabTiled(
+      tab_strip_model->GetTabAtIndex(0)->GetHandle()));
+  ASSERT_TRUE(split_view_data->IsTabTiled(
+      tab_strip_model->GetTabAtIndex(1)->GetHandle()));
+
+  // Check event detect widget position with split view.
+  EXPECT_EQ(contents_container->GetBoundsInScreen().right(),
+            widget->GetWindowBoundsInScreen().right());
+  prefs->SetBoolean(prefs::kSidePanelHorizontalAlignment, false);
+  ASSERT_TRUE(
+      base::test::RunUntil([&]() { return sidebar_container->width() == 0; }));
+  EXPECT_EQ(contents_container->GetBoundsInScreen().x(),
+            widget->GetWindowBoundsInScreen().x());
 }
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, HideSidebarUITest) {
@@ -850,8 +878,8 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest,
   auto* panel_ui = browser()->GetFeatures().side_panel_ui();
   const auto items = model()->GetAllSidebarItems();
   const auto wallet_item_iter =
-      base::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
-                         &SidebarItem::built_in_item_type);
+      std::ranges::find(items, SidebarItem::BuiltInItemType::kWallet,
+                        &SidebarItem::built_in_item_type);
   ASSERT_NE(wallet_item_iter, items.cend());
   const int wallet_item_index = std::distance(items.cbegin(), wallet_item_iter);
   SidebarServiceFactory::GetForProfile(browser()->profile())
@@ -879,7 +907,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, TabSpecificAndGlobalPanelsTest) {
   tab_model()->ActivateTabAt(0);
   ASSERT_TRUE(
       ui_test_utils::NavigateToURL(browser(), GURL("chrome://new-tab-page/")));
-  panel_ui->Show(SidePanelEntryId::kCustomizeChrome);
+  panel_ui->Show(SidePanelEntryId::kChatUI);
   WaitUntil(base::BindLambdaForTesting(
       [&]() { return GetSidePanel()->GetVisible(); }));
 
@@ -896,7 +924,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, TabSpecificAndGlobalPanelsTest) {
   // Contextual panel should be set when activate tab at 0.
   tab_model()->ActivateTabAt(0);
   WaitUntil(base::BindLambdaForTesting([&]() {
-    return panel_ui->GetCurrentEntryId() == SidePanelEntryId::kCustomizeChrome;
+    return panel_ui->GetCurrentEntryId() == SidePanelEntryId::kChatUI;
   }));
 
   // Global panel should be set when activate tab at 1.
@@ -904,18 +932,6 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, TabSpecificAndGlobalPanelsTest) {
   WaitUntil(base::BindLambdaForTesting([&]() {
     return panel_ui->GetCurrentEntryId() == SidePanelEntryId::kBookmarks;
   }));
-
-  // Check per-url contextual panel close.
-  // If current tab load another url, customize panel should be hidden.
-  tab_model()->ActivateTabAt(0);
-  WaitUntil(base::BindLambdaForTesting([&]() {
-    return panel_ui->GetCurrentEntryId() == SidePanelEntryId::kCustomizeChrome;
-  }));
-
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL("brave://newtab/")));
-
-  // After loading another url, customize panel is deregistered and closed.
-  EXPECT_FALSE(panel_ui->GetCurrentEntryId());
 }
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, DisabledItemsTest) {
@@ -1093,7 +1109,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTestWithPlaylist, Incognito) {
   auto* sidebar_service =
       SidebarServiceFactory::GetForProfile(private_browser->profile());
   const auto& items = sidebar_service->items();
-  auto iter = base::ranges::find_if(items, [](const auto& item) {
+  auto iter = std::ranges::find_if(items, [](const auto& item) {
     return item.type == SidebarItem::Type::kTypeBuiltIn &&
            item.built_in_item_type == SidebarItem::BuiltInItemType::kPlaylist;
   });

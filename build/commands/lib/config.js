@@ -126,7 +126,6 @@ const Config = function () {
   this.internalDepsUrl = 'https://vhemnu34de4lf5cj6bx2wwshyy0egdxk.lambda-url.us-west-2.on.aws'
   this.defaultBuildConfig = getEnvConfig(['default_build_config']) || 'Component'
   this.buildConfig = this.defaultBuildConfig
-  this.signTarget = 'sign_app'
   this.buildTargets = ['brave']
   this.rootDir = rootDir
   this.isUniversalBinary = false
@@ -238,7 +237,6 @@ const Config = function () {
   this.extraGnGenOpts = getEnvConfig(['brave_extra_gn_gen_opts']) || ''
   this.extraNinjaOpts = []
   this.braveAndroidSafeBrowsingApiKey = getEnvConfig(['brave_safebrowsing_api_key']) || ''
-  this.braveSafetyNetApiKey = getEnvConfig(['brave_safetynet_api_key']) || ''
   this.braveAndroidDeveloperOptionsCode = getEnvConfig(['brave_android_developer_options_code']) || ''
   this.braveAndroidKeystorePath = getEnvConfig(['brave_android_keystore_path'])
   this.braveAndroidKeystoreName = getEnvConfig(['brave_android_keystore_name'])
@@ -255,6 +253,7 @@ const Config = function () {
   this.service_key_aichat = getEnvConfig(['service_key_aichat']) || ''
   this.braveIOSDeveloperOptionsCode = getEnvConfig(['brave_ios_developer_options_code']) || ''
   this.service_key_stt = getEnvConfig(['service_key_stt']) || ''
+  this.skip_download_rust_toolchain_aux = getEnvConfig(['skip_download_rust_toolchain_aux']) || false
 }
 
 Config.prototype.isReleaseBuild = function () {
@@ -609,7 +608,6 @@ Config.prototype.buildArgs = function () {
     args.android_override_version_name = this.androidOverrideVersionName
 
     args.brave_android_developer_options_code = this.braveAndroidDeveloperOptionsCode
-    args.brave_safetynet_api_key = this.braveSafetyNetApiKey
     args.brave_safebrowsing_api_key = this.braveAndroidSafeBrowsingApiKey
     args.safe_browsing_mode = 2
 
@@ -686,7 +684,6 @@ Config.prototype.buildArgs = function () {
     // in the future to see if this is no longer needed
     // https://github.com/brave/brave-browser/issues/29934
     args.ios_partition_alloc_enabled = false
-    args.use_partition_alloc = false
 
     args.ios_provider_target = "//brave/ios/browser/providers:brave_providers"
 
@@ -885,7 +882,7 @@ Config.prototype.update = function (options) {
     }
   }
 
-  if (options.target_environment) {
+  if (this.targetOS === 'ios' && options.target_environment) {
     this.targetEnvironment = options.target_environment
   }
 
@@ -1039,7 +1036,7 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
     env = this.addPathToEnv(env, this.depotToolsDir, true)
     if (this.getTargetOS() === 'mac' && process.platform !== 'darwin') {
       const crossCompilePath = path.join(this.srcDir, 'brave', 'build', 'mac',
-                                         'cross-compile', 'path')
+                                         'cross_compile', 'path')
       env = this.addPathToEnv(env, crossCompilePath, true)
     }
     const pythonPaths = [
@@ -1140,6 +1137,10 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       env.VSCMD_SKIP_SENDTELEMETRY = '1'
     }
 
+    if (this.isCI && this.skip_download_rust_toolchain_aux) {
+      env.SKIP_DOWNLOAD_RUST_TOOLCHAIN_AUX = '1'
+    }
+
     // TeamCity displays only stderr on the "Build Problems" page when an error
     // occurs. By redirecting stdout to stderr, we ensure that all outputs from
     // external processes are visible in case of a failure.
@@ -1172,7 +1173,7 @@ Object.defineProperty(Config.prototype, 'outputDir', {
     if (this.targetOS && this.targetOS !== this.hostOS) {
       buildConfigDir = this.targetOS + '_' + buildConfigDir
     }
-    if (this.targetEnvironment) {
+    if (this.targetEnvironment && this.targetEnvironment != 'device') {
       buildConfigDir = buildConfigDir + "_" + this.targetEnvironment
     }
     if (this.isChromium) {

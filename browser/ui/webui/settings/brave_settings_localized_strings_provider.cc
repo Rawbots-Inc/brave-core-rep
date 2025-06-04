@@ -12,7 +12,7 @@
 #include "brave/browser/ui/webui/brave_settings_ui.h"
 #include "brave/browser/ui/webui/settings/brave_privacy_handler.h"
 #include "brave/components/ai_chat/core/browser/model_validator.h"
-#include "brave/components/brave_rewards/common/pref_names.h"
+#include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/brave_shields/core/common/features.h"
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
 #include "brave/components/brave_wallet/browser/pref_names.h"
@@ -83,6 +83,9 @@ constexpr char16_t kEnableNftDiscoveryLearnMoreUrl[] =
 constexpr char16_t kBlockAllCookiesLearnMoreUrl[] =
     u"https://github.com/brave/brave-browser/wiki/"
     u"Block-all-cookies-global-Shields-setting";
+constexpr char16_t kLeoCustomModelsLearnMoreURL[] =
+    u"https://support.brave.com/hc/en-us/articles/"
+    u"34070140231821-How-do-I-use-the-Bring-Your-Own-Model-BYOM-with-Brave-Leo";
 
 void BraveAddCommonStrings(content::WebUIDataSource* html_source,
                            Profile* profile) {
@@ -380,6 +383,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_HEADING},
       {"privateSearchEngineSearchExplanation",
        IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_EXPLANATION},
+      {"privateSearchEngineTitle",
+       IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_TITLE},
       {"privateSearchEnginesConfirmationToastLabel",
        IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_CHOICE_SETTINGS_CONFIRMATION_TOAST_LABEL},
       {"blockAdsTrackersAggressive",
@@ -545,6 +550,7 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_CHAT_UI_CHAT_CLAUDE_HAIKU_SUBTITLE},
       {"braveLeoModelSubtitle-chat-claude-sonnet",
        IDS_CHAT_UI_CHAT_CLAUDE_SONNET_SUBTITLE},
+      {"braveLeoModelSubtitle-chat-qwen", IDS_CHAT_UI_CHAT_QWEN_SUBTITLE},
       {"braveLeoAssistantManageUrlLabel",
        IDS_SETTINGS_LEO_ASSISTANT_MANAGE_URL},
       {"braveLeoAssistantByomLabel", IDS_SETTINGS_LEO_ASSISTANT_BYOM_LABEL},
@@ -564,6 +570,10 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_API_KEY},
       {"braveLeoAssistantInputModelLabelTooltipInfo",
        IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_LABEL_TOOLTIP_INFO},
+      {"braveLeoAssistantInputModelVisionSupport",
+       IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_VISION_SUPPORT},
+      {"braveLeoAssistantInputModelVisionSupportTooltipInfo",
+       IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_VISION_SUPPORT_TOOLTIP_INFO},
       {"braveLeoAssistantInputContextSizeLabel",
        IDS_SETTINGS_LEO_ASSISTANT_INPUT_CONTEXT_SIZE},
       {"braveLeoAssistantInputContextSizeTooltipInfo",
@@ -587,8 +597,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_TITLE},
       {"braveLeoAssistantYourModelsDesc1",
        IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_1},
-      {"braveLeoAssistantYourModelsDesc2",
-       IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_2},
       {"braveLeoModelSectionTitle", IDS_CHAT_UI_MENU_TITLE_MODELS},
       {"braveLeoAssistantEndpointInvalidError",
        IDS_SETTINGS_LEO_ASSISTANT_ENDPOINT_INVALID_ERROR},
@@ -749,6 +757,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_WALLET_BTC_NETWORK_LIST_TITLE},
       {"walletZecNetworksListTitle",
        IDS_SETTINGS_WALLET_ZEC_NETWORK_LIST_TITLE},
+      {"walletCardanoNetworksListTitle",
+       IDS_SETTINGS_WALLET_CARDANO_NETWORK_LIST_TITLE},
       {"walletNetworksItemDesc", IDS_SETTINGS_WALLET_NETWORKS_ITEM_DESC},
       {"walletNetworksError", IDS_SETTINGS_WALLET_NETWORKS_ERROR},
       {"walletDeleteNetworkConfirmation",
@@ -974,6 +984,11 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       l10n_util::GetStringFUTF16(
           IDS_SETTINGS_BRAVE_SHIELDS_COOKIE_CONTROL_BLOCK_ALL_DEPRECATED_LABEL,
           kBlockAllCookiesLearnMoreUrl));
+
+  html_source->AddString(
+      "braveLeoAssistantYourModelsDesc2",
+      l10n_util::GetStringFUTF16(IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_2,
+                                 kLeoCustomModelsLearnMoreURL));
 }  // NOLINT(readability/fn_size)
 
 void BraveAddResources(content::WebUIDataSource* html_source,

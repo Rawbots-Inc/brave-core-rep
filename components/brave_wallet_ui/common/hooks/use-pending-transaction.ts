@@ -47,6 +47,7 @@ import {
   useGetNetworkQuery,
   useGetSolanaEstimatedFeeQuery,
   useGetTokenSpotPricesQuery,
+  useGetZCashTransactionTypeQuery,
   useRejectTransactionsMutation,
   walletApi
 } from '../slices/api.slice'
@@ -60,6 +61,7 @@ import {
   defaultQuerySubscriptionOptions,
   querySubscriptionOptions60s
 } from '../slices/constants'
+import { useIsAccountSyncing } from './use_is_account_syncing'
 
 // Constants
 import { BraveWallet, emptyProviderErrorCodeUnion } from '../../constants/types'
@@ -179,6 +181,8 @@ export const usePendingTransactions = () => {
 
   const { account: txAccount } = useAccountQuery(transactionInfo?.fromAccountId)
 
+  const isAccountSyncing = useIsAccountSyncing(txAccount?.accountId)
+
   const {
     data: gasEstimates,
     isLoading: isLoadingGasEstimates,
@@ -259,7 +263,7 @@ export const usePendingTransactions = () => {
             isErc721: false,
             isNft: false,
             tokenId: '',
-            isShielded: false
+            isShielded: transactionDetails?.token?.isShielded || false
           }
         }
       : skipToken
@@ -302,14 +306,15 @@ export const usePendingTransactions = () => {
   )
 
   const insufficientFundsError = React.useMemo(() => {
-    return transactionInfo
+    return transactionInfo && txAccount
       ? accountHasInsufficientFundsForTransaction({
           accountNativeBalance: nativeBalance || '',
           accountTokenBalance: transferTokenBalance || '',
           gasFee,
           sellAmountWei,
           sellTokenBalance: sellTokenBalance || '',
-          tx: transactionInfo
+          tx: transactionInfo,
+          txAccount
         })
       : false
   }, [
@@ -318,6 +323,7 @@ export const usePendingTransactions = () => {
     sellTokenBalance,
     sellAmountWei,
     transactionInfo,
+    txAccount,
     transferTokenBalance
   ])
 
@@ -502,18 +508,39 @@ export const usePendingTransactions = () => {
     }
   }, [approveTransaction, dispatch, transactionInfo])
 
+  const {
+    data: getZCashTransactionTypeResult = { txType: null, error: null }
+  } = useGetZCashTransactionTypeQuery(
+    transactionsNetwork?.coin === BraveWallet.CoinType.ZEC &&
+      txToken &&
+      txAccount &&
+      transactionDetails?.recipient
+      ? {
+          accountId: txAccount.accountId,
+          testnet: transactionsNetwork.chainId === BraveWallet.Z_CASH_TESTNET,
+          use_shielded_pool: txToken.isShielded,
+          address: transactionDetails.recipient
+        }
+      : skipToken
+  )
+
   // memos
   const fromOrb = useAccountOrb(txAccount)
   const toOrb = useAddressOrb(transactionDetails?.recipient, { scale: 10 })
+  const isShieldingFunds =
+    getZCashTransactionTypeResult.txType ===
+    BraveWallet.ZCashTxType.kShielding
 
   const transactionTitle = React.useMemo(
     (): string =>
-      isSolanaDappTransaction
+      isShieldingFunds
+        ? getLocale('braveWalletShielding')
+        : isSolanaDappTransaction
         ? getLocale('braveWalletApproveTransaction')
         : transactionDetails?.isSwap
         ? getLocale('braveWalletSwap')
         : getLocale('braveWalletSend'),
-    [isSolanaDappTransaction, transactionDetails?.isSwap]
+    [isShieldingFunds, isSolanaDappTransaction, transactionDetails?.isSwap]
   )
 
   const isLoadingGasFee = React.useMemo(() => {
@@ -553,6 +580,10 @@ export const usePendingTransactions = () => {
       : hasEvmFeeEstimatesError
 
   const isConfirmButtonDisabled = React.useMemo(() => {
+    if (isAccountSyncing) {
+      return true
+    }
+
     if (hasFeeEstimatesError || isLoadingGasFee) {
       return true
     }
@@ -573,7 +604,8 @@ export const usePendingTransactions = () => {
     hasFeeEstimatesError,
     isLoadingGasFee,
     insufficientFundsError,
-    insufficientFundsForGasError
+    insufficientFundsForGasError,
+    isAccountSyncing
   ])
 
   const { currentTokenAllowance, isCurrentAllowanceUnlimited } =
@@ -650,6 +682,8 @@ export const usePendingTransactions = () => {
     insufficientFundsError,
     insufficientFundsForGasError,
     isZCashTransaction: isZCashTransaction(transactionInfo),
-    isBitcoinTransaction: isBitcoinTransaction(transactionInfo)
+    isBitcoinTransaction: isBitcoinTransaction(transactionInfo),
+    isAccountSyncing,
+    isShieldingFunds
   }
 }

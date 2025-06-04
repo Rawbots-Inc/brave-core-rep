@@ -20,30 +20,42 @@
 
 namespace brave_wallet {
 
+inline constexpr uint32_t kZCashInternalAddressMinConfirmations = 3u;
+inline constexpr uint32_t kZCashPublicAddressMinConfirmations = 10u;
+
 // Represents the persisted synchronization state for the Zcash blockchain.
 // The synchronization state includes account-specific information regarding
 // spendable and spent notes, sync progress, and the state of the Orchard
 // commitment tree, which is used to sign notes for spending.
 class OrchardSyncState {
  public:
+  struct SpendableNotesBundle {
+    SpendableNotesBundle();
+    SpendableNotesBundle(const SpendableNotesBundle&) = delete;
+    SpendableNotesBundle(SpendableNotesBundle&&);
+    SpendableNotesBundle& operator=(const SpendableNotesBundle&) = delete;
+    SpendableNotesBundle& operator=(SpendableNotesBundle&&);
+    ~SpendableNotesBundle();
+    std::vector<OrchardNote> all_notes;
+    std::vector<OrchardNote> spendable_notes;
+    std::optional<uint32_t> anchor_block_id;
+  };
+
   explicit OrchardSyncState(const base::FilePath& path_to_database);
-  ~OrchardSyncState();
+  virtual ~OrchardSyncState();
 
-  base::expected<OrchardStorage::AccountMeta, OrchardStorage::Error>
-  RegisterAccount(const mojom::AccountIdPtr& account_id,
-                  uint64_t account_birthday_block);
+  base::expected<OrchardStorage::Result, OrchardStorage::Error> RegisterAccount(
+      const mojom::AccountIdPtr& account_id,
+      uint64_t account_birthday_block);
 
-  base::expected<std::optional<OrchardStorage::AccountMeta>,
-                 OrchardStorage::Error>
+  virtual base::expected<std::optional<OrchardStorage::AccountMeta>,
+                         OrchardStorage::Error>
   GetAccountMeta(const mojom::AccountIdPtr& account_id);
 
-  base::expected<OrchardStorage::Result, OrchardStorage::Error>
-  HandleChainReorg(const mojom::AccountIdPtr& account_id,
-                   uint32_t reorg_block_id,
-                   const std::string& reorg_block_hash);
-
-  base::expected<std::vector<OrchardNote>, OrchardStorage::Error>
-  GetSpendableNotes(const mojom::AccountIdPtr& account_id);
+  virtual base::expected<OrchardStorage::Result, OrchardStorage::Error> Rewind(
+      const mojom::AccountIdPtr& account_id,
+      uint32_t rewind_block_height,
+      const std::string& rewind_block_hash);
 
   base::expected<std::vector<OrchardNoteSpend>, OrchardStorage::Error>
   GetNullifiers(const mojom::AccountIdPtr& account_id);
@@ -52,9 +64,18 @@ class OrchardSyncState {
   ApplyScanResults(const mojom::AccountIdPtr& account_id,
                    // Value is used here to allow moving scanned_blocks which
                    // wraps rust object.
-                   OrchardBlockScanner::Result block_scanner_results,
-                   const uint32_t latest_scanned_block,
-                   const std::string& latest_scanned_block_hash);
+                   OrchardBlockScanner::Result block_scanner_results);
+
+  base::expected<std::optional<uint32_t>, OrchardStorage::Error>
+  GetLatestShardIndex(const mojom::AccountIdPtr& account_id);
+
+  virtual base::expected<std::optional<uint32_t>, OrchardStorage::Error>
+  GetMinCheckpointId(const mojom::AccountIdPtr& account_id);
+
+  virtual base::expected<std::optional<SpendableNotesBundle>,
+                         OrchardStorage::Error>
+  GetSpendableNotes(const mojom::AccountIdPtr& account_id,
+                    const OrchardAddrRawPart& change_address);
 
   // Clears sync data related to the account except it's birthday.
   base::expected<OrchardStorage::Result, OrchardStorage::Error>
@@ -63,12 +84,10 @@ class OrchardSyncState {
   // Drops underlying database.
   void ResetDatabase();
 
-  base::expected<std::vector<OrchardInput>, OrchardStorage::Error>
+  virtual base::expected<std::vector<OrchardInput>, OrchardStorage::Error>
   CalculateWitnessForCheckpoint(const mojom::AccountIdPtr& account_id,
                                 const std::vector<OrchardInput>& notes,
                                 uint32_t checkpoint_position);
-
-  bool Truncate(const mojom::AccountIdPtr& account_id, uint32_t checkpoint_id);
 
  private:
   friend class OrchardSyncStateTest;

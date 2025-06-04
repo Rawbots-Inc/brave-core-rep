@@ -90,6 +90,11 @@ void BatAdsImpl::SetFlags(brave_ads::mojom::FlagsPtr mojom_flags) {
   GetAds()->SetFlags(std::move(mojom_flags));
 }
 
+void BatAdsImpl::SetContentSettings(
+    brave_ads::mojom::ContentSettingsPtr mojom_content_settings) {
+  GetAds()->SetContentSettings(std::move(mojom_content_settings));
+}
+
 void BatAdsImpl::Initialize(brave_ads::mojom::WalletInfoPtr mojom_wallet,
                             InitializeCallback callback) {
   GetAds()->Initialize(std::move(mojom_wallet), std::move(callback));
@@ -126,6 +131,13 @@ void BatAdsImpl::TriggerNotificationAdEvent(
 
   GetAds()->TriggerNotificationAdEvent(placement_id, mojom_ad_event_type,
                                        std::move(callback));
+}
+
+void BatAdsImpl::ParseAndSaveCreativeNewTabPageAds(
+    base::Value::Dict data,
+    ParseAndSaveCreativeNewTabPageAdsCallback callback) {
+  GetAds()->ParseAndSaveCreativeNewTabPageAds(std::move(data),
+                                              std::move(callback));
 }
 
 void BatAdsImpl::MaybeServeNewTabPageAd(

@@ -53,6 +53,10 @@ std::string NewAccName(mojom::KeyringId keyring_id, uint32_t index) {
         return "Bitcoin Hardware Account";
       case mojom::KeyringId::kBitcoinHardwareTestnet:
         return "Bitcoin Hardware Testnet Account";
+      case mojom::KeyringId::kCardanoMainnet:
+        return "Cardano Mainnet Account";
+      case mojom::KeyringId::kCardanoTestnet:
+        return "Cardano Testnet Account";
     }
     NOTREACHED() << keyring_id;
   };
@@ -268,6 +272,14 @@ mojom::AccountInfoPtr AccountUtils::EnsureZecTestAccount(uint32_t index) {
   return EnsureAccount(mojom::KeyringId::kZCashTestnet, index);
 }
 
+mojom::AccountInfoPtr AccountUtils::EnsureAdaAccount(uint32_t index) {
+  return EnsureAccount(mojom::KeyringId::kCardanoMainnet, index);
+}
+
+mojom::AccountInfoPtr AccountUtils::EnsureAdaTestAccount(uint32_t index) {
+  return EnsureAccount(mojom::KeyringId::kCardanoTestnet, index);
+}
+
 mojom::AccountInfoPtr AccountUtils::CreateEthAccount(const std::string& name) {
   return CreateDerivedAccount(mojom::KeyringId::kDefault, name);
 }
@@ -301,6 +313,15 @@ mojom::AccountInfoPtr AccountUtils::CreateZecAccount(const std::string& name) {
 mojom::AccountInfoPtr AccountUtils::CreateZecTestAccount(
     const std::string& name) {
   return CreateDerivedAccount(mojom::KeyringId::kZCashTestnet, name);
+}
+
+mojom::AccountInfoPtr AccountUtils::CreateAdaAccount(const std::string& name) {
+  return CreateDerivedAccount(mojom::KeyringId::kCardanoMainnet, name);
+}
+
+mojom::AccountInfoPtr AccountUtils::CreateAdaTestAccount(
+    const std::string& name) {
+  return CreateDerivedAccount(mojom::KeyringId::kCardanoTestnet, name);
 }
 
 mojom::AccountInfoPtr AccountUtils::CreateEthHWAccount() {
@@ -387,6 +408,14 @@ std::vector<mojom::AccountInfoPtr> AccountUtils::AllZecAccounts() {
 
 std::vector<mojom::AccountInfoPtr> AccountUtils::AllZecTestAccounts() {
   return AllAccounts(mojom::KeyringId::kZCashTestnet);
+}
+
+std::vector<mojom::AccountInfoPtr> AccountUtils::AllAdaAccounts() {
+  return AllAccounts(mojom::KeyringId::kCardanoMainnet);
+}
+
+std::vector<mojom::AccountInfoPtr> AccountUtils::AllAdaTestAccounts() {
+  return AllAccounts(mojom::KeyringId::kCardanoTestnet);
 }
 
 TestBraveWalletServiceDelegate::TestBraveWalletServiceDelegate() {
@@ -481,6 +510,16 @@ bool AccountResolverDelegateForTest::ValidateAccountId(
     }
   }
   return false;
+}
+
+std::optional<std::string> AccountResolverDelegateForTest::ResolveAddress(
+    const mojom::AccountIdPtr& account_id) {
+  for (auto& acc : accounts_) {
+    if (acc == account_id) {
+      return acc->address;
+    }
+  }
+  return std::nullopt;
 }
 
 }  // namespace brave_wallet

@@ -6,16 +6,18 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
 
+const crossPlatforms = ['mac', 'win']
 const buildConfigs = ['Component', 'Static', 'Debug', 'Release']
 const extraArchitectures = ['arm64', 'x86']
 
 function getBuildOutputPathList(buildOutputRelativePath) {
-  return buildConfigs.flatMap((config) => [
-    `<rootDir>/../out/${config}/${buildOutputRelativePath}`,
-    ...extraArchitectures.map(
-      (arch) => `<rootDir>/../out/${config}_${arch}/${buildOutputRelativePath}`
-    )
-  ])
+  return buildConfigs.reduce((outDirs, outDir) =>
+    [...outDirs, outDir, ...crossPlatforms.map(platform => `${platform}_${outDir}`)],
+  []).reduce((outDirs, outDir) =>
+    [...outDirs, outDir, ...extraArchitectures.map(arch => `${outDir}_${arch}`)],
+  []).map(outDir =>
+    `<rootDir>/../out/${outDir}/${buildOutputRelativePath}`
+  )
 }
 
 function getReporters() {
@@ -41,7 +43,8 @@ module.exports = {
   globals: {
     'ts-jest': {
       'tsconfig': 'tsconfig-jest.json',
-      'isolatedModules': true
+      'isolatedModules': true,
+      useESM: true
     }
   },
   transform: {
@@ -72,15 +75,17 @@ module.exports = {
   testPathIgnorePatterns: [
     '<rootDir>/build/commands/lib/test.js',
     '<rootDir>/build/rustup',
-    '<rootDir>/third_party'
+    '<rootDir>/third_party',
+    '<rootDir>/tools/crates/vendor'
   ],
   testTimeout: 30000,
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/(?!(@brave/brave-ui|@brave/leo)/)',
+    '<rootDir>/node_modules/(?!.*/)',
     // prevent jest from transforming itself
     // https://github.com/jestjs/jest/issues/9503#issuecomment-709041807
     '<rootDir>/node_modules/@babel',
     '<rootDir>/node_modules/@jest',
+    '<rootDir>/node_modules/jest-runtime',
     '<rootDir>/node_modules/lodash',
     'signal-exit',
     'is-typedarray'

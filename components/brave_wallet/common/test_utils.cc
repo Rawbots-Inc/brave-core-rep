@@ -11,18 +11,6 @@
 
 namespace brave_wallet {
 
-bool AllCoinsTested() {
-  // Change hardcoded value here only when all failed callers have adequate
-  // testing for newly added coin.
-  return 5 == std::size(kAllCoins);
-}
-
-bool AllKeyringsTested() {
-  // Change hardcoded value here only when all failed callers have adequate
-  // testing for newly added keyring.
-  return 12 == std::size(kAllKeyrings);
-}
-
 mojom::NetworkInfo GetTestNetworkInfo1(const std::string& chain_id,
                                        mojom::CoinType coin) {
   return {chain_id,
@@ -68,6 +56,14 @@ mojom::NetworkInfo GetTestNetworkInfoWithHttpURL(const std::string& chain_id,
           GetSupportedKeyringsForNetwork(coin, chain_id)};
 }
 
+mojom::ChainIdPtr EthMainnetChainId() {
+  return mojom::ChainId::New(mojom::CoinType::ETH, mojom::kMainnetChainId);
+}
+
+mojom::ChainIdPtr SolMainnetChainId() {
+  return mojom::ChainId::New(mojom::CoinType::SOL, mojom::kSolanaMainnet);
+}
+
 namespace mojom {
 
 void PrintTo(const BitcoinAddressPtr& address, ::std::ostream* os) {
@@ -102,6 +98,16 @@ void PrintTo(const BtcHardwareTransactionSignInputDataPtr& input_data,
   *os << input_data->output_index << "/"
       << base::HexEncode(input_data->tx_bytes) << "/"
       << input_data->associated_path;
+}
+
+void PrintTo(const CardanoAddressPtr& address, ::std::ostream* os) {
+  *os << base::StringPrintf("[%s %d/%d]", address->address_string.c_str(),
+                            address->payment_key_id->role,
+                            address->payment_key_id->index);
+}
+
+void PrintTo(const CardanoBalancePtr& balance, ::std::ostream* os) {
+  *os << base::StringPrintf("[%d]", balance->total_balance);
 }
 
 }  // namespace mojom

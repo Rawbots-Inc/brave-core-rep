@@ -36,7 +36,9 @@
 #include "brave/components/p3a/p3a_service.h"
 #include "brave/components/p3a/star_randomness_meta.h"
 #include "brave/components/skus/browser/skus_utils.h"
+#include "brave/components/speedreader/common/buildflags/buildflags.h"
 #include "brave/components/tor/buildflags/buildflags.h"
+#include "brave/components/web_discovery/buildflags/buildflags.h"
 #include "build/build_config.h"
 #include "chrome/common/pref_names.h"
 #include "components/metrics/metrics_pref_names.h"
@@ -69,8 +71,16 @@
 #include "brave/components/brave_vpn/common/brave_vpn_utils.h"
 #endif
 
+#if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
+#include "brave/components/web_discovery/browser/web_discovery_service.h"
+#endif
+
 #if BUILDFLAG(ENABLE_WIDEVINE)
 #include "brave/browser/widevine/widevine_utils.h"
+#endif
+
+#if BUILDFLAG(ENABLE_SPEEDREADER)
+#include "brave/components/speedreader/speedreader_service.h"
 #endif
 
 namespace brave {
@@ -171,6 +181,12 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
   misc_metrics::GeneralBrowserUsage::RegisterPrefs(registry);
 
   playlist::PlaylistServiceFactory::RegisterLocalStatePrefs(registry);
+#if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
+  web_discovery::WebDiscoveryService::RegisterLocalStatePrefs(registry);
+#endif
+#if BUILDFLAG(ENABLE_SPEEDREADER)
+  speedreader::SpeedreaderService::RegisterLocalStatePrefs(registry);
+#endif
 }
 
 }  // namespace brave

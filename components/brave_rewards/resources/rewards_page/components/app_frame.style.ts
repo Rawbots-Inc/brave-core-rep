@@ -12,6 +12,12 @@ export const style = scoped.css`
     --leo-icon-color: ${color.icon.default};
   }
 
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
   &.panel-frame {
     block-size: 100cqb;
     display: flex;
@@ -54,6 +60,7 @@ export const style = scoped.css`
       overflow: auto;
       scrollbar-width: none;
       padding: 0 16px 16px;
+      position: relative;
     }
 
     footer {
@@ -91,14 +98,6 @@ export const style = scoped.css`
         background: ${color.container.highlight};
       }
     }
-
-    .expand-button {
-      visibility: hidden;
-
-      .is-bubble & {
-        visibility: visible;
-      }
-    }
   }
 
   &.page-frame {
@@ -126,6 +125,7 @@ export const style = scoped.css`
       padding: 16px;
       overflow: hidden auto;
       scrollbar-gutter: stable;
+      position: relative;
     }
 
     main {

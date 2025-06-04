@@ -5,17 +5,15 @@
 
 #include "brave/browser/ui/webui/new_tab_page/brave_new_tab_page_handler.h"
 
+#include <algorithm>
 #include <optional>
 #include <utility>
-#include <vector>
 
 #include "base/files/file_path.h"
-#include "base/files/file_util.h"
 #include "base/functional/bind.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "brave/browser/brave_browser_process.h"
-#include "brave/browser/ntp_background/constants.h"
 #include "brave/browser/ntp_background/custom_background_file_manager.h"
 #include "brave/browser/ntp_background/ntp_background_prefs.h"
 #include "brave/browser/ntp_background/view_counter_service_factory.h"
@@ -24,7 +22,6 @@
 #include "brave/components/brave_search_conversion/pref_names.h"
 #include "brave/components/brave_search_conversion/types.h"
 #include "brave/components/brave_search_conversion/utils.h"
-#include "brave/components/constants/pref_names.h"
 #include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
@@ -38,14 +35,10 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/chrome_select_file_policy.h"
 #include "chrome/browser/ui/tabs/public/tab_interface.h"
-#include "chrome/common/pref_names.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/omnibox/browser/omnibox_view.h"
 #include "components/prefs/pref_service.h"
 #include "components/search_engines/search_engine_type.h"
 #include "components/search_engines/template_url.h"
-#include "content/public/browser/browser_task_traits.h"
-#include "content/public/browser/browser_thread.h"
 #include "content/public/browser/page_navigator.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/referrer.h"
@@ -103,8 +96,7 @@ BraveNewTabPageHandler::BraveNewTabPageHandler(
       page_(std::move(pending_page)),
       profile_(profile),
       web_contents_(web_contents),
-      file_manager_(std::make_unique<CustomBackgroundFileManager>(profile_)),
-      weak_factory_(this) {
+      file_manager_(std::make_unique<CustomBackgroundFileManager>(profile_)) {
   InitForSearchPromotion();
 }
 
@@ -479,10 +471,11 @@ void BraveNewTabPageHandler::OnBackgroundUpdated() {
   auto selected_value = ntp_background_prefs.GetSelectedValue();
   auto image_url = GURL(selected_value);
 
-  auto iter = base::ranges::find_if(
-      image_data->backgrounds, [image_data, &image_url](const auto& data) {
+  auto iter = std::ranges::find_if(
+      image_data->backgrounds,
+      [image_data, &image_url](const auto& background) {
         return image_data->url_prefix +
-                   data.image_file.BaseName().AsUTF8Unsafe() ==
+                   background.file_path.BaseName().AsUTF8Unsafe() ==
                image_url.spec();
       });
   if (iter == image_data->backgrounds.end()) {
@@ -566,14 +559,14 @@ void BraveNewTabPageHandler::GetBraveBackgrounds(
   }
 
   std::vector<brave_new_tab_page::mojom::BraveBackgroundPtr> backgrounds;
-  base::ranges::transform(
+  std::ranges::transform(
       image_data->backgrounds, std::back_inserter(backgrounds),
-      [image_data](const auto& data) {
+      [image_data](const auto& background) {
         auto value = brave_new_tab_page::mojom::BraveBackground::New();
         value->image_url = GURL(image_data->url_prefix +
-                                data.image_file.BaseName().AsUTF8Unsafe());
-        value->author = data.author;
-        value->link = GURL(data.link);
+                                background.file_path.BaseName().AsUTF8Unsafe());
+        value->author = background.author;
+        value->link = GURL(background.link);
         return value;
       });
 

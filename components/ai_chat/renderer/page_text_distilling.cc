@@ -5,32 +5,27 @@
 
 #include "brave/components/ai_chat/renderer/page_text_distilling.h"
 
+#include <algorithm>
 #include <iterator>
-#include <map>
 #include <memory>
 #include <optional>
 #include <queue>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "base/compiler_specific.h"
-#include "base/containers/contains.h"
 #include "base/containers/fixed_flat_map.h"
+#include "base/containers/fixed_flat_set.h"
 #include "base/containers/span.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
-#include "base/memory/raw_ptr.h"
-#include "base/numerics/safe_math.h"
-#include "base/ranges/algorithm.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/time/time.h"
 #include "base/values.h"
 #include "brave/components/ai_chat/core/common/features.h"
-#include "brave/components/ai_chat/resources/custom_site_distiller_scripts/grit/custom_site_distiller_scripts_generated.h"
 #include "content/public/renderer/render_frame.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "third_party/blink/public/mojom/script/script_evaluation_params.mojom-shared.h"
@@ -50,18 +45,18 @@ namespace ai_chat {
 
 namespace {
 
-static const ax::mojom::Role kContentParentRoles[]{
+constexpr auto kContentParentRoles = base::MakeFixedFlatSet<ax::mojom::Role>({
     ax::mojom::Role::kMain,
     ax::mojom::Role::kArticle,
-};
+});
 
-static const ax::mojom::Role kContentRoles[]{
+constexpr auto kContentRoles = base::MakeFixedFlatSet<ax::mojom::Role>({
     ax::mojom::Role::kHeading,
     ax::mojom::Role::kParagraph,
     ax::mojom::Role::kNote,
-};
+});
 
-static const ax::mojom::Role kRolesToSkip[]{
+constexpr auto kRolesToSkip = base::MakeFixedFlatSet<ax::mojom::Role>({
     ax::mojom::Role::kAudio,
     ax::mojom::Role::kBanner,
     ax::mojom::Role::kButton,
@@ -83,7 +78,7 @@ static const ax::mojom::Role kRolesToSkip[]{
     ax::mojom::Role::kSlider,
     ax::mojom::Role::kSpinButton,
     ax::mojom::Role::kSearchBox,
-};
+});
 
 void GetContentRootNodes(const ui::AXNode* root,
                          std::vector<const ui::AXNode*>* content_root_nodes) {
@@ -94,7 +89,7 @@ void GetContentRootNodes(const ui::AXNode* root,
     queue.pop();
     // If a main or article node is found, add it to the list of content root
     // nodes and continue. Do not explore children for nested article nodes.
-    if (base::Contains(kContentParentRoles, node->GetRole())) {
+    if (kContentParentRoles.contains(node->GetRole())) {
       content_root_nodes->push_back(node);
       continue;
     }
@@ -107,11 +102,11 @@ void GetContentRootNodes(const ui::AXNode* root,
 
 void AddContentNodesToVector(const ui::AXNode* node,
                              std::vector<const ui::AXNode*>* content_nodes) {
-  if (base::Contains(kContentRoles, node->GetRole())) {
+  if (kContentRoles.contains(node->GetRole())) {
     content_nodes->emplace_back(node);
     return;
   }
-  if (base::Contains(kRolesToSkip, node->GetRole())) {
+  if (kRolesToSkip.contains(node->GetRole())) {
     return;
   }
   for (auto iter = node->UnignoredChildrenBegin();
@@ -124,7 +119,7 @@ void AddTextNodesToVector(const ui::AXNode* node,
                           std::vector<std::u16string>* strings) {
   const ui::AXNodeData& node_data = node->data();
 
-  if (base::Contains(kRolesToSkip, node_data.role)) {
+  if (kRolesToSkip.contains(node_data.role)) {
     return;
   }
 
@@ -183,8 +178,8 @@ void DistillPageText(
     if (content_nodes_this_root.empty()) {
       content_nodes.emplace_back(content_root_node);
     } else {
-      base::ranges::move(content_nodes_this_root,
-                         std::back_inserter(content_nodes));
+      std::ranges::move(content_nodes_this_root,
+                        std::back_inserter(content_nodes));
     }
   }
 
@@ -232,21 +227,9 @@ void DistillPageTextViaSiteScript(
     int32_t world_id,
     base::OnceCallback<void(const std::optional<std::string>&)> callback) {
   CHECK(ai_chat::features::IsCustomSiteDistillerScriptsEnabled());
-  // TODO (jonathansampson): Wrap scripts at build/transpile-time instead
-  // This produces an injected script that resembles the following:
-  // (() => {
-  //   function distillPrimaryColumn (level) { ... }
-  //   function distill(level) {
-  //     return distillPrimaryColumn(level);
-  //   }
-  //   return distill(3);
-  // })())
-  std::string script = absl::StrFormat(
-      R"((()=> {
-        %s
-        return distill(3);
-      })())",
-      script_content);
+
+  // Wrap the distiller content in a block to avoid polluting global scope
+  std::string script = absl::StrFormat("{%s\ndistill()}", script_content);
 
   blink::WebScriptSource source =
       blink::WebScriptSource(blink::WebString::FromUTF8(script));
@@ -261,7 +244,6 @@ void DistillPageTextViaSiteScript(
         }
       };
 
-  // Execute the combined script as a single source
   render_frame->GetWebFrame()->RequestExecuteScript(
       world_id, base::span_from_ref(source),
       blink::mojom::UserActivationOption::kDoNotActivate,
@@ -270,21 +252,11 @@ void DistillPageTextViaSiteScript(
       base::BindOnce(on_script_executed, std::move(callback)),
       blink::BackForwardCacheAware::kAllow,
       blink::mojom::WantResultOption::kWantResult,
-      // Because we are using a promise to resolve the result, we will use the
-      // `kAwait` option to ensure the promise is resolved before the callback
-      // is invoked.
-      blink::mojom::PromiseResultOption::kAwait);
+      blink::mojom::PromiseResultOption::kDoNotWait);
 }
 
 std::optional<std::pair<std::string, bool>> LoadSiteScriptForHost(
     std::string_view host) {
-  static constexpr auto kHostToScriptResource =
-      base::MakeFixedFlatMap<std::string_view, std::pair<int, bool>>({
-          {"github.com",
-           {IDR_CUSTOM_SITE_DISTILLER_SCRIPTS_GITHUB_COM_BUNDLE_JS, false}},
-          {"x.com", {IDR_CUSTOM_SITE_DISTILLER_SCRIPTS_X_COM_BUNDLE_JS, true}},
-      });
-
   auto it = kHostToScriptResource.find(
       net::registry_controlled_domains::GetDomainAndRegistry(
           host, net::registry_controlled_domains::INCLUDE_PRIVATE_REGISTRIES));

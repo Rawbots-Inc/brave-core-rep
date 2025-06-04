@@ -1,9 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="lt">
-<translation id="8631427463833030968">Tvarkyti reklamas</translation>
 <translation id="7630214457764713113">Kopijuoti švarią nuorodą</translation>
-<translation id="885805571521218129">Tai jūsų numatomas uždarbio intervalas už „Brave“ reklamas šį mėnesį.</translation>
 <translation id="3478449063771497234">Pranešimai išjungti</translation>
 <translation id="2862978891748913252">Pasirinkite savo šalį</translation>
 <translation id="3970520675790340955">Pasirinkite savo šalį, kad galėtume rodyti jūsų regionui tinkamas parinktis ir reklamas.</translation>
@@ -114,6 +112,11 @@
 <translation id="1571106259128580884">Rodyti populiariausių svetainių pasiūlymus</translation>
 <translation id="6285118765755298263">Indeksuoti kitus ieškos modulius</translation>
 <translation id="919715748352669592">Automatiškai indeksuoja svetaines, kurios atitinka „OpenSearch“ specifikaciją.</translation>
+<translation id="412411722208944922">Greitos paieškos sistemos</translation>
+<translation id="2836969042340015500">Greitos paieškos sistemos</translation>
+<translation id="9120455214794270250">Rodyti greitos paieškos juostą</translation>
+<translation id="1052991798173010693">Šiuo metu naudojamos paieškos sistemos</translation>
+<translation id="335303688425891752">Norėdami pakeisti tvarką, spauskite ilgai</translation>
 <translation id="9148058034647219655">Išeiti</translation>
 <translation id="8047754398610073499">Blokuoti pranešimus sutikti su slapukais</translation>
 <translation id="2621893359845808115">Blokuojami svetainių iškylantieji langai, kuriuose jūsų prašoma sutikti su slapukais arba juos atmesti toje svetainėje</translation>
@@ -194,6 +197,8 @@
 <translation id="1680858055899097121">Nepalikti skirtukų tarp naršymo seansų</translation>
 <translation id="7142548388914389999">Leisti privatumo nepažeidžiančią produktų analizę (P3A)</translation>
 <translation id="5254037869598726291">Nuasmeninta P3A informacija padeda „Brave“ įvertinti bendrą naudojimą ir užtikrinti, kad mes tobulintume populiarias funkcijas.</translation>
+<translation id="4174337572777167894">Žiniatinklio pažinimo projektas</translation>
+<translation id="8659271182272561965">Prisidėkite anonimiškais paieškos ir naršymo duomenimis bei padėkite patikslinti „Brave“ paieškos rezultatus.</translation>
 <translation id="933652931229970927">Automatiškai siųsti diagnostikos ataskaitas</translation>
 <translation id="5987838417172370108">Padėkite tobulinti „Brave“ produktų stabilumą, automatiškai siųsdami diagnostikos ataskaitas, kai „Brave“ naršyklė užstringa.</translation>
 <translation id="7977176350719484850">Numatomi sutaupyti\nduomenys</translation>
@@ -230,17 +235,16 @@
 <translation id="6587448235155023666">Pakeitimai įsigalios kitą kartą iš naujo paleidus „Brave“</translation>
 <translation id="8701563696941209024">IŠ NAUJO PALEISTI DABAR</translation>
 <translation id="834487290629916192">VĖLIAU</translation>
-<translation id="7207456302801184289">Dėkojame, kad naudojate „Brave“</translation>
 <translation id="4117451092682672487">Privatumas. Paprastai.</translation>
 <translation id="7909375417585209817">Naudojant „Brave“ kaip numatytąją naršyklę, kiekviena paspausta nuoroda atveriama su „Brave“ privatumo apsauga.</translation>
-<translation id="3737878115109582442">Pridėti paieškos valdiklį</translation>
-<translation id="6199413390010319240">Turėkite „Brave“ po ranka, kad galėtumėte greičiau tyrinėti žiniatinklį.</translation>
-<translation id="4338600611020922010">Įtraukti į pagrindinį ekraną</translation>
 <translation id="7370959926683925817">Blokuokite reklamą. Išsaugokite duomenis. Kasdien.</translation>
 <translation id="7281027579943912834">Kai „Brave“ yra numatytoji naršyklė, kiekviena paliesta nuoroda bus apsaugota nuo reklamos. Kiekvienas puslapis, vaizdo įrašas ir srautas.</translation>
 <translation id="5148943178722443958">Padėkite tobulinti „Brave“.</translation>
 <translation id="6718362830686703942">Siųskite diagnostikos ataskaitas įvykus strigčiai.</translation>
 <translation id="8616157231067364693">Bendrinkite privačias ir anonimines įžvalgas apie produktus, pasakodami, kokias funkcijas naudoja „Brave“ naudotojai.</translation>
+<translation id="2888496576732880897">Padėkite „Brave“ paieškai augti</translation>
+<translation id="7044431516245362795">Prisijunkite prie „Web Discovery Project“ ir padėkite didinti indeksą bei gerinti paieškos rezultatus. <ph name="LEARN_MORE_START"/>Sužinokite daugiau.<ph name="LEARN_MORE_END"/></translation>
+<translation id="7818938154803162778">Žinoma, padėsiu</translation>
 <translation id="2877653791257935258">Įrašykite svetainės pavadinimą arba URL</translation>
 <translation id="5329830149661250028">Pamatykite, kuo skiriasi „Brave“: jokios reklamos, jokių sekiklių, daug greičiau įkeliami puslapiai.</translation>
 <translation id="3941792073703079607">Pamatykite, kuo skiriasi „Brave“: blokuokite reklamą. Išsaugokite duomenis. Transliuokite greičiau.</translation>
@@ -412,8 +416,13 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="6925081665778864449">Norėdami sinchronizuoti slaptažodžius, savo „Android“ įrenginyje įjunkite tapatybės patvirtinimą naudojant biometrinius duomenis ar slaptažodį. Ši papildoma saugumo priemonė padeda apsaugoti jūsų slaptažodžius.</translation>
 <translation id="597993392929850353">„Brave“ licencija</translation>
 <translation id="6336451774241870485">Naujas inkognito skirtukas</translation>
-<translation id="6199596294742117349">Tai inkognito skirtukas</translation>
-<translation id="5858455511731621847">Nors svetainės, kuriose lankotės per inkognito skirtukus, nėra įrašomos vietoje, jos nepadaro jūsų anonimu, be to, jas gali matyti jūsų interneto paslaugų teikėjas, jūsų darbdavys ar lankomos svetainės.</translation>
+<translation id="3110967157686007724">Inkognito skirtukas</translation>
+<translation id="944340256927461196">Nepalikite jokių pėdsakų savo įrenginyje</translation>
+<translation id="2063044449012253966">Svetainės, kuriose lankotės privačiuose languose, nebus rodomos istorijoje. Slapukai, formų duomenys ir svetainės duomenys išnyksta, kai uždaromi visi privatūs langai.</translation>
+<translation id="7395764193745523646">Naršymo matomumas</translation>
+<translation id="8670344404057978375">Atminkite, kad net privačiuose languose jūsų naršymo veikla vis tiek gali būti matoma jūsų IPT, tinklo stebėtojams arba jūsų darbdaviui (jei naudojate darbo įrenginį / tinklą).</translation>
+<translation id="1413177583895309156">„Brave VPN“ užšifruoja ir apsaugo viską, ką darote internete, net ir už „Brave“ naršyklės ribų.</translation>
+<translation id="3974348661685061050">Išbandykite nemokamai 7 dienas</translation>
 <translation id="5789441016350810005">„Brave“ reklamos siunčiamos, kol naršyklė veikia fone</translation>
 <translation id="4973347371961481083">Indėliai</translation>
 <translation id="7047578174221019462">Jūsų mėnesiniai indėliai apdoroti.</translation>
@@ -449,8 +458,6 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="1116694919640316211">Apie</translation>
 <translation id="7961015016161918242">Niekada</translation>
 <translation id="1275213816424141989">Gal vėliau</translation>
-<translation id="4406937629441301400">Užsidirbkite žetonų už šio vaizdo peržiūrą ir perveskite juos kūrėjams. <ph name="LEARN_MORE"/></translation>
-<translation id="6632345639591919543">Už šio vaizdo peržiūrą uždirbate žetonų.\n<ph name="LEARN_MORE"/></translation>
 <translation id="8164992819127316581">Dabartinio mėnesio (<ph name="CURRENT_MONTH"/>) atlygio išmoka bus pradėta apdoroti <ph name="PAYOUT_DATE"/>.</translation>
 <translation id="33967210973550414">Dabartinio mėnesio (<ph name="CURRENT_MONTH"/>) atlygio išmoka apdorojama.<ph name="CHECK_STATUS"/></translation>
 <translation id="1622952853310946314">Dabartinio mėnesio (<ph name="CURRENT_MONTH"/>) atlygio išmoka atlikta.<ph name="SUPPORT"/></translation>
@@ -458,6 +465,7 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="3624048886326677117">Blokuoti sekiklius ir reklamas (agresyvus)</translation>
 <translation id="7151914815476509258">Blokuoti sekiklius ir reklamas (standartinis)</translation>
 <translation id="7384778069178817075">Leisti visus sekiklius ir reklamas</translation>
+<translation id="1173312143376149085"><ph name="BEGIN_LINK_0"/>Parinktis „Blokuoti visus slapukus“ nebenaudojama. Norėdami sužinoti, kaip priverstinai įjungti šią parinktį, apsilankykite<ph name="END_LINK_0"/> <ph name="BEGIN_LINK_1"/>mūsų pagalbos puslapyje<ph name="END_LINK_1"/></translation>
 <translation id="3763681089644577874">Blokuoti slapukus</translation>
 <translation id="614747795780742163">Neleidžia svetainėms laikyti informacijos apie jūsų ankstesnius apsilankymus</translation>
 <translation id="6883611015375728278">Blokuoti visus slapukus</translation>
@@ -473,6 +481,8 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="7854108565842971747">Tai numatytosios skydo nuostatos naujoms svetainėms. Atlikus tokius pakeitimus nustatytos kitoms svetainėms nuostatos išliks tokios pačios.</translation>
 <translation id="218587021686734263">Užkirsti kelią pirštų atspaudams naudojant kalbos nustatymus</translation>
 <translation id="1706099589708266367">Sumažina, kiek svetainės gali sužinoti apie jus, atsižvelgiant į naršyklės kalbos nustatymus.</translation>
+<translation id="6486971767955110687">Išsaugokite kontaktinę informaciją pranešti apie neveikiančią svetainę ateityje</translation>
+<translation id="4085787265464238844">Jei pateiksite kontaktinę informaciją, ji bus išsaugota būsimiems pranešimams</translation>
 <translation id="4721088070859595932">Neleidžia svetainėms atpažinti jūsų įrenginio</translation>
 <translation id="7445306466605902444">Kontrolinių kodų kūrimas blokuojamas (griežtai, gali neveikti svetainės)</translation>
 <translation id="5582686930349810484">Kontrolinių kodų kūrimas blokuojamas (standartiškai)</translation>
@@ -488,6 +498,7 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="1561541094377237745">„Solana“ tinklai</translation>
 <translation id="7141438739990875547">„Bitcoin“ tinklai</translation>
 <translation id="9055546041146396417">Jei ši svetainė atrodo neveikianti, pabandykite nuleisti skydus.</translation>
+<translation id="7898672232170410330">Blokuoti elementą</translation>
 <translation id="1209739344687072997">Pranešti apie neveikiančią svetainę</translation>
 <translation id="8510478288840333677">Praneškite „Brave“ kūrėjams, kad ši svetainė neveikia tinkamai su skydais:</translation>
 <translation id="1653405824851871276">Dėkojame, kad padedate tobulinti „Brave“ visiems. Šioje ataskaitoje bus pateikta tik ta informacija, kuri mums reikalinga interneto svetainei pataisyti. <ph name="LEARN_MORE"/></translation>
@@ -495,14 +506,20 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="8740275226259417070">Tai klaidos puslapis. Apie jį negalima pranešti kaip apie neveikiančią interneto svetainę.</translation>
 <translation id="721949491455392748">Pridėti esamo puslapio ekrano kopiją</translation>
 <translation id="8459191579769999214">Žiūrėti ekrano kopiją</translation>
+<translation id="6476216365964140603">Papildoma informacija (neprivaloma)</translation>
+<translation id="6145852496180774737">Susisiekite su manimi šiuo adresu: (neprivaloma)</translation>
+<translation id="6367576083705149078">Jei pateiksite kontaktinę informaciją, ji bus išsaugota būsimiems pranešimams.</translation>
+<translation id="7616645803364270729">El. paštas, „Twitter“ ir kt.</translation>
 <translation id="5299848999918506028">Dėkojame!</translation>
 <translation id="76550953340008122">Dėkojame, kad pranešėte „Brave“ kūrėjams, jog su šia svetaine kažkas negerai. Pasistengsime ją sutvarkyti!</translation>
 <translation id="650318023204990401">Išplėstiniai valdikliai</translation>
 <translation id="5370478469168390143">Įrašyti duomenis internete</translation>
 <translation id="1118508688433541158">Naršykite sparčiau ir blokuokite reklamas naudodami „Brave“</translation>
 <translation id="7427391215172269363">Kasdien naršydamas saityną su „Brave“ taupau duomenis.</translation>
-<translation id="4776948189086901857">„Brave“ veikia visur</translation>
-<translation id="1606322780901645965">Atsisiųskite „Brave“ iš brave.com į savo nešiojamąjį ar planšetinį kompiuterį ir naršykite žiniatinklyje sparčiau bei privačiau</translation>
+<translation id="357198789571802914">Žiūrėkite „YouTube“, o ne reklamas.</translation>
+<translation id="2154817758398495571">Atidarykite „YouTube“ nuorodas per „Brave“, kad užblokuotumėte reklamas.</translation>
+<translation id="1580816390443799567">Įjungti dabar</translation>
+<translation id="8589748782214271192">Ne, ačiū</translation>
 <translation id="8374242949413616101">Privatumo apsauga</translation>
 <translation id="4955406228638026265">„Brave“ neleidžia sekikliams ir reklamoms be jūsų sutikimo rinkti informacijos apie jus.</translation>
 <translation id="752842701893882688">Taupykite duomenis ir akumuliatorių</translation>
@@ -714,9 +731,10 @@ Ar tikrai norite tai padaryti?</translation>
 <translation id="1532536259167115948">Mėnesinė prenumerata <ph name="TRIAL_TEXT"/></translation>
 <translation id="6344668702581136255">Metinė prenumerata <ph name="TRIAL_TEXT"/></translation>
 <translation id="6748319398471481216">Atnaujinama kas mėnesį</translation>
+<translation id="112929124115834557">Kasmet atnaujinama</translation>
 <translation id="1131191042781544288"><ph name="MONTHLY_AMOUNT"/> / mėn.</translation>
 <translation id="1163809943099641131">Vieneri metai</translation>
-<translation id="727385358513272220">Atsinaujina kasmet (<ph name="DISCOUNT_TEXT_START"/>sutaupykite <ph name="PERCENTAGE_AMOUNT"/>%%<ph name="DISCOUNT_TEXT_END"/>)</translation>
+<translation id="83293016232121346">(<ph name="DISCOUNT_TEXT_START"/>įrašyti <ph name="PERCENTAGE_AMOUNT"/>%%<ph name="DISCOUNT_TEXT_END"/>)</translation>
 <translation id="4790641549702094825"><ph name="YEARLY_AMOUNT"/> / metams</translation>
 <translation id="2786538705804257030">Už prenumeratą bus mokama per jūsų „Google“ paskyrą. Bet kokia nepanaudota nemokamos bandomosios versijos dalis, jei ji buvo siūloma, prarandama, kai įsigyjate prenumeratą.\n\nJūsų prenumerata bus atnaujinta automatiškai, nebent ji bus atšaukta likus bent 24 valandoms iki einamojo laikotarpio pabaigos.\n\nSavo prenumeratas galite tvarkyti nuostatų dalyje.\nNaudodami „Brave“, sutinkate su naudojimo sąlygomis ir privatumo politika.</translation>
 <translation id="5035172357624830412">Jau pirkote iš brave.com?</translation>
@@ -812,7 +830,7 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="9061799688859969073"><ph name="ACCOUNT_NAME"/> nusiuntė<ph name="CRYPTO_VALUE"/> <ph name="ASSET"/> (<ph name="FIAT_VALUE"/> $) – <ph name="DATE"/></translation>
 <translation id="1148985422232712046"><ph name="ACCOUNT_NAME"/> nusiuntė <ph name="ASSET"/> #<ph name="ASSET_ID"/> - <ph name="DATE"/></translation>
 <translation id="2911329628253651823"><ph name="ACCOUNT_NAME"/> patvirtino <ph name="ASSET"/> – <ph name="DATE"/></translation>
-<translation id="7400134344541309180">Patvirtintas neribotas <ph name="ASSET"/> skaičius  <ph name="PROXY"/></translation>
+<translation id="7400134344541309180">Patvirtintas neribotas <ph name="ASSET"/> skaičius <ph name="PROXY"/></translation>
 <translation id="2428770727194227378"><ph name="ACCOUNT_NAME"/> sukeitimas – <ph name="DATE"/></translation>
 <translation id="2833661570529295305">Nepatvirtinta</translation>
 <translation id="8034530868111548216">Patvirtinta</translation>
@@ -846,9 +864,8 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="4351811224047421378">Skaičiai po kablelio</translation>
 <translation id="3494964159182650590">Atlygio suvestinė</translation>
 <translation id="590733288489975971">Atlygis už reklamą</translation>
-<translation id="1886682615222609631">Uždarbis iki šiol</translation>
+<translation id="1450735350187803276">Šį mėnesį matytos reklamos</translation>
 <translation id="1767561995429774671">Įnešti</translation>
-<translation id="7335371657242627509">Įtraukti į automatinį indėlį</translation>
 <translation id="6727102863431372879">Nustatyti</translation>
 <translation id="3074127054582480056">Dėmesys</translation>
 <translation id="2280319752798785157">Mėnesinis indėlis</translation>
@@ -1019,7 +1036,6 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="8382368767453083629">Inicijuoti kelių asmenų pasirašymą – 2</translation>
 <translation id="77243237706803459">Inicijuoti kalimą – 2</translation>
 <translation id="583281660410589416">Nežinoma</translation>
-<translation id="5666264859501108700">Jūsų „Brave“ atlygio regionas nustatytas kaip <ph name="COUNTRY_NAME"/>.</translation>
 <translation id="909076461795862330">Deja, bandant nustatyti „Brave“ atlygį įvyko klaida. Bandykite dar kartą.</translation>
 <translation id="7352651011704765696">Kažkas negerai</translation>
 <translation id="7144878232160441200">Kartoti</translation>
@@ -1080,10 +1096,6 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="7748944510530490017">Pagrindiniai tinklai</translation>
 <translation id="2781668117338732220">Papildomi tinklai</translation>
 <translation id="282560918037172384">Bandomieji tinklai</translation>
-<translation id="707569835145765061">Būtinas veiksmas: prisijunkite prie atsarginės sąskaitos arba jūsų vBAT bus prarastas</translation>
-<translation id="1776742005329298234"><ph name="DUE_DATE"/> nutrauksime esamų virtualių BAT likučių palaikymą. Iki šios datos prijunkite atsarginę sąskaitą, kad galėtume pervesti savo uždirbtą likutį į atsarginę sąskaitą, kitaip jūsų likutis bus prarastas.</translation>
-<translation id="5089752671190341407">Vis dar galite paaukoti savo vBAT savo mėgstamiems kūrėjams</translation>
-<translation id="171158953146804144"><ph name="DUE_DATE"/> nutrauksime esamų virtualių BAT likučių palaikymą. Deja, jūsų regione nėra galimų saugojimo vietų (<ph name="REGION"/>) norint išsiimti savo likučius. Iki to laiko jūs vis dar galite juos panaudoti savo mėgstamiems kūrėjams.</translation>
 <translation id="8949422576126100041">Peržiūrėti puslapį naudojant spartųjį skaitlį?</translation>
 <translation id="3435896845095436175">Įgalinti</translation>
 <translation id="5296840868251496327">Įgalinti spartųjį skaitlį</translation>
@@ -1102,9 +1114,12 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="2471230424465522689">Ne anksčiau nei</translation>
 <translation id="4841860051609590575">Užklausos ID</translation>
 <translation id="1179407411385015942">„Leo“ yra dirbtinio intelekto pagrindu veikiantis išmanusis asistentas, integruotas tiesiai naršyklėje</translation>
+<translation id="5781842473834867765">Saugoti mano pokalbių istoriją</translation>
 <translation id="4109670531935487117">Adreso juostoje rodyti automatinio užbaigimo pasiūlymus</translation>
-<translation id="1250335737108905610">Atkurti ir išvalyti „Leo“ duomenis</translation>
-<translation id="6165101586663336913">Iš naujo nustatę „Leo“ asistentą, ateityje turėsite pasirinkti, kad norite naudoti „Leo“, taip pat bus išvalyta jūsų pokalbių istorija. Išvalius jūsų pokalbių istoriją, bus pašalinti visi ankstesni jūsų pokalbiai su „Leo“. Šio veiksmo atšaukti negalima.</translation>
+<translation id="6106701981952170121">Ištrinti visus „Leo“ DI pokalbių duomenis</translation>
+<translation id="423600389315522551">Iš naujo nustatę „Leo“ DI, ateityje turėsite prisijungti prie „Brave Leo“ DI, taip pat bus išvalyta jūsų pokalbių istorija. Išvalius pokalbių istoriją bus ištrinti visi ankstesni jūsų pokalbiai su „Brave Leo“ DI. Šio veiksmo atšaukti negalima.</translation>
+<translation id="6742599753610126012">Išvalyti pokalbių istoriją</translation>
+<translation id="3443052382074796867">Išjungus pokalbių saugojimą, visi anksčiau išsaugoti pokalbiai bus ištrinti visam laikui. Šio veiksmo atšaukti negalima.</translation>
 <translation id="3692772534525889713">Susiekite savo „Play Store“ pirkinį su savo „Brave“ paskyra, kad galėtumėte naudotis „Brave Leo“ kitais įrenginiais.</translation>
 <translation id="73236265316873967">„Leo Premium“</translation>
 <translation id="1028627582482425924">Vieni metai</translation>
@@ -1232,5 +1247,9 @@ Užklausos nepriėmus, prie VPN pakartotinai prisijungta nebus ir interneto ryš
 <translation id="2728518864712716830">Naujinimas atsisiųstas.</translation>
 <translation id="8403338849301491865">Filtrų sąrašas sėkmingai atnaujintas</translation>
 <translation id="4650851936784160359">Filtrų sąrašo atnaujinti nepavyko. Bandykite dar kartą</translation>
-<translation id="1450735350187803276">Šį mėnesį matytos reklamos</translation>
+<translation id="3098054327870766317">Rodyti atšaukimo mygtuką, kai skirtukai uždaromi</translation>
+<translation id="1336494649091412226">Ar tikrai norite išeiti iš „Brave“?</translation>
+<translation id="2361906291514218784">„Leo“ DI</translation>
+<translation id="7942415993090181327">Pokalbių istorija</translation>
+<translation id="6859935199732075666">Rodyti saugaus naršymo klaidas</translation>
 </translationbundle>

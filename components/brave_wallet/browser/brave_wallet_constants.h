@@ -26,6 +26,7 @@ inline constexpr int32_t kAutoLockMinutesMin = 1;
 inline constexpr int32_t kAutoLockMinutesMax = 10080;
 
 inline constexpr int32_t kAssetDiscoveryMinutesPerRequest = 1;
+inline constexpr size_t kBalanceScannerBatchSize = 4000;
 
 inline constexpr char kWalletBaseDirectory[] = "BraveWallet";
 inline constexpr char kImageSourceHost[] = "erc-token-images";
@@ -551,6 +552,10 @@ inline constexpr webui::LocalizedString kLocalizedStrings[] = {
      IDS_BRAVE_WALLET_CREATE_ACCOUNT_ZCASH_DESCRIPTION},
     {"braveWalletCreateAccountZCashTestnetDescription",
      IDS_BRAVE_WALLET_CREATE_ACCOUNT_ZCASH_TESTNET_DESCRIPTION},
+    {"braveWalletCreateAccountCardanoDescription",
+     IDS_BRAVE_WALLET_CREATE_ACCOUNT_CARDANO_DESCRIPTION},
+    {"braveWalletCreateAccountCardanoTestnetDescription",
+     IDS_BRAVE_WALLET_CREATE_ACCOUNT_CARDANO_TESTNET_DESCRIPTION},
     {"braveWalletFilecoinPrivateKeyProtocol",
      IDS_BRAVE_WALLET_FILECOIN_PRIVATE_KEY_PROTOCOL},
     {"braveWalletAddAccountImport", IDS_BRAVE_WALLET_ADD_ACCOUNT_IMPORT},
@@ -966,8 +971,16 @@ inline constexpr webui::LocalizedString kLocalizedStrings[] = {
     {"braveWalletZeroBalanceError", IDS_BRAVE_WALLET_ZERO_BALANCE_ERROR},
     {"braveWalletAddressRequiredError",
      IDS_BRAVE_WALLET_ADDRESS_REQUIRED_ERROR},
-    {"braveWalletInvalidZcashUnifiedRecipientAddress",
-     IDS_BRAVE_WALLET_INVALID_ZCASH_UNIFIED_RECIPIENT_ADDRESS},
+    {"braveWalletZCashInvalidTransparentAddress",
+     IDS_BRAVE_WALLET_ZCASH_INVALID_TRANSPARENT_ADDRESS},
+    {"braveWalletZCashInvalidUnifiedAddress",
+     IDS_BRAVE_WALLET_ZCASH_INVALID_UNIFIED_ADDRESS},
+    {"braveWalletZCashInvalidAddressNetworkMismatch",
+     IDS_BRAVE_WALLET_ZCASH_INVALID_ADDRESS_NETWORK_MISMATCH},
+    {"braveWalletZCashInvalidUnifiedAddressMissingOrchardPart",
+     IDS_BRAVE_WALLET_ZCASH_INVALID_UNIFIED_ADDRESS_MISSING_ORCHARD_PART},
+    {"braveWalletZCashInvalidUnifiedAddressMissingTransparentPart",
+     IDS_BRAVE_WALLET_ZCASH_INVALID_UNIFIED_ADDRESS_MISSING_TRANSPARENT_PART},
     {"braveWalletChecksumModalTitle", IDS_BRAVE_WALLET_CHECKSUM_MODAL_TITLE},
     {"braveWalletChecksumModalDescription",
      IDS_BRAVE_WALLET_CHECKSUM_MODAL_DESCRIPTION},
@@ -1157,6 +1170,10 @@ inline constexpr webui::LocalizedString kLocalizedStrings[] = {
      IDS_BRAVE_WALLET_ZEC_ACCOUNT_DESCRIPTION},
     {"braveWalletZECTestnetAccountDescription",
      IDS_BRAVE_WALLET_ZEC_TESTNET_ACCOUNT_DESCRIPTION},
+    {"braveWalletCardanoAccountDescription",
+     IDS_BRAVE_WALLET_CARDANO_ACCOUNT_DESCRIPTION},
+    {"braveWalletCardanoTestnetAccountDescription",
+     IDS_BRAVE_WALLET_CARDANO_TESTNET_ACCOUNT_DESCRIPTION},
     {"braveWalletShowNetworkLogoOnNftsTitle",
      IDS_BRAVE_WALLET_SHOW_NETWORK_LOGO_ON_NFTS_TITLE},
     {"braveWalletShowNetworkLogoOnNftsDescription",
@@ -1195,6 +1212,9 @@ inline constexpr webui::LocalizedString kLocalizedStrings[] = {
      IDS_BRAVE_WALLET_SWAPPING_OR_BRIDGING_ON_NETWORK},
     {"braveWalletErrorAttemptingToTransactOnNetwork",
      IDS_BRAVE_WALLET_ERROR_ATTEMPTING_TO_TRANSACT_ON_NETWORK},
+    {"braveWalletShieldingAmount", IDS_BRAVE_WALLET_SHIELDING_AMOUNT},
+    {"braveWalletAmountHasBeenShielded",
+     IDS_BRAVE_WALLET_AMOUNT_HAS_BEEN_SHIELDED},
     {"braveWalletTransactionSubmittedTitle",
      IDS_BRAVE_WALLET_TRANSACTION_SUBMITTED_TITLE},
     {"braveWalletTransactionSignedTitle",
@@ -1620,7 +1640,39 @@ inline constexpr webui::LocalizedString kLocalizedStrings[] = {
      IDS_BRAVE_WALLET_ACCOUNT_SHIELDED_DESCRIPTION},
     {"braveWalletShielded", IDS_BRAVE_WALLET_SHIELDED},
     {"braveWalletUnified", IDS_BRAVE_WALLET_UNIFIED},
-    {"braveWalletTransparent", IDS_BRAVE_WALLET_TRANSPARENT}};
+    {"braveWalletTransparent", IDS_BRAVE_WALLET_TRANSPARENT},
+    {"braveWalletOutOfSyncTitle", IDS_BRAVE_WALLET_OUT_OF_SYNC_TITLE},
+    {"braveWalletOutOfSyncBlocksBehindTitle",
+     IDS_BRAVE_WALLET_OUT_OF_SYNC_BLOCKS_BEHIND_TITLE},
+    {"braveWalletOutOfSyncDescription",
+     IDS_BRAVE_WALLET_OUT_OF_SYNC_DESCRIPTION},
+    {"braveWalletZCashPendingBalanceTitle",
+     IDS_BRAVE_WALLET_ZCASH_PENDING_BALANCE_TITLE},
+    {"braveWalletSyncAccountButtonInProgress",
+     IDS_BRAVE_WALLET_SYNC_ACCOUNT_BUTTON_IN_PROGRESS},
+    {"braveWalletSyncAccountButton", IDS_BRAVE_WALLET_SYNC_ACCOUNT_BUTTON},
+    {"braveWalletSyncAccountName", IDS_BRAVE_WALLET_SYNC_ACCOUNT_NAME},
+    {"braveWalletInitializing", IDS_BRAVE_WALLET_INITIALIZING},
+    {"braveWalletProcessingBlock", IDS_BRAVE_WALLET_PROCESSING_BLOCK},
+    {"braveWalletBlocksLeft", IDS_BRAVE_WALLET_BLOCKS_LEFT},
+    {"braveWalletBlocksOfBlocks", IDS_BRAVE_WALLET_BLOCKS_OF_BLOCKS},
+    {"braveWalletRanges", IDS_BRAVE_WALLET_RANGES},
+    {"braveWalletPause", IDS_BRAVE_WALLET_PAUSE},
+    {"braveWalletSyncCompleteMessage", IDS_BRAVE_WALLET_SYNC_COMPLETE_MESSAGE},
+    {"braveWalletSyncStartedMessage", IDS_BRAVE_WALLET_SYNC_STARTED_MESSAGE},
+    {"braveWalletContinueUsingWallet", IDS_BRAVE_WALLET_CONTINUE_USING_WALLET},
+    {"braveWalletShieldedAccountBirthdayBlock",
+     IDS_BRAVE_WALLET_SHIELDED_ACCOUNT_BIRTHDAY_BLOCK},
+    {"braveWalletAccountBirthdayTooLow",
+     IDS_BRAVE_WALLET_ACCOUNT_BIRTHDAY_TOO_LOW},
+    {"braveWalletAccountBirthdayTooHigh",
+     IDS_BRAVE_WALLET_ACCOUNT_BIRTHDAY_TOO_HIGH},
+    {"braveWalletBlocksBehind", IDS_BRAVE_WALLET_BLOCKS_BEHIND},
+    {"braveWalletAccountIsSyncing", IDS_BRAVE_WALLET_ACCOUNT_IS_SYNCING},
+    {"braveWalletSyncing", IDS_BRAVE_WALLET_SYNCING},
+    {"braveWalletReviewShield", IDS_BRAVE_WALLET_REVIEW_SHIELD},
+    {"braveWalletShielding", IDS_BRAVE_WALLET_SHIELDING},
+    {"braveWalletShieldZEC", IDS_BRAVE_WALLET_SHIELD_ZEC}};
 
 // 0x swap constants
 inline constexpr char kZeroExBaseAPIURL[] = "https://api.0x.wallet.brave.com";
@@ -1693,6 +1745,7 @@ inline constexpr char kZCashPrefKey[] = "zcash";
 inline constexpr char kEthereumPrefKey[] = "ethereum";
 inline constexpr char kFilecoinPrefKey[] = "filecoin";
 inline constexpr char kSolanaPrefKey[] = "solana";
+inline constexpr char kCardanoPrefKey[] = "cardano";
 
 inline constexpr char kEthereumBlockTagEarliest[] = "earliest";
 inline constexpr char kEthereumBlockTagLatest[] = "latest";

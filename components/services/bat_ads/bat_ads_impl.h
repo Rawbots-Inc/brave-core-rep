@@ -47,6 +47,8 @@ class BatAdsImpl : public mojom::BatAds {
   void SetBuildChannel(
       brave_ads::mojom::BuildChannelInfoPtr mojom_build_channel) override;
   void SetFlags(brave_ads::mojom::FlagsPtr mojom_flags) override;
+  void SetContentSettings(
+      brave_ads::mojom::ContentSettingsPtr mojom_content_settings) override;
 
   void Initialize(brave_ads::mojom::WalletInfoPtr mojom_wallet,
                   InitializeCallback callback) override;
@@ -67,6 +69,9 @@ class BatAdsImpl : public mojom::BatAds {
       brave_ads::mojom::InlineContentAdEventType mojom_ad_event_type,
       TriggerInlineContentAdEventCallback callback) override;
 
+  void ParseAndSaveCreativeNewTabPageAds(
+      base::Value::Dict data,
+      ParseAndSaveCreativeNewTabPageAdsCallback callback) override;
   void MaybeServeNewTabPageAd(MaybeServeNewTabPageAdCallback callback) override;
   void TriggerNewTabPageAdEvent(
       const std::string& placement_id,

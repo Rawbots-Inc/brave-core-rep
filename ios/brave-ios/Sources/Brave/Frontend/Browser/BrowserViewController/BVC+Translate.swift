@@ -12,103 +12,97 @@ import SwiftUI
 import UIKit
 
 extension BrowserViewController: BraveTranslateScriptHandlerDelegate {
-  func updateTranslateURLBar(tab: Tab?, state: TranslateURLBarButton.TranslateState) {
-    guard let tab = tab else { return }
-
+  func updateTranslateURLBar(tab: Tab, state: TranslateURLBarButton.TranslateState) {
     tab.translationState = state
 
     if tab === tabManager.selectedTab {
       topToolbar.updateTranslateButtonState(state)
-
-      showTranslateOnboarding(tab: tab) { [weak tab] translateEnabled in
-        if let translateHelper = tab?.translateHelper {
-          translateHelper.startTranslation(canShowToast: true)
-        }
-      }
     }
   }
 
-  func showTranslateOnboarding(tab: Tab?, completion: @escaping (_ translateEnabled: Bool) -> Void)
+  func canShowTranslateOnboarding(tab: Tab) -> Bool {
+    guard let selectedTab = tabManager.selectedTab, tab === selectedTab else {
+      return false
+    }
+
+    return Preferences.Translate.translateEnabled.value == nil
+      && !topToolbar.inOverlayMode
+      && topToolbar.secureContentState == .secure
+      && Preferences.Translate.translateURLBarOnboardingCount.value < 2
+      && shouldShowTranslationOnboardingThisSession && presentedViewController == nil
+  }
+
+  func showTranslateOnboarding(tab: Tab, completion: @escaping (_ translateEnabled: Bool?) -> Void)
   {
-    // Do NOT show the translate onboarding popup if the tab isn't visible
-    guard Preferences.Translate.translateEnabled.value,
-      let selectedTab = tabManager.selectedTab,
-      selectedTab === tab,
-      selectedTab.translationState == .available
-    else {
+    topToolbar.layoutIfNeeded()
+    view.layoutIfNeeded()
+
+    // Ensure url bar is expanded before presenting a popover on it
+    toolbarVisibilityViewModel.toolbarState = .expanded
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+      // Do NOT show the translate onboarding popup if the tab isn't visible
+      guard self.canShowTranslateOnboarding(tab: tab)
+      else {
+        completion(nil)
+        return
+      }
+
+      Preferences.Translate.translateURLBarOnboardingCount.value += 1
+
+      let popover = PopoverController(
+        content: OnboardingTranslateView(
+          onContinueButtonPressed: { [weak self, weak tab] in
+            guard let tab = tab, let self = self else { return }
+
+            self.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
+            Preferences.Translate.translateEnabled.value = true
+
+            tab.translateHelper?.presentUI(on: self)
+            completion(true)
+          },
+          onDisableFeature: { [weak self, weak tab] in
+            guard let tab = tab, let self = self else { return }
+
+            self.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
+
+            Preferences.Translate.translateEnabled.value = false
+            tab.translationState = .unavailable
+            self.topToolbar.updateTranslateButtonState(.unavailable)
+            completion(false)
+          }
+        ),
+        autoLayoutConfiguration: .phoneWidth
+      )
+
+      popover.arrowDistance = 10.0
+      popover.outerMargins = UIEdgeInsets(equalInset: 16.0)
+
+      popover.previewForOrigin = .init(
+        view: self.topToolbar.locationView.translateButton.then {
+          $0.setOnboardingState(enabled: true)
+        },
+        action: { popover in
+          popover.previewForOrigin = nil
+          popover.dismissPopover()
+        }
+      )
+
+      popover.popoverDidDismiss = { [weak self] _ in
+        self?.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
+        completion(nil)
+      }
+      popover.present(from: self.topToolbar.locationView.translateButton, on: self)
+      self.shouldShowTranslationOnboardingThisSession = false
+    }
+  }
+
+  func presentTranslateToast(tab: Tab, languageInfo: BraveTranslateLanguageInfo) {
+    if presentedViewController != nil || topToolbar.inOverlayMode || tab !== tabManager.selectedTab
+    {
       return
     }
 
-    if Preferences.Translate.translateURLBarOnboardingCount.value < 2,
-      shouldShowTranslationOnboardingThisSession,
-      presentedViewController == nil
-    {
-      Preferences.Translate.translateURLBarOnboardingCount.value += 1
-
-      topToolbar.layoutIfNeeded()
-      view.layoutIfNeeded()
-
-      // Ensure url bar is expanded before presenting a popover on it
-      toolbarVisibilityViewModel.toolbarState = .expanded
-
-      DispatchQueue.main.async {
-        let popover = PopoverController(
-          content: OnboardingTranslateView(
-            onContinueButtonPressed: { [weak self, weak tab] in
-              guard let tab = tab, let self = self else { return }
-
-              self.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
-              Preferences.Translate.translateEnabled.value = true
-
-              tab.translateHelper?.presentUI(on: self)
-            },
-            onDisableFeature: { [weak self, weak tab] in
-              guard let tab = tab, let self = self else { return }
-
-              self.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
-
-              Preferences.Translate.translateEnabled.value = false
-              tab.translationState = .unavailable
-              self.topToolbar.updateTranslateButtonState(.unavailable)
-            }
-          ),
-          autoLayoutConfiguration: .init(preferredWidth: self.view.bounds.width - (32.0 * 2.0))
-        )
-
-        popover.arrowDistance = 10.0
-
-        popover.previewForOrigin = .init(
-          view: self.topToolbar.locationView.translateButton.then {
-            $0.setOnboardingState(enabled: true)
-          },
-          action: { popover in
-            popover.previewForOrigin = nil
-            popover.dismissPopover()
-            completion(Preferences.Translate.translateEnabled.value)
-          }
-        )
-
-        popover.popoverDidDismiss = { [weak self, weak tab] _ in
-          guard let tab = tab, let self = self else { return }
-
-          self.topToolbar.locationView.translateButton.setOnboardingState(enabled: false)
-
-          if Preferences.Translate.translateEnabled.value {
-            tab.translateHelper?.presentUI(on: self)
-            completion(true)
-            return
-          }
-
-          completion(false)
-        }
-        popover.present(from: self.topToolbar.locationView.translateButton, on: self)
-      }
-
-      shouldShowTranslationOnboardingThisSession = false
-    }
-  }
-
-  func presentToast(tab: Tab?, languageInfo: BraveTranslateLanguageInfo) {
     let popover = PopoverController(
       content: TranslateToast(languageInfo: languageInfo) { [weak tab] _ in
         tab?.translateHelper?.startTranslation(canShowToast: false)
@@ -116,5 +110,20 @@ extension BrowserViewController: BraveTranslateScriptHandlerDelegate {
       autoLayoutConfiguration: nil
     )
     popover.present(from: self.topToolbar.locationView.translateButton, on: self)
+  }
+
+  func presentTranslateError(tab: Tab) {
+    if presentedViewController != nil || topToolbar.inOverlayMode || tab !== tabManager.selectedTab
+    {
+      return
+    }
+
+    let alert = UIAlertController(
+      title: Strings.genericErrorTitle,
+      message: Strings.genericErrorBody,
+      preferredStyle: .alert
+    )
+    alert.addAction(UIAlertAction(title: Strings.OBErrorOkay, style: .default))
+    self.present(alert, animated: true)
   }
 }

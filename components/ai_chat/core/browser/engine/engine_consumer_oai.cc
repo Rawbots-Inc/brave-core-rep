@@ -92,13 +92,37 @@ base::Value::List BuildMessages(
   }
 
   for (const mojom::ConversationTurnPtr& turn : conversation_history) {
+    if (turn->uploaded_images) {
+      base::Value::Dict message;
+      message.Set("role", "user");
+      base::Value::List content;
+      base::Value::Dict user_message;
+      user_message.Set("type", "text");
+      user_message.Set("text", "These images are uploaded by the users");
+      content.Append(std::move(user_message));
+      size_t counter = 0;
+      // Only send the first uploaded_image becasue llama-vision seems to take
+      // the last one if there are multiple uploaded_images
+      for (const auto& uploaded_image : turn->uploaded_images.value()) {
+        if (counter++ > 0) {
+          break;
+        }
+        base::Value::Dict image;
+        image.Set("type", "image_url");
+        base::Value::Dict image_url_dict;
+        image_url_dict.Set(
+            "url", EngineConsumer::GetImageDataURL(uploaded_image->image_data));
+        image.Set("image_url", std::move(image_url_dict));
+        content.Append(std::move(image));
+      }
+      message.Set("content", std::move(content));
+      messages.Append(std::move(message));
+    }
     base::Value::Dict message;
     message.Set("role", turn->character_type == CharacterType::HUMAN
                             ? "user"
                             : "assistant");
-    const std::string& text = (turn->edits && !turn->edits->empty())
-                                  ? turn->edits->back()->text
-                                  : turn->text;
+
     message.Set(
         "content",
         turn->selected_text
@@ -107,8 +131,8 @@ base::Value::List BuildMessages(
                        l10n_util::GetStringUTF8(
                            IDS_AI_CHAT_LLAMA2_SELECTED_TEXT_PROMPT_SEGMENT),
                        {*turn->selected_text}, nullptr),
-                   "\n\n", text})
-            : text);
+                   "\n\n", EngineConsumer::GetPromptForEntry(turn)})
+            : EngineConsumer::GetPromptForEntry(turn));
     messages.Append(std::move(message));
   }
 
@@ -246,7 +270,6 @@ void EngineConsumerOAIRemote::GenerateAssistantResponse(
     const bool& is_video,
     const std::string& page_content,
     const ConversationHistory& conversation_history,
-    const std::string& human_input,
     const std::string& selected_language,
     GenerationDataCallback data_received_callback,
     GenerationCompletedCallback completed_callback) {

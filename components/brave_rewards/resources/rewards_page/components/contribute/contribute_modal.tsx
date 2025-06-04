@@ -6,7 +6,6 @@
 import * as React from 'react'
 
 import { AppModelContext, useAppState } from '../../lib/app_model_context'
-import { useCallbackWrapper } from '../../lib/callback_wrapper'
 import { isSelfCustodyProvider } from '../../../shared/lib/external_wallet'
 import { Modal } from '../modal'
 import { PaymentForm } from './payment_form'
@@ -30,12 +29,9 @@ interface Props {
 
 export function ContributeModal (props: Props) {
   const model = React.useContext(AppModelContext)
-  const wrapCallback = useCallbackWrapper()
 
-  const [creator, externalWallet] = useAppState((state) => [
-    state.currentCreator,
-    state.externalWallet
-  ])
+  const creator = useAppState((state) => state.currentCreator)
+  const externalWallet = useAppState((state) => state.externalWallet)
 
   const [viewType, setViewType] = React.useState<ViewType>(() => {
     if (creator && externalWallet) {
@@ -59,9 +55,7 @@ export function ContributeModal (props: Props) {
 
     model
       .sendContribution(creator.site.id, amount, recurring)
-      .then(wrapCallback((success) => {
-        setViewType(success ? 'success' : 'error')
-      }))
+      .then((success) => { setViewType(success ? 'success' : 'error') })
   }
 
   function renderHeader() {
@@ -97,9 +91,9 @@ export function ContributeModal (props: Props) {
   }
 
   return (
-    <div className={viewType} {...backgroundStyle}>
+    <div className={viewType} data-css-scope={backgroundStyle.scope}>
       <Modal onEscape={props.onClose}>
-        <div {...style}>
+        <div data-css-scope={style.scope}>
           {renderHeader()}
           {renderContent()}
         </div>

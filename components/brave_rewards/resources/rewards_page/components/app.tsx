@@ -17,6 +17,7 @@ import { ExploreView } from './explore/explore_view'
 import { Onboarding } from './onboarding/onboarding'
 import { OnboardingSuccessModal } from './onboarding/onboarding_success_modal'
 import { ConnectAccount } from './connect_account'
+import { UnsupportedRegionView } from './unsupported_region_view'
 import { AuthorizationModal } from './authorization_modal'
 import { CaptchaModal } from './captcha_modal'
 import { ContributeModal } from './contribute/contribute_modal'
@@ -34,21 +35,13 @@ export function App() {
   const model = React.useContext(AppModelContext)
   const eventHub = React.useContext(EventHubContext)
 
-  const [
-    loading,
-    embedder,
-    paymentId,
-    tosUpdateRequired,
-    captchaInfo,
-    notifications,
-  ] = useAppState((state) => [
-    state.loading,
-    state.embedder,
-    state.paymentId,
-    state.tosUpdateRequired,
-    state.captchaInfo,
-    state.notifications
-  ])
+  const loading = useAppState((state) => state.loading)
+  const isUnsupportedRegion = useAppState((state) => state.isUnsupportedRegion)
+  const embedder = useAppState((state) => state.embedder)
+  const paymentId = useAppState((state) => state.paymentId)
+  const tosUpdateRequired = useAppState((state) => state.tosUpdateRequired)
+  const captchaInfo = useAppState((state) => state.captchaInfo)
+  const notifications = useAppState((state) => state.notifications)
 
   const viewType = useBreakpoint()
 
@@ -91,6 +84,9 @@ export function App() {
 
   function getClassNames() {
     const list: string[] = []
+    if (embedder.isAutoResizeBubble) {
+      list.push('is-auto-resize-bubble')
+    }
     if (embedder.isBubble) {
       list.push('is-bubble')
     }
@@ -175,17 +171,6 @@ export function App() {
     return null
   }
 
-  function renderMainView() {
-    switch (route) {
-      case routes.creators:
-        return <></>
-      case routes.explore:
-        return <ExploreView />
-      default:
-        return <HomeView />
-    }
-  }
-
   function renderContent() {
     if (loading) {
       return (
@@ -193,6 +178,10 @@ export function App() {
           <ProgressRing />
         </div>
       )
+    }
+
+    if (isUnsupportedRegion) {
+      return <UnsupportedRegionView />
     }
 
     if (!paymentId) {
@@ -210,7 +199,12 @@ export function App() {
     return (
       <>
         <AppFrame>
-          {renderMainView()}
+          <div data-app-route={routes.home}>
+            <HomeView />
+          </div>
+          <div data-app-route={routes.explore}>
+            <ExploreView />
+          </div>
         </AppFrame>
         {renderModal()}
       </>
@@ -218,7 +212,7 @@ export function App() {
   }
 
   return (
-    <div className={getClassNames()} ref={onMount} {...style}>
+    <div className={getClassNames()} ref={onMount} data-css-scope={style.scope}>
       <AppErrorBoundary>
         {renderContent()}
       </AppErrorBoundary>

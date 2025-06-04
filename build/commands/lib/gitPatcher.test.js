@@ -121,9 +121,9 @@ describe('Apply Patches', function () {
     // apply again
     const status = await gitPatcher.applyPatches()
     expect(status).toHaveLength(1)
-    expect(status[0]).toHaveProperty('path', file1Name)
-    expect(status[0]).toHaveProperty('error', undefined)
-    expect(status[0]).toHaveProperty('reason', GitPatcher.patchApplyReasons.PATCH_REMOVED)
+    expect(status[0].path).toBe(file1Name)
+    expect(status[0].error).toBeUndefined()
+    expect(status[0].reason).toBe(GitPatcher.patchApplyReasons.PATCH_REMOVED)
     // check file was reset
     const testFile1Content = await fs.readFile(testFile1Path, writeReadFileOptions)
     expect(testFile1Content).toBe(file1InitialContent)
@@ -147,15 +147,31 @@ describe('Apply Patches', function () {
     expect(status[0]).toHaveProperty('reason', GitPatcher.patchApplyReasons.PATCH_REMOVED)
   })
 
+  test('handles missing file when patch file is still present', async function () {
+    validate()
+    // apply once
+    await gitPatcher.applyPatches()
+    // remove target file
+    await fs.unlink(testFile1Path)
+    await runGitAsyncWithErrorLog(repoPath, ['rm', testFile1Path])
+    await runGitAsyncWithErrorLog(repoPath, ['commit', '-a', '-m', '"remove target"'])
+    // apply again
+    const status = await gitPatcher.applyPatches()
+    expect(status).toHaveLength(1)
+    expect(status[0]).toHaveProperty('patchPath', testFile1PatchPath)
+    expect(status[0]).toHaveProperty('error')
+    expect(status[0]).toHaveProperty('reason', GitPatcher.patchApplyReasons.SRC_REMOVED)
+  })
+
   test('handles bad patch file', async function () {
     validate()
     // Create an invalid patch
     await fs.writeFile(testFile1PatchPath, 'bad patch', writeReadFileOptions)
     const status = await gitPatcher.applyPatches()
     expect(status).toHaveLength(1)
-    expect(status[0]).toHaveProperty('patchPath', testFile1PatchPath) 
-    expect(status[0]).toHaveProperty('path', undefined)
-    expect(status[0]).toHaveProperty('error')
+    expect(status[0].patchPath).toBe(testFile1PatchPath)
+    expect(status[0].path).toBeUndefined()
+    expect(status[0].error).toBeDefined()
   })
 
   test('handles no patch dir', async function () {

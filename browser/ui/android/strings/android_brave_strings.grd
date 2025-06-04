@@ -85,6 +85,7 @@
   <translations>
     <file lang="am" path="translations/android_brave_strings_am.xtb" />
     <file lang="ar" path="translations/android_brave_strings_ar.xtb" />
+    <file lang="az" path="translations/android_brave_strings_az.xtb" />
     <file lang="bg" path="translations/android_brave_strings_bg.xtb" />
     <file lang="bn" path="translations/android_brave_strings_bn.xtb" />
     <file lang="ca" path="translations/android_brave_strings_ca.xtb" />
@@ -110,13 +111,18 @@
     <file lang="it" path="translations/android_brave_strings_it.xtb" />
     <file lang="iw" path="translations/android_brave_strings_iw.xtb" />
     <file lang="ja" path="translations/android_brave_strings_ja.xtb" />
+    <file lang="ka" path="translations/android_brave_strings_ka.xtb" />
+    <file lang="km" path="translations/android_brave_strings_km.xtb" />
     <file lang="kn" path="translations/android_brave_strings_kn.xtb" />
     <file lang="ko" path="translations/android_brave_strings_ko.xtb" />
     <file lang="lt" path="translations/android_brave_strings_lt.xtb" />
     <file lang="lv" path="translations/android_brave_strings_lv.xtb" />
+    <file lang="mk" path="translations/android_brave_strings_mk.xtb" />
+    <file lang="mn" path="translations/android_brave_strings_mn.xtb" />
     <file lang="ml" path="translations/android_brave_strings_ml.xtb" />
     <file lang="mr" path="translations/android_brave_strings_mr.xtb" />
     <file lang="ms" path="translations/android_brave_strings_ms.xtb" />
+    <file lang="my" path="translations/android_brave_strings_my.xtb" />
     <file lang="nl" path="translations/android_brave_strings_nl.xtb" />
     <file lang="no" path="translations/android_brave_strings_no.xtb" />
     <file lang="pl" path="translations/android_brave_strings_pl.xtb" />
@@ -124,9 +130,12 @@
     <file lang="pt-PT" path="translations/android_brave_strings_pt-PT.xtb" />
     <file lang="ro" path="translations/android_brave_strings_ro.xtb" />
     <file lang="ru" path="translations/android_brave_strings_ru.xtb" />
+    <file lang="si" path="translations/android_brave_strings_si.xtb" />
     <file lang="sk" path="translations/android_brave_strings_sk.xtb" />
     <file lang="sl" path="translations/android_brave_strings_sl.xtb" />
+    <file lang="sq" path="translations/android_brave_strings_sq.xtb" />
     <file lang="sr" path="translations/android_brave_strings_sr.xtb" />
+    <file lang="sr-Latn" path="translations/android_brave_strings_sr-Latn.xtb" />
     <file lang="sv" path="translations/android_brave_strings_sv.xtb" />
     <file lang="sw" path="translations/android_brave_strings_sw.xtb" />
     <file lang="ta" path="translations/android_brave_strings_ta.xtb" />
@@ -134,6 +143,7 @@
     <file lang="th" path="translations/android_brave_strings_th.xtb" />
     <file lang="tr" path="translations/android_brave_strings_tr.xtb" />
     <file lang="uk" path="translations/android_brave_strings_uk.xtb" />
+    <file lang="uz" path="translations/android_brave_strings_uz.xtb" />
     <file lang="vi" path="translations/android_brave_strings_vi.xtb" />
     <file lang="zh-CN" path="translations/android_brave_strings_zh-CN.xtb" />
     <file lang="zh-TW" path="translations/android_brave_strings_zh-TW.xtb" />
@@ -764,6 +774,12 @@
       <message name="IDS_SEND_P3A_ANALYTICS_SUMMARY" desc="Summary for checkbox of send p3a analytics.">
         Anonymized P3A info helps Rep Social estimate overall usage, and ensure we’re improving popular features.
       </message>
+      <message name="IDS_SEND_WEB_DISCOVERY_TITLE" desc="Title for checkbox of Web Discovery setting.">
+        Web Discovery Project
+      </message>
+      <message name="IDS_SEND_WEB_DISCOVERY_SUMMARY" desc="Summary for checkbox of Web Discovery setting.">
+        Contribute some anonymous search &amp; browsing data to refine Brave Search.
+      </message>
       <message name="IDS_SEND_CRASH_REPORTS_TITLE" desc="Title for checkbox enable/disable sending diagnostic reports (crashes, hangs).">
         Automatically send diagnostic reports
       </message>
@@ -877,10 +893,7 @@
         LATER
       </message>
 
-      
-      <message name="IDS_WELCOME_TO_BRAVE" desc="Text for welcome onboarding">
-        Welcome to Rep Social
-      </message>
+      <!-- Onboarding strings -->
       <message name="IDS_PRIVACY_ONBOARDING" desc="Text for privacy onboarding">
         Post without limits.
       </message>
@@ -901,6 +914,15 @@
       </message>
       <message name="IDS_P3A_INSIGHTS" desc="Text for p3a insights onboarding">
         Share private and anonymous product insights about what features are being used by Rep Social's users.
+      </message>
+      <message name="IDS_WDP_TITLE" desc="Text for WDP title onboarding">
+        Help Brave Search grow
+      </message>
+      <message name="IDS_WDP_TEXT" desc="Text for WDP text onboarding">
+        Opt into the Web Discovery Project to help grow the index and improve search results. <ph name="LEARN_MORE_START">&lt;learn_more&gt;</ph>Learn more.<ph name="LEARN_MORE_END">&lt;/learn_more&gt;</ph>
+      </message>
+      <message name="IDS_SURE_ILL_HELP_ONBOARDING" desc="Text for Sure i'll help button onboarding">
+        Sure, I'll help
       </message>
       <message name="IDS_TYPE_WEBSITE" desc="Text for searhbox tooltip title onboarding">
         Type a website name or URL
@@ -1673,6 +1695,9 @@ Are you sure you want to do this?
       <message name="IDS_REPORT_BROKEN_SITE_CONTACT_LABEL" desc="Label for the optional contact information field in the broken website report">
           Contact me at: (optional)
       </message>
+      <message name="IDS_REPORT_BROKEN_SITE_CONTACT_APOPUP_LABEL" desc="Contact information auto population explanation">
+          If you provide contact info it will be stored for future reports.
+      </message>
       <message name="IDS_REPORT_BROKEN_SITE_CONTACT_PLACEHOLDER" desc="Placeholder text for the optional contact information field in the broken website report">
           Email, Twitter, etc.
       </message>
@@ -1684,6 +1709,9 @@ Are you sure you want to do this?
       </message>
       <message name="IDS_ADVANCED_CONTROLS" desc="Title for toggle section.">
         Advanced controls
+      </message>
+      <message name="IDS_SHOW_ALL_BLOCKED_ELEMENTS" desc="Text for show all block elements button.">
+        Clear all blocked elements
       </message>
       <message name="IDS_UPDATE_NOTIFICATION_TITLE" desc="Title of notification on application update.">
         Save Data Online
@@ -3618,18 +3646,6 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_WALLET_NETWORK_FILTER_TEST" desc="Network filter title for test networks">
       Test Networks
     </message>
-    <message name="IDS_VBAT_SUPPORTED_REGION_TITLE" desc="Vbat modal title text for supported region">
-      Action required: Connect a custodial account or your vBAT will be lost
-    </message>
-    <message name="IDS_VBAT_SUPPORTED_REGION_TEXT" desc="Vbat modal text for supported region">
-      On <ph name="DUE_DATE">%1$s</ph>, we will be discontinuing support for existing virtual BAT balances. Connect a custodial account before this date so we can transfer your earned balance to your custodial account, otherwise your balance will be lost.
-    </message>
-    <message name="IDS_VBAT_UNSUPPORTED_REGION_TITLE" desc="Vbat modal title text for unsupported region">
-      You still have time to contribute your vBAT to your favorite creators
-    </message>
-    <message name="IDS_VBAT_UNSUPPORTED_REGION_TEXT" desc="Vbat modal text for unsupported region">
-      On <ph name="DUE_DATE">%1$s</ph>, we will be discontinuing support for existing virtual BAT balances. Unfortunately, there are no available custodians in your region (<ph name="REGION">%2$s</ph>) to withdraw your earnings. Until then, you can still contribute to your favorite creators.
-    </message>
     <message name="IDS_SPEEDREADER_MESSAGE_TITLE" desc="Message shown on the speedreader prompt.">
       View page with Speedreader?
     </message>
@@ -4124,6 +4140,9 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     </message>
     <message name="IDS_BRAVE_CLEAR_AI_HISTORY_SUMMARY" desc="A summary to delete Leo AI history">
       Chat history
+    </message>
+    <message name="IDS_SAFEBROWSING_ERRORS_PREF" desc="A preferences to show Safe Browsing errors">
+      Show Safe Browsing errors
     </message>
   </messages>
   </release>

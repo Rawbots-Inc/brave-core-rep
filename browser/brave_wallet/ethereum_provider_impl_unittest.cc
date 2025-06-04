@@ -14,7 +14,6 @@
 
 #include "base/files/scoped_temp_dir.h"
 #include "base/functional/callback_helpers.h"
-#include "base/json/json_reader.h"
 #include "base/memory/raw_ptr.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_number_conversions.h"
@@ -118,15 +117,6 @@ std::vector<uint8_t> DecodeHexHash(const std::string& hash_hex) {
   return hash;
 }
 
-std::optional<base::Value> ToValue(const network::ResourceRequest& request) {
-  std::string_view request_string(request.request_body->elements()
-                                      ->at(0)
-                                      .As<network::DataElementBytes>()
-                                      .AsStringPiece());
-  return base::JSONReader::Read(request_string,
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-}
-
 class TestEventsListener : public brave_wallet::mojom::EventsListener {
  public:
   TestEventsListener() = default;
@@ -207,6 +197,8 @@ class EthereumProviderImplUnitTest : public testing::Test {
   }
 
   void SetUp() override {
+    TestingBrowserProcess::GetGlobal()->CreateGlobalFeaturesForTesting();
+
     // Resetting this test callback, as it gets stored in a discreet global, and
     // in some cases it was causing stack-use-after-return.
     SetCallbackForNewSetupNeededForTesting(base::OnceCallback<void()>());
@@ -227,13 +219,10 @@ class EthereumProviderImplUnitTest : public testing::Test {
         BraveWalletServiceDelegate::Create(browser_context()), prefs(),
         local_state_->Get());
     ASSERT_TRUE(brave_wallet_service_.get());
-    json_rpc_service_ = brave_wallet_service_->json_rpc_service();
-    json_rpc_service_->SetAPIRequestHelperForTesting(
+    json_rpc_service()->SetAPIRequestHelperForTesting(
         shared_url_loader_factory_);
     SetNetwork(mojom::kMainnetChainId, std::nullopt);
-    keyring_service_ = brave_wallet_service_->keyring_service();
-    tx_service_ = brave_wallet_service_->tx_service();
-    WaitForTxStorageDelegateInitialized(tx_service_->GetDelegateForTesting());
+    WaitForTxStorageDelegateInitialized(tx_service()->GetDelegateForTesting());
     SetNetwork(mojom::kMainnetChainId, std::nullopt);
 
     profile_.SetPermissionControllerDelegate(
@@ -254,7 +243,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
 
   EthTxManager* eth_tx_manager() {
     return static_cast<EthTxManager*>(
-        tx_service_->GetTxManager(mojom::CoinType::ETH));
+        tx_service()->GetTxManager(mojom::CoinType::ETH));
   }
 
   void SetInterceptor(const std::string& content) {
@@ -268,7 +257,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
   void SetNetwork(const std::string& chain_id,
                   const std::optional<::url::Origin>& origin) {
     EXPECT_TRUE(
-        json_rpc_service_->SetNetwork(chain_id, mojom::CoinType::ETH, origin));
+        json_rpc_service()->SetNetwork(chain_id, mojom::CoinType::ETH, origin));
   }
 
   void CreateWallet() {
@@ -282,13 +271,13 @@ class EthereumProviderImplUnitTest : public testing::Test {
         "device1", mojom::kDefaultKeyringId));
 
     auto added_accounts =
-        keyring_service_->AddHardwareAccountsSync(std::move(hw_accounts));
+        keyring_service()->AddHardwareAccountsSync(std::move(hw_accounts));
     return std::move(added_accounts[0]);
   }
 
   void Unlock() {
     base::RunLoop run_loop;
-    keyring_service_->Unlock(
+    keyring_service()->Unlock(
         "brave", base::BindLambdaForTesting([&run_loop](bool success) {
           EXPECT_TRUE(success);
           run_loop.Quit();
@@ -297,13 +286,13 @@ class EthereumProviderImplUnitTest : public testing::Test {
   }
 
   void Lock() {
-    keyring_service_->Lock();
+    keyring_service()->Lock();
     browser_task_environment_.RunUntilIdle();
   }
 
   void SetSelectedAccount(const mojom::AccountIdPtr& account_id) {
     base::RunLoop run_loop;
-    keyring_service_->SetSelectedAccount(
+    keyring_service()->SetSelectedAccount(
         account_id.Clone(), base::BindLambdaForTesting([&](bool success) {
           EXPECT_TRUE(success);
           run_loop.Quit();
@@ -411,10 +400,14 @@ class EthereumProviderImplUnitTest : public testing::Test {
   ~EthereumProviderImplUnitTest() override = default;
 
   content::TestWebContents* web_contents() { return web_contents_.get(); }
-  TxService* tx_service() { return tx_service_; }
-  JsonRpcService* json_rpc_service() { return json_rpc_service_; }
-  KeyringService* keyring_service() { return keyring_service_; }
-  AccountUtils GetAccountUtils() { return AccountUtils(keyring_service_); }
+  TxService* tx_service() { return brave_wallet_service_->tx_service(); }
+  JsonRpcService* json_rpc_service() {
+    return brave_wallet_service_->json_rpc_service();
+  }
+  KeyringService* keyring_service() {
+    return brave_wallet_service_->keyring_service();
+  }
+  AccountUtils GetAccountUtils() { return AccountUtils(keyring_service()); }
   EthereumProviderImpl* provider() { return provider_.get(); }
   content::BrowserContext* browser_context() { return &profile_; }
   PrefService* prefs() { return profile_.GetPrefs(); }
@@ -676,7 +669,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
                 SCOPED_TRACE(
                     request->sign_data->get_eth_standard_sign_data()->message);
                 EXPECT_EQ(request->chain_id,
-                          json_rpc_service_->GetChainIdSync(
+                          json_rpc_service()->GetChainIdSync(
                               mojom::CoinType::ETH, GetOrigin()));
                 requests_out.push_back(request.Clone());
               }
@@ -718,7 +711,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
 
   std::vector<std::string> GetAddresses() {
     std::vector<std::string> result;
-    for (const auto& account_info : keyring_service_->GetAllAccountInfos()) {
+    for (const auto& account_info : keyring_service()->GetAllAccountInfos()) {
       if (account_info->account_id->coin == mojom::CoinType::ETH) {
         result.push_back(account_info->address);
       }
@@ -793,7 +786,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
             }),
         base::Value());
     if (user_approved) {
-      json_rpc_service_->NotifySwitchChainRequestProcessed(
+      json_rpc_service()->NotifySwitchChainRequestProcessed(
           GetPendingSwitchChainRequestId(), *user_approved);
     }
     run_loop.Run();
@@ -931,7 +924,7 @@ class EthereumProviderImplUnitTest : public testing::Test {
   }
 
   std::string GetPendingSwitchChainRequestId() {
-    auto requests = json_rpc_service_->GetPendingSwitchChainRequestsSync();
+    auto requests = json_rpc_service()->GetPendingSwitchChainRequestsSync();
     EXPECT_EQ(1u, requests.size());
     return requests[0]->request_id;
   }
@@ -950,12 +943,9 @@ class EthereumProviderImplUnitTest : public testing::Test {
   scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory_;
   base::ScopedTempDir temp_dir_;
   TestingProfile profile_;
-  raw_ptr<KeyringService, DanglingUntriaged> keyring_service_ = nullptr;
   raw_ptr<AssetRatioService> asset_ratio_service_;
-  raw_ptr<TxService, DanglingUntriaged> tx_service_;
 
  protected:
-  raw_ptr<JsonRpcService, DanglingUntriaged> json_rpc_service_ = nullptr;
   std::unique_ptr<BraveWalletService> brave_wallet_service_;
 };
 
@@ -1077,11 +1067,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApproveTransaction) {
       "\"gas\":\"0x0974\",\"to\":"
       "\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x016345785d8a0000\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1105,7 +1093,6 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApproveTransaction) {
       GetAllTransactionInfo(account_0->account_id, chain_id);
   ASSERT_EQ(infos.size(), 1UL);
   EXPECT_EQ(infos[0]->from_account_id, account_0->account_id);
-  EXPECT_EQ(*infos[0]->from_address, account_0->address);
   EXPECT_EQ(infos[0]->tx_status, mojom::TransactionStatus::Unapproved);
   EXPECT_EQ(infos[0]->tx_hash, tx_hash);
   EXPECT_EQ(infos[0]->chain_id, chain_id);
@@ -1130,7 +1117,6 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApproveTransaction) {
   infos = GetAllTransactionInfo(account_0->account_id, chain_id);
   ASSERT_EQ(infos.size(), 1UL);
   EXPECT_EQ(infos[0]->from_account_id, account_0->account_id);
-  EXPECT_EQ(*infos[0]->from_address, account_0->address);
   EXPECT_EQ(infos[0]->tx_status, mojom::TransactionStatus::Submitted);
   EXPECT_EQ(infos[0]->tx_hash, tx_hash);
 }
@@ -1154,11 +1140,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApproveTransactionError) {
       "\",\"gasPrice\":\"0x09184e72a000\","
       "\"gas\":\"0x0974\",\"to\":\"0xbe8\","
       "\"value\":\"0x016345785d8a0000\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1193,11 +1177,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApproveTransactionNoPermission) {
       "\"gas\":\"0x0974\",\"to\":"
       "\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x016345785d8a0000\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1235,11 +1217,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559Transaction) {
       "\",\"maxFeePerGas\":\"0x1\",\"maxPriorityFeePerGas\":\"0x1\","
       "\"gas\":\"0x1\",\"to\":\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x00\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1263,7 +1243,6 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559Transaction) {
       GetAllTransactionInfo(account_0->account_id, chain_id);
   ASSERT_EQ(infos.size(), 1UL);
   EXPECT_EQ(infos[0]->from_account_id, account_0->account_id);
-  EXPECT_EQ(*infos[0]->from_address, account_0->address);
   EXPECT_EQ(infos[0]->tx_status, mojom::TransactionStatus::Unapproved);
   EXPECT_EQ(infos[0]->tx_hash, tx_hash);
   EXPECT_EQ(infos[0]->chain_id, chain_id);
@@ -1285,7 +1264,6 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559Transaction) {
   infos = GetAllTransactionInfo(account_0->account_id, chain_id);
   ASSERT_EQ(infos.size(), 1UL);
   EXPECT_EQ(infos[0]->from_account_id, account_0->account_id);
-  EXPECT_EQ(*infos[0]->from_address, account_0->address);
   EXPECT_EQ(infos[0]->tx_status, mojom::TransactionStatus::Submitted);
   EXPECT_EQ(infos[0]->tx_hash, tx_hash);
   EXPECT_EQ(infos[0]->chain_id, chain_id);
@@ -1310,11 +1288,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559TransactionNoChainId) {
       "\",\"maxFeePerGas\":\"0x1\",\"maxPriorityFeePerGas\":\"0x1\","
       "\"gas\":\"0x1\",\"to\":\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x00\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      response.Clone(),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1333,7 +1309,7 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559TransactionNoChainId) {
           }));
   browser_task_environment_.RunUntilIdle();
   provider()->Request(
-      response->Clone(),
+      response.Clone(),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1380,11 +1356,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559TransactionError) {
       "\"gasPrice\":\"0x01\", "
       "\"gas\":\"0x00\",\"to\":\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x00\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1418,11 +1392,9 @@ TEST_F(EthereumProviderImplUnitTest, AddAndApprove1559TransactionNoPermission) {
       "\",\"maxFeePerGas\":\"0x0\",\"maxPriorityFeePerGas\":\"0x0\","
       "\"gas\":\"0x00\",\"to\":\"0xbe862ad9abfe6f22bcb087716c7d89a26051f74c\","
       "\"value\":\"0x00\"}]}";
-  std::optional<base::Value> response = base::JSONReader::Read(
-      normalized_json_request, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                   base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value response = base::test::ParseJson(normalized_json_request);
   provider()->Request(
-      response->Clone(),
+      std::move(response),
       base::BindLambdaForTesting(
           [&](base::Value id, base::Value formed_response, const bool reject,
               const std::string& first_allowed_account,
@@ -1750,10 +1722,9 @@ TEST_F(EthereumProviderImplUnitTest, SignMessageWithTypedDataStructure) {
             }
           }"]})",
         method, account_0->address);
-    std::optional<base::Value> request_payload = base::JSONReader::Read(
-        request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                  base::JSONParserOptions::JSON_PARSE_RFC);
-    auto response = CommonRequestOrSendAsync(request_payload.value());
+    base::Value::Dict request_payload =
+        base::test::ParseJsonDict(request_payload_json);
+    auto response = CommonRequestOrSendAsync(request_payload);
 
     mojom::ProviderError error_code;
     std::string error_message;
@@ -2172,10 +2143,9 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribe) {
   std::string request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["foo"]})";
-  std::optional<base::Value> request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  auto response = CommonRequestOrSendAsync(request_payload.value());
+  base::Value::Dict request_payload =
+      base::test::ParseJsonDict(request_payload_json);
+  auto response = CommonRequestOrSendAsync(request_payload);
 
   mojom::ProviderError error_code;
   std::string error_message;
@@ -2205,10 +2175,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribe) {
   request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["newHeads"]})";
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_TRUE(response.second.is_string());
   std::string first_subscription = *response.second.GetIfString();
@@ -2226,10 +2194,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribe) {
   request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["newHeads"]})";
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_TRUE(response.second.is_string());
   std::string second_subscription = *response.second.GetIfString();
@@ -2239,10 +2205,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribe) {
                               "method":"eth_unsubscribe",
                               "params": ["%s"]})",
                                          first_subscription);
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
 
   const auto& chain_id =
       json_rpc_service()->GetChainIdSync(mojom::CoinType::ETH, GetOrigin());
@@ -2253,10 +2217,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribe) {
                               "method":"eth_unsubscribe",
                               "params": ["%s"]})",
                                          second_subscription);
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_FALSE(provider_->eth_block_tracker_.IsRunning(chain_id));
 }
 
@@ -2267,10 +2229,9 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogs) {
   std::string request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["foo"]})";
-  std::optional<base::Value> request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  auto response = CommonRequestOrSendAsync(request_payload.value());
+  base::Value::Dict request_payload =
+      base::test::ParseJsonDict(request_payload_json);
+  auto response = CommonRequestOrSendAsync(request_payload);
 
   mojom::ProviderError error_code;
   std::string error_message;
@@ -2302,10 +2263,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogs) {
   request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["logs"]})";
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
 
   EXPECT_EQ(response.first, false);
   EXPECT_TRUE(response.second.is_string());
@@ -2323,10 +2282,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogs) {
   request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
           "params": ["logs"]})";
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_TRUE(response.second.is_string());
   std::string second_subscription = *response.second.GetIfString();
@@ -2336,10 +2293,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogs) {
                               "method":"eth_unsubscribe",
                               "params": ["%s"]})",
                                          first_subscription);
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_TRUE(provider_->eth_logs_tracker_.IsRunning());
 
   // The second unsubscribe should stop the block tracker
@@ -2347,10 +2302,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogs) {
                               "method":"eth_unsubscribe",
                               "params": ["%s"]})",
                                          second_subscription);
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_FALSE(provider_->eth_logs_tracker_.IsRunning());
 }
 
@@ -2364,16 +2317,17 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogsFiltered) {
         ASSERT_TRUE(header_value);
 
         if (*header_value == "eth_getLogs") {
-          const std::optional<base::Value> req_body_payload =
-              base::JSONReader::Read(
-                  R"({"id":1,"jsonrpc":"2.0","method":"eth_getLogs","params":
+          const base::Value::Dict req_body_payload = base::test::ParseJsonDict(
+              R"({"id":1,"jsonrpc":"2.0","method":"eth_getLogs","params":
 [{"address":["0x1111", "0x1112"],"fromBlock":"0x2211","toBlock":"0xab65",
-"topics":["0x2edc","0xb832","0x8dc8"]}]})",
-                  base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                      base::JSONParserOptions::JSON_PARSE_RFC);
+"topics":["0x2edc","0xb832","0x8dc8"]}]})");
 
-          const auto payload = ToValue(request);
-          EXPECT_EQ(*payload, req_body_payload.value());
+          const auto payload =
+              base::test::ParseJsonDict(request.request_body->elements()
+                                            ->at(0)
+                                            .As<network::DataElementBytes>()
+                                            .AsStringPiece());
+          EXPECT_EQ(payload, req_body_payload);
         }
         url_loader_factory_.AddResponse(
             request.url.spec(),
@@ -2389,11 +2343,10 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogsFiltered) {
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_subscribe",
   "params": ["logs", {"address": ["0x1111", "0x1112"], "fromBlock": "0x2211",
   "toBlock": "0xab65",  "topics":  ["0x2edc", "0xb832", "0x8dc8"]}]})";
-  std::optional<base::Value> request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
+  base::Value::Dict request_payload =
+      base::test::ParseJsonDict(request_payload_json);
   std::string error_message;
-  auto response = CommonRequestOrSendAsync(request_payload.value());
+  auto response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_TRUE(response.second.is_string());
   std::string subscription = *response.second.GetIfString();
@@ -2411,10 +2364,8 @@ TEST_F(EthereumProviderImplUnitTest, EthSubscribeLogsFiltered) {
                               "method":"eth_unsubscribe",
                               "params": ["%s"]})",
                                          subscription);
-  request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  response = CommonRequestOrSendAsync(request_payload.value());
+  request_payload = base::test::ParseJsonDict(request_payload_json);
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_FALSE(provider_->eth_logs_tracker_.IsRunning());
 }
 
@@ -2674,7 +2625,7 @@ TEST_F(EthereumProviderImplUnitTest, AddEthereumChainSwitchesForInnactive) {
           }),
       base::Value());
   EXPECT_TRUE(brave_wallet_tab_helper()->IsShowingBubble());
-  json_rpc_service_->NotifySwitchChainRequestProcessed(
+  json_rpc_service()->NotifySwitchChainRequestProcessed(
       GetPendingSwitchChainRequestId(), true);
   run_loop.Run();
   brave_wallet_tab_helper()->CloseBubble();
@@ -2879,10 +2830,9 @@ TEST_F(EthereumProviderImplUnitTest, RequestEthCoinbase) {
   // Wallet that is not created should return empty base::Value for eth_coinbase
   std::string request_payload_json =
       R"({"id":1,"jsonrpc:": "2.0","method":"eth_coinbase"})";
-  std::optional<base::Value> request_payload = base::JSONReader::Read(
-      request_payload_json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
-                                base::JSONParserOptions::JSON_PARSE_RFC);
-  auto response = CommonRequestOrSendAsync(request_payload.value());
+  base::Value::Dict request_payload =
+      base::test::ParseJsonDict(request_payload_json);
+  auto response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_EQ(response.second, base::Value());
 
@@ -2894,7 +2844,7 @@ TEST_F(EthereumProviderImplUnitTest, RequestEthCoinbase) {
   Navigate(url);
 
   // Fresh wallet should return empty base::Value for eth_coinbase
-  response = CommonRequestOrSendAsync(request_payload.value());
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_EQ(response.second, base::Value());
 
@@ -2903,7 +2853,7 @@ TEST_F(EthereumProviderImplUnitTest, RequestEthCoinbase) {
   Lock();
 
   // eth_coinbase account is empty when locked
-  response = CommonRequestOrSendAsync(request_payload.value());
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_EQ(response.second, base::Value());
 
@@ -2929,7 +2879,7 @@ TEST_F(EthereumProviderImplUnitTest, RequestEthCoinbase) {
 
   EXPECT_TRUE(keyring_service()->HasPendingUnlockRequest());
   // eth_coinbase account is still empty when locked
-  response = CommonRequestOrSendAsync(request_payload.value());
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_EQ(response.first, false);
   EXPECT_EQ(response.second, base::Value());
 
@@ -2938,7 +2888,7 @@ TEST_F(EthereumProviderImplUnitTest, RequestEthCoinbase) {
 
   // eth_coinbase should now return the account since the account is
   // allowed and the wallet is unlocked
-  response = CommonRequestOrSendAsync(request_payload.value());
+  response = CommonRequestOrSendAsync(request_payload);
   EXPECT_FALSE(keyring_service()->HasPendingUnlockRequest());
   EXPECT_EQ(response.first, false);
   EXPECT_EQ(response.second, base::Value(address_0));

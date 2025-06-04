@@ -85,11 +85,7 @@ class VerticalTabStripRegionView : public views::View,
 
   TabSearchBubbleHost* GetTabSearchBubbleHost();
 
-  int GetTabStripViewportHeight() const;
-
-  void set_layout_dirty(base::PassKey<VerticalTabStripScrollContentsView>) {
-    layout_dirty_ = true;
-  }
+  int GetTabStripViewportMaxHeight() const;
 
   void ResetExpandedWidth();
   bool IsMenuShowing() const;
@@ -103,7 +99,6 @@ class VerticalTabStripRegionView : public views::View,
   void OnMouseExited(const ui::MouseEvent& event) override;
   void OnMouseEntered(const ui::MouseEvent& event) override;
   void OnBoundsChanged(const gfx::Rect& previous_bounds) override;
-  void PreferredSizeChanged() override;
   void AddedToWidget() override;
 
   // views::ResizeAreaDelegate
@@ -138,6 +133,8 @@ class VerticalTabStripRegionView : public views::View,
                            OriginalTabSearchButton);
   FRIEND_TEST_ALL_PREFIXES(VerticalTabStripBrowserTest, ExpandedState);
   FRIEND_TEST_ALL_PREFIXES(VerticalTabStripBrowserTest, ExpandedWidth);
+  FRIEND_TEST_ALL_PREFIXES(VerticalTabStripBrowserTest,
+                           LayoutAfterFirstTabCreation);
 
   FullscreenController* GetFullscreenController() const;
   bool IsTabFullscreen() const;
@@ -196,6 +193,9 @@ class VerticalTabStripRegionView : public views::View,
   raw_ptr<HeaderView> header_view_ = nullptr;
   raw_ptr<views::View> contents_view_ = nullptr;
 
+  // Separator between tabs and new tab button.
+  raw_ptr<views::View> separator_ = nullptr;
+
   // New tab button created for vertical tabs
   raw_ptr<BraveNewTabButton> new_tab_button_ = nullptr;
 
@@ -220,9 +220,6 @@ class VerticalTabStripRegionView : public views::View,
   base::OneShotTimer mouse_enter_timer_;
 
   bool mouse_events_for_test_ = false;
-
-  bool layout_dirty_ = false;
-  gfx::Size last_size_;
 
   gfx::SlideAnimation width_animation_{this};
 

@@ -15,6 +15,7 @@
 #include "chrome/test/base/testing_profile_manager.h"
 #include "content/public/test/browser_task_environment.h"
 #include "content/public/test/mock_navigation_handle.h"
+#include "content/public/test/test_renderer_host.h"
 #include "content/public/test/web_contents_tester.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
@@ -27,13 +28,13 @@ constexpr char kTestProfileName[] = "TestProfile";
 
 }  // namespace
 
-class AiChatThrottleUnitTest : public testing::Test,
+class AIChatThrottleUnitTest : public testing::Test,
                                public ::testing::WithParamInterface<bool> {
  public:
-  AiChatThrottleUnitTest() = default;
-  AiChatThrottleUnitTest(const AiChatThrottleUnitTest&) = delete;
-  AiChatThrottleUnitTest& operator=(const AiChatThrottleUnitTest&) = delete;
-  ~AiChatThrottleUnitTest() override = default;
+  AIChatThrottleUnitTest() = default;
+  AIChatThrottleUnitTest(const AIChatThrottleUnitTest&) = delete;
+  AIChatThrottleUnitTest& operator=(const AIChatThrottleUnitTest&) = delete;
+  ~AIChatThrottleUnitTest() override = default;
 
   void SetUp() override {
     TestingBrowserProcess* browser_process = TestingBrowserProcess::GetGlobal();
@@ -61,6 +62,7 @@ class AiChatThrottleUnitTest : public testing::Test,
 
  private:
   content::BrowserTaskEnvironment task_environment_;
+  content::RenderViewHostTestEnabler render_view_host_test_enabler_;
   std::unique_ptr<content::WebContents> web_contents_;
   std::unique_ptr<TestingProfileManager> profile_manager_;
   base::test::ScopedFeatureList features_;
@@ -68,13 +70,13 @@ class AiChatThrottleUnitTest : public testing::Test,
 
 INSTANTIATE_TEST_SUITE_P(
     ,
-    AiChatThrottleUnitTest,
+    AIChatThrottleUnitTest,
     ::testing::Bool(),
-    [](const testing::TestParamInfo<AiChatThrottleUnitTest::ParamType>& info) {
+    [](const testing::TestParamInfo<AIChatThrottleUnitTest::ParamType>& info) {
       return base::StrCat({"History", info.param ? "Enabled" : "Disabled"});
     });
 
-TEST_P(AiChatThrottleUnitTest, CancelNavigationFromTab) {
+TEST_P(AIChatThrottleUnitTest, CancelNavigationFromTab) {
   content::MockNavigationHandle test_handle(web_contents());
 
   test_handle.set_url(GURL(kAIChatUIURL));
@@ -85,8 +87,8 @@ TEST_P(AiChatThrottleUnitTest, CancelNavigationFromTab) {
 
   test_handle.set_page_transition(transition);
 
-  std::unique_ptr<AiChatThrottle> throttle =
-      AiChatThrottle::MaybeCreateThrottleFor(&test_handle);
+  std::unique_ptr<AIChatThrottle> throttle =
+      AIChatThrottle::MaybeCreateThrottleFor(&test_handle);
 
 #if !BUILDFLAG(IS_ANDROID)
   if (IsAIChatHistoryEnabled()) {
@@ -101,7 +103,7 @@ TEST_P(AiChatThrottleUnitTest, CancelNavigationFromTab) {
 #endif
 }
 
-TEST_P(AiChatThrottleUnitTest, CancelNavigationToFrame) {
+TEST_P(AIChatThrottleUnitTest, CancelNavigationToFrame) {
   content::MockNavigationHandle test_handle(web_contents());
 
   test_handle.set_url(GURL(kAIChatUntrustedConversationUIURL));
@@ -112,8 +114,8 @@ TEST_P(AiChatThrottleUnitTest, CancelNavigationToFrame) {
 
   test_handle.set_page_transition(transition);
 
-  std::unique_ptr<AiChatThrottle> throttle =
-      AiChatThrottle::MaybeCreateThrottleFor(&test_handle);
+  std::unique_ptr<AIChatThrottle> throttle =
+      AIChatThrottle::MaybeCreateThrottleFor(&test_handle);
 #if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(content::NavigationThrottle::CANCEL_AND_IGNORE,
             throttle->WillStartRequest().action());
@@ -122,7 +124,7 @@ TEST_P(AiChatThrottleUnitTest, CancelNavigationToFrame) {
 #endif
 }
 
-TEST_P(AiChatThrottleUnitTest, AllowNavigationFromPanel) {
+TEST_P(AIChatThrottleUnitTest, AllowNavigationFromPanel) {
   content::MockNavigationHandle test_handle(web_contents());
 
   test_handle.set_url(GURL(kAIChatUIURL));
@@ -137,8 +139,8 @@ TEST_P(AiChatThrottleUnitTest, AllowNavigationFromPanel) {
 
   test_handle.set_page_transition(transition);
 
-  std::unique_ptr<AiChatThrottle> throttle =
-      AiChatThrottle::MaybeCreateThrottleFor(&test_handle);
+  std::unique_ptr<AIChatThrottle> throttle =
+      AIChatThrottle::MaybeCreateThrottleFor(&test_handle);
   EXPECT_EQ(throttle.get(), nullptr);
 }
 

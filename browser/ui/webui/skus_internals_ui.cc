@@ -56,7 +56,6 @@ SkusInternalsUI::SkusInternalsUI(content::WebUI* web_ui,
     : content::WebUIController(web_ui),
       local_state_(g_browser_process->local_state()) {
   CreateAndAddWebUIDataSource(web_ui, name, kSkusInternalsGenerated,
-                              kSkusInternalsGeneratedSize,
                               IDR_SKUS_INTERNALS_HTML);
 
   auto* web_contents = web_ui->GetWebContents();
@@ -127,12 +126,7 @@ base::Value::Dict SkusInternalsUI::GetOrderInfo(
     }
 
     // Convert to Value as it's stored as string in local state.
-    auto json_value = base::JSONReader::Read(kv.second.GetString());
-    if (!json_value) {
-      continue;
-    }
-
-    const auto* skus = json_value->GetIfDict();
+    auto skus = base::JSONReader::ReadDict(kv.second.GetString());
     if (!skus) {
       continue;
     }

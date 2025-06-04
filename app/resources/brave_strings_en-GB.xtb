@@ -105,6 +105,7 @@ Some features may be unavailable and changes to preferences won't be saved.</tra
 <translation id="6078442581074612226">In Rep Social</translation>
 <translation id="2485422356828889247">Uninstall</translation>
 <translation id="2513154137948333830">Reboot required: <ph name="INSTALL_SUCCESS"/></translation>
+<translation id="3263471340406187648">To continue, you'll need to sign in to Brave with <ph name="EMAIL"/>. This ensures compliance with your organisation's policies.</translation>
 <translation id="2542968102051442371">Select text with image search</translation>
 <translation id="70183448213529602">Rep Social is trying to replace existing passwords. Type in your Windows password to allow this.</translation>
 <translation id="7798069806040634998">Rep Social needs storage access to download files</translation>
@@ -139,6 +140,7 @@ Some features may be unavailable and changes to preferences won't be saved.</tra
 <translation id="2176825726964012531">About &amp;Rep Social</translation>
 <translation id="2915996080311180594">Restart later</translation>
 <translation id="2928420929544864228">Installation complete.</translation>
+<translation id="2481553173340651149">Your data is encrypted with your passphrase. Enter it to use and save Brave data in your Brave sync chain.</translation>
 <translation id="2945997411976714835">Install error: The installer process failed to start.</translation>
 <translation id="3688936822855019158">Your organisation manages Rep Social</translation>
 <translation id="8208853227947884571">Rep Social is up to date</translation>

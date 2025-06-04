@@ -43,9 +43,7 @@
 #include "brave/browser/ui/views/location_bar/brave_location_bar_view.h"
 #include "brave/browser/ui/views/omnibox/brave_omnibox_view_views.h"
 #include "brave/browser/ui/views/sidebar/sidebar_container_view.h"
-#include "brave/browser/ui/views/speedreader/reader_mode_toolbar_view.h"
-#include "brave/browser/ui/views/split_view/split_view_location_bar.h"
-#include "brave/browser/ui/views/split_view/split_view_separator.h"
+#include "brave/browser/ui/views/split_view/split_view.h"
 #include "brave/browser/ui/views/tabs/vertical_tab_utils.h"
 #include "brave/browser/ui/views/toolbar/bookmark_button.h"
 #include "brave/browser/ui/views/toolbar/brave_toolbar_view.h"
@@ -58,6 +56,7 @@
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/app_mode/app_mode_utils.h"
 #include "chrome/browser/devtools/devtools_window.h"
+#include "chrome/browser/enterprise/watermark/watermark_view.h"
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
@@ -103,12 +102,16 @@
 #if BUILDFLAG(ENABLE_SPEEDREADER)
 #include "brave/browser/speedreader/speedreader_tab_helper.h"
 #include "brave/browser/ui/views/speedreader/reader_mode_bubble.h"
+#include "brave/browser/ui/views/speedreader/reader_mode_toolbar_view.h"
 #endif
 
 #if BUILDFLAG(ENABLE_BRAVE_WAYBACK_MACHINE)
 #include "brave/browser/ui/views/wayback_machine_bubble_view.h"
 #endif
 
+#if BUILDFLAG(ENABLE_GLIC)
+#include "chrome/browser/glic/border_view.h"
+#endif
 namespace {
 
 std::optional<bool> g_download_confirm_return_allow_for_testing;
@@ -142,30 +145,6 @@ class ContentsBackground : public views::View {
   }
 };
 BEGIN_METADATA(ContentsBackground)
-END_METADATA
-
-// A `ContentsWebView` that activates its contents when it gets focus.
-class ActivatableContentsWebView : public ContentsWebView {
-  METADATA_HEADER(ActivatableContentsWebView, ContentsWebView)
- public:
-  using ContentsWebView::ContentsWebView;
-  ~ActivatableContentsWebView() override = default;
-
-  // ContentsWebView:
-  void OnFocus() override {
-    ContentsWebView::OnFocus();
-
-    // Only activate if this focus comes from direct request such as clicking
-    // over web contents. Except that case, we should not make this focus change
-    // affect active tab state. TabStripModel will do it.
-    if (web_contents() && web_contents()->GetDelegate() && GetFocusManager() &&
-        GetFocusManager()->focus_change_reason() ==
-            views::FocusManager::FocusChangeReason::kDirectFocusChange) {
-      web_contents()->GetDelegate()->ActivateContents(web_contents());
-    }
-  }
-};
-BEGIN_METADATA(ActivatableContentsWebView)
 END_METADATA
 
 }  // namespace
@@ -243,9 +222,32 @@ class BraveBrowserView::TabCyclingEventHandler : public ui::EventObserver,
   std::unique_ptr<views::EventMonitor> monitor_;
 };
 
+// static
+BraveBrowserView* BraveBrowserView::From(BrowserView* view) {
+  return static_cast<BraveBrowserView*>(view);
+}
+
 BraveBrowserView::BraveBrowserView(std::unique_ptr<Browser> browser)
     : BrowserView(std::move(browser)) {
-  if (BraveBrowser::ShouldUseBraveWebViewRoundedCorners(browser_.get())) {
+  const bool use_rounded_corners =
+      BraveBrowser::ShouldUseBraveWebViewRoundedCorners(browser_.get());
+#if BUILDFLAG(ENABLE_SPEEDREADER)
+  reader_mode_toolbar_ =
+      contents_container_->AddChildView(std::make_unique<ReaderModeToolbarView>(
+          browser_->profile(), use_rounded_corners));
+
+  views::View* border_view = nullptr;
+#if BUILDFLAG(ENABLE_GLIC)
+  border_view = glic_border();
+#endif
+
+  contents_container_->SetLayoutManager(
+      std::make_unique<BraveContentsLayoutManager>(
+          devtools_web_view(), contents_web_view(), contents_scrim_view(),
+          border_view, watermark_view_.get(), reader_mode_toolbar_));
+#endif
+
+  if (use_rounded_corners) {
     // Collapse the separator line between the toolbar or bookmark bar and the
     // views below.
     contents_separator_->SetPreferredSize(gfx::Size());
@@ -310,39 +312,10 @@ BraveBrowserView::BraveBrowserView(std::unique_ptr<Browser> browser)
 
   if (base::FeatureList::IsEnabled(tabs::features::kBraveSplitView) &&
       browser_->is_type_normal()) {
-    SplitViewBrowserData::CreateForBrowser(browser_.get());
-
-    auto devtools_web_view =
-        std::make_unique<views::WebView>(browser_->profile());
-    devtools_web_view->SetVisible(false);
-    auto contents_web_view =
-        std::make_unique<ActivatableContentsWebView>(browser_->profile());
-    contents_web_view->SetVisible(false);
-
-    secondary_devtools_web_view_ =
-        contents_container_->AddChildView(std::move(devtools_web_view));
-    secondary_contents_web_view_ =
-        contents_container_->AddChildView(std::move(contents_web_view));
-    split_view_separator_ = contents_container_->AddChildView(
-        std::make_unique<SplitViewSeparator>(browser_.get()));
-    secondary_location_bar_ = std::make_unique<SplitViewLocationBar>(
-        browser_->profile()->GetPrefs(), secondary_contents_web_view_);
-    secondary_location_bar_widget_ = std::make_unique<views::Widget>();
-
-    auto* contents_layout_manager = static_cast<BraveContentsLayoutManager*>(
-        contents_container()->GetLayoutManager());
-    contents_layout_manager->set_browser_view(this);
-    contents_layout_manager->set_secondary_contents_view(
-        secondary_contents_web_view_);
-    contents_layout_manager->set_secondary_devtools_view(
-        secondary_devtools_web_view_);
-    contents_layout_manager->SetSplitViewSeparator(split_view_separator_);
-
-    auto* split_view_browser_data =
-        SplitViewBrowserData::FromBrowser(browser_.get());
-    contents_layout_manager->set_split_view_browser_data(
-        split_view_browser_data);
-    split_view_observation_.Observe(split_view_browser_data);
+    split_view_ =
+        contents_container_->parent()->AddChildView(std::make_unique<SplitView>(
+            *browser_, contents_container_, contents_web_view_));
+    set_contents_view(split_view_);
   }
 
   const bool supports_vertical_tabs =
@@ -360,6 +333,10 @@ BraveBrowserView::BraveBrowserView(std::unique_ptr<Browser> browser)
   // re-ordering. FindBarHost widgets uses this view as a  kHostViewKey.
   // See the comments of BrowserView::find_bar_host_view().
   ReorderChildView(find_bar_host_view_, -1);
+}
+
+views::View* BraveBrowserView::GetContentsBoundingView() const {
+  return contents_view();
 }
 
 void BraveBrowserView::OnPreferenceChanged(const std::string& pref_name) {
@@ -392,203 +369,11 @@ void BraveBrowserView::UpdateSideBarHorizontalAlignment() {
   DeprecatedLayoutImmediately();
 }
 
-tabs::TabHandle BraveBrowserView::GetActiveTabHandle() {
-  CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
-
-  auto* model = browser()->tab_strip_model();
-  return model->GetTabHandleAt(
-      model->GetIndexOfWebContents(GetActiveWebContents()));
-}
-
-bool BraveBrowserView::IsActiveWebContentsTiled(const TabTile& tile) {
-  CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
-
-  auto active_tab_handle = GetActiveTabHandle();
-  return tile.first == active_tab_handle || tile.second == active_tab_handle;
-}
-
-void BraveBrowserView::UpdateSplitViewSizeDelta(
-    content::WebContents* old_contents,
-    content::WebContents* new_contents) {
-  auto get_index_of = [this](content::WebContents* contents) {
-    return browser()->tab_strip_model()->GetIndexOfWebContents(contents);
-  };
-  if (get_index_of(old_contents) == TabStripModel::kNoTab ||
-      get_index_of(new_contents) == TabStripModel::kNoTab) {
-    // This can happen on start-up or closing a tab.
-    return;
-  }
-
-  auto* split_view_browser_data = SplitViewBrowserData::FromBrowser(browser());
-  auto get_tab_handle = [this, &get_index_of](content::WebContents* contents) {
-    return browser()->tab_strip_model()->GetTabHandleAt(get_index_of(contents));
-  };
-  auto old_tab_handle = get_tab_handle(old_contents);
-  auto new_tab_handle = get_tab_handle(new_contents);
-
-  auto old_tab_tile = split_view_browser_data->GetTile(old_tab_handle);
-  auto new_tab_tile = split_view_browser_data->GetTile(new_tab_handle);
-  if ((!old_tab_tile && !new_tab_tile) || old_tab_tile == new_tab_tile) {
-    // Both tabs are not tiled, or in a same tile. So we don't need to update
-    // size delta
-    return;
-  }
-
-  auto* contents_layout_manager = static_cast<BraveContentsLayoutManager*>(
-      contents_container()->GetLayoutManager());
-  if (old_tab_tile) {
-    split_view_browser_data->SetSizeDelta(
-        old_tab_handle, contents_layout_manager->split_view_size_delta());
-  }
-
-  if (new_tab_tile) {
-    contents_layout_manager->set_split_view_size_delta(
-        split_view_browser_data->GetSizeDelta(new_tab_handle));
-  }
-}
-
-void BraveBrowserView::UpdateContentsWebViewVisual() {
-  auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(browser_.get());
-  if (!split_view_browser_data) {
-    return;
-  }
-
-  UpdateContentsWebViewBorder();
-  UpdateSecondaryContentsWebViewVisibility();
-}
-
-void BraveBrowserView::UpdateContentsWebViewBorder() {
-  auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(browser_.get());
-  if (!split_view_browser_data) {
-    return;
-  }
-
-  if (browser()->tab_strip_model()->empty()) {
-    // Happens on startup
-    return;
-  }
-
-  if (browser()->IsBrowserClosing()) {
-    return;
-  }
-
-  DCHECK(split_view_browser_data);
-
-  if (split_view_browser_data->GetTile(GetActiveTabHandle())) {
-    auto create_border = [this](SkColor color) {
-      constexpr int kBorderThickness = 2;
-      return BraveBrowser::ShouldUseBraveWebViewRoundedCorners(browser_.get())
-                 ? views::CreateRoundedRectBorder(
-                       kBorderThickness,
-                       BraveContentsViewUtil::kBorderRadius +
-                           kBorderThickness / 2,
-                       color)
-                 : views::CreateSolidBorder(kBorderThickness, color);
-    };
-
-    if (auto* cp = GetColorProvider()) {
-      contents_web_view_->SetBorder(
-          create_border(cp->GetColor(nala::kColorPrimitivePrimary70)));
-
-      secondary_contents_web_view_->SetBorder(create_border(
-          cp->GetColor(kColorBraveSplitViewInactiveWebViewBorder)));
-    }
-  } else {
-    contents_web_view_->SetBorder(nullptr);
-    secondary_contents_web_view_->SetBorder(nullptr);
-  }
-}
-
-void BraveBrowserView::UpdateSecondaryContentsWebViewVisibility() {
-  if (browser()->IsBrowserClosing()) {
-    secondary_contents_web_view_->SetWebContents(nullptr);
-    return;
-  }
-
-  auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(browser_.get());
-  DCHECK(split_view_browser_data);
-
-  auto active_tab_handle = GetActiveTabHandle();
-  if (auto tile = split_view_browser_data->GetTile(active_tab_handle)) {
-    const bool second_tile_is_active_web_contents =
-        active_tab_handle == tile->second;
-
-    // Active tab should be put in the original |contents_web_view_| as many
-    // other UI components are dependent on it. So, in case |tile.second| is
-    // the active tab, we let it be held by |contents_web_view_| and
-    // |tile.first| by |secondary_contents_web_view_|. But we should rotate
-    // the layout order. The layout rotation is done by
-    // BraveContentsLayoutManager.
-    //
-    // ex1) When tile.first is the active tab
-    //  Tiled tabs | tile.first(active) |         tile.second          |
-    //                        ||                        ||
-    //  Contents   | contents_web_view_ | secondary_contents_web_view_ |
-    //
-    // ex2) When tile.second is the active tab
-    //  Tiled tabs |           tile.first         | tile.second(active) |
-    //                             ||                        ||
-    //  Contents   | secondary_contents_web_view_ | contents_web_view_  |
-    auto* model = browser()->tab_strip_model();
-    auto* contents = model->GetWebContentsAt(model->GetIndexOfTab(
-        second_tile_is_active_web_contents ? tile->first : tile->second));
-    CHECK_NE(contents, contents_web_view_->web_contents());
-    if (secondary_contents_web_view_->web_contents() != contents) {
-      secondary_contents_web_view_->SetWebContents(nullptr);
-      secondary_contents_web_view_->SetWebContents(contents);
-      secondary_location_bar_->SetWebContents(contents);
-    }
-
-    secondary_contents_web_view_->SetVisible(true);
-    UpdateSecondaryDevtoolsLayoutAndVisibility(contents);
-
-    auto* contents_layout_manager = static_cast<BraveContentsLayoutManager*>(
-        contents_container()->GetLayoutManager());
-    contents_layout_manager->show_main_web_contents_at_tail(
-        second_tile_is_active_web_contents);
-  } else {
-    secondary_contents_web_view_->SetWebContents(nullptr);
-    secondary_location_bar_->SetWebContents(nullptr);
-    secondary_contents_web_view_->SetVisible(false);
-    secondary_devtools_web_view_->SetWebContents(nullptr);
-    secondary_devtools_web_view_->SetVisible(false);
-  }
-
-  split_view_separator_->SetVisible(secondary_contents_web_view_->GetVisible());
-
-  contents_container()->DeprecatedLayoutImmediately();
-}
-
-void BraveBrowserView::UpdateSecondaryDevtoolsLayoutAndVisibility(
-    content::WebContents* inspected_contents) {
-  DevToolsContentsResizingStrategy strategy;
-  content::WebContents* devtools =
-      DevToolsWindow::GetInTabWebContents(inspected_contents, &strategy);
-  if (secondary_devtools_web_view_->web_contents() != devtools) {
-    secondary_devtools_web_view_->SetWebContents(devtools);
-  }
-
-  if (devtools) {
-    secondary_devtools_web_view_->SetVisible(true);
-    GetContentsLayoutManager()->SetSecondaryContentsResizingStrategy(strategy);
-  } else {
-    secondary_devtools_web_view_->SetVisible(false);
-    GetContentsLayoutManager()->SetSecondaryContentsResizingStrategy(
-        DevToolsContentsResizingStrategy());
-  }
-}
-
 void BraveBrowserView::UpdateSearchTabsButtonState() {
-  if (auto* tab_search_container =
-          tab_strip_region_view()->tab_search_container()) {
-    if (auto* button = tab_search_container->tab_search_button()) {
-      auto is_tab_search_visible =
-          GetProfile()->GetPrefs()->GetBoolean(kTabsSearchShow);
-      button->SetVisible(is_tab_search_visible);
-    }
+  if (auto* tab_search_button = tab_strip_region_view_->GetTabSearchButton()) {
+    auto is_tab_search_visible =
+        GetProfile()->GetPrefs()->GetBoolean(kTabsSearchShow);
+    tab_search_button->SetVisible(is_tab_search_visible);
   }
 }
 
@@ -701,7 +486,7 @@ speedreader::SpeedreaderBubbleView* BraveBrowserView::ShowSpeedreaderBubble(
       arrow = views::BubbleBorder::TOP_RIGHT;
       break;
     case speedreader::SpeedreaderBubbleLocation::kToolbar:
-      anchor = reader_mode_toolbar_view_->toolbar();
+      anchor = reader_mode_toolbar_->toolbar();
       arrow = views::BubbleBorder::TOP_LEFT;
       break;
   }
@@ -714,34 +499,19 @@ speedreader::SpeedreaderBubbleView* BraveBrowserView::ShowSpeedreaderBubble(
   return reader_mode_bubble;
 }
 
-void BraveBrowserView::ShowReaderModeToolbar() {
-  if (!reader_mode_toolbar_view_) {
-    reader_mode_toolbar_view_ =
-        std::make_unique<ReaderModeToolbarView>(GetProfile());
-    if (!BraveBrowser::ShouldUseBraveWebViewRoundedCorners(browser_.get())) {
-      SetBorder(views::CreateThemedSolidSidedBorder(
-          gfx::Insets::TLBR(0, 0, 1, 0), kColorToolbarContentAreaSeparator));
+void BraveBrowserView::UpdateReaderModeToolbar() {
+  auto is_distilled = [](content::WebContents* web_contents) {
+    if (!web_contents) {
+      return false;
     }
-    AddChildView(reader_mode_toolbar_view_.get());
-
-    // See the comment of same code in ctor.
-    // TODO(simonhong): Find more better way instead of calling multiple
-    // times.
-    ReorderChildView(find_bar_host_view_, -1);
-    GetBrowserViewLayout()->set_reader_mode_toolbar(
-        reader_mode_toolbar_view_.get());
-  } else {
-    reader_mode_toolbar_view_->SetVisible(true);
-  }
-
-  DeprecatedLayoutImmediately();
-}
-
-void BraveBrowserView::HideReaderModeToolbar() {
-  if (reader_mode_toolbar_view_ && reader_mode_toolbar_view_->GetVisible()) {
-    reader_mode_toolbar_view_->SetVisible(false);
-    DeprecatedLayoutImmediately();
-  }
+    if (auto* th =
+            speedreader::SpeedreaderTabHelper::FromWebContents(web_contents)) {
+      return speedreader::DistillStates::IsDistilled(th->PageDistillState());
+    }
+    return false;
+  };
+  reader_mode_toolbar_->SetVisible(
+      is_distilled(browser()->tab_strip_model()->GetActiveWebContents()));
 }
 #endif  // BUILDFLAG(ENABLE_SPEEDREADER)
 
@@ -849,30 +619,6 @@ void BraveBrowserView::OnAcceleratorsChanged(
   }
 }
 
-void BraveBrowserView::OnTileTabs(const TabTile& tile) {
-  if (!IsActiveWebContentsTiled(tile)) {
-    return;
-  }
-
-  UpdateContentsWebViewVisual();
-}
-
-void BraveBrowserView::OnDidBreakTile(const TabTile& tile) {
-  if (!IsActiveWebContentsTiled(tile)) {
-    return;
-  }
-
-  UpdateContentsWebViewVisual();
-}
-
-void BraveBrowserView::OnSwapTabsInTile(const TabTile& tile) {
-  if (!IsActiveWebContentsTiled(tile)) {
-    return;
-  }
-
-  UpdateSecondaryContentsWebViewVisibility();
-}
-
 void BraveBrowserView::CreateWalletBubble() {
   DCHECK(GetWalletButton());
   GetWalletButton()->ShowWalletBubble();
@@ -914,13 +660,6 @@ void BraveBrowserView::AddedToWidget() {
 
     GetBrowserViewLayout()->set_vertical_tab_strip_host(
         vertical_tab_strip_host_view_.get());
-  }
-
-  if (secondary_location_bar_widget_) {
-    CHECK(secondary_location_bar_);
-    secondary_location_bar_widget_->Init(
-        SplitViewLocationBar::GetWidgetInitParams(
-            GetWidget()->GetNativeView(), secondary_location_bar_.get()));
   }
 }
 
@@ -1033,20 +772,19 @@ void BraveBrowserView::MaybeShowReadingListInSidePanelIPH() {
 void BraveBrowserView::UpdateDevToolsForContents(
     content::WebContents* web_contents,
     bool update_devtools_web_contents) {
-  if (base::FeatureList::IsEnabled(tabs::features::kBraveSplitView) &&
-      browser()->is_type_normal()) {
-    secondary_devtools_web_view_->SetWebContents(nullptr);
+  CHECK(!web_contents || web_contents == GetActiveWebContents())
+      << "This method is supposed to be called only for the active web "
+         "contents";
+
+  if (split_view_) {
+    split_view_->WillUpdateDevToolsForActiveContents({});
   }
 
   BrowserView::UpdateDevToolsForContents(web_contents,
                                          update_devtools_web_contents);
-  if (base::FeatureList::IsEnabled(tabs::features::kBraveSplitView) &&
-      browser()->is_type_normal() &&
-      secondary_contents_web_view_->GetVisible()) {
-    UpdateSecondaryDevtoolsLayoutAndVisibility(
-        secondary_contents_web_view_->web_contents());
 
-    contents_container_->DeprecatedLayoutImmediately();
+  if (split_view_) {
+    split_view_->DidUpdateDevToolsForActiveContents({});
   }
 
   UpdateWebViewRoundedCorners();
@@ -1071,14 +809,8 @@ void BraveBrowserView::OnWidgetActivationChanged(views::Widget* widget,
 void BraveBrowserView::GetAccessiblePanes(std::vector<views::View*>* panes) {
   BrowserView::GetAccessiblePanes(panes);
 
-  if (secondary_contents_web_view_ &&
-      secondary_contents_web_view_->GetVisible()) {
-    panes->push_back(secondary_contents_web_view_);
-  }
-
-  if (secondary_devtools_web_view_ &&
-      secondary_devtools_web_view_->GetVisible()) {
-    panes->push_back(secondary_devtools_web_view_);
+  if (split_view_) {
+    split_view_->GetAccessiblePanes({}, panes);
   }
 }
 
@@ -1101,8 +833,6 @@ void BraveBrowserView::OnThemeChanged() {
     vertical_tab_strip_host_view_->SetBackground(
         views::CreateSolidBackground(background_color));
   }
-
-  UpdateContentsWebViewBorder();
 }
 
 TabSearchBubbleHost* BraveBrowserView::GetTabSearchBubbleHost() {
@@ -1119,66 +849,43 @@ void BraveBrowserView::OnActiveTabChanged(content::WebContents* old_contents,
                                           content::WebContents* new_contents,
                                           int index,
                                           int reason) {
-  const bool supports_split_view =
-      base::FeatureList::IsEnabled(tabs::features::kBraveSplitView) &&
-      browser()->is_type_normal();
-  bool need_to_update_secondary_web_view = false;
-  if (supports_split_view) {
-    // In order to minimize flickering during tab activation, we should update
-    // split view only when it's needed.
-    auto* browser_data = SplitViewBrowserData::FromBrowser(browser_.get());
-    auto* tab_strip_model = browser_->tab_strip_model();
-    if (auto tile =
-            browser_data->GetTile(tab_strip_model->GetTabHandleAt(index))) {
-      auto* main_web_contents = tab_strip_model->GetWebContentsAt(
-          tab_strip_model->GetIndexOfTab(tile->first));
-      auto* secondary_web_contents = tab_strip_model->GetWebContentsAt(
-          tab_strip_model->GetIndexOfTab(tile->second));
-      if (main_web_contents != new_contents) {
-        std::swap(main_web_contents, secondary_web_contents);
-      }
+  // Update separator visibility first before starting split view layout
+  // to give their final position.
+  UpdateContentsSeparatorVisibility();
 
-      need_to_update_secondary_web_view =
-          contents_web_view_->web_contents() != main_web_contents ||
-          secondary_contents_web_view_->web_contents() !=
-              secondary_web_contents;
-    } else {
-      // Old contents was in a split view. We should hide split view.
-      need_to_update_secondary_web_view =
-          secondary_contents_web_view_->web_contents();
-    }
-  }
-
-  if (need_to_update_secondary_web_view) {
-    // This helps reduce flickering when switching between tiled tabs.
-    contents_web_view_->SetFastResize(true);
-    secondary_contents_web_view_->SetFastResize(true);
-
-    if (!SplitViewBrowserData::FromBrowser(browser_.get())
-             ->GetTile(browser_->tab_strip_model()->GetTabHandleAt(index))) {
-      // This will help reduce flickering when switching to non tiled tab.
-      UpdateSecondaryContentsWebViewVisibility();
-    }
-
-    secondary_contents_web_view_->SetWebContents(nullptr);
+  if (split_view_) {
+    split_view_->WillChangeActiveWebContents(
+        /*passkey*/ {}, old_contents, new_contents);
   }
 
   BrowserView::OnActiveTabChanged(old_contents, new_contents, index, reason);
 
-  if (supports_split_view) {
-    UpdateSplitViewSizeDelta(old_contents, new_contents);
-
-    // Setting nullptr doesn't detach the previous contents.
-    UpdateContentsWebViewVisual();
-
-    if (need_to_update_secondary_web_view) {
-      // Revert back to default state.
-      contents_web_view_->SetFastResize(false);
-      secondary_contents_web_view_->SetFastResize(false);
-      contents_web_view_->DeprecatedLayoutImmediately();
-      secondary_contents_web_view_->DeprecatedLayoutImmediately();
-    }
+  if (split_view_) {
+    split_view_->DidChangeActiveWebContents(
+        /*passkey*/ {}, old_contents, new_contents);
   }
+
+#if BUILDFLAG(ENABLE_SPEEDREADER)
+  UpdateReaderModeToolbar();
+#endif
+}
+
+void BraveBrowserView::UpdateContentsSeparatorVisibility() {
+  // It's not shown with rounded corners mode always.
+  if (BraveBrowser::ShouldUseBraveWebViewRoundedCorners(browser_.get())) {
+    return;
+  }
+
+  // Control its visibility by changing its preferred size as layout manager
+  // refers it's preferred size.
+  // Don't show that separator as split view has border around contents
+  // container.
+  if (split_view_ && split_view_->IsSplitViewActive()) {
+    contents_separator_->SetPreferredSize({});
+    return;
+  }
+  contents_separator_->SetPreferredSize(
+      gfx::Size(views::Separator::kThickness, views::Separator::kThickness));
 }
 
 bool BraveBrowserView::AcceleratorPressed(const ui::Accelerator& accelerator) {
@@ -1200,6 +907,20 @@ bool BraveBrowserView::AcceleratorPressed(const ui::Accelerator& accelerator) {
 
 bool BraveBrowserView::IsInTabDragging() const {
   return frame()->tab_drag_kind() == TabDragKind::kAllTabs;
+}
+
+views::View* BraveBrowserView::GetContentsContainerForLayoutManager() {
+  // In split view, |split_view_| wraps primary and secondary contents and
+  // it manages each content's bounds. So, BrowserViewLayoutManager only
+  // need to manage |split_view_|'s bounds.
+  return split_view_ ? split_view_
+                     : BrowserView::GetContentsContainerForLayoutManager();
+}
+
+void BraveBrowserView::ReadyToListenFullscreenChanges() {
+  if (split_view_) {
+    split_view_->ListenFullscreenChanges();
+  }
 }
 
 bool BraveBrowserView::IsSidebarVisible() const {
@@ -1234,60 +955,60 @@ void BraveBrowserView::UpdateWebViewRoundedCorners() {
   const auto in_split_view_mode =
       !!SplitViewBrowserData::FromBrowser(browser_.get());
 
-  auto update_corner_radius = [in_split_view_mode](
-                                  views::NativeViewHost* contents_holder,
-                                  views::NativeViewHost* devtools_holder,
-                                  DevToolsDockedPlacement devtools_placement,
-                                  gfx::RoundedCornersF corners) {
-    // In addition to giving the contents container rounded corners, we also
-    // need to round the corners of the native view holder that displays the web
-    // contents.
+  auto update_corner_radius =
+      [in_split_view_mode](views::WebView* contents, views::WebView* devtools,
+                           DevToolsDockedPlacement devtools_placement,
+                           gfx::RoundedCornersF corners) {
+        // In addition to giving the contents container rounded corners, we also
+        // need to round the corners of the native view holder that displays the
+        // web contents.
 
-    // Devtools lies underneath the contents webview. Round all four corners.
-    if (devtools_holder) {
-      devtools_holder->SetCornerRadii(corners);
-    }
+        // Devtools lies underneath the contents webview. Round all four
+        // corners.
+        if (devtools && devtools->holder()) {
+          devtools->holder()->SetCornerRadii(corners);
+        }
 
-    if (!in_split_view_mode) {
-      // In order to make the contents web view and devtools appear to be
-      // contained within a single rounded-corner view, square the contents
-      // webview corners that are adjacent to devtools.
-      // TODO(sko) We need to override
-      // BrowserView::GetDevToolsDockedPlacement(). It depends on coordinate of
-      // it but in split view mode, the calculation is not correct.
-      switch (devtools_placement) {
-        case DevToolsDockedPlacement::kLeft:
-          corners.set_upper_left(0);
-          corners.set_lower_left(0);
-          break;
-        case DevToolsDockedPlacement::kRight:
-          corners.set_upper_right(0);
-          corners.set_lower_right(0);
-          break;
-        case DevToolsDockedPlacement::kBottom:
-          corners.set_lower_left(0);
-          corners.set_lower_right(0);
-          break;
-        case DevToolsDockedPlacement::kNone:
-          break;
-        case DevToolsDockedPlacement::kUnknown:
-          break;
-      }
-    }
+        if (!in_split_view_mode) {
+          // In order to make the contents web view and devtools appear to be
+          // contained within a single rounded-corner view, square the contents
+          // webview corners that are adjacent to devtools.
+          // TODO(sko) We need to override
+          // BrowserView::GetDevToolsDockedPlacement(). It depends on coordinate
+          // of it but in split view mode, the calculation is not correct.
+          switch (devtools_placement) {
+            case DevToolsDockedPlacement::kLeft:
+              corners.set_upper_left(0);
+              corners.set_lower_left(0);
+              break;
+            case DevToolsDockedPlacement::kRight:
+              corners.set_upper_right(0);
+              corners.set_lower_right(0);
+              break;
+            case DevToolsDockedPlacement::kBottom:
+              corners.set_lower_left(0);
+              corners.set_lower_right(0);
+              break;
+            case DevToolsDockedPlacement::kNone:
+              break;
+            case DevToolsDockedPlacement::kUnknown:
+              break;
+          }
+        }
 
-    if (contents_holder) {
-      contents_holder->SetCornerRadii(corners);
-    }
-  };
+        if (contents && contents->holder()) {
+          // Upstream uses layer for its background.
+          CHECK(contents->layer());
+          contents->layer()->SetRoundedCornerRadius(corners);
+          contents->holder()->SetCornerRadii(corners);
+        }
+      };
 
-  update_corner_radius(contents_web_view_->holder(),
-                       devtools_web_view_->holder(),
+  update_corner_radius(contents_web_view_, devtools_web_view_,
                        devtools_docked_placement(), corners);
 
   if (in_split_view_mode) {
-    update_corner_radius(secondary_contents_web_view_->holder(),
-                         secondary_devtools_web_view_->holder(),
-                         DevToolsDockedPlacement::kNone, corners);
+    split_view_->UpdateCornerRadius(corners);
   }
 }
 

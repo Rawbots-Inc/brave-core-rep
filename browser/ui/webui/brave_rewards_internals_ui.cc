@@ -19,9 +19,9 @@
 #include "brave/browser/ui/webui/brave_webui_source.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
-#include "brave/components/brave_rewards/browser/rewards_service.h"
-#include "brave/components/brave_rewards/common/mojom/rewards.mojom.h"
-#include "brave/components/brave_rewards/common/pref_names.h"
+#include "brave/components/brave_rewards/content/rewards_service.h"
+#include "brave/components/brave_rewards/core/mojom/rewards.mojom.h"
+#include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/brave_rewards/resources/grit/brave_rewards_internals_generated_map.h"
 #include "brave/components/brave_rewards/resources/grit/brave_rewards_resources.h"
 #include "chrome/browser/profiles/profile.h"
@@ -473,7 +473,6 @@ BraveRewardsInternalsUI::BraveRewardsInternalsUI(content::WebUI* web_ui,
                                                  const std::string& name)
     : WebUIController(web_ui) {
   CreateAndAddWebUIDataSource(web_ui, name, kBraveRewardsInternalsGenerated,
-                              kBraveRewardsInternalsGeneratedSize,
                               IDR_BRAVE_REWARDS_INTERNALS_HTML);
 
   auto handler_owner = std::make_unique<RewardsInternalsDOMHandler>();

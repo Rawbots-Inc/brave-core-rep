@@ -17,7 +17,7 @@ deps = {
   },
   "vendor/bat-native-tweetnacl": "https://github.com/brave-intl/bat-native-tweetnacl.git@800f9d40b7409239ff192e0be634764e747c7a75",
   "vendor/gn-project-generators": "https://github.com/brave/gn-project-generators.git@b76e14b162aa0ce40f11920ec94bfc12da29e5d0",
-  "vendor/web-discovery-project": "https://github.com/brave/web-discovery-project@7159cb52cf674da3aed53ad0ab757513703a06eb",
+  "vendor/web-discovery-project": "https://github.com/brave/web-discovery-project@6c9e870da453d7328eec81f3964cd8d1ff535c11",
   "third_party/bip39wally-core-native": "https://github.com/brave-intl/bat-native-bip39wally-core.git@0d3a8713a2b388d2156fe49a70ef3f7cdb44b190",
   "third_party/ethash/src": "https://github.com/chfast/ethash.git@e4a15c3d76dc09392c7efd3e30d84ee3b871e9ce",
   "third_party/bitcoin-core/src": "https://github.com/bitcoin/bitcoin.git@8105bce5b384c72cf08b25b7c5343622754e7337", # v25.0
@@ -91,8 +91,8 @@ hooks = [
     'pattern': '.',
     'condition': 'checkout_mac',
     'action': ['vpython3', 'build/download_dep.py',
-               'omaha4/BraveUpdater-132.1.75.66.zip',
-               '//build/mac_files/omaha4'],
+               'omaha4/BraveUpdater-132.1.76.11.zip',
+               '//third_party/updater/chrome_mac_universal_prod/cipd'],
   },
   {
     'name': 'update_pip',
@@ -176,24 +176,19 @@ hooks = [
     "condition": 'checkout_mac and host_os != "mac" and checkout_dmg_tool',
     'action': ['build/mac/cross-compile/build-libdmg-hfsplus.py', 'third_party/libdmg-hfsplus']
   },
+  {
+    'name': 'download_rust_toolchain_aux',
+    'pattern': '.',
+    'action': ['python3', 'build/rust/download_rust_toolchain_aux.py']
+  },
 ]
 
 include_rules = [
-  #Everybody can use some things.
-  "+brave_base",
-  "+brave_domains",
-  "+crypto",
-  "+net",
-  "+sql",
-  "+ui/base",
-
   "-chrome",
-  "-brave/app",
-  "-brave/browser",
-  "-brave/common",
-  "-brave/renderer",
-  "-brave/services",
-  "-ios",
-  "-brave/third_party/bitcoin-core",
-  "-brave/third_party/argon2",
+  "-brave",
+  "-third_party/rust",
+
+  # Everybody can use some things.
+  "+brave/base",
+  "+brave/brave_domains",
 ]

@@ -106,7 +106,7 @@
 <translation id="4541978218358617681">Ad</translation>
 <translation id="1776831331757823105">Clock</translation>
 <translation id="7791543448312431591">Add</translation>
-<translation id="7679334366167089823">Earn tokens for watching privacy-respecting ads.</translation>
+<translation id="6216996674668969227">Earn tokens for viewing privacy-respecting ads.</translation>
 <translation id="7191394989411626168">By turning off Cards, all cards currently visible will be hidden. However, you may still be notified of new cards.</translation>
 <translation id="6820526586005233839">Brave Ads paused</translation>
 <translation id="5190407395832551012">To keep Brave Rewards safe from abuse, we'll randomly ask users to solve a captcha. Click “Solve” to resume ads.</translation>
@@ -471,6 +471,7 @@
 <translation id="3349204812119681938">Reset Brave Rewards</translation>
 <translation id="4915997950539925115">By resetting, your current Brave Rewards profile will be deleted and Brave Rewards will no longer be enabled. If you enable Brave Rewards again later, you will start with a new profile. Read our <ph name="LINK_BEGIN"/>support article about resetting<ph name="LINK_END"/> for more details.</translation>
 <translation id="4806029412510565611">I understand that my current Brave Rewards profile and Brave Rewards data will be deleted from my device, and I've read the <ph name="LINK_BEGIN"/>support article about resetting<ph name="LINK_END"/>.</translation>
+<translation id="8835777704176513489">Disable and reset Rewards</translation>
 <translation id="7717357606512850995">Check status</translation>
 <translation id="6473937687348632190">The payout for <ph name="MONTH"/> rewards has completed.</translation>
 <translation id="1711367267038576241">The payout for <ph name="MONTH"/> rewards will begin processing by <ph name="DATE"/>.</translation>
@@ -496,9 +497,9 @@
 <translation id="3264975266761862670">Ready to start earning?</translation>
 <translation id="2784412028126205842">Connect a payout account</translation>
 <translation id="766126983336630294">{ADS_VIEWED, plural,
-      =0 {You've seen <ph name="COUNT_BEGIN"/># ads<ph name="COUNT_END"/> this month}
-      =1 {You could be getting paid for the <ph name="COUNT_BEGIN"/># ad<ph name="COUNT_END"/> you've seen this month.}
-      other {You could be getting paid for the <ph name="COUNT_BEGIN"/># ads<ph name="COUNT_END"/> you've seen this month.}
+      =0 {You've seen <ph name="COUNT_BEGIN"/># Ads<ph name="COUNT_END"/> this month}
+      =1 {You could be getting paid for the <ph name="COUNT_BEGIN"/># Ad<ph name="COUNT_END"/> you've seen this month.}
+      other {You could be getting paid for the <ph name="COUNT_BEGIN"/># Ads<ph name="COUNT_END"/> you've seen this month.}
     }</translation>
 <translation id="6067959437127691361">Using Brave Rewards helps support content creators, and lets you earn BATs.</translation>
 <translation id="944736176598169208">Rewards</translation>
@@ -540,7 +541,7 @@
 <translation id="2529827670795983639">Looks like this is not working, Brave ads will remain paused. Contact us if you need help with the captcha.</translation>
 <translation id="261607053214862521">Max attempts exceeded</translation>
 <translation id="2323171459178104277">Solved!</translation>
-<translation id="1512837998731269583">Ads and earnings will now resume. Thanks for helping us protect Brave Rewards and privacy-based ads.</translation>
+<translation id="1565888393553870503">Brave Ads will resume. Thanks for helping us protect Brave Rewards.</translation>
 <translation id="3247549836099021862">Contact support</translation>
 <translation id="5234764350956374838">Dismiss</translation>
 <translation id="7859066142771796818">Use tokens to buy gift cards, exchange for other currencies, support content creators and more.</translation>
@@ -567,7 +568,7 @@
 <translation id="4934459911359992410"><ph name="LINK_BEGIN"/>Learn more<ph name="LINK_END"/></translation>
 <translation id="4214852687527104244">Don’t worry.</translation>
 <translation id="5027616819996705541">You can still browse privately!</translation>
-<translation id="1886682615222609631">Earnings so far</translation>
+<translation id="1450735350187803276">Ads seen this month</translation>
 <translation id="7649070708921625228">Help</translation>
 <translation id="6042308850641462728">More</translation>
 <translation id="6245259297588415877">Creators</translation>
@@ -669,9 +670,6 @@
 <translation id="2446517297521536638">Control what kinds of Brave Ads you see, and how often. The more you see, the more you can earn.</translation>
 <translation id="5860033963881614850">Off</translation>
 <translation id="5916664084637901428">On</translation>
-<translation id="4284417062730522399"><ph name="NUM"/> ads received this month</translation>
-<translation id="7697696066810593560">You've earned <ph name="NUM"/> so far this month</translation>
-<translation id="6733193230212030816">You're estimated to earn between: <ph name="RANGE"/></translation>
 <translation id="7924320838799747606">Your balance</translation>
 <translation id="8714473477079007268"><ph name="PROVIDER"/> wallet</translation>
 <translation id="3175337080016717494">Payout account</translation>
@@ -680,15 +678,6 @@
 <translation id="8414447476773253869">Log in to <ph name="PROVIDER"/> to see your balance</translation>
 <translation id="615483366383024791">Payout account</translation>
 <translation id="1060062421977823695">Your BAT earnings will be paid to this payout account.</translation>
-<translation id="2544805415966048917">You will send</translation>
-<translation id="6708522254106492579">Up to <ph name="AMOUNT"/> BAT</translation>
-<translation id="7666058404763778706">An automatic way to support websites and content creators, based on how much time you spend on their content.</translation>
-<translation id="4319242254058427792">Auto-contribute is disabled</translation>
-<translation id="1091835891554961609">Verified creators that you visit will appear here as you browse.</translation>
-<translation id="7714706530499503523">Auto-contribute automatically sends monthly contributions to creators verified with Brave, based on how much time you spend on their content.</translation>
-<translation id="2358028754328876971">How does Auto-contribute work?</translation>
-<translation id="2870560284913253234">Site</translation>
-<translation id="1184072843013036520">Get Brave-branded products.</translation>
 <translation id="1170674812179664523">Brave merch store</translation>
 <translation id="8673202990286883068">Your benefits</translation>
 <translation id="3699766258844277472">You don't have any recurring contributions set up yet.</translation>
@@ -713,7 +702,7 @@
 <translation id="7160424977552599351">Use your Web3 wallet</translation>
 <translation id="6369571967625114920">Brave Private Ads are not yet available in your region.</translation>
 <translation id="5309155375926073606">Yes, I’d also like to contribute to Brave Search and opt in to <ph name="LINK_BEGIN"/>Web Discovery Project<ph name="LINK_END"/>.</translation>
-<translation id="7285849890826812669">Contribute some anonymous search &amp; browsing data to refine Brave Search with Web Discovery Project. It’s completely open-source.</translation>
+<translation id="4622826307953794521">Contribute some anonymous search and browsing data to refine Brave Search with Web Discovery Project. It’s completely open-source.</translation>
 <translation id="4174337572777167894">Web Discovery Project</translation>
 <translation id="7090992647511817643">account</translation>
 <translation id="4822132585477111396">Chain ID</translation>
@@ -1000,7 +989,6 @@
 <translation id="453788800165937690">WARNING: never share your private key. Anyone with this private key can take your assets forever.</translation>
 <translation id="2416098547200943834">NOTE: private key is provided as a hex-encoded JSON that contains private key and protocol information. <ph name="LINK_START"/>Learn more<ph name="LINK_END"/>.</translation>
 <translation id="7657130382217527063">NOTE: private key must be provided as a hex-encoded JSON that contains private key and protocol information. <ph name="LINK_START"/>Learn more<ph name="LINK_END"/>.</translation>
-<translation id="1505724566145200403">NOTE: only zprv(or vprv for Testnet) extended keys are supported.</translation>
 <translation id="42126664696688958">Export</translation>
 <translation id="1366855498335432549">Deposit</translation>
 <translation id="790104325876206743">Account settings</translation>
@@ -1022,7 +1010,7 @@
 <translation id="3792938779249970121">Select account</translation>
 <translation id="6797737193502014008">Search accounts</translation>
 <translation id="3505920073976671674">Select network</translation>
-<translation id="6857856707736769720">Select from</translation>
+<translation id="2556155338676955870">Select asset</translation>
 <translation id="6323024765179772761">Search coins</translation>
 <translation id="6998989275928107238">To</translation>
 <translation id="1506421160138798546">estimate</translation>
@@ -1259,6 +1247,8 @@
 <translation id="6153197326949684688">Sell with <ph name="OFFRAMP_PROVIDER"/></translation>
 <translation id="7902920577183739843">Buy with Sardine</translation>
 <translation id="3301984548406568819">Financial and transaction data is processed by our onramp partners. Brave does not collect or have access to such data.</translation>
+<translation id="2803778066587058297">Asset</translation>
+<translation id="3067168166931605141">Account name</translation>
 <translation id="6534275647567011533">Buy with Transak</translation>
 <translation id="5973390321030037823">Buy with Link</translation>
 <translation id="1932640759496708012">Buy with Coinbase Pay</translation>
@@ -1428,12 +1418,6 @@
 <translation id="3253669416991680932">This hardware wallet does not support this operation.</translation>
 <translation id="7457027586454688423">Enter your Brave Wallet password</translation>
 <translation id="7553242001898162573">Enter your password</translation>
-<translation id="2873714185189940594">Open the Rainbow Bridge app?</translation>
-<translation id="2069777099181262239">Rainbow Bridge is an independent service that helps you bridge assets across networks, and use your crypto on other networks and DApp ecosystems. Bridging assets to other networks has some risks.</translation>
-<translation id="7387899248733396663">Learn more about using Rainbow Bridge</translation>
-<translation id="3890567288132019108">Learn more about mitigating risk on Rainbow Bridge</translation>
-<translation id="1792917191129448067">Open Rainbow Bridge app</translation>
-<translation id="1522775706527775647">Bridge to Aurora</translation>
 <translation id="4903322403594141291">Learn more about Brave Wallet</translation>
 <translation id="4427684901715566795">Password should have:</translation>
 <translation id="8521329076169776625">At least 8 characters</translation>
@@ -1706,6 +1690,8 @@
 <translation id="803703704549420287">Clear filters</translation>
 <translation id="1472675084647422956">Show more</translation>
 <translation id="4522570452068850558">Details</translation>
+<translation id="1703172100615786285"><ph name="BLOCKS"/> of <ph name="TOTAL_BLOCKS"/></translation>
+<translation id="1178581264944972037">Pause</translation>
 <translation id="7144878232160441200">Retry</translation>
 <translation id="9094621390791852268">Transaction preview failed.</translation>
 <translation id="4982713341035600933">Estimated balance change</translation>
@@ -1991,6 +1977,7 @@
 <translation id="8571323456914890254">Open in split view</translation>
 <translation id="5329136173514538969">Unsplit tabs</translation>
 <translation id="7595612919377246359">Swap tab positions</translation>
+<translation id="2367972762794486313">Show apps</translation>
 <translation id="8591883849678260674">View original</translation>
 <translation id="1969654232209826429">min. read</translation>
 <translation id="4101707289420716287">Turn off Speedreader</translation>
@@ -2026,7 +2013,6 @@
 <translation id="8637805148029768813">The summariser feature is currently available only for select articles and other long-form web pages.</translation>
 <translation id="1223498995510244364">Summarise</translation>
 <translation id="7491773233732232424">About Leo</translation>
-<translation id="5208096220706490232">Brave Leo is a private AI smart assistant that enhances your use of the Internet. Leo is free to use with limited access. Brave Leo Premium offers more models, higher limits and gives subscribers early access to new features. The default model for all users is currently Mixtral 8x7B. See the <ph name="LINK_BEFORE"/>Brave Wiki<ph name="LINK_AFTER"/> for more details.</translation>
 <translation id="7189603330209995455">By default, when you ask Leo a question, it may send and use the content of the web page you are viewing or any text you highlight on a page to Brave Leo to provide a response. The accuracy of responses is not guaranteed, and may include inaccurate, misleading or false information. Leo uses data from Brave Search to improve response quality. Don't submit sensitive or private info, and use caution with any answers related to health, finance, personal safety or similar. You can adjust Leo’s options in Settings any time. Go to Settings &gt; Leo.</translation>
 <translation id="3038772045018370764">Leo does not collect identifiers such as your IP address that can be linked to you. No data is used to train the AI models and no personal data is retained by the AI models (except for Anthropic that holds data for 30 days before deleting it). See the <ph name="LINK_BEFORE"/>privacy policy<ph name="LINK_AFTER"/> for more information.</translation>
 <translation id="7839853125981164613">Enter a prompt here</translation>
@@ -2039,8 +2025,6 @@
 <translation id="4177458398826096846">Hi, I'm Leo. I'm a fully hosted AI assistant by Brave. I'm powered by Llama 3.1 8B, a model created by Meta to be performant and applicable to many use cases. <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
 <translation id="6500567629965936637">Hi, I'm Leo. I'm a fully hosted AI assistant by Brave. I'm powered by Mixtral 8x7B, a model created by Mistral AI to handle advanced tasks. <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
 <translation id="4590776109659811206">Hi, I'm Leo. I'm proxied by Brave and powered by Claude Instant, a model created by Anthropic to power conversational and text processing tasks. <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
-<translation id="8583558415545871403">Hi, I'm Leo. I'm proxied by Brave and powered by Claude 3 Haiku, a model created by Anthropic to power conversational and text processing tasks.</translation>
-<translation id="1107977270364670952">Hi, I'm Leo. I'm proxied by Brave and powered by Claude 3.5 Sonnet, a model created by Anthropic to power conversational and text processing tasks.</translation>
 <translation id="6206029817087805290"><ph name="MODEL_NAME"/> by <ph name="COMPANY_NAME"/></translation>
 <translation id="963346402440669081">Premium</translation>
 <translation id="6187065185557150870">Chat</translation>
@@ -2057,6 +2041,7 @@
 <translation id="4165928407303989823">Stay on topic</translation>
 <translation id="2389665228467129817">Chat for longer</translation>
 <translation id="8556044455877152001">USD $ <ph name="PRICE_VALUE"/> /month</translation>
+<translation id="1028627582482425924">One year</translation>
 <translation id="5151923271944811339">Switch to the free model</translation>
 <translation id="5474757891469990756">Unleash Leo's full powers with Premium:</translation>
 <translation id="3453542753968940696">Priority access to powerful models with different skills.</translation>
@@ -2075,6 +2060,7 @@
 <translation id="9018766373792005944">What's your feedback about?</translation>
 <translation id="7355096922131918313">Provide feedback here</translation>
 <translation id="3027575440738035995">Leo Premium provides access to an expanded set of language models for even greater answer nuance. <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
+<translation id="8261506727792406068">Delete</translation>
 <translation id="7488762544858401571">Edited</translation>
 <translation id="1406205536570262057">Edit answer</translation>
 <translation id="2399439821649319175">Not helpful</translation>
@@ -2083,7 +2069,6 @@
 <translation id="2313959174679245365">Your rating could not be submitted. Please check network connection and try again</translation>
 <translation id="98413980871833152">Your feedback could not be submitted. Please check network connection and try again</translation>
 <translation id="8742658901413346500">This conversation is long and Leo may start forgetting things soon. You can get longer conversations by switching to a premium model, or you can clear the chat to reset it.</translation>
-<translation id="7550152963854770123">Clear chat</translation>
 <translation id="7494736170250048402">Send message to Leo</translation>
 <translation id="8712637175834984815">Got it</translation>
 <translation id="1093419424466417703">The page is too long for Leo. Some context could be missing from the conversation. Leo was able to read <ph name="PERCENTAGE"/> of the page's contents.</translation>
@@ -2140,7 +2125,7 @@
 <translation id="7509914170164691086">Shields are UP <ph name="LINK_BEFORE"/>for<ph name="LINK_AFTER"/></translation>
 <translation id="260764436039299868">Shields are DOWN <ph name="LINK_BEFORE"/>for<ph name="LINK_AFTER"/></translation>
 <translation id="3907405056878805220">If this site seems broken, try Shields down.
-    <ph name="LINK_BEFORE"/>Note: this may reduce Brave's privacy protections.<ph name="LINK_AFTER"/></translation>
+   <ph name="LINK_BEFORE"/>Note: this may reduce Brave's privacy protections.<ph name="LINK_AFTER"/></translation>
 <translation id="8377155647357436161">Trackers, ads and more blocked <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
 <translation id="7604553853176833536">Not protected by Brave Shields <ph name="LINK_BEFORE"/>Learn more<ph name="LINK_AFTER"/></translation>
 <translation id="650318023204990401">Advanced controls</translation>
@@ -2217,8 +2202,8 @@
 <translation id="6821108091726602352">Help us fix the web by participating in Brave’s Web Discovery Project. By sharing completely anonymous search signals, you can help Brave grow the search index.</translation>
 <translation id="6764845498618413165">Learn more.</translation>
 <translation id="7818938154803162778">Sure, I'll help</translation>
-<translation id="7821773512278295352">Brave Firewall + VPN: connected</translation>
-<translation id="6019088868713395120">Brave Firewall + VPN: disconnected</translation>
+<translation id="958268166261124668">Brave VPN: connected</translation>
+<translation id="6021669293402055982">Brave VPN: disconnected</translation>
 <translation id="3541307549916475335">Brave VPN Panel UI</translation>
 <translation id="7143207342074048698">Connecting ...</translation>
 <translation id="1202549130170287307">Disconnecting</translation>
@@ -2230,7 +2215,6 @@
 <translation id="3357036723290257445">Already purchased Brave VPN?</translation>
 <translation id="8814357473522731680">Powered by</translation>
 <translation id="8652175077544655965">Close settings</translation>
-<translation id="3099126540952997993">Firewall + VPN</translation>
 <translation id="5908163815855240493">Go to main</translation>
 <translation id="7805768142964895445">Status</translation>
 <translation id="5747552184818312860">Expires</translation>
@@ -2301,9 +2285,7 @@ Let's get you connected!</translation>
 <translation id="9061845622728745852">Timezone:</translation>
 <translation id="8295393906499561642">Session expired</translation>
 <translation id="3312623558576021182">Please log in to your <ph name="BRAVE_ACCOUNT_BEGIN"/>Brave Account<ph name="BRAVE_ACCOUNT_END"/> to refresh your VPN session.</translation>
-<translation id="6021669293402055982">Brave VPN: disconnected</translation>
 <translation id="7861195049821776142">Brave VPN: disconnecting</translation>
-<translation id="958268166261124668">Brave VPN: connected</translation>
 <translation id="2061807837510296780">Brave VPN: connecting</translation>
 <translation id="1313124107969703758">Brave VPN: error</translation>
 <translation id="8273420301954598554">Status: connected</translation>
@@ -2312,6 +2294,10 @@ Let's get you connected!</translation>
 <translation id="8048263175525832621">Brave VPN – disconnected</translation>
 <translation id="1498770726476841108">Manage account</translation>
 <translation id="6825718953004242472">Remove icon</translation>
+<translation id="3960619311638643872">Brave VPN</translation>
+<translation id="4295077644587784828">Extra privacy &amp; security online.</translation>
+<translation id="8425213833346101688">Change</translation>
+<translation id="8703188411226330709">Start free trial</translation>
 <translation id="3287942014983548982">Open here</translation>
 <translation id="8234327602319965815"><ph name="OPEN_HERE_SUFFIX"/>, currently open,
     press Tab then Enter to switch to the open tab</translation>
@@ -2319,7 +2305,4 @@ Let's get you connected!</translation>
     existing tab</translation>
 <translation id="451189393813405346">Ask Leo</translation>
 <translation id="8525248723479742219">Play later</translation>
-<translation id="1450735350187803276">Ads seen this month</translation>
-<translation id="3960619311638643872">Brave VPN</translation>
-<translation id="8425213833346101688">Change</translation>
 </translationbundle>

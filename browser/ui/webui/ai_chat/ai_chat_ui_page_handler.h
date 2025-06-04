@@ -12,6 +12,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "base/task/cancelable_task_tracker.h"
+#include "brave/browser/ai_chat/upload_file_helper.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "content/public/browser/web_contents_observer.h"
@@ -53,6 +54,9 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
   void RefreshPremiumSession() override;
   void ManagePremium() override;
   void HandleVoiceRecognition(const std::string& conversation_uuid) override;
+  void ShowSoftKeyboard() override;
+  void UploadImage(const std::string& conversation_uuid,
+                   UploadImageCallback callback) override;
   void CloseUI() override;
   void SetChatUI(mojo::PendingRemote<mojom::ChatUI> chat_ui,
                  SetChatUICallback callback) override;
@@ -60,12 +64,12 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
       mojo::PendingReceiver<mojom::ConversationHandler> receiver,
       mojo::PendingRemote<mojom::ConversationUI> conversation_ui_handler)
       override;
+  void AssociateTab(mojom::TabDataPtr tab,
+                    const std::string& conversation_uuid) override;
   void NewConversation(
       mojo::PendingReceiver<mojom::ConversationHandler> receiver,
       mojo::PendingRemote<mojom::ConversationUI> conversation_ui_handler)
       override;
-  void GetFaviconImageData(const std::string& conversation_id,
-                           GetFaviconImageDataCallback callback) override;
 
   void BindParentUIFrameFromChildFrame(
       mojo::PendingReceiver<mojom::ParentUIFrame> receiver);
@@ -88,21 +92,16 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
   // AIChatTabHelper::Observer
   void OnAssociatedContentNavigated(int new_navigation_id) override;
 
-  void GetFaviconImageDataForAssociatedContent(
-      GetFaviconImageDataCallback callback,
-      mojom::SiteInfoPtr content_info,
-      bool should_send_page_contents);
-
   raw_ptr<AIChatTabHelper> active_chat_tab_helper_ = nullptr;
   raw_ptr<content::WebContents> owner_web_contents_ = nullptr;
-  raw_ptr<favicon::FaviconService> favicon_service_ = nullptr;
   raw_ptr<Profile> profile_ = nullptr;
-
-  base::CancelableTaskTracker favicon_task_tracker_;
+  raw_ptr<AIChatMetrics> ai_chat_metrics_;
 
   base::ScopedObservation<AIChatTabHelper, AIChatTabHelper::Observer>
       chat_tab_helper_observation_{this};
   std::unique_ptr<ChatContextObserver> chat_context_observer_;
+
+  std::unique_ptr<UploadFileHelper> upload_file_helper_;
 
   mojo::Receiver<ai_chat::mojom::AIChatUIHandler> receiver_;
   mojo::Remote<ai_chat::mojom::ChatUI> chat_ui_;

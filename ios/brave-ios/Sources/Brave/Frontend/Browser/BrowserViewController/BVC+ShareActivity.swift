@@ -97,8 +97,10 @@ extension BrowserViewController {
     }
 
     // Translate Activity
-    if let translationState = tab?.translationState, translationState != .unavailable,
-      Preferences.Translate.translateEnabled.value
+    if FeatureList.kBraveTranslateEnabled.enabled,
+      let translationState = tab?.translationState,
+      translationState != .unavailable,
+      Preferences.Translate.translateEnabled.value != false
     {
       activities.append(
         BasicMenuActivity(
@@ -141,8 +143,7 @@ extension BrowserViewController {
         activityType: .pageZoom,
         callback: { [weak self] in
           guard let self = self else { return }
-
-          self.displayPageZoom(visible: true)
+          self.displayPageZoomDialog()
         }
       )
     )

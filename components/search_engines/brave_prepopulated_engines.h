@@ -10,13 +10,13 @@
 #include <map>
 
 #include "build/build_config.h"
-#include "components/search_engines/prepopulated_engines.h"
+#include "third_party/search_engines_data/resources/definitions/prepopulated_engines.h"
 
 namespace TemplateURLPrepopulateData {
 
 // IMPORTANT! Make sure to bump this value if you make changes to the
 // engines below or add/remove engines.
-inline constexpr int kBraveCurrentDataVersion = 30;
+inline constexpr int kBraveCurrentDataVersion = 31;
 
 // The version is important to increment because Chromium will cache the list
 // of search engines that are shown. When the version is incremented, Chromium
@@ -31,15 +31,17 @@ inline constexpr int kBraveFirstTrackedDataVersion = 6;
 // See comments on prepopulated engines ids in
 // components/search_engines/prepopulated_engines_schema.json above the
 // definition of the id field and in
-// components/search_engines/prepopulated_engines.json at the top of the file.
-// Currently taken ids range under 90, but we'd want to leave room for
-// additions by Chromium, so starting our ids from 500. Potential problem:
-// Chromium adds one of these engines to their list with a different id.
+// third_party/search_engines_data/resources/definitions/prepopulated_engines.json
+// at the top of the file. Currently taken ids range under 90, but we'd want to
+// leave room for additions by Chromium, so starting our ids from 500. Potential
+// problem: Chromium adds one of these engines to their list with a different
+// id.
 enum BravePrepopulatedEngineID : unsigned int {
   PREPOPULATED_ENGINE_ID_INVALID = 0,
 
   // These engine IDs are already defined in prepopulated_engines.json
   PREPOPULATED_ENGINE_ID_GOOGLE = 1,
+  PREPOPULATED_ENGINE_ID_YAHOO_JP = 2,
   PREPOPULATED_ENGINE_ID_BING = 3,
   PREPOPULATED_ENGINE_ID_YANDEX = 15,
   PREPOPULATED_ENGINE_ID_NAVER = 67,
@@ -120,6 +122,7 @@ extern const PrepopulatedEngine brave_yandex;
 extern const PrepopulatedEngine brave_search;
 extern const PrepopulatedEngine brave_search_tor;
 extern const PrepopulatedEngine brave_bing;
+extern const PrepopulatedEngine brave_yahoo_jp;
 
 const std::map<BravePrepopulatedEngineID, const PrepopulatedEngine*>&
 GetBraveEnginesMap();

@@ -14,16 +14,21 @@
 namespace brave_wallet {
 
 ZCashResolveBalanceTask::ZCashResolveBalanceTask(
+    base::PassKey<ZCashWalletService> pass_key,
     ZCashWalletService& zcash_wallet_service,
-    const std::string& chain_id,
-    mojom::AccountIdPtr account_id,
+    ZCashActionContext context,
     ZCashResolveBalanceTaskCallback callback)
     : zcash_wallet_service_(zcash_wallet_service),
-      chain_id_(chain_id),
-      account_id_(std::move(account_id)),
+      context_(std::move(context)),
       callback_(std::move(callback)) {}
 
-ZCashResolveBalanceTask::~ZCashResolveBalanceTask() {}
+ZCashResolveBalanceTask::~ZCashResolveBalanceTask() = default;
+
+void ZCashResolveBalanceTask::Start() {
+  DCHECK(!started_);
+  started_ = true;
+  ScheduleWorkOnTask();
+}
 
 void ZCashResolveBalanceTask::ScheduleWorkOnTask() {
   base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
@@ -40,7 +45,7 @@ void ZCashResolveBalanceTask::WorkOnTask() {
 
   if (!discovery_result_) {
     zcash_wallet_service_->RunDiscovery(
-        account_id_.Clone(),
+        context_.account_id.Clone(),
         base::BindOnce(&ZCashResolveBalanceTask::OnDiscoveryDoneForBalance,
                        weak_ptr_factory_.GetWeakPtr()));
     return;
@@ -48,7 +53,7 @@ void ZCashResolveBalanceTask::WorkOnTask() {
 
   if (!utxo_map_) {
     zcash_wallet_service_->GetUtxos(
-        chain_id_, account_id_.Clone(),
+        context_.chain_id, context_.account_id.Clone(),
         base::BindOnce(&ZCashResolveBalanceTask::OnUtxosResolvedForBalance,
                        weak_ptr_factory_.GetWeakPtr()));
     return;
@@ -56,10 +61,11 @@ void ZCashResolveBalanceTask::WorkOnTask() {
 
 #if BUILDFLAG(ENABLE_ORCHARD)
   if (IsZCashShieldedTransactionsEnabled()) {
-    if (!orchard_notes_) {
+    if (!spendable_notes_result_) {
       zcash_wallet_service_->sync_state()
           .AsyncCall(&OrchardSyncState::GetSpendableNotes)
-          .WithArgs(account_id_.Clone())
+          .WithArgs(context_.account_id.Clone(),
+                    context_.account_internal_addr.value())
           .Then(base::BindOnce(&ZCashResolveBalanceTask::OnGetSpendableNotes,
                                weak_ptr_factory_.GetWeakPtr()));
       return;
@@ -78,14 +84,20 @@ void ZCashResolveBalanceTask::WorkOnTask() {
 
 #if BUILDFLAG(ENABLE_ORCHARD)
 void ZCashResolveBalanceTask::OnGetSpendableNotes(
-    base::expected<std::vector<OrchardNote>, OrchardStorage::Error> result) {
+    base::expected<std::optional<OrchardSyncState::SpendableNotesBundle>,
+                   OrchardStorage::Error> result) {
   if (!result.has_value()) {
     error_ = result.error().message;
     ScheduleWorkOnTask();
     return;
   }
 
-  orchard_notes_ = std::move(result.value());
+  if (!result.value()) {
+    spendable_notes_result_ = OrchardSyncState::SpendableNotesBundle();
+  } else {
+    spendable_notes_result_ = std::move(result.value());
+  }
+
   ScheduleWorkOnTask();
 }
 
@@ -108,11 +120,22 @@ void ZCashResolveBalanceTask::CreateBalance() {
   result->total_balance = result->transparent_balance;
 
 #if BUILDFLAG(ENABLE_ORCHARD)
-  if (orchard_notes_) {
-    for (const auto& note : orchard_notes_.value()) {
-      result->shielded_balance += note.amount;
+  if (IsZCashShieldedTransactionsEnabled()) {
+    if (spendable_notes_result_) {
+      for (const auto& note : spendable_notes_result_->all_notes) {
+        result->shielded_pending_balance += note.amount;
+      }
+      for (const auto& note : spendable_notes_result_->spendable_notes) {
+        result->shielded_balance += note.amount;
+      }
+      if (result->shielded_pending_balance < result->shielded_balance) {
+        error_ = "Pending balance error";
+        ScheduleWorkOnTask();
+        return;
+      }
+      result->shielded_pending_balance -= result->shielded_balance;
+      result->total_balance += result->shielded_balance;
     }
-    result->total_balance += result->shielded_balance;
   }
 #endif
 

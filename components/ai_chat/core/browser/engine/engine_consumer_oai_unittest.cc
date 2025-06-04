@@ -11,6 +11,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "base/base64.h"
 #include "base/containers/checked_iterators.h"
 #include "base/functional/callback.h"
 #include "base/functional/callback_helpers.h"
@@ -22,11 +23,14 @@
 #include "base/strings/utf_string_conversions.h"
 #include "base/test/bind.h"
 #include "base/test/task_environment.h"
+#include "base/test/test_future.h"
+#include "base/test/values_test_util.h"
 #include "base/time/time.h"
 #include "base/values.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/engine/test_utils.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
+#include "brave/components/ai_chat/core/common/test_utils.h"
 #include "components/grit/brave_components_strings.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "testing/gmock/include/gmock/gmock.h"
@@ -34,6 +38,7 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
+using base::test::ParseJsonDict;
 using ::testing::_;
 using ::testing::Sequence;
 
@@ -247,15 +252,16 @@ TEST_F(EngineConsumerOAIUnitTest,
   // Push a single user turn into the history.
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt,
-      mojom::CharacterType::HUMAN,                 // Author is the user
-      mojom::ActionType::UNSPECIFIED,              // No specific action
-      mojom::ConversationTurnVisibility::VISIBLE,  // Visible to the user
-      human_input,                                 // User message
-      std::nullopt,                                // No selected text
-      std::nullopt,                                // No events
-      base::Time::Now(),                           // Current time
-      std::nullopt,                                // No message edits
-      false                                        // Not from Brave SERP
+      mojom::CharacterType::HUMAN,     // Author is the user
+      mojom::ActionType::UNSPECIFIED,  // No specific action
+      human_input,                     // User message
+      std::nullopt,                    // No prompt
+      std::nullopt,                    // No selected text
+      std::nullopt,                    // No events
+      base::Time::Now(),               // Current time
+      std::nullopt,                    // No message edits
+      std::nullopt,                    // No uploaded images
+      false                            // Not from Brave SERP
       ));
 
   // Prepare to capture API client request
@@ -283,7 +289,7 @@ TEST_F(EngineConsumerOAIUnitTest,
 
   // Initiate the test
   engine_->GenerateAssistantResponse(
-      /* is_video */ false, "", history, human_input, "", base::DoNothing(),
+      /* is_video */ false, "", history, "", base::DoNothing(),
       base::BindLambdaForTesting([&run_loop, &assistant_response](
                                      EngineConsumer::GenerationResult result) {
         EXPECT_STREQ(result.value().c_str(), assistant_response.c_str());
@@ -308,15 +314,15 @@ TEST_F(EngineConsumerOAIUnitTest,
 
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::HUMAN,
-      mojom::ActionType::SUMMARIZE_SELECTED_TEXT,
-      mojom::ConversationTurnVisibility::VISIBLE, human_input, selected_text,
-      std::nullopt, base::Time::Now(), std::nullopt, false));
+      mojom::ActionType::SUMMARIZE_SELECTED_TEXT, human_input,
+      std::nullopt /* prompt */, selected_text, std::nullopt, base::Time::Now(),
+      std::nullopt, std::nullopt, false));
 
   history.push_back(mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::ASSISTANT,
-      mojom::ActionType::RESPONSE, mojom::ConversationTurnVisibility::VISIBLE,
-      assistant_input, std::nullopt, std::nullopt, base::Time::Now(),
-      std::nullopt, false));
+      mojom::ActionType::RESPONSE, assistant_input, std::nullopt /* prompt */,
+      std::nullopt, std::nullopt, base::Time::Now(), std::nullopt, std::nullopt,
+      false));
 
   auto* client = GetClient();
   auto run_loop = std::make_unique<base::RunLoop>();
@@ -357,8 +363,7 @@ TEST_F(EngineConsumerOAIUnitTest,
   }
 
   engine_->GenerateAssistantResponse(
-      /* is_video */ false, "", history, "What's his name?", "",
-      base::DoNothing(),
+      /* is_video */ false, "", history, "", base::DoNothing(),
       base::BindLambdaForTesting(
           [&run_loop](EngineConsumer::GenerationResult result) {
             EXPECT_STREQ(result.value().c_str(), "I dont know");
@@ -397,7 +402,7 @@ TEST_F(EngineConsumerOAIUnitTest,
       });
 
   engine_->GenerateAssistantResponse(
-      false, "", GetHistoryWithModifiedReply(), "test", "", base::DoNothing(),
+      false, "", GetHistoryWithModifiedReply(), "", base::DoNothing(),
       base::BindLambdaForTesting(
           [&run_loop](EngineConsumer::GenerationResult result) {
             run_loop->Quit();
@@ -412,7 +417,7 @@ TEST_F(EngineConsumerOAIUnitTest, GenerateAssistantResponseEarlyReturn) {
   auto run_loop = std::make_unique<base::RunLoop>();
   EXPECT_CALL(*client, PerformRequest(_, _, _, _)).Times(0);
   engine_->GenerateAssistantResponse(
-      false, "This is my page.", history, "Who?", "", base::DoNothing(),
+      false, "This is my page.", history, "", base::DoNothing(),
       base::BindLambdaForTesting(
           [&run_loop](EngineConsumer::GenerationResult result) {
             run_loop->Quit();
@@ -422,9 +427,9 @@ TEST_F(EngineConsumerOAIUnitTest, GenerateAssistantResponseEarlyReturn) {
 
   mojom::ConversationTurnPtr entry = mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::ASSISTANT,
-      mojom::ActionType::RESPONSE, mojom::ConversationTurnVisibility::VISIBLE,
-      "", std::nullopt, std::vector<mojom::ConversationEntryEventPtr>{},
-      base::Time::Now(), std::nullopt, false);
+      mojom::ActionType::RESPONSE, "", std::nullopt /* prompt */, std::nullopt,
+      std::vector<mojom::ConversationEntryEventPtr>{}, base::Time::Now(),
+      std::nullopt, std::nullopt, false);
   entry->events->push_back(mojom::ConversationEntryEvent::NewCompletionEvent(
       mojom::CompletionEvent::New("Me")));
   history.push_back(std::move(entry));
@@ -432,12 +437,64 @@ TEST_F(EngineConsumerOAIUnitTest, GenerateAssistantResponseEarlyReturn) {
   EXPECT_CALL(*client, PerformRequest(_, _, _, _)).Times(0);
   run_loop = std::make_unique<base::RunLoop>();
   engine_->GenerateAssistantResponse(
-      false, "This is my page.", history, "Who?", "", base::DoNothing(),
+      false, "This is my page.", history, "", base::DoNothing(),
       base::BindLambdaForTesting(
           [&run_loop](EngineConsumer::GenerationResult result) {
             run_loop->Quit();
           }));
   run_loop->Run();
+  testing::Mock::VerifyAndClearExpectations(client);
+}
+
+TEST_F(EngineConsumerOAIUnitTest, GenerateAssistantResponseUploadImage) {
+  EngineConsumer::ConversationHistory history;
+  auto* client = GetClient();
+  auto uploaded_images = CreateSampleUploadedImages(3);
+  constexpr char kTestPrompt[] = "Tell the user what is in the image?";
+  constexpr char kAssistantResponse[] = "It's a lion!";
+  EXPECT_CALL(*client, PerformRequest(_, _, _, _))
+      .WillOnce(
+          [kTestPrompt, kAssistantResponse, &uploaded_images](
+              const mojom::CustomModelOptions, base::Value::List messages,
+              EngineConsumer::GenerationDataCallback,
+              EngineConsumer::GenerationCompletedCallback completed_callback) {
+            EXPECT_EQ(*messages[0].GetDict().Find("role"), "system");
+
+            constexpr char kJsonTemplate[] = R"({
+                 "content": [ {
+                    "text": "These images are uploaded by the users",
+                    "type": "text"
+                 }, {
+                    "image_url": {
+                       "url": "data:image/png;base64,$1"
+                    },
+                    "type": "image_url"
+                 } ],
+                 "role": "user"
+                }
+            )";
+            const std::string json_str = base::ReplaceStringPlaceholders(
+                kJsonTemplate,
+                {base::Base64Encode(uploaded_images[0]->image_data)}, nullptr);
+            auto expected_dict = ParseJsonDict(json_str);
+
+            EXPECT_EQ(messages[1].GetDict(), expected_dict);
+
+            EXPECT_EQ(*messages[2].GetDict().Find("role"), "user");
+            EXPECT_EQ(*messages[2].GetDict().Find("content"), kTestPrompt);
+
+            std::move(completed_callback)
+                .Run(EngineConsumer::GenerationResult(kAssistantResponse));
+          });
+
+  history.push_back(mojom::ConversationTurn::New(
+      std::nullopt, mojom::CharacterType::HUMAN, mojom::ActionType::UNSPECIFIED,
+      "What is this image?", kTestPrompt, std::nullopt, std::nullopt,
+      base::Time::Now(), std::nullopt, Clone(uploaded_images), false));
+  base::test::TestFuture<EngineConsumer::GenerationResult> future;
+  engine_->GenerateAssistantResponse(false, "", history, "", base::DoNothing(),
+                                     future.GetCallback());
+  EXPECT_STREQ(future.Take()->c_str(), kAssistantResponse);
   testing::Mock::VerifyAndClearExpectations(client);
 }
 
@@ -473,7 +530,7 @@ TEST_F(EngineConsumerOAIUnitTest, SummarizePage) {
 
   engine_->GenerateAssistantResponse(
       /* is_video */ false,
-      /* page_content */ "This is a page.", history, "", "", base::DoNothing(),
+      /* page_content */ "This is a page.", history, "", base::DoNothing(),
       base::BindLambdaForTesting(
           [&run_loop](EngineConsumer::GenerationResult) { run_loop.Quit(); }));
 

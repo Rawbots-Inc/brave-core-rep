@@ -5,6 +5,7 @@
 // This code is loosely based on https://github.com/Antol/APAutocompleteTextField
 
 import BraveCore
+import BraveShared
 import BraveUI
 import Shared
 import UIKit
@@ -57,8 +58,18 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   var highlightColor = AutocompleteTextFieldUX.highlightColor
 
   override public var text: String? {
-    didSet {
-      super.text = text
+    get {
+      super.text
+    }
+
+    set(newValue) {
+      if let text = newValue, URL.isValidURLWithoutEncoding(text: text, scheme: "blob"),
+        let url = URL(string: text)
+      {
+        super.text = url.strippingBlobURLAuth.absoluteString
+      } else {
+        super.text = newValue
+      }
       self.textDidChange(self)
     }
   }
@@ -92,6 +103,7 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
             self,
             didEnterText: self.text?.preferredSearchSuggestionText ?? ""
           )
+          self.isPasting = false
         }
       }
     )
@@ -217,6 +229,13 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     return hasActiveCompletion
   }
 
+  private(set) var isPasting: Bool = false
+
+  public override func paste(_ sender: Any?) {
+    isPasting = true
+    super.paste(sender)
+  }
+
   // `shouldChangeCharactersInRange` is called before the text changes, and textDidChange is called after.
   // Since the text has changed, remove the completion here, and textDidChange will fire the callback to
   // get the new autocompletion.
@@ -257,7 +276,7 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     if let l = autocompleteTextLabel {
       addSubview(l)
       hideCursor = true
-      forceResetCursor()
+      resetCursor()
     }
   }
 
@@ -352,7 +371,12 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   }
 
   func setTextWithoutSearching(_ text: String) {
-    super.text = text
+    if URL.isValidURLWithoutEncoding(text: text, scheme: "blob"), let url = URL(string: text) {
+      super.text = url.strippingBlobURLAuth.absoluteString
+    } else {
+      super.text = text
+    }
+
     hideCursor = autocompleteTextLabel != nil
     removeCompletion()
   }
@@ -376,9 +400,15 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
   // Reset the cursor to the end of the text field.
   // This forces `caretRect(for position: UITextPosition)` to be called which will decide if we should show the cursor
   // This exists because ` caretRect(for position: UITextPosition)` is not called after we apply an autocompletion.
+  private func resetCursor() {
+    if self.selectedTextRange?.start != self.endOfDocument {
+      self.forceResetCursor()
+    }
+  }
+
   private func forceResetCursor() {
-    selectedTextRange = nil
-    selectedTextRange = textRange(from: endOfDocument, to: endOfDocument)
+    self.selectedTextRange = nil
+    self.selectedTextRange = self.textRange(from: self.endOfDocument, to: self.endOfDocument)
   }
 
   override public func deleteBackward() {
@@ -397,5 +427,4 @@ public class AutocompleteTextField: UITextField, UITextFieldDelegate {
     applyCompletion()
     super.touchesBegan(touches, with: event)
   }
-
 }

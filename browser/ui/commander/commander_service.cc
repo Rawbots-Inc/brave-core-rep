@@ -5,6 +5,7 @@
 
 #include "brave/browser/ui/commander/commander_service.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
@@ -17,7 +18,6 @@
 #include "base/functional/callback_forward.h"
 #include "base/location.h"
 #include "base/memory/weak_ptr.h"
-#include "base/ranges/algorithm.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
 #include "base/task/sequenced_task_runner.h"
@@ -44,7 +44,8 @@ namespace commander {
 namespace {
 constexpr size_t kMaxResults = 8;
 CommandItemModel FromCommand(const std::unique_ptr<CommandItem>& item) {
-  return CommandItemModel(item->title, item->matched_ranges, item->annotation);
+  return CommandItemModel(item->title, item->matched_ranges, item->annotation,
+                          item->score);
 }
 }  // namespace
 
@@ -106,7 +107,7 @@ void CommanderService::SelectCommand(uint32_t command_index,
 
 std::vector<CommandItemModel> CommanderService::GetItems() {
   std::vector<CommandItemModel> result;
-  base::ranges::transform(items_, std::back_inserter(result), FromCommand);
+  std::ranges::transform(items_, std::back_inserter(result), FromCommand);
   return result;
 }
 

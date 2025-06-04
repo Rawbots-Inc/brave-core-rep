@@ -8,12 +8,12 @@
 #include "base/time/time.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ai_chat/ai_chat_urls.h"
-#include "brave/build/android/jni_headers/BraveLeoUtils_jni.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_service.h"
 #include "brave/components/ai_chat/core/browser/conversation_handler.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "brave/components/constants/webui_url_constants.h"
+#include "chrome/android/chrome_jni_headers/BraveLeoUtils_jni.h"
 #include "content/public/browser/web_contents.h"
 #include "url/gurl.h"
 
@@ -50,9 +50,10 @@ static void JNI_BraveLeoUtils_OpenLeoQuery(
   conversation->MaybeUnlinkAssociatedContent();
   mojom::ConversationTurnPtr turn = mojom::ConversationTurn::New(
       std::nullopt, mojom::CharacterType::HUMAN, mojom::ActionType::QUERY,
-      mojom::ConversationTurnVisibility::VISIBLE,
-      base::android::ConvertJavaStringToUTF8(query), std::nullopt, std::nullopt,
-      base::Time::Now(), std::nullopt, false);
+      base::android::ConvertJavaStringToUTF8(query), std::nullopt /* prompt */,
+      std::nullopt /* selected_text */, std::nullopt /* events */,
+      base::Time::Now(), std::nullopt, std::nullopt /* uploaded images */,
+      false);
   conversation->SubmitHumanConversationEntry(std::move(turn));
 
   content::OpenURLParams params(

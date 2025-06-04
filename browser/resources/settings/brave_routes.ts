@@ -59,7 +59,13 @@ export default function addBraveRoutes(r: Partial<SettingsRoutes>) {
     if (r.FONTS) {
         delete r.FONTS
     }
-    r.FONTS = r.BRAVE_CONTENT.createChild('/fonts');
+    r.FONTS = r.BRAVE_CONTENT.createChild('/fonts')
+  }
+  if (r.SEARCH) {
+    r.DEFAULT_SEARCH = r.SEARCH.createChild('defaultSearch')
+    r.DEFAULT_SEARCH.isNavigableDialog = true
+    r.PRIVATE_SEARCH = r.SEARCH.createChild('privateSearch')
+    r.PRIVATE_SEARCH.isNavigableDialog = true
   }
   if (r.SITE_SETTINGS) {
     r.SITE_SETTINGS_AUTOPLAY = r.SITE_SETTINGS.createChild('autoplay')
@@ -93,6 +99,12 @@ export default function addBraveRoutes(r: Partial<SettingsRoutes>) {
     } else {
       console.error(
         '[Settings] could not find expected route site_settings_ads')
+    }
+    if (r.SITE_SETTINGS_AUTO_VERIFY) {
+      delete r.SITE_SETTINGS_AUTO_VERIFY
+    } else {
+      console.error(
+        '[Settings] could not find expected route site_settings_auto_verify')
     }
   } else if (!isGuest) {
     console.error('[Settings] Routes: could not find SITE_SETTINGS page')

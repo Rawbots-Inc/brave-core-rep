@@ -35,11 +35,12 @@ mojom::ZecTxDataPtr ToZecTxData(const std::string& chain_id,
           mojom::ZecTxOutput::New(*orchard_unified_addr, output.value));
     }
   }
-  // TODO(cypt4): Add proper flag here
-  // https://github.com/brave/brave-browser/issues/39314
-  return mojom::ZecTxData::New(false, tx.to(), OrchardMemoToVec(tx.memo()),
-                               tx.amount(), tx.fee(), std::move(mojom_inputs),
-                               std::move(mojom_outputs));
+
+  bool use_shielded_pool = !tx.orchard_part().inputs.empty();
+  DCHECK(!use_shielded_pool || tx.transparent_part().inputs.empty());
+  return mojom::ZecTxData::New(
+      use_shielded_pool, tx.to(), OrchardMemoToVec(tx.memo()), tx.amount(),
+      tx.fee(), std::move(mojom_inputs), std::move(mojom_outputs));
 }
 }  // namespace
 
@@ -59,13 +60,15 @@ ZCashTxMeta::~ZCashTxMeta() = default;
 
 base::Value::Dict ZCashTxMeta::ToValue() const {
   base::Value::Dict dict = TxMeta::ToValue();
-  dict.Set("tx", tx_->ToValue());
+  if (tx_) {
+    dict.Set("tx", tx_->ToValue());
+  }
   return dict;
 }
 
 mojom::TransactionInfoPtr ZCashTxMeta::ToTransactionInfo() const {
   return mojom::TransactionInfo::New(
-      id_, std::nullopt, from_.Clone(), tx_hash_,
+      id_, from_.Clone(), tx_hash_,
       mojom::TxDataUnion::NewZecTxData(ToZecTxData(chain_id_, *tx_)), status_,
       mojom::TransactionType::Other, std::vector<std::string>() /* tx_params */,
       std::vector<std::string>() /* tx_args */,

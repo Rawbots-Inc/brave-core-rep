@@ -1,9 +1,7 @@
 <?xml version="1.0" ?>
 <!DOCTYPE translationbundle>
 <translationbundle lang="iw">
-<translation id="8631427463833030968">נהל הודעות</translation>
 <translation id="7630214457764713113">העתק קישור נקי</translation>
-<translation id="885805571521218129">זה משקף את טווח הרווחים המשוער שלך עבור מודעות Brave החודש.</translation>
 <translation id="3478449063771497234">ההתראות מושבתות</translation>
 <translation id="2862978891748913252">בחר את המדינה שלך</translation>
 <translation id="3970520675790340955">בחר את המדינה שלך כדי שנוכל להראות לך את האפשרויות והמודעות הנכונות עבור האזור שלך.</translation>
@@ -114,6 +112,11 @@
 <translation id="1571106259128580884">הצג הצעות של האתרים הטובים ביותר</translation>
 <translation id="6285118765755298263">תצרו אינדקס למנועי חיפוש אחרים</translation>
 <translation id="919715748352669592">כולל אינדקס באופן אוטומטי לאתרי אינטרנט העוקבים אחר מפרט OpenSearch.</translation>
+<translation id="412411722208944922">מנועי חיפוש מהירים</translation>
+<translation id="2836969042340015500">מנועי חיפוש מהיר</translation>
+<translation id="9120455214794270250">הצגת סרגל חיפוש מהיר</translation>
+<translation id="1052991798173010693">מנועי חיפוש שנמצאים בשימוש</translation>
+<translation id="335303688425891752">יש ללחוץ לחיצה ארוכה כדי לשנות את הסדר</translation>
 <translation id="9148058034647219655">יציאה</translation>
 <translation id="8047754398610073499">חסימת הודעות הסכמה לקובצי Cookie</translation>
 <translation id="2621893359845808115">חסום חלונות קופצים של אתרים שמבקשים ממך לקבל/לדחות קובצי Cookie באתר שלהם</translation>
@@ -194,6 +197,8 @@
 <translation id="1680858055899097121">אל תשמר כרטיסיות בין הפעלות גלישה</translation>
 <translation id="7142548388914389999">אפשר ניתוח מוצרים השומר על פרטיות (P3A)</translation>
 <translation id="5254037869598726291">מידע P3A אנונימי מסייע ל-Brave להעריך את השימוש הכולל, ולוודא שאנחנו’re משפרים את התכונות הפופולריות.</translation>
+<translation id="4174337572777167894">Web Discovery Project</translation>
+<translation id="8659271182272561965">תרמו קצת לחיפוש אנונימי ונתוני גלישה כדי לשפר את Brave Search.</translation>
 <translation id="933652931229970927">שלחו דוחות באופן אוטומטי</translation>
 <translation id="5987838417172370108">עזור לשפר את יציבות המוצר של Brave על ידי שליחת דוחות אבחון אוטומטית כאשר הדפדפן האמיץ קורס או קופא.</translation>
 <translation id="7977176350719484850">הערכת נתונים/n שנשמרו</translation>
@@ -230,17 +235,16 @@
 <translation id="6587448235155023666">השינויים שלך ייכנסו לתוקף בפעם הבאה שתפעיל/י מחדש את Brave</translation>
 <translation id="8701563696941209024">הפעל שנית עכשיו</translation>
 <translation id="834487290629916192">אחר כך</translation>
-<translation id="7207456302801184289">ברוכים הבאים ל-Brave</translation>
 <translation id="4117451092682672487">פרטיות. בפשטות.</translation>
 <translation id="7909375417585209817">עם Brave כברירת מחדל, כל קישור שאתם מקישים עליו נפתח עם הגנות הפרטיות של Brave.</translation>
-<translation id="3737878115109582442">הוספת ווידג'ט החיפוש</translation>
-<translation id="6199413390010319240">Brave בקצות האצבעות שלך כדי שתוכל למצוא הכל מהר יותר.</translation>
-<translation id="4338600611020922010">הוספה למסך הבית</translation>
 <translation id="7370959926683925817">חסום פרסומות. שמור מידע. כל יום.</translation>
 <translation id="7281027579943912834">עם Brave כברירת מחדל, כל קישור שאתה מקיש מקבל את הגנת חסימת המודעות של Brave. כל עמוד, סרטון וזרם.</translation>
 <translation id="5148943178722443958">עזרו לנו להפוך את Brave לטוב יותר.</translation>
 <translation id="6718362830686703942">שלחו דוחות אבחון, במידה וחוויתם קריסה או הקפאה.</translation>
 <translation id="8616157231067364693">שתפו תובנות בנוגע למוצרים באופן פרטי ואנונימי בכל מה שקשור לתכונות שבהן משתמשי Brave עושים שימוש.</translation>
+<translation id="2888496576732880897">לסייע לחיפוש Brave לצמוח</translation>
+<translation id="7044431516245362795">אפשר להצטרף לפרויקט Web Discovery כדי לעזור להגדיל את האינדקס ולשפר את תוצאות החיפוש. <ph name="LEARN_MORE_START"/>למידע נוסף<ph name="LEARN_MORE_END"/></translation>
+<translation id="7818938154803162778">בטח, אעזור</translation>
 <translation id="2877653791257935258">יש להקליד שם או כתובת אתר</translation>
 <translation id="5329830149661250028">ראו את ההבדל עם Brave: אין פרסומות. אין מעקב. טעינת עמודים מהירה בהרבה.</translation>
 <translation id="3941792073703079607">ראה את ההבדל של Brave: חסימת מודעות. שמירת מידע. הזרמה מהירה יותר.</translation>
@@ -409,8 +413,13 @@
 <translation id="6925081665778864449">כדי לסנכרן סיסמאות, הפעל אימות ביומטרי/קוד סיסמה במכשיר האנדרואיד שלך. אמצעי אבטחה נוסף זה עוזר לשמור על בטיחות הסיסמאות שלך.</translation>
 <translation id="597993392929850353">רישיון Brave</translation>
 <translation id="6336451774241870485">כרטיסייה פרטית חדשה</translation>
-<translation id="6199596294742117349">זוהי כרטיסייה פרטית</translation>
-<translation id="5858455511731621847">למרות שאתרים בהם אתם מבקרים בכרטיסיות פרטיות לא נשמרים באופן מקומי, הם לא הופכים אתכם לאנונימיים או בלתי נראים עבור ספק שירותי האינטרנט שלכם, המעסיק שלכם או האתרים שבהם אתם מבקרים.</translation>
+<translation id="3110967157686007724">כרטיסייה פרטית</translation>
+<translation id="944340256927461196">בלי להשאיר עקבות במכשיר שלך</translation>
+<translation id="2063044449012253966">אתרים שביקרת בהם בחלונות פרטיים לא יופיעו בהיסטוריה שלך. קובצי cookie, נתוני טפסים, ונתוני אתרים נעלמים ברגע שכל החלונות הפרטיים נסגרו.</translation>
+<translation id="7395764193745523646">גלישה גלויה</translation>
+<translation id="8670344404057978375">לתשומך לבך: אפילו בחלונות פרטיים, פעילות הגלישה שלך עדיין עשויה להיות גלויה לספק האינטרנט שלך, לצופים ברשת, או למעסיק שלך (אם השתמשת במכשיר או רשת מטעם העבודה).</translation>
+<translation id="1413177583895309156">Brave VPN מצפין ומגן על כל מה שעשית ברשת, אפילו מחוץ לדפדפן Brave.</translation>
+<translation id="3974348661685061050">לנסות חינם למשך 7 ימים</translation>
 <translation id="5789441016350810005">Brave Ads נשלחות כאשר הדפדפן נמצא ברקע</translation>
 <translation id="4973347371961481083">תרומות</translation>
 <translation id="7047578174221019462">התרומות החודשיות שלך עובדו.</translation>
@@ -446,8 +455,6 @@
 <translation id="1116694919640316211">מידע כללי</translation>
 <translation id="7961015016161918242">אף פעם</translation>
 <translation id="1275213816424141989">אולי אחר כך</translation>
-<translation id="4406937629441301400">הרווח/י טוקנים עבור צפייה בתמונה זו ושלמ/י זאת הלאה ליוצרים. <ph name="LEARN_MORE"/></translation>
-<translation id="6632345639591919543">הנך מרוויח/ה טוקנים עבור צפייה בתמונה זו. \n<ph name="LEARN_MORE"/></translation>
 <translation id="8164992819127316581">התשלום עבור הפרסים של <ph name="CURRENT_MONTH"/>יתחיל להתבצע עד <ph name="PAYOUT_DATE"/></translation>
 <translation id="33967210973550414">התשלום עבור הפרסים של<ph name="CURRENT_MONTH"/>נמצא בעיצומו של תהליך <ph name="CHECK_STATUS"/></translation>
 <translation id="1622952853310946314">התשלום עבור הפרסים של <ph name="CURRENT_MONTH"/> הושלם. <ph name="SUPPORT"/></translation>
@@ -455,6 +462,7 @@
 <translation id="3624048886326677117">חסום עוקבים ופרסומות (אגרסיבי)</translation>
 <translation id="7151914815476509258">חסום עוקבים ופרסומות (סטנדרטי)</translation>
 <translation id="7384778069178817075">אפשר את כל העוקבים  &amp; הפרסומות</translation>
+<translation id="1173312143376149085"><ph name="BEGIN_LINK_0"/>האפשרות ״חסימת כל העוגיות״ הוסרה. כדי ללמוד איך להפעיל כוח את האפשרות הזו, אפשר לבקר<ph name="END_LINK_0"/><ph name="BEGIN_LINK_1"/>בדף העזרה שלנו<ph name="END_LINK_1"/></translation>
 <translation id="3763681089644577874">חסום קבצי עוגייה</translation>
 <translation id="614747795780742163">מונע מאתרים לאחסן מידע אודות הביקורים הקודמים שלך</translation>
 <translation id="6883611015375728278">חסימת כל העוגיות</translation>
@@ -470,6 +478,8 @@
 <translation id="7854108565842971747">אלו הן הגדרות ברירת המחדל של Shields עבור אתרים חדשים. שינוי הגדרות אלו לא ישפיע על ההגדרות הספציפיות הקיימות עבור אתר מסוים.</translation>
 <translation id="218587021686734263">מנע טביעת אצבע באמצעות הגדרות שפה</translation>
 <translation id="1706099589708266367">מפחית את מידת האפשרויות של אתרים ללמוד עליך בהתבסס על הגדרות השפה של הדפדפן שלך.</translation>
+<translation id="6486971767955110687">אחסון פרטי קשר עבור דוחות עתידיים על אתרים לא תקינים</translation>
+<translation id="4085787265464238844">אם סיפקת פרטי קשר, הם יאוחסנו עבור דוחות עתידיים</translation>
 <translation id="4721088070859595932">מונע מאתרים לזהות את המכשיר שלך</translation>
 <translation id="7445306466605902444">טביעות אצבע חסומות (מחמיר, עשוי לשבש פעולה תקינה של אתרים)</translation>
 <translation id="5582686930349810484">טביעות אצבע חסומות (סטנדרטי)</translation>
@@ -485,6 +495,7 @@
 <translation id="1561541094377237745">רשתות Solana</translation>
 <translation id="7141438739990875547">רשתות ביטקוין</translation>
 <translation id="9055546041146396417">אם נראה שאתר זה שבור, נסה/י לכבות את Shields.</translation>
+<translation id="7898672232170410330">חסום אלמנט</translation>
 <translation id="1209739344687072997">דווח/י על אתר לא תקין</translation>
 <translation id="8510478288840333677">הודע/י למפתחים של Brave כי אתר זה אינו עובד בצורה תקינה עם Shields:</translation>
 <translation id="1653405824851871276">תודה שעזרת להפוך את Brave לטוב יותר עבור כולם. הדיווח יכיל רק את המידע הדרוש לנו לתיקון אתר זה.<ph name="LEARN_MORE"/></translation>
@@ -492,14 +503,20 @@
 <translation id="8740275226259417070">זוהי שגיאת דף. לא ניתן לדווח עליה כעל אתר שבור.</translation>
 <translation id="721949491455392748">יש לכלול צילום מסך של הדף הנוכחי</translation>
 <translation id="8459191579769999214">הצג את צילום המסך</translation>
+<translation id="6476216365964140603">פרטים נוספים (אופציונלי)</translation>
+<translation id="6145852496180774737">צור איתי קשר בכתובת: (לא חובה)</translation>
+<translation id="6367576083705149078">אם סיפקת פרטי קשר, הם יאוחסנו עבור דוחות עתידיים.</translation>
+<translation id="7616645803364270729">דואר אלקטרוני, טוויטר וכו'.</translation>
 <translation id="5299848999918506028">תודה!</translation>
 <translation id="76550953340008122">תודה שהודעת למפתחים של Brave שמשהו לא תקין באתר זה. אנו נעשה כמיטב יכולתנו לתקן זאת!</translation>
 <translation id="650318023204990401">בקרות מתקדמות</translation>
 <translation id="5370478469168390143">שמור נתונים באופן מקוון</translation>
 <translation id="1118508688433541158">גלשו במהירות רבה יותר וחסמו פרסומות עם Brave</translation>
 <translation id="7427391215172269363">אני חוסך בצריכת נתונים כל יום בזכות הגלישה ב-Brave.</translation>
-<translation id="4776948189086901857">Brave עובד בכל מקום</translation>
-<translation id="1606322780901645965">הורידו את Brave ב- brave.com במחשב הנייד או בטאבלט שלכם בשביל אינטרנט מהיר ופרטי יותר</translation>
+<translation id="357198789571802914">לצפות ב-YouTube, לא במודעות.</translation>
+<translation id="2154817758398495571">פתיחה של קישורי YouTube ב-Brave כדי לחסום מודעות.</translation>
+<translation id="1580816390443799567">הפעלה כעת</translation>
+<translation id="8589748782214271192">לא, תודה</translation>
 <translation id="8374242949413616101">הגנת פרטיות</translation>
 <translation id="4955406228638026265">Brave מונע מפרסומות &amp; עוקבים לאסוף מידע אודותיכם ללא הסכמתך.</translation>
 <translation id="752842701893882688">חסכו נתונים וסוללה</translation>
@@ -711,9 +728,10 @@
 <translation id="1532536259167115948">מנוי חודשי <ph name="TRIAL_TEXT"/></translation>
 <translation id="6344668702581136255">מנוי שנתי <ph name="TRIAL_TEXT"/></translation>
 <translation id="6748319398471481216">מתחדש מדי חודש</translation>
+<translation id="112929124115834557">מתחדש מדי שנה</translation>
 <translation id="1131191042781544288"><ph name="MONTHLY_AMOUNT"/> לחודש</translation>
 <translation id="1163809943099641131">שנה אחת</translation>
-<translation id="727385358513272220">מתחדש בכל שנה מחדש (<ph name="DISCOUNT_TEXT_START"/>חיסכון של <ph name="PERCENTAGE_AMOUNT"/>%%<ph name="DISCOUNT_TEXT_END"/>)</translation>
+<translation id="83293016232121346">(<ph name="DISCOUNT_TEXT_START"/>לחסוך <ph name="PERCENTAGE_AMOUNT"/>%%<ph name="DISCOUNT_TEXT_END"/>)</translation>
 <translation id="4790641549702094825"><ph name="YEARLY_AMOUNT"/> לשנה</translation>
 <translation id="2786538705804257030">המנויים יחויבו דרך חשבון Google שלך. כל חלק שלא ייעשה בו שימוש בתקופת הניסיון בחינם, במידה ויוצע, יתבטל בעת רכישת מנוי.\n\nהמנוי יתחדש באופן אוטומטי אלא אם יבוטל לפחות 24 שעות לפני תום התקופה הנוכחית.\n\nטת המנויים ניתן לנהל בהגדרות.\nבעצם השימוש ב-Brave, אתם מסכימים לתנאי השימוש ולמדיניות הפרטיות.</translation>
 <translation id="5035172357624830412">האם כבר קניתם ב- brave.com?</translation>
@@ -843,9 +861,8 @@
 <translation id="4351811224047421378">רמת דיוק עשרוני</translation>
 <translation id="3494964159182650590">סיכום תגמולים</translation>
 <translation id="590733288489975971">תגמולים מפרסומות</translation>
-<translation id="1886682615222609631">רווחים עד כה</translation>
+<translation id="1450735350187803276">מודעות שנצפו החודש</translation>
 <translation id="1767561995429774671">תרמו</translation>
-<translation id="7335371657242627509">כלול בתרומות העצמיות</translation>
 <translation id="6727102863431372879">הגדר</translation>
 <translation id="3074127054582480056">שימו לב</translation>
 <translation id="2280319752798785157">תרומה חודשית</translation>
@@ -1016,7 +1033,6 @@
 <translation id="8382368767453083629">אתחול multisig 2</translation>
 <translation id="77243237706803459">אתחול mint 2</translation>
 <translation id="583281660410589416">לא ידוע</translation>
-<translation id="5666264859501108700">אזור ה-Brave Rewards שלך הוגדר ל-<ph name="COUNTRY_NAME"/></translation>
 <translation id="909076461795862330">למרבה הצער, אירעה שגיאה בעת ניסיון להגדיר את Brave Rewards. בבקשה נסה שוב.</translation>
 <translation id="7352651011704765696">משהו השתבש</translation>
 <translation id="7144878232160441200">נסה שוב</translation>
@@ -1077,10 +1093,6 @@
 <translation id="7748944510530490017">רשתות ראשוניות</translation>
 <translation id="2781668117338732220">רשתות משניות</translation>
 <translation id="282560918037172384">בדיקת רשתות</translation>
-<translation id="707569835145765061">פעולה נדרשת: יש לשייך חשבון משמורת, אחרת ה-vBAT שלך יאבדו</translation>
-<translation id="1776742005329298234">בתאריך <ph name="DUE_DATE"/> אנו נפסיק את התמיכה ביתרות BAT וירטואליות הקיימות. יש לחבר חשבון משמורת לפני תאריך זה כדי לאפשר לנו להעביר את היתרה שהרווחת לחשבון משמורת שלך, אחרת היתרה שלך תבוטל.</translation>
-<translation id="5089752671190341407">נותר עדיין זמן כדי לתרום את ה-vBAT שלך ליוצרים האהובים עליך</translation>
-<translation id="171158953146804144">בתאריך <ph name="DUE_DATE"/> אנו נפסיק את התמיכה ביתרות BAT וירטואליות הקיימות. לצערנו לא קיימים אפוטרופוסים זמינים באזור שלך (<ph name="REGION"/>) כדי למשוך את הרווחים שלך. עד למועד שצוין תוכל עדיין לתרום ליוצרים האהובים עליך.</translation>
 <translation id="8949422576126100041">לצפות בעמוד עם Speedreader?</translation>
 <translation id="3435896845095436175">הפעל</translation>
 <translation id="5296840868251496327">הפעל Speedreader</translation>
@@ -1099,9 +1111,12 @@
 <translation id="2471230424465522689">לא לפני</translation>
 <translation id="4841860051609590575">זיהוי בקשה</translation>
 <translation id="1179407411385015942">Leo הוא עוזר חכם המופעל על ידי AI, המובנה ישירות בדפדפן</translation>
+<translation id="5781842473834867765">לאחסן את היסטוריית השיחות שלי</translation>
 <translation id="4109670531935487117">להציג הצעות השלמה אוטומטית בשורת הכתובת</translation>
-<translation id="1250335737108905610">אפס ונקה את נתוני מזל אריה</translation>
-<translation id="6165101586663336913">איפוס עוזר Leo יחייב אותך להצטרף לשימוש ב-Leo בעתיד, וגם ינקה את היסטוריית הצ'אט שלך. ניקוי היסטוריית הצ'אט שלך ימחק את כל השיחות הקודמות שלך עם Leo. לא ניתן לבטל פעולה זו.</translation>
+<translation id="6106701981952170121">מחיקת כל נתוני השיחות של Leo AI</translation>
+<translation id="423600389315522551">איפוס Leo AI יחייב אותך להצטרף לשימוש ב-Brave Leo AI בעתיד וגם ימחק את היסטוריית הצ׳אט שלך. ניקוי היסטוריית הצ׳אט ימחק את כל השיחות הקודמות שלך עם Brave Leo AI. הפעולה הזו לא ניתנת לביטול.</translation>
+<translation id="6742599753610126012">ניקוי היסטוריית צ׳אטים</translation>
+<translation id="3443052382074796867">השבתת אחסון שיחות ימחק לצמיתות את כל השיחות הקודמות שאוחסנו. הפעולה הזו לא ניתנת לביטול.</translation>
 <translation id="3692772534525889713">קשרו את הרכישה שלכם בחנות Play לחשבון Brave כדי להשתמש ב-Brave Leo במכשירים נוספים.</translation>
 <translation id="73236265316873967">Leo Premium</translation>
 <translation id="1028627582482425924">שנה אחת</translation>
@@ -1229,5 +1244,9 @@
 <translation id="2728518864712716830">העדכון הורד</translation>
 <translation id="8403338849301491865">רשימת הסינון עודכנה בהצלחה</translation>
 <translation id="4650851936784160359">רשימת הסינון לא ניתנת לעדכון. אנא נסה שוב.</translation>
-<translation id="1450735350187803276">מודעות שנצפו החודש</translation>
+<translation id="3098054327870766317">הצגת כפתור ביטול פעולה כשהכרטיסיות סגורות</translation>
+<translation id="1336494649091412226">בטוח שבא לך לצאת מ-Brave?</translation>
+<translation id="2361906291514218784">Leo המבוסס בינה מלאכותית</translation>
+<translation id="7942415993090181327">היסטוריית צ׳אטים</translation>
+<translation id="6859935199732075666">הצגת שגיאות גלישה בטוחה</translation>
 </translationbundle>

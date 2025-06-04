@@ -9,19 +9,19 @@
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/brave_component_updater/browser/features.h"
-#include "brave/components/brave_rewards/common/features.h"
+#include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_shields/core/common/features.h"
 #include "brave/components/brave_wallet/common/features.h"
 #include "brave/components/de_amp/common/features.h"
 #include "brave/components/debounce/core/common/features.h"
 #include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/skus/common/features.h"
+#include "brave/ios/browser/api/translate/features.h"
 #include "brave/ios/browser/playlist/features.h"
 #include "brave/ios/browser/ui/browser_menu/features.h"
 #include "build/build_config.h"
 #include "components/flags_ui/feature_entry_macros.h"
 #include "components/flags_ui/flags_state.h"
-#include "ios/components/security_interstitials/https_only_mode/feature.h"
 #include "net/base/features.h"
 
 #define EXPAND_FEATURE_ENTRIES(...) __VA_ARGS__,
@@ -77,7 +77,7 @@
       {                                                                        \
           "brave-shred",                                                       \
           "Enable Brave 'Shred' Feature",                                      \
-          "Enable the Brave ‘Shred’ feature which will allow a user to "   \
+          "Enable the Brave 'Shred' feature which will allow a user to "       \
           "easily delete all site data on demand or automatically when "       \
           "closing a site or terminating the application.",                    \
           flags_ui::kOsIos,                                                    \
@@ -107,20 +107,19 @@
           FEATURE_VALUE_TYPE(brave_shields::features::kBlockAllCookiesToggle), \
       },                                                                       \
       {                                                                        \
-          "https-only-mode",                                                   \
-          "Enable HTTPS By Default Strict Mode",                               \
-          "Connect to all websites using HTTPS and display an intersitital "   \
-          "to fallback to HTTP",                                               \
-          flags_ui::kOsIos,                                                    \
-          FEATURE_VALUE_TYPE(                                                  \
-              security_interstitials::features::kHttpsOnlyMode),               \
-      },                                                                       \
-      {                                                                        \
           "ios-debug-adblock",                                                 \
           "Enable Debug Adblock views",                                        \
           "Enable debug view for adblock features in Shields panel",           \
           flags_ui::kOsIos,                                                    \
           FEATURE_VALUE_TYPE(brave_shields::features::kBraveIOSDebugAdblock),  \
+      },                                                                       \
+      {                                                                        \
+          "ios-farble-plugins",                                                \
+          "Enable Farbling Plugins",                                           \
+          "Enable Farbling plugins when enabled globally / per-domain",        \
+          flags_ui::kOsIos,                                                    \
+          FEATURE_VALUE_TYPE(                                                  \
+              brave_shields::features::kBraveIOSEnableFarblingPlugins),        \
       })
 
 #define BRAVE_AI_CHAT_FEATURE_ENTRIES                                      \
@@ -177,6 +176,20 @@
           "Replace the standard more button menu with a modern replacement",   \
           flags_ui::kOsIos,                                                    \
           FEATURE_VALUE_TYPE(brave::features::kModernBrowserMenuEnabled),      \
+      },                                                                       \
+      {                                                                        \
+          "brave-translate-enabled",                                           \
+          "Use Brave Translate",                                               \
+          "Enables page translation",                                          \
+          flags_ui::kOsIos,                                                    \
+          FEATURE_VALUE_TYPE(brave::features::kBraveTranslateEnabled),         \
+      },                                                                       \
+      {                                                                        \
+          "brave-translate-apple-enabled",                                     \
+          "Use Apple Offline Translate",                                       \
+          "Enables page translation using Apple APIs",                         \
+          flags_ui::kOsIos,                                                    \
+          FEATURE_VALUE_TYPE(brave::features::kBraveAppleTranslateEnabled),    \
       },                                                                       \
       {                                                                        \
           "brave-ntp-branded-wallpaper-demo",                                  \

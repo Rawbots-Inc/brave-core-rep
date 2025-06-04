@@ -5,6 +5,7 @@
 
 package org.chromium.chrome.browser.ntp;
 
+import static org.chromium.base.ThreadUtils.runOnUiThread;
 import static org.chromium.ui.base.ViewUtils.dpToPx;
 
 import android.annotation.SuppressLint;
@@ -32,6 +33,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -40,6 +42,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -133,7 +136,12 @@ public class BraveNewTabPageLayout
     private Integer mInitialTileNum;
 
     // Own members.
+    private WindowAndroid mWindowAndroid;
+
     private ImageView mBgImageView;
+    private SponsoredRichMediaWebView mSponsoredRichMediaWebView;
+    private FrameLayout mBackgroundSponsoredRichMediaView;
+
     private Profile mProfile;
     private SponsoredTab mSponsoredTab;
     private boolean mIsTablet;
@@ -201,7 +209,7 @@ public class BraveNewTabPageLayout
         super.onFinishInflate();
 
         mFeedHash = "";
-        initBraveNewsController();
+        initBraveNewsController(null);
         try {
             if (BraveNewsUtils.shouldDisplayNewsFeed()
                     && BraveActivity.getBraveActivity().isLoadedFeed()) {
@@ -442,6 +450,27 @@ public class BraveNewTabPageLayout
         }
 
         mPrevVisibleNewsCardPosition = firstNewsFeedPosition() - 1;
+
+        mRecyclerView.addOnItemTouchListener(
+                new OnItemTouchListener() {
+                    @Override
+                    public boolean onInterceptTouchEvent(
+                            RecyclerView recyclerView, MotionEvent event) {
+                        final View childView =
+                                recyclerView.findChildViewUnder(event.getX(), event.getY());
+                        if (childView == null && mSponsoredRichMediaWebView != null) {
+                            mSponsoredRichMediaWebView.getView().dispatchTouchEvent(event);
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public void onTouchEvent(RecyclerView recyclerView, MotionEvent event) {}
+
+                    @Override
+                    public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+                });
+
         mRecyclerView.addOnScrollListener(
                 new RecyclerView.OnScrollListener() {
                     @Override
@@ -965,12 +994,20 @@ public class BraveNewTabPageLayout
             mNtpAdapter.setImageCreditAlpha(1f);
             mNtpAdapter.setNewsLoading(true);
         }
-        initBraveNewsController();
-        PostTask.postTask(TaskTraits.BEST_EFFORT_MAY_BLOCK, () -> {
-            if (mBraveNewsController != null) {
-                mBraveNewsController.getFeed(feed -> { runFeed(isNewContent, feed); });
-            }
-        });
+        Runnable onBraveNewsControllerReady =
+                () -> {
+                    PostTask.postTask(
+                            TaskTraits.BEST_EFFORT_MAY_BLOCK,
+                            () -> {
+                                if (mBraveNewsController != null) {
+                                    mBraveNewsController.getFeed(
+                                            feed -> {
+                                                runFeed(isNewContent, feed);
+                                            });
+                                }
+                            });
+                };
+        initBraveNewsController(onBraveNewsControllerReady);
     }
 
     private void runFeed(boolean isNewContent, Feed feed) {
@@ -1182,6 +1219,7 @@ public class BraveNewTabPageLayout
                 tabStripHeightSupplier);
 
         mIsTablet = isTablet;
+        mWindowAndroid = windowAndroid;
 
         assert mMvTilesContainerLayout != null : "Something has changed in the upstream!";
 
@@ -1218,7 +1256,9 @@ public class BraveNewTabPageLayout
         if (mNtpAdapter != null) {
             mNtpAdapter.setNtpImage(ntpImage);
         }
-        if (ntpImage instanceof Wallpaper
+        if (ntpImage instanceof Wallpaper && ((Wallpaper) ntpImage).isRichMedia()) {
+            setupSponsoredBackgroundContent();
+        } else if (ntpImage instanceof Wallpaper
                 && NTPImageUtil.isReferralEnabled()
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             setBackgroundImage(ntpImage);
@@ -1229,6 +1269,22 @@ public class BraveNewTabPageLayout
                 && NTPImageUtil.shouldEnableNTPFeature()) {
             setBackgroundImage(ntpImage);
         }
+    }
+    @SuppressWarnings("UnusedVariable")
+
+    private void setupSponsoredBackgroundContent() {
+        if (mSponsoredRichMediaWebView != null) {
+            return;
+        }
+
+        mSponsoredRichMediaWebView =
+                new SponsoredRichMediaWebView(mActivity, mWindowAndroid, mProfile);
+
+        mBackgroundSponsoredRichMediaView = findViewById(R.id.bg_sponsored_rich_media_view);
+        mBackgroundSponsoredRichMediaView.setVisibility(View.VISIBLE);
+        mBackgroundSponsoredRichMediaView.addView(mSponsoredRichMediaWebView.getView());
+
+        mSponsoredRichMediaWebView.loadSponsoredRichMedia();
     }
     @SuppressWarnings("UnusedVariable")
     private void setBackgroundImage(NTPImage ntpImage) {
@@ -1479,36 +1535,34 @@ public class BraveNewTabPageLayout
             mBraveNewsController.close();
         }
         mBraveNewsController = null;
-        initBraveNewsController();
+        runOnUiThread(
+                () -> {
+                    initBraveNewsController(null);
+                });
     }
 
-    private void initBraveNewsController() {
+    private void initBraveNewsController(final Runnable action) {
+        ThreadUtils.assertOnUiThread();
         if (mBraveNewsController != null) {
+            if (action != null) {
+                action.run();
+            }
+
             return;
         }
 
-        mBraveNewsController =
-                BraveNewsControllerFactory.getInstance().getBraveNewsController(this);
-
-        if (mNtpAdapter != null) {
-            mNtpAdapter.setBraveNewsController(mBraveNewsController);
-        }
-    }
-
-    private int getMaxRowsForMostVisitedTiles() {
-        try {
-            if (!ProfileManager.isInitialized()
-                    || !UserPrefs.get(BraveActivity.getBraveActivity().getCurrentProfile())
-                            .getBoolean(BravePref.NEW_TAB_PAGE_SHOW_BACKGROUND_IMAGE)) {
-                return 2;
-            } else {
-                return 1;
-            }
-        } catch (BraveActivity.BraveActivityNotFoundException e) {
-            Log.e(TAG, "getMaxRowsForMostVisitedTiles ", e);
-        }
-
-        return 2;
+        BraveNewsControllerFactory.getInstance()
+                .getBraveNewsController(this)
+                .then(
+                        braveNewsController -> {
+                            mBraveNewsController = braveNewsController;
+                            if (mNtpAdapter != null) {
+                                mNtpAdapter.setBraveNewsController(mBraveNewsController);
+                            }
+                            if (action != null) {
+                                action.run();
+                            }
+                        });
     }
 
     @Override

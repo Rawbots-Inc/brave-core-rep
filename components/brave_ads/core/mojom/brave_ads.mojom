@@ -27,6 +27,10 @@ struct Flags {
   EnvironmentType environment_type;
 };
 
+struct ContentSettings {
+  bool allow_javascript;
+};
+
 struct WalletInfo {
   string payment_id;
   string recovery_seed_base64;
@@ -104,13 +108,16 @@ enum ConfirmationType {
   // When the user converts on an ad.
   kConversion,
 
-  // When a new tab page video ad starts playing.
+  // When the user interacts on a new tab page ad.
+  kInteraction,
+
+  // When a new tab page video ad begins playing.
   kMediaPlay,
 
-  // When played 25% of a new tab page video ad.
+  // When 25% of a new tab page video ad has been played.
   kMedia25,
 
-  // When played 100% of a new tab page video ad.
+  // When 100% of a new tab page video ad has been played.
   kMedia100
 };
 
@@ -132,6 +139,7 @@ enum NewTabPageAdEventType {
   kServedImpression = 0,
   kViewedImpression,
   kClicked,
+  kInteraction,
   kMediaPlay,
   kMedia25,
   kMedia100
@@ -261,14 +269,14 @@ struct DBActionInfo {
     // Initialize the database table.
     kInitialize,
 
-    // Execute a statement that does not return records.
+    // Execute a SQL statement without any parameter bindings that does not return any records.
     kExecute,
 
-    // Execute a statement with bound columns that does not return records.
-    kRunStatement,
+    // Execute a SQL statement with parameter bindings that does not return any records.
+    kExecuteWithBindings,
 
-    // Execute a statement with bound columns that return records.
-    kStepStatement,
+    // Execute a SQL statement with parameter bindings that returns records.
+    kExecuteQueryWithBindings,
 
     // Migrate the database.
     kMigrate
@@ -281,11 +289,11 @@ struct DBActionInfo {
   string? sql;
 
   // The SQL statement's bound column types. This is only used for
-  // `kStepStatement`.
+  // `kExecuteQueryWithBindings`.
   array<DBBindColumnType> bind_column_types;
 
-  // The SQL statement's bound columns. This is only used for `kRunStatement`
-  // and `kStepStatement`.
+  // The SQL statement's bound columns. This is only used for `kExecuteWithBindings`
+  // and `kExecuteQueryWithBindings`.
   array<DBBindColumnInfo> bind_columns;
 };
 

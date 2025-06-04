@@ -27,6 +27,8 @@
 @class DeAmpPrefs;
 @class AIChat;
 @class HTTPSUpgradeExceptionsService;
+@class DefaultHostContentSettings;
+@class CWVWebViewConfiguration;
 @protocol AIChatDelegate;
 @protocol IpfsAPI;
 
@@ -78,9 +80,9 @@ OBJC_EXPORT
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithUserAgent:(NSString*)userAgent;
+- (instancetype)initWithUserAgent:(nullable NSString*)userAgent;
 
-- (instancetype)initWithUserAgent:(NSString*)userAgent
+- (instancetype)initWithUserAgent:(nullable NSString*)userAgent
                additionalSwitches:
                    (NSArray<BraveCoreSwitch*>*)additionalSwitches;
 
@@ -95,13 +97,16 @@ OBJC_EXPORT
 @property(readonly) id<IpfsAPI> ipfsAPI;
 
 - (void)initializeP3AServiceForChannel:(NSString*)channel
-                         weekOfInstall:(NSString*)weekOfInstall;
+                      installationDate:(NSDate*)installDate;
 
 @property(readonly) BraveP3AUtils* p3aUtils;
 
 @property(readonly) DeAmpPrefs* deAmpPrefs;
 
 @property(readonly) NTPBackgroundImagesService* backgroundImagesService;
+
+/// The default content settings for regular browsing windows
+@property(readonly) DefaultHostContentSettings* defaultHostContentSettings;
 
 - (AIChat*)aiChatAPIWithDelegate:(id<AIChatDelegate>)delegate;
 
@@ -112,6 +117,10 @@ OBJC_EXPORT
 + (bool)initializeICUForTesting;
 
 + (void)initializeResourceBundleForTesting;
+
+@property(readonly) CWVWebViewConfiguration* defaultWebViewConfiguration;
+@property(readonly) CWVWebViewConfiguration* nonPersistentWebViewConfiguration;
+- (void)notifyLastPrivateTabClosed;
 
 @end
 

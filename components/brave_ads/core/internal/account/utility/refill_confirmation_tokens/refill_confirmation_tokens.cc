@@ -5,11 +5,11 @@
 
 #include "brave/components/brave_ads/core/internal/account/utility/refill_confirmation_tokens/refill_confirmation_tokens.h"
 
-#include <cstddef>
 #include <utility>
 
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
+#include "base/location.h"
 #include "base/strings/strcat.h"
 #include "base/time/time.h"
 #include "base/types/expected.h"
@@ -79,7 +79,8 @@ void RefillConfirmationTokens::Refill() {
 
   is_refilling_ = true;
 
-  NotifyWillRefillConfirmationTokens();
+  NotifyWillRefillConfirmationTokens(
+      /*count=*/CalculateAmountOfConfirmationTokensToRefill());
 
   GenerateTokens();
 
@@ -329,9 +330,10 @@ void RefillConfirmationTokens::Reset() {
   is_refilling_ = false;
 }
 
-void RefillConfirmationTokens::NotifyWillRefillConfirmationTokens() const {
+void RefillConfirmationTokens::NotifyWillRefillConfirmationTokens(
+    size_t count) const {
   if (delegate_) {
-    delegate_->OnWillRefillConfirmationTokens();
+    delegate_->OnWillRefillConfirmationTokens(count);
   }
 }
 

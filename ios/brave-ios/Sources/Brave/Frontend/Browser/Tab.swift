@@ -7,6 +7,7 @@ import BraveShields
 import BraveUI
 import BraveWallet
 import CertificateUtilities
+import Combine
 import Data
 import Favicon
 import Foundation
@@ -46,20 +47,11 @@ protocol TabContentScript: TabContentScriptLoader {
 }
 
 protocol TabDelegate {
-  func tab(_ tab: Tab, didAddSnackbar bar: SnackBar)
-  func tab(_ tab: Tab, didRemoveSnackbar bar: SnackBar)
-  /// Triggered when "Find in Page" is selected on selected web text
-  func tab(_ tab: Tab, didSelectFindInPageFor selectedText: String)
-  /// Triggered when "Search with Brave" is selected on selected web text
-  func tab(_ tab: Tab, didSelectSearchWithBraveFor selectedText: String)
-  func tab(_ tab: Tab, didCreateWebView webView: WKWebView)
-  func tab(_ tab: Tab, willDeleteWebView webView: WKWebView)
   func showRequestRewardsPanel(_ tab: Tab)
   func stopMediaPlayback(_ tab: Tab)
   func showWalletNotification(_ tab: Tab, origin: URLOrigin)
   func updateURLBarWalletButton()
   func isTabVisible(_ tab: Tab) -> Bool
-  func didReloadTab(_ tab: Tab)
 }
 
 @objc
@@ -112,6 +104,40 @@ class Tab: NSObject {
 
   var isPrivate: Bool {
     return type.isPrivate
+  }
+
+  private var webViewObservations: [AnyCancellable] = []
+
+  private var observers: Set<AnyTabObserver> = .init()
+  private var policyDeciders: Set<AnyTabWebPolicyDecider> = .init()
+
+  // WebKit handlers
+  private var navigationHandler: TabWKNavigationHandler?
+  private var uiHandler: TabWKUIHandler?
+
+  var certStore: CertStore?
+  weak var webDelegate: TabWebDelegate?
+  weak var downloadDelegate: TabDownloadDelegate?
+
+  func addPolicyDecider(_ policyDecider: some TabWebPolicyDecider) {
+    policyDeciders.insert(.init(policyDecider))
+  }
+
+  func removePolicyDecider(_ policyDecider: some TabWebPolicyDecider) {
+    if let policyDecider = policyDeciders.first(where: { $0.id == ObjectIdentifier(policyDecider) })
+    {
+      policyDeciders.remove(policyDecider)
+    }
+  }
+
+  func addObserver(_ observer: some TabObserver) {
+    observers.insert(.init(observer))
+  }
+
+  func removeObserver(_ observer: some TabObserver) {
+    if let observer = observers.first(where: { $0.id == ObjectIdentifier(observer) }) {
+      observers.remove(observer)
+    }
   }
 
   private(set) var lastKnownSecureContentState: TabSecureContentState = .unknown
@@ -241,9 +267,8 @@ class Tab: NSObject {
 
   var userActivity: NSUserActivity?
 
-  var webView: BraveWebView?
+  var webView: TabWebView?
   var tabDelegate: TabDelegate?
-  weak var urlDidChangeDelegate: URLChangeDelegate?  // TODO: generalize this.
   var bars = [SnackBar]()
   var favicon: Favicon
   var lastExecutedTime: Timestamp?
@@ -277,6 +302,24 @@ class Tab: NSObject {
       redirectSourceURL = nil
       isInternalRedirect = false
     }
+    didSet {
+      observers.forEach {
+        $0.tabDidUpdateURL(self)
+      }
+      // Server Trust and URL is also updated in didCommit
+      // However, WebKit does NOT trigger the `serverTrust` observer when the URL changes, but the trust has not.
+      // WebKit also does NOT trigger the `serverTrust` observer when the page is actually insecure (non-https).
+      // So manually trigger it with the current trust.
+      Task { @MainActor [self] in
+        let state = lastKnownSecureContentState
+        await updateSecureContentState()
+        if state != lastKnownSecureContentState {
+          observers.forEach {
+            $0.tabDidChangeVisibleSecurityState(self)
+          }
+        }
+      }
+    }
   }
 
   /// This is the url for the current request
@@ -297,7 +340,15 @@ class Tab: NSObject {
   /// The previous url that was set before `comittedURL` was set again
   private(set) var previousComittedURL: URL?
 
-  var url: URL? {
+  /// The URL that is loaded by the web view, but has not committed yet
+  var visibleURL: URL? {
+    if let webView {
+      return webView.url
+    }
+    return url
+  }
+
+  private(set) var url: URL? {
     didSet {
       if let _url = url, let internalUrl = InternalURL(_url), internalUrl.isAuthorized {
         url = URL(string: internalUrl.stripAuthorization)
@@ -314,6 +365,16 @@ class Tab: NSObject {
         syncTab?.setURL(url)
       }
     }
+  }
+
+  /// Sets the URL of the tab that is not directly tied to the underlying web view.
+  ///
+  /// This should only be used in certain scenarios such as restoring a tab, creating a child tab as
+  /// typically the `url` property is updated based on web navigations.
+  ///
+  /// - warning: This does not notify TabObserver's that the url has changed
+  func setVirtualURL(_ url: URL?) {
+    self.url = url
   }
 
   var mimeType: String?
@@ -408,12 +469,15 @@ class Tab: NSObject {
   /// Any time a tab tries to make requests to display a Javascript Alert and we are not the active
   /// tab instance, queue it for later until we become foregrounded.
   fileprivate var alertQueue = [JSAlertInfo]()
+  weak var shownPromptAlert: UIAlertController?
 
   var nightMode: Bool {
     didSet {
       var isNightModeEnabled = false
 
-      if let fetchedTabURL = fetchedURL, nightMode {
+      if let fetchedTabURL = fetchedURL, nightMode,
+        !DarkReaderScriptHandler.isNightModeBlockedURL(fetchedTabURL)
+      {
         isNightModeEnabled = true
       }
 
@@ -430,6 +494,7 @@ class Tab: NSObject {
   }
 
   var translateHelper: BraveTranslateTabHelper?
+  private(set) lazy var leoTabHelper = BraveLeoScriptTabHelper(tab: self)
 
   /// Boolean tracking custom url-scheme alert presented
   var isExternalAppAlertPresented = false
@@ -472,14 +537,8 @@ class Tab: NSObject {
     super.init()
 
     self.contentScriptManager.tab = self
-  }
-
-  weak var navigationDelegate: WKNavigationDelegate? {
-    didSet {
-      if let webView = webView {
-        webView.navigationDelegate = navigationDelegate
-      }
-    }
+    self.navigationHandler = TabWKNavigationHandler(tab: self)
+    self.uiHandler = TabWKUIHandler(tab: self)
   }
 
   /// A helper property that handles native to Brave Search communication.
@@ -514,44 +573,256 @@ class Tab: NSObject {
       }
       let webView = TabWebView(
         frame: .zero,
-        tab: self,
         configuration: configuration!,
         isPrivate: isPrivate
       )
-      webView.delegate = self
+      webView.didSelectSearchWithBrave = { [weak self] selectedText in
+        guard let self else { return }
+        observers.forEach {
+          $0.tab(self, didSelectSearchWithBraveFor: selectedText)
+        }
+      }
 
       webView.accessibilityLabel = Strings.webContentAccessibilityLabel
       webView.allowsBackForwardNavigationGestures = true
       webView.allowsLinkPreview = true
+      webView.navigationDelegate = navigationHandler
+      webView.uiDelegate = uiHandler
 
       // Turning off masking allows the web content to flow outside of the scrollView's frame
       // which allows the content appear beneath the toolbars in the BrowserViewController
       webView.scrollView.layer.masksToBounds = false
-      webView.navigationDelegate = navigationDelegate
 
       restore(webView, restorationData: self.sessionData)
 
       self.webView = webView
-      self.webView?.addObserver(
-        self,
-        forKeyPath: KVOConstants.url.keyPath,
-        options: .new,
-        context: nil
-      )
+      attachWebObservers()
 
-      tabDelegate?.tab(self, didCreateWebView: webView)
+      observers.forEach {
+        $0.tab(self, didCreateWebView: webView)
+      }
 
       let scriptPreferences: [UserScriptManager.ScriptType: Bool] = [
         .cookieBlocking: Preferences.Privacy.blockAllCookies.value,
         .mediaBackgroundPlay: Preferences.General.mediaAutoBackgrounding.value,
         .nightMode: Preferences.General.nightModeEnabled.value,
-        .braveTranslate: Preferences.Translate.translateEnabled.value,
+        .braveTranslate: Preferences.Translate.translateEnabled.value != false,
       ]
 
       userScripts = Set(scriptPreferences.filter({ $0.value }).map({ $0.key }))
       self.updateInjectedScripts()
       nightMode = Preferences.General.nightModeEnabled.value
     }
+  }
+
+  private func webViewURLDidChange(_ newURL: URL?) {
+    var notifyObservers: Bool = false
+
+    // Special case for "about:blank" popups, if the webView.url is nil, keep the tab url as "about:blank"
+    if url?.absoluteString == "about:blank" && newURL == nil {
+      return
+    }
+
+    // To prevent spoofing, only change the URL immediately if the new URL is on
+    // the same origin as the current URL. Otherwise, do nothing and wait for
+    // didCommitNavigation to confirm the page load.
+    if url?.origin == newURL?.origin {
+      url = newURL
+      notifyObservers = true
+    } else {
+      if isTabVisible(), url?.displayURL != nil, url?.displayURL?.scheme == "about", !loading {
+        if let newURL {
+          url = newURL
+          notifyObservers = true
+        }
+      }
+    }
+
+    updatePullToRefreshVisibility()
+
+    if notifyObservers {
+      observers.forEach {
+        $0.tabDidUpdateURL(self)
+      }
+    }
+
+    Task { @MainActor in
+      let currentState = lastKnownSecureContentState
+      await updateSecureContentState()
+      if currentState != lastKnownSecureContentState {
+        observers.forEach {
+          $0.tabDidChangeVisibleSecurityState(self)
+        }
+      }
+    }
+  }
+
+  private func webViewIsLoadingDidChange(_ isLoading: Bool) {
+    observers.forEach {
+      if isLoading {
+        $0.tabDidStartLoading(self)
+      } else {
+        $0.tabDidStopLoading(self)
+      }
+    }
+  }
+
+  private func webViewProgressDidChange() {
+    observers.forEach {
+      $0.tabDidChangeLoadProgress(self)
+    }
+  }
+
+  private func webviewBackForwardStateDidChange() {
+    observers.forEach {
+      $0.tabDidChangeBackForwardState(self)
+    }
+  }
+
+  private func webViewTitleDidChange() {
+    if let webView, let url = webView.url,
+      webView.configuration.preferences.isFraudulentWebsiteWarningEnabled,
+      webView.responds(to: Selector(("_safeBrowsingWarning"))),
+      webView.value(forKey: "_safeBrowsingWarning") != nil
+    {
+      self.url = url  // We can update the URL whenever showing an interstitial warning
+      observers.forEach {
+        $0.tabDidUpdateURL(self)
+      }
+    }
+
+    observers.forEach {
+      $0.tabDidChangeTitle(self)
+    }
+  }
+
+  private func webViewSecurityStateDidChange() {
+    Task { @MainActor in
+      await updateSecureContentState()
+      observers.forEach {
+        $0.tabDidChangeVisibleSecurityState(self)
+      }
+    }
+  }
+
+  private func webViewSampledPageTopColorDidChange() {
+    observers.forEach {
+      $0.tabDidChangeSampledPageTopColor(self)
+    }
+  }
+
+  private class StringKeyPathObserver<Object: NSObject, Value>: NSObject {
+    weak var object: Object?
+    let keyPath: String
+    let changeHandler: (Value?) -> Void
+    var isInvalidated: Bool = false
+
+    init(object: Object, keyPath: String, changeHandler: @escaping (Value?) -> Void) {
+      self.object = object
+      self.keyPath = keyPath
+      self.changeHandler = changeHandler
+      super.init()
+      object.addObserver(self, forKeyPath: keyPath, options: .new, context: nil)
+    }
+
+    func invalidate() {
+      if isInvalidated { return }
+      defer { isInvalidated = true }
+      object?.removeObserver(self, forKeyPath: keyPath)
+    }
+
+    deinit {
+      invalidate()
+    }
+
+    override func observeValue(
+      forKeyPath keyPath: String?,
+      of object: Any?,
+      change: [NSKeyValueChangeKey: Any]?,
+      context: UnsafeMutableRawPointer?
+    ) {
+      if self.keyPath != keyPath { return }
+      let newValue = change?[.newKey] as? Value
+      changeHandler(newValue)
+    }
+  }
+
+  private func attachWebObservers() {
+    guard let webView else { return }
+
+    let keyValueObservations = [
+      webView.observe(
+        \.url,
+        options: [.new],
+        changeHandler: { [weak self] _, change in
+          guard let newValue = change.newValue else { return }
+          self?.webViewURLDidChange(newValue)
+        }
+      ),
+      webView.observe(
+        \.isLoading,
+        options: [.new],
+        changeHandler: { [weak self] _, change in
+          guard let newValue = change.newValue else { return }
+          self?.webViewIsLoadingDidChange(newValue)
+        }
+      ),
+      webView.observe(
+        \.estimatedProgress,
+        changeHandler: { [weak self] _, _ in
+          self?.webViewProgressDidChange()
+        }
+      ),
+      webView.observe(
+        \.canGoBack,
+        changeHandler: { [weak self] _, _ in
+          self?.webviewBackForwardStateDidChange()
+        }
+      ),
+      webView.observe(
+        \.canGoForward,
+        changeHandler: { [weak self] _, _ in
+          self?.webviewBackForwardStateDidChange()
+        }
+      ),
+      webView.observe(
+        \.title,
+        changeHandler: { [weak self] _, _ in
+          self?.webViewTitleDidChange()
+        }
+      ),
+      webView.observe(
+        \.hasOnlySecureContent,
+        changeHandler: { [weak self] _, _ in
+          self?.webViewSecurityStateDidChange()
+        }
+      ),
+      webView.observe(
+        \.serverTrust,
+        changeHandler: { [weak self] _, _ in
+          self?.webViewSecurityStateDidChange()
+        }
+      ),
+    ]
+    let stringKeyObservers = [
+      StringKeyPathObserver<WKWebView, UIColor>(
+        object: webView,
+        keyPath: "_sampl\("edPageTopC")olor",
+        changeHandler: { [weak self] _ in
+          self?.webViewSampledPageTopColorDidChange()
+        }
+      )
+    ]
+    webViewObservations.append(
+      contentsOf: keyValueObservations.map { observation in .init { observation.invalidate() } }
+    )
+    webViewObservations.append(
+      contentsOf: stringKeyObservers.map { observation in .init { observation.invalidate() } }
+    )
+  }
+
+  private func detachWebObservers() {
+    webViewObservations.removeAll()
   }
 
   func resetWebView(config: WKWebViewConfiguration) {
@@ -588,7 +859,7 @@ class Tab: NSObject {
     SessionTab.update(
       tabId: id,
       interactionState: webView.sessionData ?? Data(),
-      title: title,
+      title: title ?? "",
       url: webView.url ?? TabManager.ntpInteralURL
     )
   }
@@ -636,13 +907,19 @@ class Tab: NSObject {
     translateHelper = nil
 
     if let webView = webView {
-      webView.removeObserver(self, forKeyPath: KVOConstants.url.keyPath)
-      tabDelegate?.tab(self, willDeleteWebView: webView)
+      observers.forEach {
+        $0.tab(self, willDeleteWebView: webView)
+      }
     }
+    detachWebObservers()
     webView = nil
   }
 
   deinit {
+    observers.forEach {
+      $0.tabWillBeDestroyed(self)
+    }
+
     deleteWebView()
     deleteNewTabPageController()
     contentScriptManager.helpers.removeAll()
@@ -687,8 +964,8 @@ class Tab: NSObject {
     return tabs
   }
 
-  var title: String {
-    return webView?.title ?? ""
+  var title: String? {
+    return webView?.title
   }
 
   var displayTitle: String {
@@ -847,7 +1124,7 @@ class Tab: NSObject {
       }
     }
 
-    tabDelegate?.didReloadTab(self)
+    resetExternalAlertProperties()
 
     // If the current page is an error page, and the reload button is tapped, load the original URL
     if let url = webView?.url, let internalUrl = InternalURL(url),
@@ -936,13 +1213,17 @@ class Tab: NSObject {
 
   func addSnackbar(_ bar: SnackBar) {
     bars.append(bar)
-    tabDelegate?.tab(self, didAddSnackbar: bar)
+    observers.forEach {
+      $0.tab(self, didAddSnackbar: bar)
+    }
   }
 
   func removeSnackbar(_ bar: SnackBar) {
     if let index = bars.firstIndex(of: bar) {
       bars.remove(at: index)
-      tabDelegate?.tab(self, didRemoveSnackbar: bar)
+      observers.forEach {
+        $0.tab(self, didRemoveSnackbar: bar)
+      }
     }
   }
 
@@ -993,26 +1274,6 @@ class Tab: NSObject {
     }
   }
 
-  override func observeValue(
-    forKeyPath keyPath: String?,
-    of object: Any?,
-    change: [NSKeyValueChangeKey: Any]?,
-    context: UnsafeMutableRawPointer?
-  ) {
-    guard let webView = object as? BraveWebView, webView == self.webView,
-      let path = keyPath, path == KVOConstants.url.keyPath
-    else {
-      return assertionFailure("Unhandled KVO key: \(keyPath ?? "nil")")
-    }
-    guard let url = self.webView?.url else {
-      return
-    }
-
-    updatePullToRefreshVisibility()
-
-    self.urlDidChangeDelegate?.tab(self, urlDidChangeTo: url)
-  }
-
   func updatePullToRefreshVisibility() {
     guard let url = webView?.url, let webView = webView else { return }
     webView.scrollView.refreshControl =
@@ -1023,16 +1284,6 @@ class Tab: NSObject {
     return sequence(first: parent) { $0?.parent }.contains { $0 == ancestor }
   }
 
-  func observeURLChanges(delegate: URLChangeDelegate) {
-    self.urlDidChangeDelegate = delegate
-  }
-
-  func removeURLChangeObserver(delegate: URLChangeDelegate) {
-    if let existing = self.urlDidChangeDelegate, existing === delegate {
-      self.urlDidChangeDelegate = nil
-    }
-  }
-
   func stopMediaPlayback() {
     tabDelegate?.stopMediaPlayback(self)
   }
@@ -1041,21 +1292,84 @@ class Tab: NSObject {
     syncTab?.setURL(url)
     syncTab?.setTitle(displayTitle)
   }
-}
 
-extension Tab: TabWebViewDelegate {
-  /// Triggered when "Find in Page" is selected on selected text
-  fileprivate func tabWebView(_ tabWebView: TabWebView, didSelectFindInPageFor selectedText: String)
-  {
-    tabDelegate?.tab(self, didSelectFindInPageFor: selectedText)
+  private func resolvedPolicyDecision(
+    for policyDeciders: Set<AnyTabWebPolicyDecider>,
+    task: @escaping (AnyTabWebPolicyDecider) async -> WebPolicyDecision
+  ) async -> WebPolicyDecision {
+    let result = await withTaskGroup(of: WebPolicyDecision.self, returning: WebPolicyDecision.self)
+    { group in
+      for policyDecider in policyDeciders {
+        group.addTask { @MainActor in
+          if Task.isCancelled {
+            return .cancel
+          }
+          let decision = await task(policyDecider)
+          if decision == .cancel {
+            return .cancel
+          }
+          return .allow
+        }
+      }
+      for await result in group {
+        if result == .cancel {
+          group.cancelAll()
+          return .cancel
+        }
+      }
+      return .allow
+    }
+    return result
   }
 
-  /// Triggered when "Search with Brave" is selected on selected text
-  fileprivate func tabWebView(
-    _ tabWebView: TabWebView,
-    didSelectSearchWithBraveFor selectedText: String
-  ) {
-    tabDelegate?.tab(self, didSelectSearchWithBraveFor: selectedText)
+  func shouldAllowRequest(
+    _ request: URLRequest,
+    requestInfo: WebRequestInfo
+  ) async -> WebPolicyDecision {
+    return await resolvedPolicyDecision(for: policyDeciders) { policyDecider in
+      await policyDecider.tab(
+        self,
+        shouldAllowRequest: request,
+        requestInfo: requestInfo
+      )
+    }
+  }
+
+  func shouldAllowResponse(
+    _ response: URLResponse,
+    responseInfo: WebResponseInfo
+  ) async -> WebPolicyDecision {
+    return await resolvedPolicyDecision(for: policyDeciders) { policyDecider in
+      await policyDecider.tab(
+        self,
+        shouldAllowResponse: response,
+        responseInfo: responseInfo
+      )
+    }
+  }
+
+  func didStartNavigation() {
+    observers.forEach {
+      $0.tabDidStartNavigation(self)
+    }
+  }
+
+  func didCommitNavigation() {
+    observers.forEach {
+      $0.tabDidCommitNavigation(self)
+    }
+  }
+
+  func didFinishNavigation() {
+    observers.forEach {
+      $0.tabDidFinishNavigation(self)
+    }
+  }
+
+  func didFailNavigation(with error: Error) {
+    observers.forEach {
+      $0.tab(self, didFailNavigationWithError: error)
+    }
   }
 }
 
@@ -1130,25 +1444,74 @@ private class TabContentScriptManager: NSObject, WKScriptMessageHandlerWithReply
   }
 }
 
-private protocol TabWebViewDelegate: AnyObject {
-  /// Triggered when "Find in Page" is selected on selected text
-  func tabWebView(_ tabWebView: TabWebView, didSelectFindInPageFor selectedText: String)
-  /// Triggered when "Search with Brave" is selected on selected text
-  func tabWebView(_ tabWebView: TabWebView, didSelectSearchWithBraveFor selectedText: String)
-}
+class TabWebView: WKWebView, MenuHelperInterface {
+  /// Stores last position when the webview was touched on.
+  private(set) var lastHitPoint = CGPoint(x: 0, y: 0)
 
-class TabWebView: BraveWebView, MenuHelperInterface {
-  fileprivate weak var delegate: TabWebViewDelegate?
-  private(set) weak var tab: Tab?
+  private static var nonPersistentDataStore: WKWebsiteDataStore?
+  static func sharedNonPersistentStore() -> WKWebsiteDataStore {
+    if let dataStore = nonPersistentDataStore {
+      return dataStore
+    }
 
-  init(
+    let dataStore = WKWebsiteDataStore.nonPersistent()
+    nonPersistentDataStore = dataStore
+    return dataStore
+  }
+
+  fileprivate var didSelectSearchWithBrave: ((String) -> Void)?
+
+  fileprivate init(
     frame: CGRect,
-    tab: Tab,
     configuration: WKWebViewConfiguration = WKWebViewConfiguration(),
     isPrivate: Bool = true
   ) {
-    self.tab = tab
-    super.init(frame: frame, configuration: configuration, isPrivate: isPrivate)
+    if isPrivate {
+      configuration.websiteDataStore = TabWebView.sharedNonPersistentStore()
+    } else {
+      configuration.websiteDataStore = WKWebsiteDataStore.default()
+    }
+
+    super.init(frame: frame, configuration: configuration)
+
+    isFindInteractionEnabled = true
+
+    customUserAgent = UserAgent.userAgentForIdiom()
+    if #available(iOS 16.4, *) {
+      isInspectable = true
+    }
+
+    updateBackgroundColor()
+    Preferences.General.nightModeEnabled.observe(from: self)
+  }
+
+  private func updateBackgroundColor() {
+    if Preferences.General.nightModeEnabled.value {
+      let color = UIColor(braveSystemName: .containerBackground)
+      backgroundColor = color
+      scrollView.backgroundColor = color
+      // WKWebView flashes white screen on load regardless of background colour assignments without
+      // setting `isOpaque` to false
+      isOpaque = false
+    } else {
+      backgroundColor = nil
+      scrollView.backgroundColor = nil
+      isOpaque = true
+    }
+  }
+
+  static func removeNonPersistentStore() {
+    TabWebView.nonPersistentDataStore = nil
+  }
+
+  @available(*, unavailable)
+  required init?(coder aDecoder: NSCoder) {
+    fatalError()
+  }
+
+  override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+    lastHitPoint = point
+    return super.hitTest(point, with: event)
   }
 
   override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
@@ -1157,7 +1520,6 @@ class TabWebView: BraveWebView, MenuHelperInterface {
       return super.canPerformAction(#selector(paste(_:)), withSender: sender)
     }
     return super.canPerformAction(action, withSender: sender)
-      || action == MenuHelper.selectorFindInPage
   }
 
   @objc func menuHelperForcePaste() {
@@ -1170,18 +1532,6 @@ class TabWebView: BraveWebView, MenuHelperInterface {
     }
   }
 
-  @objc func menuHelperFindInPage() {
-    getCurrentSelectedText { [weak self] selectedText in
-      guard let self = self else { return }
-      guard let selectedText = selectedText else {
-        assertionFailure("Impossible to trigger this without selected text")
-        return
-      }
-
-      self.delegate?.tabWebView(self, didSelectFindInPageFor: selectedText)
-    }
-  }
-
   @objc func menuHelperSearchWithBrave() {
     getCurrentSelectedText { [weak self] selectedText in
       guard let self = self else { return }
@@ -1190,7 +1540,7 @@ class TabWebView: BraveWebView, MenuHelperInterface {
         return
       }
 
-      self.delegate?.tabWebView(self, didSelectSearchWithBraveFor: selectedText)
+      self.didSelectSearchWithBrave?(selectedText)
     }
   }
 
@@ -1213,26 +1563,9 @@ class TabWebView: BraveWebView, MenuHelperInterface {
   }
 }
 
-//
-// Temporary fix for Bug 1390871 - NSInvalidArgumentException: -[WKContentView menuHelperFindInPage]: unrecognized selector
-//
-// This class only exists to contain the swizzledMenuHelperFindInPage. This class is actually never
-// instantiated. It only serves as a placeholder for the method. When the method is called, self is
-// actually pointing to a WKContentView. Which is not public, but that is fine, we only need to know
-// that it is a UIView subclass to access its superview.
-//
-
-public class TabWebViewMenuHelper: UIView {
-  @objc public func swizzledMenuHelperFindInPage() {
-    if let tabWebView = superview?.superview as? TabWebView {
-      tabWebView.evaluateSafeJavaScript(
-        functionName: "getSelection().toString",
-        contentWorld: .defaultClient
-      ) { result, _ in
-        let selectedText = result as? String ?? ""
-        tabWebView.delegate?.tabWebView(tabWebView, didSelectFindInPageFor: selectedText)
-      }
-    }
+extension TabWebView: PreferencesObserver {
+  func preferencesDidChange(for key: String) {
+    updateBackgroundColor()
   }
 }
 

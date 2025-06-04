@@ -155,8 +155,7 @@ import org.chromium.chrome.browser.preferences.BravePref;
 import org.chromium.chrome.browser.preferences.BravePrefServiceBridge;
 import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
 import org.chromium.chrome.browser.preferences.Pref;
-import org.chromium.chrome.browser.preferences.PrefChangeRegistrar;
-import org.chromium.chrome.browser.preferences.PrefChangeRegistrar.PrefObserver;
+import org.chromium.chrome.browser.preferences.PrefServiceUtil;
 import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettings;
 import org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsBridge;
 import org.chromium.chrome.browser.prefetch.settings.PreloadPagesState;
@@ -175,7 +174,6 @@ import org.chromium.chrome.browser.safe_browsing.SafeBrowsingBridge;
 import org.chromium.chrome.browser.safe_browsing.SafeBrowsingState;
 import org.chromium.chrome.browser.search_engines.TemplateUrlServiceFactory;
 import org.chromium.chrome.browser.set_default_browser.BraveSetDefaultBrowserUtils;
-import org.chromium.chrome.browser.set_default_browser.OnBraveSetDefaultBrowserListener;
 import org.chromium.chrome.browser.settings.BraveNewsPreferencesV2;
 import org.chromium.chrome.browser.settings.BraveSearchEngineUtils;
 import org.chromium.chrome.browser.settings.BraveWalletPreferences;
@@ -222,6 +220,8 @@ import org.chromium.chrome.browser.vpn.wireguard.WireguardConfigUtils;
 import org.chromium.components.browser_ui.settings.SettingsNavigation;
 import org.chromium.components.embedder_support.util.UrlConstants;
 import org.chromium.components.embedder_support.util.UrlUtilities;
+import org.chromium.components.prefs.PrefChangeRegistrar;
+import org.chromium.components.prefs.PrefChangeRegistrar.PrefObserver;
 import org.chromium.components.safe_browsing.BraveSafeBrowsingApiHandler;
 import org.chromium.components.search_engines.TemplateUrl;
 import org.chromium.components.user_prefs.UserPrefs;
@@ -247,7 +247,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public abstract class BraveActivity extends ChromeActivity
         implements BrowsingDataBridge.OnClearBrowsingDataListener,
                 BraveVpnObserver,
-                OnBraveSetDefaultBrowserListener,
                 ConnectionErrorHandler,
                 PrefObserver,
                 BraveSafeBrowsingApiHandler.BraveSafeBrowsingApiHandlerDelegate,
@@ -309,8 +308,6 @@ public abstract class BraveActivity extends ChromeActivity
             Arrays.asList("AM", "AZ", "BY", "KG", "KZ", "MD", "RU", "TJ", "TM", "UZ");
 
     private boolean mIsVerification;
-    private boolean mIsDefaultCheckOnResume;
-    private boolean mIsSetDefaultBrowserNotification;
     public boolean mIsDeepLink;
     private BraveWalletService mBraveWalletService;
     private KeyringService mKeyringService;
@@ -454,9 +451,9 @@ public abstract class BraveActivity extends ChromeActivity
         } else if (id == R.id.exit_id) {
             exitBrave();
         } else if (id == R.id.set_default_browser) {
-            BraveSetDefaultBrowserUtils.showBraveSetDefaultBrowserDialog(BraveActivity.this, true);
+            BraveSetDefaultBrowserUtils.openDefaultAppsSettings(BraveActivity.this);
         } else if (id == R.id.brave_rewards_id) {
-            openNewOrSelectExistingTab(BRAVE_REWARDS_SETTINGS_URL);
+            showRewardsPage();
         } else if (id == R.id.brave_wallet_id) {
             openBraveWallet(false, false, false);
         } else if (id == R.id.brave_playlist_id) {
@@ -794,6 +791,8 @@ public abstract class BraveActivity extends ChromeActivity
                     && mMiscAndroidMetrics != null) {
                 mMiscAndroidMetrics.recordAppMenuNewTab();
             }
+        } else if (itemId == R.id.home_menu_id) {
+            getBraveToolbarLayout().openHomepage();
         }
         return super.onOptionsItemSelected(itemId, menuItemData);
     }
@@ -955,21 +954,9 @@ public abstract class BraveActivity extends ChromeActivity
     public void onBrowsingDataCleared() {}
 
     @Override
-    public void onCheckDefaultResume() {
-        mIsDefaultCheckOnResume = true;
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
         mIsProcessingPendingDappsTxRequest = false;
-        if (mIsDefaultCheckOnResume) {
-            mIsDefaultCheckOnResume = false;
-
-            if (BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(this)) {
-                BraveSetDefaultBrowserUtils.setBraveDefaultSuccess();
-            }
-        }
 
         PostTask.postTask(
                 TaskTraits.BEST_EFFORT_MAY_BLOCK, () -> { BraveStatsUtil.removeShareStatsFile(); });
@@ -1025,6 +1012,15 @@ public abstract class BraveActivity extends ChromeActivity
         safeBrowsingBridge.setSafeBrowsingState(SafeBrowsingState.NO_SAFE_BROWSING);
     }
 
+    // Shows SafeBrowsing errors if the switch in Developer Options is on
+    @Override
+    public void maybeShowSafeBrowsingError(String error) {
+        if (ChromeSharedPreferences.getInstance()
+                .readBoolean(BravePreferenceKeys.BRAVE_SAFE_BROWSING_ERRORS, false)) {
+            Toast.makeText(BraveActivity.this, error, Toast.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     public boolean isSafeBrowsingEnabled() {
         return mSafeBrowsingFlagEnabled;
@@ -1042,9 +1038,7 @@ public abstract class BraveActivity extends ChromeActivity
         String paymentID =
                 UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
                         .getString(BravePref.SCHEDULED_CAPTCHA_PAYMENT_ID);
-        if (!TextUtils.isEmpty(captchaID)
-                && !TextUtils.isEmpty(paymentID)
-                && !BravePrefServiceBridge.getInstance().getSafetynetCheckFailed()) {
+        if (!TextUtils.isEmpty(captchaID) && !TextUtils.isEmpty(paymentID)) {
             AdaptiveCaptchaHelper.startAttestation(captchaID, paymentID);
         }
     }
@@ -1058,7 +1052,7 @@ public abstract class BraveActivity extends ChromeActivity
 
         BraveHelper.maybeMigrateSettings();
 
-        PrefChangeRegistrar mPrefChangeRegistrar = new PrefChangeRegistrar();
+        PrefChangeRegistrar mPrefChangeRegistrar = PrefServiceUtil.createFor(getCurrentProfile());
         mPrefChangeRegistrar.addObserver(BravePref.SCHEDULED_CAPTCHA_ID, this);
 
         if (UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
@@ -1109,7 +1103,11 @@ public abstract class BraveActivity extends ChromeActivity
         if (isFirstInstall && appOpenCount == 0) {
             checkForYandexSE();
             enableSearchSuggestions();
+            setBraveAsDefaultPrivateMode();
         }
+
+        BraveSetDefaultBrowserUtils.checkForBraveSetDefaultBrowser(
+                appOpenCount, BraveActivity.this);
 
         migrateBgPlaybackToFeature();
 
@@ -1175,9 +1173,6 @@ public abstract class BraveActivity extends ChromeActivity
             RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DAY_10);
             RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DAY_30);
             RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DAY_35);
-            RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DEFAULT_BROWSER_1);
-            RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DEFAULT_BROWSER_2);
-            RetentionNotificationUtil.scheduleNotification(this, RetentionNotificationUtil.DEFAULT_BROWSER_3);
             OnboardingPrefManager.getInstance().setOneTimeNotificationStarted(true);
         }
 
@@ -1189,10 +1184,6 @@ public abstract class BraveActivity extends ChromeActivity
             calender.setTime(new Date());
             calender.add(Calendar.DATE, DAYS_4);
             BraveRewardsHelper.setNextRewardsOnboardingModalDate(calender.getTimeInMillis());
-        }
-
-        if (!mIsSetDefaultBrowserNotification) {
-            BraveSetDefaultBrowserUtils.checkSetDefaultBrowserModal(this);
         }
 
         checkFingerPrintingOnUpgrade(isFirstInstall);
@@ -1340,12 +1331,32 @@ public abstract class BraveActivity extends ChromeActivity
         }
     }
 
+    private void setBraveAsDefaultPrivateMode() {
+        Runnable onTemplateUrlServiceReady =
+                () -> {
+                    if (isActivityFinishingOrDestroyed()) return;
+                    TemplateUrl braveTemplateUrl =
+                            BraveSearchEngineUtils.getTemplateUrlByShortName(
+                                    getCurrentProfile(), OnboardingPrefManager.BRAVE);
+                    if (braveTemplateUrl != null) {
+                        BraveSearchEngineUtils.setDSEPrefs(
+                                braveTemplateUrl,
+                                getCurrentProfile()
+                                        .getPrimaryOtrProfile(/* createIfNeeded= */ true));
+                    }
+                };
+        TemplateUrlServiceFactory.getForProfile(getCurrentProfile())
+                .runWhenLoaded(onTemplateUrlServiceReady);
+    }
+
     private void enableSearchSuggestions() {
         TemplateUrl defaultSearchEngineTemplateUrl =
                 BraveSearchEngineUtils.getTemplateUrlByShortName(
                         getCurrentProfile(),
                         BraveSearchEngineUtils.getDSEShortName(getCurrentProfile(), false));
-        if (BRAVE_SEARCH_ENGINE_KEYWORD.equals(defaultSearchEngineTemplateUrl.getKeyword())) {
+        if (defaultSearchEngineTemplateUrl != null
+                && BRAVE_SEARCH_ENGINE_KEYWORD.equals(
+                        defaultSearchEngineTemplateUrl.getKeyword())) {
             UserPrefs.get(getCurrentProfile()).setBoolean(Pref.SEARCH_SUGGEST_ENABLED, true);
         }
     }
@@ -1381,9 +1392,12 @@ public abstract class BraveActivity extends ChromeActivity
                         .setAction(getResources().getString(R.string.update), null)
                         .setSingleLine(false)
                         .setDuration(10000);
-        SnackbarManager snackbarManager =
-                SnackbarManagerProvider.from(getActivityTab().getWindowAndroid());
-        snackbarManager.showSnackbar(snackbar);
+        Tab currentTab = getActivityTabProvider().get();
+        if (currentTab != null) {
+            SnackbarManager snackbarManager =
+                    SnackbarManagerProvider.from(currentTab.getWindowAndroid());
+            snackbarManager.showSnackbar(snackbar);
+        }
     }
 
     private final InstallStateUpdatedListener mInstallStateUpdatedListener =
@@ -1443,7 +1457,15 @@ public abstract class BraveActivity extends ChromeActivity
     }
 
     @Override
-    public void initBraveNewsController() {
+    public void initBraveNewsControllerFromAWorkerThread() {
+        runOnUiThread(
+                () -> {
+                    initBraveNewsController();
+                });
+    }
+
+    private void initBraveNewsController() {
+        ThreadUtils.assertOnUiThread();
         if (mBraveNewsController != null) {
             return;
         }
@@ -1453,10 +1475,13 @@ public abstract class BraveActivity extends ChromeActivity
 
         if (BravePrefServiceBridge.getInstance().getShowNews()
                 && BravePrefServiceBridge.getInstance().getNewsOptIn()) {
-            mBraveNewsController = BraveNewsControllerFactory.getInstance().getBraveNewsController(
-                    mBraveNewsConnectionErrorHandler);
-
-            BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, null);
+            BraveNewsControllerFactory.getInstance()
+                    .getBraveNewsController(mBraveNewsConnectionErrorHandler)
+                    .then(
+                            braveNewsController -> {
+                                mBraveNewsController = braveNewsController;
+                                BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, null);
+                            });
         }
     }
 
@@ -1779,16 +1804,6 @@ public abstract class BraveActivity extends ChromeActivity
                 case RetentionNotificationUtil.DORMANT_USERS_DAY_40:
                     showDormantUsersEngagementDialog(notificationType);
                     break;
-                case RetentionNotificationUtil.DEFAULT_BROWSER_1:
-                case RetentionNotificationUtil.DEFAULT_BROWSER_2:
-                case RetentionNotificationUtil.DEFAULT_BROWSER_3:
-                    if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(BraveActivity.this)
-                            && !BraveSetDefaultBrowserUtils.isBraveDefaultDontAsk()) {
-                        mIsSetDefaultBrowserNotification = true;
-                        BraveSetDefaultBrowserUtils.showBraveSetDefaultBrowserDialog(
-                                BraveActivity.this, false);
-                    }
-                    break;
             }
         }
     }
@@ -1903,7 +1918,7 @@ public abstract class BraveActivity extends ChromeActivity
             Tab tab = tabModel.getTabAt(index);
             if (tab != null) {
                 tab.setClosing(true);
-                tabModel.closeTabs(TabClosureParams.closeTab(tab).build());
+                tabModel.getTabRemover().closeTabs(TabClosureParams.closeTab(tab).build(), false);
             }
         }
     }
@@ -2007,21 +2022,38 @@ public abstract class BraveActivity extends ChromeActivity
                 getApplicationContext(), null, null, null, null, null, null, null, null, null);
     }
 
-    private void setupWalletModel() {
-        PostTask.postTask(TaskTraits.UI_DEFAULT, () -> {
-            if (mWalletModel == null) {
-                mWalletModel = new WalletModel(getApplicationContext(), mKeyringService,
-                        mBlockchainRegistry, mJsonRpcService, mTxService, mEthTxManagerProxy,
-                        mSolanaTxManagerProxy, mAssetRatioService, mBraveWalletService,
-                        mSwapService);
-            } else {
-                mWalletModel.resetServices(getApplicationContext(), mKeyringService,
-                        mBlockchainRegistry, mJsonRpcService, mTxService, mEthTxManagerProxy,
-                        mSolanaTxManagerProxy, mAssetRatioService, mBraveWalletService,
-                        mSwapService);
-            }
-            setupObservers();
-        });
+    public void setupWalletModel() {
+        PostTask.postTask(
+                TaskTraits.UI_DEFAULT,
+                () -> {
+                    if (mWalletModel == null) {
+                        mWalletModel =
+                                new WalletModel(
+                                        getApplicationContext(),
+                                        mKeyringService,
+                                        mBlockchainRegistry,
+                                        mJsonRpcService,
+                                        mTxService,
+                                        mEthTxManagerProxy,
+                                        mSolanaTxManagerProxy,
+                                        mAssetRatioService,
+                                        mBraveWalletService,
+                                        mSwapService);
+                    } else {
+                        mWalletModel.resetServices(
+                                getApplicationContext(),
+                                mKeyringService,
+                                mBlockchainRegistry,
+                                mJsonRpcService,
+                                mTxService,
+                                mEthTxManagerProxy,
+                                mSolanaTxManagerProxy,
+                                mAssetRatioService,
+                                mBraveWalletService,
+                                mSwapService);
+                    }
+                    setupObservers();
+                });
     }
 
     @MainThread
@@ -2129,8 +2161,7 @@ public abstract class BraveActivity extends ChromeActivity
     }
 
     public void showDormantUsersEngagementDialog(String notificationType) {
-        if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(BraveActivity.this)
-                && !BraveSetDefaultBrowserUtils.isBraveDefaultDontAsk()) {
+        if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(BraveActivity.this)) {
             DormantUsersEngagementDialogFragment dormantUsersEngagementDialogFragment =
                     new DormantUsersEngagementDialogFragment();
             dormantUsersEngagementDialogFragment.setNotificationType(notificationType);
@@ -2159,7 +2190,18 @@ public abstract class BraveActivity extends ChromeActivity
 
     public void openBraveLeo() {
         BraveLeoUtils.verifySubscription(null);
-        BraveLeoUtils.openLeoUrlForTab(getActivityTab().getWebContents());
+        Tab currentTab = getActivityTabProvider().get();
+        if (currentTab != null) {
+            BraveLeoUtils.openLeoUrlForTab(currentTab.getWebContents());
+        }
+    }
+
+    public void showRewardsPage() {
+        if (BraveRewardsHelper.shouldShowNewRewardsUI()) {
+            getBraveToolbarLayout().showRewardsPage();
+        } else {
+            openNewOrSelectExistingTab(BRAVE_REWARDS_SETTINGS_URL);
+        }
     }
 
     public static ChromeTabbedActivity getChromeTabbedActivity() {
@@ -2228,7 +2270,7 @@ public abstract class BraveActivity extends ChromeActivity
 
         } else if (resultCode == RESULT_OK
                 && requestCode == BraveConstants.DEFAULT_BROWSER_ROLE_REQUEST_CODE) {
-            BraveSetDefaultBrowserUtils.setBraveDefaultSuccess();
+            // We don't need to anything with the result here.
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -2532,7 +2574,7 @@ public abstract class BraveActivity extends ChromeActivity
     }
 
     public void updateBottomSheetPosition(int orientation) {
-        if (BottomToolbarConfiguration.isBottomToolbarEnabled()) {
+        if (BottomToolbarConfiguration.isBraveBottomControlsEnabled()) {
             // Ensure the bottom sheet's container is adjusted to the height of the bottom toolbar.
             ViewGroup sheetContainer = findViewById(R.id.sheet_container);
             assert sheetContainer != null;
@@ -2540,9 +2582,11 @@ public abstract class BraveActivity extends ChromeActivity
             if (sheetContainer != null) {
                 CoordinatorLayout.LayoutParams params =
                         (CoordinatorLayout.LayoutParams) sheetContainer.getLayoutParams();
-                params.bottomMargin = orientation == Configuration.ORIENTATION_LANDSCAPE
-                        ? 0
-                        : getResources().getDimensionPixelSize(R.dimen.bottom_controls_height);
+                params.bottomMargin =
+                        orientation == Configuration.ORIENTATION_LANDSCAPE
+                                ? 0
+                                : getResources()
+                                        .getDimensionPixelSize(R.dimen.bottom_controls_height);
                 sheetContainer.setLayoutParams(params);
             }
         }
@@ -2671,13 +2715,21 @@ public abstract class BraveActivity extends ChromeActivity
     private void quickSearchEnginesReady(RecyclerView recyclerView, int keypadHeight) {
         List<QuickSearchEnginesModel> searchEngines =
                 QuickSearchEnginesUtil.getQuickSearchEnginesForView(getCurrentProfile());
-        QuickSearchEnginesModel leoQuickSearchEnginesModel =
-                new QuickSearchEnginesModel("", "", "", true);
-        searchEngines.add(0, leoQuickSearchEnginesModel);
 
         QuickSearchEnginesModel defaultQuickSearchEnginesModel =
                 QuickSearchEnginesUtil.getDefaultSearchEngine(getCurrentProfile());
-        searchEngines.add(1, defaultQuickSearchEnginesModel);
+        searchEngines.add(0, defaultQuickSearchEnginesModel);
+
+        if (!getCurrentProfile().isOffTheRecord()) {
+            QuickSearchEnginesModel leoQuickSearchEnginesModel =
+                    new QuickSearchEnginesModel(
+                            "",
+                            "",
+                            "",
+                            true,
+                            QuickSearchEnginesModel.QuickSearchEnginesModelType.AI_ASSISTANT);
+            searchEngines.add(0, leoQuickSearchEnginesModel);
+        }
 
         QuickSearchEnginesViewAdapter adapter =
                 new QuickSearchEnginesViewAdapter(BraveActivity.this, searchEngines, this);
@@ -2713,7 +2765,9 @@ public abstract class BraveActivity extends ChromeActivity
             return;
         }
         String query = getBraveToolbarLayout().getLocationBarQuery();
-        if (position == 0) {
+        if (position == 0
+                && quickSearchEnginesModel.getType()
+                        == QuickSearchEnginesModel.QuickSearchEnginesModelType.AI_ASSISTANT) {
             BraveLeoUtils.openLeoQuery(getActivityTab().getWebContents(), "", query, true);
         } else {
             String quickSearchEngineUrl =

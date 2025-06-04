@@ -815,6 +815,9 @@
   <message name="IDS_SETTINGS_BRAVE_SAFEBROWSING_NONE_DESC" desc="Description for safe browsing no protection mode">
     Does not protect you against dangerous websites, downloads, and extensions.
   </message>
+  <message name="IDS_SETTINGS_BRAVE_SAFEBROWSING_STANDARD_DESC" desc="Description for safe browsing standard protection mode">
+    Protects against sites, downloads, and extensions that are known to be dangerous.
+  </message>
 
   <!-- Settings / Privacy and security / Site and Shields Settings -->
   <message name="IDS_SETTINGS_SITE_AND_SHIELDS_SETTINGS" desc="Label for site and shields settings in clear browsing data dialog">
@@ -893,11 +896,6 @@
   </message>
   <message name="IDS_SETTINGS_SITE_SETTINGS_BRAVE_OPEN_AI_CHAT_BLOCK" desc="Label for the disabled option of opening Leo AI chat site settings.">
     Don't allow site to open Leo AI chat
-  </message>
-
-  <!-- Settings / Privacy and security / Safety Check -->
-  <message name="IDS_SETTINGS_BRAVE_SAFETY_CHECK_SAFE_BROWSING_ENABLED_STANDARD_AVAILABLE_ENHANCED" desc="This text points out that Safe Browsing is enabled as standard protection.">
-    Standard protection is on.
   </message>
 
   <!-- Settings / Sync -->
@@ -1107,10 +1105,10 @@
 
   <!-- Settings / Search engine -->
   <message name="IDS_SETTINGS_BRAVE_SEARCH_ENGINES_SEARCH_SUGGEST_LABEL" desc="The label of the option to enable/disable sending omnibox input to the user's default search engine to get additional suggestions.">
-    Show search suggestions
+    Improve search suggestions
   </message>
   <message name="IDS_SETTINGS_BRAVE_SEARCH_ENGINES_SEARCH_SUGGEST_DESC" desc="The desc of the option to enable/disable sending omnibox input to the user's default search engine to get additional suggestions.">
-    When you type in the address bar or search box, Brave sends what you type to your default search engine to get better suggestions. This is not available in private windows.
+    When on, Brave sends what you type in the address bar or search box to your default search engine to get better suggestions. When off, Brave only shows suggestions generated on your device. This is always off in private windows.
   </message>
   <message name="IDS_SETTINGS_BRAVE_OTHER_SEARCH_ENGINES_LABEL" desc="The label for the settings switch controlling the addition of custom search engines">
     Index other search engines
@@ -1129,6 +1127,9 @@
   </message>
   <message name="IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_HEADING" desc="Heading for the search engine setting for private profiles.">
     Private Window
+  </message>
+  <message name="IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_TITLE" desc="Name of the settings page which displays search engine preferences for private profiles.">
+    Search engine for Private Windows
   </message>
   <message name="IDS_SETTINGS_PRIVATE_PROFILE_SEARCH_ENGINE_CHOICE_SETTINGS_CONFIRMATION_TOAST_LABEL" desc="This confirmation message is intended to help users understand that their choice is now saved. It appears after the user changes their default private search engine in Brave settings. (A search engine provides answers to search queries; this is different from a browser, which displays web pages. A search engine powers many experiences within a browser.)">
     <ph name="SEARCH_ENGINE_NAME">$1<ex>Brave</ex></ph> is now your default search engine for private windows
@@ -1385,6 +1386,9 @@
   <message name="IDS_SETTINGS_WALLET_ZEC_NETWORK_LIST_TITLE" desc="The title of the list with wallet Zcash networks">
     Zcash networks
   </message>
+  <message name="IDS_SETTINGS_WALLET_CARDANO_NETWORK_LIST_TITLE" desc="The title of the list with wallet Cardano networks">
+    Cardano networks
+  </message>
   <message name="IDS_SETTINGS_SHOW_BRAVE_WALLET_TEST_NETWORKS" desc="The description for showing the Brave wallet test networks">
     Show test networks
   </message>
@@ -1570,6 +1574,12 @@ Leo AI. This action can't be undone.
   <message name="IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_API_KEY" desc="An input title for server API key.">
     API Key
   </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_VISION_SUPPORT" desc="An input title for model vision support.">
+    Vision Support
+  </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_VISION_SUPPORT_TOOLTIP_INFO" desc="A brief description for model vision support for adding a custom model.">
+    If this model takes image as input, e.g. llama 3.2b vision
+  </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_INPUT_MODEL_LABEL_TOOLTIP_INFO" desc="A brief description for the input title for adding a custom model">
     The name of the model as it will appear in the model selection menu
   </message>
@@ -1625,7 +1635,7 @@ Leo AI. This action can't be undone.
     Connect your self-hosted or third-party hosted LLM to Leo and use them within the browser.
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_2" desc="A description explaning what protocols are accepted">
-    Use any OpenAI Chat Protocol compatible framework such as Ollama.
+    Use any OpenAI Chat Protocol compatible framework such as Ollama. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_ADD_MODEL_BUTTON_LABEL" desc="A button label for user to click when they want to add a new model">
     Add model

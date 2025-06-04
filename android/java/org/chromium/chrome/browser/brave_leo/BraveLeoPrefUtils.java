@@ -12,8 +12,6 @@ import org.chromium.chrome.browser.app.BraveActivity;
 import org.chromium.chrome.browser.flags.ChromeFeatureList;
 import org.chromium.chrome.browser.preferences.BravePref;
 import org.chromium.chrome.browser.profiles.Profile;
-import org.chromium.components.browser_ui.site_settings.WebsitePreferenceBridge;
-import org.chromium.components.content_settings.ContentSettingsType;
 import org.chromium.components.prefs.PrefService;
 import org.chromium.components.user_prefs.UserPrefs;
 
@@ -66,6 +64,9 @@ public class BraveLeoPrefUtils {
                 && !prefService.getString(BravePref.BRAVE_CHAT_ORDER_ID_ANDROID).isEmpty()) {
             return;
         }
+        // It means we don't have a Play Store subscription anymore or
+        // we have a new one.
+        BraveLeoPrefUtils.resetSubscriptionLinkedStatus(profileToUse);
         prefService.setString(BravePref.BRAVE_CHAT_ORDER_ID_ANDROID, "");
         prefService.setString(BravePref.BRAVE_CHAT_PURCHASE_TOKEN_ANDROID, token);
         if (!token.isEmpty()) {
@@ -150,5 +151,22 @@ public class BraveLeoPrefUtils {
         // // We want to fix that in the future.
         // return WebsitePreferenceBridge.isCategoryEnabled(
         //         profileToUse, ContentSettingsType.JAVASCRIPT);
+        // return true;
+    }
+
+    public static boolean isSubscriptionLinked() {
+        Profile profileToUse = BraveLeoPrefUtils.getProfile();
+        if (profileToUse == null) {
+            Log.e(TAG, "BraveLeoPrefUtils.isSubscriptionLinked profile is null");
+            return false;
+        }
+
+        return UserPrefs.get(profileToUse)
+                        .getInteger(BravePref.BRAVE_CHAT_SUBSCRIPTION_LINK_STATUS_ANDROID)
+                != 0;
+    }
+
+    private static void resetSubscriptionLinkedStatus(Profile profile) {
+        UserPrefs.get(profile).setInteger(BravePref.BRAVE_CHAT_SUBSCRIPTION_LINK_STATUS_ANDROID, 0);
     }
 }

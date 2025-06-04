@@ -17,6 +17,7 @@
 #include "brave/components/brave_webtorrent/browser/buildflags/buildflags.h"
 #include "brave/components/constants/brave_paths.h"
 #include "brave/components/constants/pref_names.h"
+#include "brave/components/constants/webui_url_constants.h"
 #include "brave/components/tor/buildflags/buildflags.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/extensions/component_loader.h"
@@ -152,7 +153,7 @@ class BraveContentBrowserClientTest : public InProcessBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, CanLoadChromeURL) {
   std::vector<std::string> pages{
-      chrome::kChromeUIWelcomeHost,
+      kWelcomeHost,
   };
 
   std::vector<std::string> schemes{
@@ -267,7 +268,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteChromeSync) {
     content::WebContents* contents =
         browser()->tab_strip_model()->GetActiveWebContents();
     NavigateToURLAndWaitForRewrites(contents,
-                                    GURL(scheme + chrome::kChromeUISyncHost),
+                                    GURL(scheme + chrome::kBraveUISyncHost),
                                     GURL("chrome://sync"));
 
     EXPECT_STREQ(base::UTF16ToUTF8(
@@ -305,7 +306,9 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteAdblock) {
   }
 }
 
+#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteMagnetURLURLBar) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
 
@@ -321,6 +324,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteMagnetURLURLBar) {
 }
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteMagnetURLLink) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), magnet_html_url()));
@@ -341,6 +345,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, RewriteMagnetURLLink) {
 }
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, TypedMagnetURL) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* web_contents =
       browser()->tab_strip_model()->GetActiveWebContents();
   ui_test_utils::SendToOmniboxAndSubmit(browser(), magnet_url().spec());
@@ -351,9 +356,9 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, TypedMagnetURL) {
   EXPECT_EQ(magnet_url(), web_contents->GetLastCommittedURL().spec());
 }
 
-#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                        ReverseRewriteTorrentURL) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
 
@@ -373,10 +378,10 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                torrent_extension_url().spec().c_str())
       << "Real URL should be extension URL";
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                        MagnetIframeWithUserGestureOpensWebtorrent) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), magnet_html_url()));
@@ -420,6 +425,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                        NoReverseRewriteTorrentURLForInvalidQuery) {
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
   content::WebContents* contents =
       browser()->tab_strip_model()->GetActiveWebContents();
 
@@ -442,7 +448,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
 
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                        WebTorrentExtensionEnabledAfterLoad) {
-  ASSERT_TRUE(browser()->profile()->GetPrefs()->GetBoolean(kWebTorrentEnabled));
+  browser()->profile()->GetPrefs()->SetBoolean(kWebTorrentEnabled, true);
 
   extensions::ExtensionRegistry* registry =
       extensions::ExtensionRegistry::Get(browser()->profile());
@@ -542,6 +548,7 @@ IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest,
                torrent_extension_url().spec().c_str())
       << "No changes on the real URL";
 }
+#endif  // BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
 
 #if BUILDFLAG(ENABLE_TOR)
 IN_PROC_BROWSER_TEST_F(BraveContentBrowserClientTest, MixedContentForOnion) {

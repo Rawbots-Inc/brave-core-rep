@@ -1,5 +1,11 @@
 .cache/clangd
-/vendor/*
+vendor/python-patch
+vendor/sparkle
+vendor/bat-native-tweetnacl
+vendor/gn-project-generators
+vendor/web-discovery-project
+vendor/depot_tools
+vendor/omaha/
 .DS_Store
 .brave_gclient_*
 .gclient_*
@@ -50,9 +56,11 @@ npm-debug.log
 .env*
 engflow.crt
 *.key
+!tools/crates/vendor/**/*.key
 privkey.pem
 *~
 CMakeLists.txt
+!tools/crates/vendor/**/CMakeLists.txt
 cmake-build-debug/
 coverage/
 /build/rustup/
@@ -67,6 +75,9 @@ test_get_pkgs
 build/config/gclient_args.gni
 third_party/rust/target
 xcuserdata
+
+# This is a temp file used by script/version_up.py
+.version_upgrade
 
 # buffer exclusion file generated locally during sync
 build/config/unsafe_buffers_paths.txt

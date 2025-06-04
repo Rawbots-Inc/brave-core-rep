@@ -9,6 +9,7 @@
   --leo-button-radius: var(--leo-radius-m);
   --leo-progressring-color: var(--leo-color-neutral-40);
   --leo-progressring-size: 15px;
+  --leo-button-color: var(--leo-color-divider-subtle);
 
   width: 100%;
   container-type: inline-size;
@@ -48,9 +49,15 @@
 }
 
 .questionButton {
-  --leo-button-color: var(--leo-color-text-secondary);
+  --leo-button-color: var(--leo-color-divider-subtle);
 }
 
 .questionButtonText {
   font: var(--leo-font-default-regular);
+  color: var(--leo-color-text-secondary);
+}
+
+.generateButtonText{
+  font: var(--leo-font-default-regular);
+  color: var(--leo-color-text-secondary);
 }

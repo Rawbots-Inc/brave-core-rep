@@ -20,6 +20,8 @@ static_library("misc_metrics") {
     "pref_names.h",
     "privacy_hub_metrics.cc",
     "privacy_hub_metrics.h",
+    "split_view_metrics.cc",
+    "split_view_metrics.h",
     "tab_metrics.cc",
     "tab_metrics.h",
   ]
@@ -27,6 +29,7 @@ static_library("misc_metrics") {
   deps = [
     "//base",
     "//brave/components/brave_new_tab_ui:mojom",
+    "//brave/components/brave_rewards/core",
     "//brave/components/brave_shields/content/browser",
     "//brave/components/p3a_utils",
     "//brave/components/time_period_storage",
@@ -55,6 +58,7 @@ source_set("unit_tests") {
     "menu_metrics_unittest.cc",
     "new_tab_metrics_unittest.cc",
     "privacy_hub_metrics_unittest.cc",
+    "split_view_metrics_unittest.cc",
     "tab_metrics_unittest.cc",
   ]
 

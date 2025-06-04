@@ -12,12 +12,12 @@
 #include "base/base64.h"
 #include "base/feature_list.h"
 #include "base/functional/callback_forward.h"
-#include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/test/scoped_feature_list.h"
+#include "base/test/values_test_util.h"
 #include "brave/components/brave_vpn/browser/api/brave_vpn_api_request.h"
 #include "brave/components/brave_vpn/browser/brave_vpn_service_helper.h"
 #include "brave/components/brave_vpn/browser/connection/brave_vpn_connection_info.h"
@@ -118,10 +118,10 @@ constexpr char kTestVpnOrders[] = R"(
 
 std::string GenerateTestingCreds(const std::string& domain,
                                  bool active_subscription = true) {
-  auto value = base::JSONReader::Read(kTestVpnOrders);
+  auto value = base::test::ParseJsonDict(kTestVpnOrders);
   std::string json;
   base::JSONWriter::WriteWithOptions(
-      value.value(), base::JSONWriter::OPTIONS_PRETTY_PRINT, &json);
+      value, base::JSONWriter::OPTIONS_PRETTY_PRINT, &json);
 
   auto now = base::Time::Now();
   base::Time::Exploded exploded;
@@ -399,56 +399,67 @@ class BraveVPNServiceTest : public testing::Test {
         {
           "continent": "europe",
           "name": "eu-es",
+          "country-iso-code": "ES",
           "name-pretty": "Spain"
         },
         {
           "continent": "south-america",
           "name": "sa-br",
+          "country-iso-code": "BR",
           "name-pretty": "Brazil"
         },
         {
           "continent": "europe",
           "name": "eu-ch",
+          "country-iso-code": "CH",
           "name-pretty": "Switzerland"
         },
         {
           "continent": "europe",
           "name": "eu-de",
+          "country-iso-code": "DE",
           "name-pretty": "Germany"
         },
         {
           "continent": "asia",
           "name": "asia-sg",
+          "country-iso-code": "SG",
           "name-pretty": "Singapore"
         },
         {
           "continent": "north-america",
           "name": "ca-east",
+          "country-iso-code": "CA",
           "name-pretty": "Canada"
         },
         {
           "continent": "asia",
           "name": "asia-jp",
+          "country-iso-code": "JP",
           "name-pretty": "Japan"
         },
         {
           "continent": "europe",
           "name": "eu-en",
+          "country-iso-code": "GB",
           "name-pretty": "United Kingdom"
         },
         {
           "continent": "europe",
           "name": "eu-nl",
+          "country-iso-code": "NL",
           "name-pretty": "Netherlands"
         },
         {
           "continent": "north-america",
           "name": "us-central",
+          "country-iso-code": "US",
           "name-pretty": "USA - Central"
         },
         {
           "continent": "oceania",
           "name": "au-au",
+          "country-iso-code": "AU",
           "name-pretty": "Australia"
         }
       ])";
@@ -459,6 +470,7 @@ class BraveVPNServiceTest : public testing::Test {
         {
           "continent": "north-america",
           "name": "na-usa",
+          "country-iso-code": "US",
           "name-pretty": "USA - Central"
         }
       ])";
@@ -468,6 +480,7 @@ class BraveVPNServiceTest : public testing::Test {
     return R"([
         {
           "name": "us-central",
+          "country-iso-code": "US",
           "timezones": [
             "America/Guatemala",
             "America/Guayaquil",
@@ -477,6 +490,7 @@ class BraveVPNServiceTest : public testing::Test {
         },
         {
           "name": "eu-es",
+          "country-iso-code": "ES",
           "timezones": [
             "Europe/Madrid",
             "Europe/Gibraltar",
@@ -486,12 +500,14 @@ class BraveVPNServiceTest : public testing::Test {
         },
         {
           "name": "eu-ch",
+          "country-iso-code": "CH",
           "timezones": [
             "Europe/Zurich"
           ]
         },
         {
           "name": "eu-nl",
+          "country-iso-code": "NL",
           "timezones": [
             "Europe/Amsterdam",
             "Europe/Brussels"
@@ -499,6 +515,7 @@ class BraveVPNServiceTest : public testing::Test {
         },
         {
           "name": "asia-sg",
+          "country-iso-code": "SG",
           "timezones": [
             "Asia/Aden",
             "Asia/Almaty",
@@ -507,6 +524,7 @@ class BraveVPNServiceTest : public testing::Test {
         },
         {
           "name": "asia-jp",
+          "country-iso-code": "JP",
           "timezones": [
             "Pacific/Guam",
             "Pacific/Saipan",

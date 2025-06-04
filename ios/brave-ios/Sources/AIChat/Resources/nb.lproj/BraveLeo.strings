@@ -31,7 +31,7 @@
 /* The title for the label showing status if the subscription */
 "aichat.advancedSettingsSubscriptionStatusTitle" = "Status";
 
-/* The title for the button that allows the user to view the AppStore Receipt */
+/* The title for the button that allows the user to view the App Store Receipt */
 "aichat.advancedSettingsViewReceiptTitle" = "Se App Store-kvittering";
 
 /* The subtitle for the error showing there is an error from App Store */
@@ -131,13 +131,13 @@
 "aichat.feedbackViewMainTitle" = "Gi en tilbakemelding om Brave AI";
 
 /* The button title for opening paywall screen */
-"aichat.goPremiumButtonTitle" = "Prøv Premium";
+"aichat.goPremiumButtonTitle" = "Bruk premium";
 
 /* Description about answers are changing with page context */
 "aichat.infoAboutPageContext" = "Baser svarene på innholdet på nettsiden";
 
 /* The model intro message when you first enter the chat assistant */
-"aichat.introMessageClaudeHaikuMessageDescription" = "Hei! Jeg heter Leo. Jeg er tilgjengelig gjennom Brave og driftes av Claude 3 Haiku – en modell laget av Anthropic for å kunne ha samtaler og behandle tekst.";
+"aichat.introMessageClaudeHaikuMessageDescription" = "Hei! Jeg heter Leo. Jeg er tilgjengelig via Brave og driftes av Claude Haiku, en modell fra Anthropic som tar seg av tekst- og samtaleoppgaver.";
 
 /* The model and creator for intro message - Claude Haiku is the model -- Anthropic is the creator */
 "aichat.introMessageClaudeHaikuModelDescription" = "Claude Haiku av Anthropic";
@@ -146,7 +146,7 @@
 "aichat.introMessageClaudeHaikuModelPurposeDescription" = "Lynrask chat";
 
 /* The model intro message when you first enter the chat assistant */
-"aichat.introMessageClaudeSonnetMessageDescription" = "Hei! Jeg heter Leo. Jeg er tilgjengelig gjennom Brave og driftes av Claude 3 Sonnet – en modell laget av Anthropic for å kunne ha samtaler og behandle tekst.";
+"aichat.introMessageClaudeSonnetMessageDescription" = "Hei! Jeg heter Leo. Jeg er tilgjengelig via Brave og driftes av Claude Sonnet, en modell fra Anthropic som tar seg av tekst- og samtaleoppgaver.";
 
 /* The model and creator for intro message - Claude Sonnet is the model -- Anthropic is the creator */
 "aichat.introMessageClaudeSonnetModelDescription" = "Claude Sonnet av Anthropic";
@@ -372,6 +372,9 @@
 
 /* The description indicating voice inputs from user is not store or shared and these inpurs are totally private. */
 "aichat.speechRecognizerDisclaimer" = "Brave verken lagrer eller deler talesøkene dine.";
+
+/* Title showing the user has no subscription. */
+"aichat.subscriptionNoneTitle" = "Ingen";
 
 /* The title for the button to generate suggestions */
 "aichat.suggestionsGenerationButtonTitle" = "Foreslå spørsmål …";

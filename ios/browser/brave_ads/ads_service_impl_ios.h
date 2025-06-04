@@ -14,7 +14,6 @@
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
-#include "brave/components/brave_ads/core/public/ads_client/ads_client_callback.h"
 #include "brave/components/brave_ads/core/public/service/ads_service_callback.h"
 
 class PrefService;
@@ -47,8 +46,6 @@ class AdsServiceImplIOS : public AdsService {
                      InitializeCallback callback);
   void ShutdownAds(ShutdownCallback callback);
 
-  void RunDBTransaction(mojom::DBTransactionInfoPtr mojom_db_transaction,
-                        RunDBTransactionCallback callback);
   void MaybeGetNotificationAd(const std::string& placement_id,
                               MaybeGetNotificationAdCallback callback);
   void TriggerNotificationAdEvent(
@@ -86,12 +83,14 @@ class AdsServiceImplIOS : public AdsService {
       mojom::InlineContentAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) override;
 
-  std::optional<NewTabPageAdInfo> MaybeGetPrefetchedNewTabPageAdForDisplay()
-      override;
+  std::optional<NewTabPageAdInfo> MaybeGetPrefetchedNewTabPageAd() override;
   void PrefetchNewTabPageAd() override;
   void OnFailedToPrefetchNewTabPageAd(
       const std::string& placement_id,
       const std::string& creative_instance_id) override;
+  void ParseAndSaveCreativeNewTabPageAds(
+      const base::Value::Dict& dict,
+      ParseAndSaveCreativeNewTabPageAdsCallback callback) override;
   void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,

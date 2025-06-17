@@ -1315,15 +1315,15 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
              ChromeSharedPreferences.getInstance()
       .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
       String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://dev.rep.run?currentTabUrl=newtab";
+      "https://4b75-2001-ee0-4f85-fd30-c4d6-f79f-7b00-a93e.ngrok-free.app?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://4b75-2001-ee0-4f85-fd30-c4d6-f79f-7b00-a93e.ngrok-free.app?currentTabUrl=newtab";
     showOnBoarding(targetUrl);
    
   } else {
     Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://dev.rep.run?currentTabUrl=newtab";
+      "https://4b75-2001-ee0-4f85-fd30-c4d6-f79f-7b00-a93e.ngrok-free.app?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://4b75-2001-ee0-4f85-fd30-c4d6-f79f-7b00-a93e.ngrok-free.app?currentTabUrl=newtab";
     CustomTabActivity.showInfoPage(getContext(), targetUrl);
     
 

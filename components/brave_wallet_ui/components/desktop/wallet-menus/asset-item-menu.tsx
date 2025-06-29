@@ -5,21 +5,30 @@
 
 import * as React from 'react'
 import { useHistory } from 'react-router'
+import { skipToken } from '@reduxjs/toolkit/query/react'
 
 // Types
 import { BraveWallet } from '../../../constants/types'
 
+// Selectors
+import {
+  useSafeWalletSelector, //
+} from '../../../common/hooks/use-safe-selector'
+import { WalletSelectors } from '../../../common/selectors'
+
 // Queries
 import {
-  useUpdateUserAssetVisibleMutation //
+  useGetAvailableShieldedAccountQuery,
+  useUpdateUserAssetVisibleMutation, //
 } from '../../../common/slices/api.slice'
+import { useAccountsQuery } from '../../../common/slices/api.slice.extra'
 
 // Hooks
 import {
-  useMultiChainSellAssets //
+  useMultiChainSellAssets, //
 } from '../../../common/hooks/use-multi-chain-sell-assets'
 import {
-  useFindBuySupportedToken //
+  useFindBuySupportedToken, //
 } from '../../../common/hooks/use-multi-chain-buy-assets'
 
 // Utils
@@ -29,16 +38,16 @@ import {
   makeDepositFundsRoute,
   makeFundWalletRoute,
   makeSendRoute,
-  makeSwapOrBridgeRoute
+  makeSwapOrBridgeRoute,
 } from '../../../utils/routes-utils'
 import {
   getAssetIdKey,
-  getDoesCoinSupportSwapOrBridge
+  getDoesCoinSupportSwapOrBridge,
 } from '../../../utils/asset-utils'
 
 // Components
 import {
-  SellAssetModal //
+  SellAssetModal, //
 } from '../popup-modals/sell-asset-modal/sell-asset-modal'
 
 // Styled Components
@@ -46,8 +55,9 @@ import {
   StyledWrapper,
   PopupButton,
   PopupButtonText,
-  ButtonIcon
+  ButtonIcon,
 } from './wellet-menus.style'
+import { VerticalDivider } from '../../shared/style'
 
 interface Props {
   asset: BraveWallet.BlockchainToken
@@ -65,8 +75,29 @@ export const AssetItemMenu = (props: Props) => {
   // State
   const [showSellModal, setShowSellModal] = React.useState<boolean>(false)
 
-  // Queries
+  // Selectors
+  const isZCashShieldedTransactionsEnabled = useSafeWalletSelector(
+    WalletSelectors.isZCashShieldedTransactionsEnabled,
+  )
+
+  // Mutations
   const [updateUserAssetVisible] = useUpdateUserAssetVisibleMutation()
+
+  // Queries
+  const { accounts } = useAccountsQuery()
+  const zcashAccountIds = accounts
+    .filter((account) => account.accountId.coin === BraveWallet.CoinType.ZEC)
+    .map((account) => account.accountId)
+
+  const { data: availableShieldedAccount } =
+    useGetAvailableShieldedAccountQuery(
+      asset.coin === BraveWallet.CoinType.ZEC
+        && !asset.isShielded
+        && isZCashShieldedTransactionsEnabled
+        && zcashAccountIds
+        ? zcashAccountIds
+        : skipToken,
+    )
 
   // Hooks
   const {
@@ -75,7 +106,7 @@ export const AssetItemMenu = (props: Props) => {
     sellAmount,
     setSellAmount,
     openSellAssetLink,
-    checkIsAssetSellSupported
+    checkIsAssetSellSupported,
   } = useMultiChainSellAssets()
 
   const { foundMeldBuyToken } = useFindBuySupportedToken(asset)
@@ -108,11 +139,11 @@ export const AssetItemMenu = (props: Props) => {
         makeSwapOrBridgeRoute({
           fromToken: asset,
           fromAccount: account,
-          routeType
-        })
+          routeType,
+        }),
       )
     },
-    [account, history, asset]
+    [account, history, asset],
   )
 
   const onClickDeposit = React.useCallback(() => {
@@ -126,16 +157,30 @@ export const AssetItemMenu = (props: Props) => {
 
   const onOpenSellAssetLink = React.useCallback(() => {
     openSellAssetLink({
-      sellAsset: selectedSellAsset
+      sellAsset: selectedSellAsset,
     })
   }, [openSellAssetLink, selectedSellAsset])
 
   const onClickHide = React.useCallback(async () => {
     await updateUserAssetVisible({
       token: asset,
-      isVisible: false
+      isVisible: false,
     }).unwrap()
   }, [updateUserAssetVisible, asset])
+
+  const onClickShieldFunds = React.useCallback(() => {
+    if (!availableShieldedAccount) {
+      return
+    }
+
+    history.push(
+      makeSendRoute(
+        asset,
+        account,
+        availableShieldedAccount.orchardInternalAddress,
+      ),
+    )
+  }, [availableShieldedAccount, asset, history, account])
 
   return (
     <StyledWrapper yPosition={42}>
@@ -189,6 +234,17 @@ export const AssetItemMenu = (props: Props) => {
           {getLocale('braveWalletConfirmHidingToken')}
         </PopupButtonText>
       </PopupButton>
+      {availableShieldedAccount && (
+        <>
+          <VerticalDivider margin='0px 0px 8px 0px' />
+          <PopupButton onClick={onClickShieldFunds}>
+            <ButtonIcon name='shield-done' />
+            <PopupButtonText>
+              {getLocale('braveWalletShieldFunds')}
+            </PopupButtonText>
+          </PopupButton>
+        </>
+      )}
       {showSellModal && selectedSellAsset && (
         <SellAssetModal
           selectedAsset={selectedSellAsset}

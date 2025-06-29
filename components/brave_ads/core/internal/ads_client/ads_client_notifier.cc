@@ -8,8 +8,10 @@
 #include <cstdint>
 #include <memory>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
-#include "brave/components/brave_ads/core/internal/common/functional/once_closure_task_queue.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
+#include "brave/components/brave_ads/core/public/common/functional/once_closure_task_queue.h"
 #include "url/gurl.h"
 
 namespace brave_ads {
@@ -59,18 +61,6 @@ void AdsClientNotifier::NotifyRewardsWalletDidUpdate(
 
   for (auto& observer : observers_) {
     observer.OnNotifyRewardsWalletDidUpdate(payment_id, recovery_seed_base64);
-  }
-}
-
-void AdsClientNotifier::NotifyLocaleDidChange(const std::string& locale) {
-  if (task_queue_->should_queue()) {
-    return task_queue_->Add(
-        base::BindOnce(&AdsClientNotifier::NotifyLocaleDidChange,
-                       weak_factory_.GetWeakPtr(), locale));
-  }
-
-  for (auto& observer : observers_) {
-    observer.OnNotifyLocaleDidChange(locale);
   }
 }
 

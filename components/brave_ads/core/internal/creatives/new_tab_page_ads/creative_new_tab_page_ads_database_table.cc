@@ -14,8 +14,9 @@
 #include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/location.h"
+#include "base/strings/string_util.h"
 #include "base/time/time.h"
-#include "brave/components/brave_ads/core/internal/common/containers/container_util.h"
+#include "brave/components/brave_ads/core/internal/common/algorithm/split_vector_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_column_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_statement_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_table_util.h"
@@ -28,8 +29,8 @@
 #include "brave/components/brave_ads/core/internal/creatives/creative_ads_database_table_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ad_wallpaper_type_util.h"
 #include "brave/components/brave_ads/core/internal/segments/segment_util.h"
+#include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/condition_matcher_util.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
-#include "brave/components/brave_ads/core/public/serving/targeting/condition_matcher/condition_matcher_util.h"
 #include "url/gurl.h"
 
 namespace brave_ads::database::table {
@@ -200,13 +201,13 @@ void GetForSegmentsCallback(
                                    /*creative_ads=*/{});
   }
 
-  const CreativeNewTabPageAdList creative_ads =
+  CreativeNewTabPageAdList creative_ads =
       GetCreativeAdsFromResponse(std::move(mojom_db_transaction_result));
 
-  std::move(callback).Run(/*success=*/true, segments, creative_ads);
+  std::move(callback).Run(/*success=*/true, segments, std::move(creative_ads));
 }
 
-void GetAllCallback(
+void GetForActiveCampaignsCallback(
     GetCreativeNewTabPageAdsCallback callback,
     mojom::DBTransactionResultInfoPtr mojom_db_transaction_result) {
   if (!IsTransactionSuccessful(mojom_db_transaction_result)) {
@@ -215,12 +216,12 @@ void GetAllCallback(
                                    /*creative_ads=*/{});
   }
 
-  const CreativeNewTabPageAdList creative_ads =
+  CreativeNewTabPageAdList creative_ads =
       GetCreativeAdsFromResponse(std::move(mojom_db_transaction_result));
 
   const SegmentList segments = GetSegments(creative_ads);
 
-  std::move(callback).Run(/*success=*/true, segments, creative_ads);
+  std::move(callback).Run(/*success=*/true, segments, std::move(creative_ads));
 }
 
 std::string IsRichMediaAllowed() {
@@ -494,8 +495,9 @@ void CreativeNewTabPageAds::GetForActiveCampaigns(
   BindColumnTypes(mojom_db_action);
   mojom_db_transaction->actions.push_back(std::move(mojom_db_action));
 
-  RunTransaction(FROM_HERE, std::move(mojom_db_transaction),
-                 base::BindOnce(&GetAllCallback, std::move(callback)));
+  RunTransaction(
+      FROM_HERE, std::move(mojom_db_transaction),
+      base::BindOnce(&GetForActiveCampaignsCallback, std::move(callback)));
 }
 
 std::string CreativeNewTabPageAds::GetTableName() const {
@@ -553,8 +555,16 @@ void CreativeNewTabPageAds::MigrateToV48(
   // downloading the component resource post-migration. However, after this
   // migration, we should not drop the table as it is needed to maintain
   // relationships with other tables.
-  DropTable(mojom_db_transaction, GetTableName());
-  Create(mojom_db_transaction);
+  DropTable(mojom_db_transaction, "creative_new_tab_page_ads");
+
+  Execute(mojom_db_transaction, R"(
+      CREATE TABLE creative_new_tab_page_ads (
+        creative_instance_id TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,
+        creative_set_id TEXT NOT NULL,
+        campaign_id TEXT NOT NULL,
+        company_name TEXT NOT NULL,
+        alt TEXT NOT NULL
+      );)");
 }
 
 void CreativeNewTabPageAds::MigrateToV49(
@@ -563,8 +573,8 @@ void CreativeNewTabPageAds::MigrateToV49(
 
   // Create a temporary table:
   //   - with a new `type` column constraint. The default value for existing
-  //   rows is 'image', which will be corrected when the new tab page ads are
-  //   updated.
+  //     rows is 'image', which will be corrected when the new tab page ads are
+  //     updated.
   Execute(mojom_db_transaction, R"(
       CREATE TABLE creative_new_tab_page_ads_temp (
         creative_instance_id TEXT NOT NULL PRIMARY KEY ON CONFLICT REPLACE,

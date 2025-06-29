@@ -18,6 +18,7 @@
 #include "base/memory/raw_ptr.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/memory/weak_ptr.h"
+#include "base/scoped_observation.h"
 #include "base/task/cancelable_task_tracker.h"
 #include "base/time/time.h"
 #include "base/timer/timer.h"
@@ -25,6 +26,7 @@
 #include "brave/components/brave_ads/browser/application_state/background_helper.h"
 #include "brave/components/brave_ads/browser/component_updater/resource_component_observer.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
+#include "brave/components/brave_ads/core/browser/service/virtual_pref_provider.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
 #include "brave/components/brave_ads/core/public/service/ads_service_callback.h"
@@ -61,13 +63,12 @@ class SharedURLLoaderFactory;
 
 namespace brave_ads {
 
-class AdsServiceObserver;
 class AdsTooltipsDelegate;
 class BatAdsServiceFactory;
 class DeviceId;
 class ResourceComponent;
 struct NewTabPageAdInfo;
-
+class NewTabPageAdPrefetcher;
 class AdsServiceImpl final : public AdsService,
                              public bat_ads::mojom::BatAdsClient,
                              public bat_ads::mojom::BatAdsObserver,
@@ -80,13 +81,15 @@ class AdsServiceImpl final : public AdsService,
       std::unique_ptr<Delegate> delegate,
       PrefService* prefs,
       PrefService* local_state,
+      std::unique_ptr<VirtualPrefProvider::Delegate>
+          virtual_pref_provider_delegate,
       scoped_refptr<network::SharedURLLoaderFactory> url_loader,
       std::string_view channel_name,
       const base::FilePath& profile_path,
       std::unique_ptr<AdsTooltipsDelegate> ads_tooltips_delegate,
       std::unique_ptr<DeviceId> device_id,
       std::unique_ptr<BatAdsServiceFactory> bat_ads_service_factory,
-      brave_ads::ResourceComponent* resource_component,
+      ResourceComponent* resource_component,
       history::HistoryService* history_service,
       brave_rewards::RewardsService* rewards_service,
       HostContentSettingsMap* host_content_settings);
@@ -115,6 +118,7 @@ class AdsServiceImpl final : public AdsService,
   bool UserHasOptedInToSearchResultAds() const;
 
   void InitializeNotificationsForCurrentProfile();
+  void InitializeNotificationsForCurrentProfileCallback();
 
   void GetDeviceIdAndMaybeStartBatAdsService();
   void GetDeviceIdAndMaybeStartBatAdsServiceCallback(std::string device_id);
@@ -136,7 +140,9 @@ class AdsServiceImpl final : public AdsService,
       brave_rewards::mojom::RewardsWalletPtr mojom_rewards_wallet);
   void InitializeBatAdsCallback(bool success);
 
-  void NotifyAdsServiceInitialized() const;
+  void NotifyDidInitializeAdsService() const;
+  void NotifyDidShutdownAdsService() const;
+  void NotifyDidClearAdsServiceData() const;
 
   void ClearDataPrefsAndAdsServiceDataAndMaybeRestart(
       ClearDataCallback callback,
@@ -170,7 +176,7 @@ class AdsServiceImpl final : public AdsService,
   void InitializeNotificationAdsPrefChangeRegistrar();
   void InitializeSearchResultAdsPrefChangeRegistrar();
   void OnOptedInToAdsPrefChanged(const std::string& path);
-  void OnCountryCodePrefChanged(const std::string& path);
+  void OnVariationsCountryPrefChanged();
   void NotifyPrefChanged(const std::string& path) const;
 
   void GetRewardsWallet();
@@ -179,6 +185,11 @@ class AdsServiceImpl final : public AdsService,
 
   void RefetchNewTabPageAd();
   void RefetchNewTabPageAdCallback(bool success);
+  void ResetNewTabPageAd();
+
+  void OnParseAndSaveNewTabPageAdsCallback(
+      ParseAndSaveNewTabPageAdsCallback callback,
+      bool success);
 
   // TODO(https://github.com/brave/brave-browser/issues/14666) Decouple idle
   // state business logic.
@@ -194,10 +205,6 @@ class AdsServiceImpl final : public AdsService,
   bool StopNotificationAdTimeOutTimer(const std::string& placement_id);
   void NotificationAdTimedOut(const std::string& placement_id);
   void CloseAllNotificationAds();
-
-  // TODO(https://github.com/brave/brave-browser/issues/26192) Decouple new
-  // tab page ad business logic.
-  void PrefetchNewTabPageAdCallback(std::optional<base::Value::Dict> dict);
 
   // TODO(https://github.com/brave/brave-browser/issues/26193) Decouple open
   // new tab with ad business logic.
@@ -262,12 +269,14 @@ class AdsServiceImpl final : public AdsService,
   void OnFailedToPrefetchNewTabPageAd(
       const std::string& placement_id,
       const std::string& creative_instance_id) override;
-  void ParseAndSaveCreativeNewTabPageAds(
-      const base::Value::Dict& dict,
-      ParseAndSaveCreativeNewTabPageAdsCallback callback) override;
+  void ParseAndSaveNewTabPageAds(
+      base::Value::Dict dict,
+      ParseAndSaveNewTabPageAdsCallback callback) override;
+  void MaybeServeNewTabPageAd(MaybeServeNewTabPageAdCallback callback) override;
   void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       mojom::NewTabPageAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) override;
 
@@ -364,15 +373,9 @@ class AdsServiceImpl final : public AdsService,
   void LoadResourceComponent(const std::string& id,
                              int version,
                              LoadResourceComponentCallback callback) override;
-  void LoadDataResource(const std::string& name,
-                        LoadDataResourceCallback callback) override;
 
   void ShowScheduledCaptcha(const std::string& payment_id,
                             const std::string& captcha_id) override;
-
-  // TODO(https://github.com/brave/brave-browser/issues/14666) Decouple P2A
-  // business logic.
-  void RecordP2AEvents(const std::vector<std::string>& events) override;
 
   void FindProfilePref(const std::string& path,
                        FindProfilePrefCallback callback) override;
@@ -450,36 +453,37 @@ class AdsServiceImpl final : public AdsService,
   std::map<std::string, std::unique_ptr<base::OneShotTimer>>
       notification_ad_timers_;
 
-  std::optional<NewTabPageAdInfo> prefetched_new_tab_page_ad_;
-  bool is_prefetching_new_tab_page_ad_ = false;
-
-  std::string retry_opening_new_tab_for_ad_with_placement_id_;
+  std::optional<std::string> retry_opening_new_tab_for_ad_with_placement_id_;
 
   base::CancelableTaskTracker history_service_task_tracker_;
 
   SimpleURLLoaderList url_loaders_;
 
-  const raw_ptr<PrefService> prefs_ = nullptr;  // Not owned.
+  const raw_ptr<PrefService> prefs_;  // Not owned.
 
-  const raw_ptr<PrefService> local_state_ = nullptr;  // Not owned.
+  const raw_ptr<PrefService> local_state_;  // Not owned.
+
+  const std::unique_ptr<VirtualPrefProvider> virtual_pref_provider_;
 
   scoped_refptr<network::SharedURLLoaderFactory> url_loader_ = nullptr;
 
   const std::string channel_name_;
 
-  base::ScopedObservation<brave_ads::ResourceComponent,
-                          ResourceComponentObserver>
+  base::ScopedObservation<ResourceComponent, ResourceComponentObserver>
       resource_component_observation_{this};
 
-  const raw_ptr<history::HistoryService> history_service_ =
-      nullptr;  // Not owned.
+  const raw_ptr<history::HistoryService> history_service_;  // Not owned.
 
-  const raw_ptr<HostContentSettingsMap> host_content_settings_map_ =
-      nullptr;  // Not owned.
+  const raw_ptr<HostContentSettingsMap>
+      host_content_settings_map_;  // Not owned.
+  base::ScopedObservation<HostContentSettingsMap, content_settings::Observer>
+      host_content_settings_map_observation_{this};
 
   const std::unique_ptr<AdsTooltipsDelegate> ads_tooltips_delegate_;
 
   const std::unique_ptr<DeviceId> device_id_;
+
+  std::unique_ptr<NewTabPageAdPrefetcher> new_tab_page_ad_prefetcher_;
 
   const std::unique_ptr<BatAdsServiceFactory> bat_ads_service_factory_;
 
@@ -490,8 +494,6 @@ class AdsServiceImpl final : public AdsService,
   base::ScopedObservation<brave_rewards::RewardsService,
                           brave_rewards::RewardsServiceObserver>
       rewards_service_observation_{this};
-
-  base::ObserverList<AdsServiceObserver> observers_;
 
   mojo::Receiver<bat_ads::mojom::BatAdsObserver> bat_ads_observer_receiver_{
       this};

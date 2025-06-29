@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux'
 import { useHistory } from 'react-router'
 
 // utils
-import { getLocale, getLocaleWithTag } from '../../../../../common/locale'
+import { getLocale, formatLocale } from '$web-common/locale'
 import { PageSelectors } from '../../../selectors'
 import { useLocationPathName } from '../../../../common/hooks/use-pathname'
 import { getOnboardingTypeFromPath } from '../../../../utils/routes-utils'
@@ -24,14 +24,12 @@ import { VerticalSpace } from '../../../../components/shared/style'
 import { NextButtonRow, ContinueButton } from '../onboarding.style'
 import { CheckboxText, TermsLink } from './disclosures.style'
 import {
-  OnboardingContentLayout //
+  OnboardingContentLayout, //
 } from '../components/onboarding_content_layout/content_layout'
 
 const TermsOfUseText: React.FC<{}> = () => {
-  const text = getLocaleWithTag('braveWalletTermsOfServiceCheckboxText')
-  return (
-    <p key={text.duringTag}>
-      {text.beforeTag}
+  const text = formatLocale('braveWalletTermsOfServiceCheckboxText', {
+    $1: (content) => (
       <TermsLink
         href='https://brave.com/terms-of-use/'
         target='_blank'
@@ -41,11 +39,11 @@ const TermsOfUseText: React.FC<{}> = () => {
           (e) => e.stopPropagation()
         }
       >
-        {text.duringTag}
+        {content}
       </TermsLink>
-      {text.afterTag}
-    </p>
-  )
+    ),
+  })
+  return <p>{text}</p>
 }
 
 export const OnboardingDisclosures = () => {
@@ -57,14 +55,14 @@ export const OnboardingDisclosures = () => {
   // redux
   const dispatch = useDispatch()
   const walletTermsAcknowledged = useSafePageSelector(
-    PageSelectors.walletTermsAcknowledged
+    PageSelectors.walletTermsAcknowledged,
   )
 
   // state
   const [isResponsibilityCheckboxChecked, setIsResponsibilityCheckboxChecked] =
     React.useState(walletTermsAcknowledged)
   const [isTermsCheckboxChecked, setIsTermsCheckboxChecked] = React.useState(
-    walletTermsAcknowledged
+    walletTermsAcknowledged,
   )
 
   // render
@@ -104,8 +102,8 @@ export const OnboardingDisclosures = () => {
               onboardingType === 'hardware'
                 ? WalletRoutes.OnboardingHardwareWalletNetworkSelection
                 : onboardingType === 'import'
-                ? WalletRoutes.OnboardingImportNetworkSelection
-                : WalletRoutes.OnboardingNewWalletNetworkSelection
+                  ? WalletRoutes.OnboardingImportNetworkSelection
+                  : WalletRoutes.OnboardingNewWalletNetworkSelection,
             )
           }}
           isDisabled={

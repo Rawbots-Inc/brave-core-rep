@@ -23,7 +23,7 @@ type GetZCashBalancePayloadType = {
 
 export const zcashEndpoints = ({
   query,
-  mutation
+  mutation,
 }: WalletApiEndpointBuilderParams) => {
   return {
     makeAccountShielded: mutation<true, MakeAccountShieldedPayloadType>({
@@ -34,29 +34,33 @@ export const zcashEndpoints = ({
 
           const { errorMessage } = await zcashWalletService.makeAccountShielded(
             accountId,
-            accountBirthdayBlock
+            accountBirthdayBlock,
           )
 
           if (errorMessage) {
             return handleEndpointError(
               endpoint,
               'Error making account shielded: ',
-              errorMessage
+              errorMessage,
             )
           }
 
           return {
-            data: true
+            data: true,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error making account shielded: ',
-            error
+            error,
           )
         }
       },
-      invalidatesTags: ['ZCashAccountInfo', 'IsShieldingAvailable']
+      invalidatesTags: [
+        'ZCashAccountInfo',
+        'IsShieldingAvailable',
+        'ZcashChainTipStatus',
+      ],
     }),
     getZCashAccountInfo: query<
       BraveWallet.ZCashAccountInfo | null,
@@ -66,47 +70,47 @@ export const zcashEndpoints = ({
         try {
           const { zcashWalletService } = baseQuery(undefined).data
 
-          const { accountInfo } = await zcashWalletService.getZCashAccountInfo(
-            args
-          )
+          const { accountInfo } =
+            await zcashWalletService.getZCashAccountInfo(args)
 
           return {
-            data: accountInfo
+            data: accountInfo,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error getting ZCash account info: ',
-            error
+            error,
           )
         }
       },
-      providesTags: ['ZCashAccountInfo']
+      providesTags: ['ZCashAccountInfo'],
     }),
     getZCashBalance: query<
-    BraveWallet.ZCashBalance | null,
-    GetZCashBalancePayloadType
+      BraveWallet.ZCashBalance | null,
+      GetZCashBalancePayloadType
     >({
       queryFn: async (args, { endpoint }, _extraOptions, baseQuery) => {
         try {
           const { zcashWalletService } = baseQuery(undefined).data
 
           const { balance } = await zcashWalletService.getBalance(
-            args.chainId, args.accountId
+            args.chainId,
+            args.accountId,
           )
 
           return {
-            data: balance
+            data: balance,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error getting ZCash balance info: ',
-            error
+            error,
           )
         }
       },
-      providesTags: ['ZCashBalance']
+      providesTags: ['ZCashBalance'],
     }),
     getIsShieldingAvailable: query<boolean, BraveWallet.AccountId[]>({
       queryFn: async (args, { endpoint }, _extraOptions, baseQuery) => {
@@ -117,25 +121,55 @@ export const zcashEndpoints = ({
             args,
             10,
             async (accountId: BraveWallet.AccountId) =>
-              await zcashWalletService.getZCashAccountInfo(accountId)
+              await zcashWalletService.getZCashAccountInfo(accountId),
           )
 
           return {
             data: !accountInfos.some(
-              (info) => info.accountInfo?.accountShieldBirthday
-            )
+              (info) => info.accountInfo?.accountShieldBirthday,
+            ),
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error getting is shielding available: ',
-            error
+            error,
           )
         }
       },
-      providesTags: ['IsShieldingAvailable']
+      providesTags: ['IsShieldingAvailable'],
     }),
+    getAvailableShieldedAccount: query<
+      BraveWallet.ZCashAccountInfo | null,
+      BraveWallet.AccountId[]
+    >({
+      queryFn: async (args, { endpoint }, _extraOptions, baseQuery) => {
+        try {
+          const { zcashWalletService } = baseQuery(undefined).data
 
+          const accountInfos = await mapLimit(
+            args,
+            10,
+            async (accountId: BraveWallet.AccountId) =>
+              await zcashWalletService.getZCashAccountInfo(accountId),
+          )
+
+          return {
+            data:
+              accountInfos.filter(
+                (info) => info.accountInfo?.accountShieldBirthday,
+              )[0]?.accountInfo ?? null,
+          }
+        } catch (error) {
+          return handleEndpointError(
+            endpoint,
+            'Error getting available shielded account: ',
+            error,
+          )
+        }
+      },
+      providesTags: ['AvailableShieldedAccount'],
+    }),
     getChainTipStatus: query<
       BraveWallet.ZCashChainTipStatus | null,
       BraveWallet.AccountId
@@ -146,21 +180,21 @@ export const zcashEndpoints = ({
 
           const { status } = await zcashWalletService.getChainTipStatus(
             args,
-            BraveWallet.Z_CASH_MAINNET
+            BraveWallet.Z_CASH_MAINNET,
           )
 
           return {
-            data: status
+            data: status,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error getting Zcash Chain Tip Status info: ',
-            error
+            error,
           )
         }
       },
-      providesTags: ['ZcashChainTipStatus']
+      providesTags: ['ZcashChainTipStatus'],
     }),
 
     startShieldSync: mutation<true, BraveWallet.AccountId>({
@@ -170,37 +204,45 @@ export const zcashEndpoints = ({
 
           const { errorMessage } = await zcashWalletService.startShieldSync(
             args,
-            0
+            0,
           )
 
           if (errorMessage) {
             return handleEndpointError(
               endpoint,
               'Error starting shield sync: ',
-              errorMessage
+              errorMessage,
             )
           }
 
           return {
-            data: true
+            data: true,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error starting shield sync: ',
-            error
+            error,
           )
         }
       },
-      invalidatesTags: ['IsSyncInProgress']
+      invalidatesTags: ['IsSyncInProgress'],
     }),
     clearChainTipStatusCache: mutation<true, void>({
       queryFn: async (_args, { endpoint }, _extraOptions, baseQuery) => {
-          return {
-            data: true
-          }
+        return {
+          data: true,
+        }
       },
-      invalidatesTags: ['ZcashChainTipStatus']
+      invalidatesTags: ['ZcashChainTipStatus'],
+    }),
+    clearZCashBalanceCache: mutation<true, void>({
+      queryFn: async (_args, { endpoint }, _extraOptions, baseQuery) => {
+        return {
+          data: true,
+        }
+      },
+      invalidatesTags: ['ZCashBalance'],
     }),
     stopShieldSync: mutation<true, BraveWallet.AccountId>({
       queryFn: async (args, { endpoint }, _extraOptions, baseQuery) => {
@@ -213,22 +255,26 @@ export const zcashEndpoints = ({
             return handleEndpointError(
               endpoint,
               'Error stopping shield sync: ',
-              errorMessage
+              errorMessage,
             )
           }
 
           return {
-            data: true
+            data: true,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error stopping shield sync: ',
-            error
+            error,
           )
         }
       },
-      invalidatesTags: ['ZcashChainTipStatus', 'IsSyncInProgress', 'TokenBalances']
+      invalidatesTags: [
+        'ZcashChainTipStatus',
+        'IsSyncInProgress',
+        'TokenBalances',
+      ],
     }),
 
     getIsSyncInProgress: query<boolean, BraveWallet.AccountId>({
@@ -237,17 +283,17 @@ export const zcashEndpoints = ({
           const { zcashWalletService } = baseQuery(undefined).data
           const { result } = await zcashWalletService.isSyncInProgress(args)
           return {
-            data: result
+            data: result,
           }
         } catch (error) {
           return handleEndpointError(
             endpoint,
             'Error getting is sync in progress: ',
-            error
+            error,
           )
         }
       },
-      providesTags: ['IsSyncInProgress']
-    })
+      providesTags: ['IsSyncInProgress'],
+    }),
   }
 }

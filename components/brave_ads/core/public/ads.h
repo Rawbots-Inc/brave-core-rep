@@ -12,7 +12,7 @@
 #include "base/values.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
-#include "brave/components/brave_ads/core/public/ads_observer_interface.h"
+#include "brave/components/brave_ads/core/public/ads_observer.h"
 #include "brave/components/brave_ads/core/public/service/ads_service_callback.h"
 
 namespace base {
@@ -37,8 +37,7 @@ class Ads {
       AdsClient& ads_client,
       const base::FilePath& database_path);
 
-  virtual void AddObserver(
-      std::unique_ptr<AdsObserverInterface> ads_observer) = 0;
+  virtual void AddObserver(std::unique_ptr<AdsObserver> ads_observer) = 0;
 
   virtual void SetSysInfo(mojom::SysInfoPtr mojom_sys_info) = 0;
 
@@ -95,11 +94,11 @@ class Ads {
       mojom::InlineContentAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) = 0;
 
-  // Called to parse and save creative new tab page ads. The callback takes one
-  // argument - `bool` is set to `true` if successful otherwise `false`.
-  virtual void ParseAndSaveCreativeNewTabPageAds(
+  // Called to parse and save new tab page ads. The callback takes one argument
+  // - `bool` is set to `true` if successful otherwise `false`.
+  virtual void ParseAndSaveNewTabPageAds(
       base::Value::Dict dict,
-      ParseAndSaveCreativeNewTabPageAdsCallback callback) = 0;
+      ParseAndSaveNewTabPageAdsCallback callback) = 0;
 
   // Called to serve a new tab page ad. The callback takes one argument -
   // `NewTabPageAdInfo` containing the info for the ad.
@@ -117,6 +116,7 @@ class Ads {
   virtual void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       mojom::NewTabPageAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) = 0;
 

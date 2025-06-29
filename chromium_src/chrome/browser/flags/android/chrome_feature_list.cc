@@ -4,10 +4,11 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "base/feature_override.h"
-#include "brave/browser/android/background_video/features.h"
 #include "brave/browser/android/safe_browsing/features.h"
+#include "brave/browser/android/youtube_script_injector/features.h"
 #include "brave/browser/brave_browser_features.h"
 #include "brave/components/ai_chat/core/common/features.h"
+#include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_feature.h"
 #include "brave/components/brave_news/common/features.h"
 #include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_search_conversion/features.h"
@@ -16,6 +17,7 @@
 #include "brave/components/brave_wallet/common/features.h"
 #include "brave/components/debounce/core/common/features.h"
 #include "brave/components/google_sign_in_permission/features.h"
+#include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/playlist/common/features.h"
 #include "brave/components/request_otr/common/features.h"
 #include "brave/components/speedreader/common/features.h"
@@ -46,7 +48,7 @@
     &playlist::features::kPlaylist,                                     \
     &download::features::kParallelDownloading,                          \
     &preferences::features::kBraveBackgroundVideoPlayback,              \
-    &brave_rewards::features::kNewRewardsUIFeature,                     \
+    &preferences::features::kBravePictureInPictureForYouTubeVideos,     \
     &request_otr::features::kBraveRequestOTRTab,                        \
     &safe_browsing::features::kBraveAndroidSafeBrowsing,                \
     &speedreader::kSpeedreaderFeature,                                  \
@@ -60,7 +62,9 @@
     &brave_shields::features::kBraveLocalhostAccessPermission,          \
     &brave_shields::features::kBlockAllCookiesToggle,                   \
     &brave_shields::features::kBraveShieldsElementPicker,               \
-    &features::kNewAndroidOnboarding
+    &features::kNewAndroidOnboarding,                                   \
+    &brave_ads::kNewTabPageAdFeature,                                   \
+    &ntp_background_images::features::kBraveNTPBrandedWallpaperSurveyPanelist
 
 // clang-format on
 

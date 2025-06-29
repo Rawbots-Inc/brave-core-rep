@@ -18,22 +18,8 @@ namespace brave_ads {
 
 class AdsClientNotifierObserver : public base::CheckedObserver {
  public:
-  AdsClientNotifierObserver();
-
-  AdsClientNotifierObserver(const AdsClientNotifierObserver&) = delete;
-  AdsClientNotifierObserver& operator=(const AdsClientNotifierObserver&) =
-      delete;
-
-  ~AdsClientNotifierObserver() override;
-
   // Called when ads did initialize.
   virtual void OnNotifyDidInitializeAds() {}
-
-  // Called when the user changes the locale of their operating system. This
-  // call is not required if the operating system restarts the browser when
-  // changing the locale. `locale` should be specified in either
-  // <ISO-639-1>-<ISO-3166-1> or <ISO-639-1>_<ISO-3166-1> format.
-  virtual void OnNotifyLocaleDidChange(const std::string& locale) {}
 
   // Invoked when a preference has changed for the specified `path`.
   virtual void OnNotifyPrefDidChange(const std::string& path) {}

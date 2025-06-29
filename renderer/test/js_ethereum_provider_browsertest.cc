@@ -14,6 +14,7 @@
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/browser/json_rpc_service.h"
 #include "brave/components/brave_wallet/browser/keyring_service.h"
+#include "brave/components/brave_wallet/common/brave_wallet_types.h"
 #include "brave/components/constants/brave_paths.h"
 #include "build/build_config.h"
 #include "chrome/browser/profiles/profile.h"
@@ -32,7 +33,6 @@
 #include "url/gurl.h"
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
-#include "brave/browser/ethereum_remote_client/ethereum_remote_client_constants.h"
 #include "chrome/browser/extensions/extension_service.h"
 #include "extensions/browser/extension_system.h"
 #include "extensions/common/extension.h"
@@ -345,11 +345,10 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest,
 
   scoped_refptr<const extensions::Extension> extension(
       extensions::ExtensionBuilder("MetaMask")
-          .SetID(kMetamaskExtensionId)
+          .SetID(brave_wallet::kMetamaskExtensionId)
           .Build());
-  extensions::ExtensionSystem::Get(browser()->profile())
-      ->extension_service()
-      ->AddExtension(extension.get());
+  extensions::ExtensionRegistrar::Get(browser()->profile())
+      ->AddExtension(extension);
 
   brave_wallet::SetDefaultEthereumWallet(
       browser()->profile()->GetPrefs(),
@@ -376,11 +375,10 @@ IN_PROC_BROWSER_TEST_F(JSEthereumProviderBrowserTest,
 
   scoped_refptr<const extensions::Extension> extension(
       extensions::ExtensionBuilder("MetaMask")
-          .SetID(kMetamaskExtensionId)
+          .SetID(brave_wallet::kMetamaskExtensionId)
           .Build());
-  extensions::ExtensionSystem::Get(browser()->profile())
-      ->extension_service()
-      ->AddExtension(extension.get());
+  extensions::ExtensionRegistrar::Get(browser()->profile())
+      ->AddExtension(extension);
 
   brave_wallet::SetDefaultEthereumWallet(
       browser()->profile()->GetPrefs(),

@@ -8,7 +8,6 @@
 #include <string>
 
 #include "brave/browser/brave_shields/brave_shields_web_contents_observer.h"
-#include "brave/browser/ethereum_remote_client/buildflags/buildflags.h"
 #include "brave/browser/new_tab/new_tab_shows_options.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
 #include "brave/browser/translate/brave_translate_prefs_migration.h"
@@ -18,7 +17,6 @@
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_chat/core/common/pref_names.h"
 #include "brave/components/brave_adaptive_captcha/brave_adaptive_captcha_service.h"
-#include "brave/components/brave_ads/browser/analytics/p2a/p2a.h"
 #include "brave/components/brave_ads/core/public/prefs/obsolete_pref_util.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_registry.h"
 #include "brave/components/brave_news/browser/brave_news_controller.h"
@@ -40,13 +38,14 @@
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_prefs.h"
 #include "brave/components/brave_wayback_machine/buildflags/buildflags.h"
-#include "brave/components/brave_webtorrent/browser/buildflags/buildflags.h"
 #include "brave/components/constants/pref_names.h"
+#include "brave/components/containers/buildflags/buildflags.h"
 #include "brave/components/de_amp/common/pref_names.h"
 #include "brave/components/debounce/core/browser/debounce_service.h"
 #include "brave/components/ipfs/ipfs_prefs.h"
 #include "brave/components/ntp_background_images/browser/view_counter_service.h"
 #include "brave/components/ntp_background_images/buildflags/buildflags.h"
+#include "brave/components/ntp_background_images/common/view_counter_pref_registry.h"
 #include "brave/components/omnibox/browser/brave_omnibox_prefs.h"
 #include "brave/components/request_otr/common/buildflags/buildflags.h"
 #include "brave/components/search_engines/brave_prepopulated_engines.h"
@@ -76,17 +75,8 @@
 #include "extensions/buildflags/buildflags.h"
 #include "third_party/widevine/cdm/buildflags.h"
 
-#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
-#include "brave/components/brave_webtorrent/browser/webtorrent_util.h"
-#endif
-
 #if BUILDFLAG(ENABLE_BRAVE_WAYBACK_MACHINE)
 #include "brave/components/brave_wayback_machine/pref_names.h"
-#endif
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-#include "brave/browser/ethereum_remote_client/ethereum_remote_client_constants.h"
-#include "brave/browser/ethereum_remote_client/pref_names.h"
 #endif
 
 #if !BUILDFLAG(USE_GCM_FROM_PLATFORM)
@@ -134,6 +124,10 @@ using extensions::FeatureSwitch;
 
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
 #include "brave/browser/ntp_background/ntp_background_prefs.h"
+#endif
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+#include "brave/components/containers/core/browser/prefs.h"
 #endif
 
 namespace brave {
@@ -193,8 +187,7 @@ void RegisterProfilePrefsForMigration(
 #endif
 
   // Added 2023-09
-  ntp_background_images::ViewCounterService::RegisterProfilePrefsForMigration(
-      registry);
+  ntp_background_images::RegisterProfilePrefsForMigration(registry);
 
   // Added 2023-11
   brave_sync::Prefs::RegisterProfilePrefsForMigration(registry);
@@ -212,6 +205,11 @@ void RegisterProfilePrefsForMigration(
 
   // Added 2024-07
   registry->RegisterBooleanPref(kHangoutsEnabled, false);
+
+  // Added 2025-05
+#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
+  registry->RegisterBooleanPref(kWebTorrentEnabled, false);
+#endif
 }
 
 void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
@@ -264,11 +262,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterBooleanPref(brave_shields::prefs::kAdBlockDeveloperMode,
                                 false);
 
-  // WebTorrent
-#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
-  webtorrent::RegisterProfilePrefs(registry);
-#endif
-
 #if BUILDFLAG(ENABLE_BRAVE_WAYBACK_MACHINE)
   registry->RegisterBooleanPref(kBraveWaybackMachineEnabled, true);
 #endif
@@ -279,7 +272,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 #if BUILDFLAG(IS_ANDROID)
   registry->RegisterBooleanPref(kDesktopModeEnabled, false);
   registry->RegisterBooleanPref(kPlayYTVideoInBrowserEnabled, true);
-  registry->RegisterBooleanPref(kBackgroundVideoPlaybackEnabled, false);
+  registry->RegisterBooleanPref(kBackgroundVideoPlaybackEnabled, true);
   registry->RegisterBooleanPref(kSafetynetCheckFailed, false);
   registry->RegisterStringPref(kSafetynetStatus, "");
   // clear default popular sites
@@ -348,10 +341,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->SetDefaultPrefValue(policy::policy_prefs::kHideWebStoreIcon,
                                 base::Value(true));
 
-  // Disable Chromium's privacy sandbox
-  registry->SetDefaultPrefValue(prefs::kPrivacySandboxApisEnabled,
-                                base::Value(false));
-
   // Importer: selected data types
   registry->RegisterBooleanPref(kImportDialogExtensions, true);
   registry->RegisterBooleanPref(kImportDialogPayments, true);
@@ -379,13 +368,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
   NTPBackgroundPrefs::RegisterPref(registry);
-#endif
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-  registry->RegisterIntegerPref(kERCPrefVersion, 0);
-  registry->RegisterStringPref(kERCAES256GCMSivNonce, "");
-  registry->RegisterStringPref(kERCEncryptedSeed, "");
-  registry->RegisterBooleanPref(kERCOptedIntoCryptoWallets, false);
 #endif
 
   // Brave Wallet
@@ -443,7 +425,6 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 
 #if !BUILDFLAG(IS_ANDROID)
   BraveOmniboxClientImpl::RegisterProfilePrefs(registry);
-  brave_ads::RegisterP2APrefs(registry);
 
   // Turn on most visited mode on NTP by default.
   // We can turn customization mode on when we have add-shortcut feature.
@@ -495,6 +476,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
 
 #if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
   web_discovery::WebDiscoveryService::RegisterProfilePrefs(registry);
+#endif
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+  containers::RegisterProfilePrefs(registry);
 #endif
 }
 

@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "brave/browser/ephemeral_storage/ephemeral_storage_service_factory.h"
 #include "brave/components/brave_wallet/browser/permission_utils.h"
 #include "brave/components/ephemeral_storage/ephemeral_storage_service.h"
@@ -43,7 +44,8 @@ PermissionOriginLifetimeMonitorImpl::SubscribeToPermissionOriginDestruction(
 
   url::Origin sub_request_origin;
   bool is_sub_request_origin = false;
-  for (auto type : {RequestType::kBraveEthereum, RequestType::kBraveSolana}) {
+  for (auto type : {RequestType::kBraveEthereum, RequestType::kBraveSolana,
+                    RequestType::kBraveCardano}) {
     if (brave_wallet::ParseRequestingOriginFromSubRequest(
             type, url::Origin::Create(requesting_origin), &sub_request_origin,
             nullptr)) {

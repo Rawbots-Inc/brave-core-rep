@@ -34,21 +34,22 @@ namespace brave_ads {
 
 class AdsService;
 
-class AdsTabHelper : public content::WebContentsObserver,
+class AdsTabHelper final : public content::WebContentsObserver,
 #if !BUILDFLAG(IS_ANDROID)
-                     public BrowserListObserver,
+                           public BrowserListObserver,
 #endif
-                     public content::WebContentsUserData<AdsTabHelper> {
+                           public content::WebContentsUserData<AdsTabHelper> {
  public:
-  explicit AdsTabHelper(content::WebContents* const);
-  ~AdsTabHelper() override;
+  explicit AdsTabHelper(content::WebContents*);
 
   AdsTabHelper(const AdsTabHelper&) = delete;
   AdsTabHelper& operator=(const AdsTabHelper&) = delete;
 
+  ~AdsTabHelper() override;
+
   AdsService* ads_service() { return ads_service_; }
 
-  void SetAdsServiceForTesting(AdsService* const ads_service);
+  void SetAdsServiceForTesting(AdsService* ads_service);
 
  private:
   friend class content::WebContentsUserData<AdsTabHelper>;
@@ -61,17 +62,6 @@ class AdsTabHelper : public content::WebContentsObserver,
   void MaybeSetBrowserIsActive();
   void MaybeSetBrowserIsNoLongerActive();
 
-  // Returns 'false' if the navigation was a back/forward navigation or a
-  // reload, otherwise 'true'.
-  bool IsNewNavigation(content::NavigationHandle* const navigation_handle);
-
-  // NOTE: DO NOT use this method before the navigation commit as it will return
-  // null. It is safe to use from `WebContentsObserver::DidFinishNavigation()`.
-  std::optional<int> HttpStatusCode(
-      content::NavigationHandle* const navigation_handle);
-
-  bool IsErrorPage(int http_status_code) const;
-
   void ProcessNavigation();
   void ProcessSameDocumentNavigation();
   void ResetNavigationState();
@@ -80,7 +70,7 @@ class AdsTabHelper : public content::WebContentsObserver,
   void MaybeNotifyBrowserDidResignActive();
 
   void MaybeNotifyUserGestureEventTriggered(
-      content::NavigationHandle* const navigation_handle);
+      content::NavigationHandle* navigation_handle);
 
   void MaybeNotifyTabDidChange();
 

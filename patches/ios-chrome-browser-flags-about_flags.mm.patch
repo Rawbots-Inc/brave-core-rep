@@ -1,8 +1,8 @@
 diff --git a/ios/chrome/browser/flags/about_flags.mm b/ios/chrome/browser/flags/about_flags.mm
-index 603f55e72885aa25eecf6d5e3278cb268d4fb561..1228bdfd4fe267704a1fae6981133feb2e2214b1 100644
+index a910ac677bcfb62a4286ce82e3c4f81e594d7874..9ef7612372250a3eb070936d6ca47e52bfa24ac9 100644
 --- a/ios/chrome/browser/flags/about_flags.mm
 +++ b/ios/chrome/browser/flags/about_flags.mm
-@@ -1290,6 +1290,7 @@ const FeatureEntry::FeatureVariation kDeprecateFeedHeaderVariations[] = {
+@@ -1447,6 +1447,7 @@ const FeatureEntry::FeatureVariation kGLICPromoConsentVariations[] = {
  //
  // When adding a new choice, add it to the end of the list.
  const flags_ui::FeatureEntry kFeatureEntries[] = {

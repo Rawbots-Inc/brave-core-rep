@@ -15,13 +15,17 @@
 #include "base/functional/callback.h"
 #include "base/functional/callback_forward.h"
 #include "base/types/expected.h"
-#include "brave/components/ai_chat/core/browser/engine/remote_completion_client.h"
-#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
+#include "brave/components/ai_chat/core/browser/types.h"
+#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 
 namespace ai_chat {
+class Tool;
+
 namespace mojom {
 class ModelOptions;
 }  // namespace mojom
+
+class ModelService;
 
 // Abstract class for using AI completion engines to generate various specific
 // styles of completion. The engines could be local (invoked directly via a
@@ -33,19 +37,41 @@ class EngineConsumer {
   using SuggestedQuestionsCallback =
       base::OnceCallback<void(SuggestedQuestionResult)>;
 
-  using GenerationResult = base::expected<std::string, mojom::APIError>;
+  struct GenerationResultData {
+    GenerationResultData(mojom::ConversationEntryEventPtr event,
+                         std::optional<std::string>&& model_key);
+    ~GenerationResultData();
+
+    GenerationResultData(GenerationResultData&&);
+    GenerationResultData& operator=(GenerationResultData&&);
+    GenerationResultData(const GenerationResultData&) = delete;
+    GenerationResultData& operator=(const GenerationResultData&) = delete;
+
+    bool operator==(const GenerationResultData&) const = default;
+
+    mojom::ConversationEntryEventPtr event;
+    std::optional<std::string> model_key;
+  };
+
+  using GenerationResult =
+      base::expected<GenerationResultData, mojom::APIError>;
 
   using GenerationDataCallback =
-      base::RepeatingCallback<void(mojom::ConversationEntryEventPtr)>;
+      base::RepeatingCallback<void(GenerationResultData)>;
 
   using GenerationCompletedCallback =
       base::OnceCallback<void(GenerationResult)>;
 
   using ConversationHistory = std::vector<mojom::ConversationTurnPtr>;
 
+  using GetSuggestedTopicsCallback = base::OnceCallback<void(
+      base::expected<std::vector<std::string>, mojom::APIError>)>;
+  using GetFocusTabsCallback = base::OnceCallback<void(
+      base::expected<std::vector<std::string>, mojom::APIError>)>;
+
   static std::string GetPromptForEntry(const mojom::ConversationTurnPtr& entry);
 
-  EngineConsumer();
+  explicit EngineConsumer(ModelService* model_service);
   EngineConsumer(const EngineConsumer&) = delete;
   EngineConsumer& operator=(const EngineConsumer&) = delete;
   virtual ~EngineConsumer();
@@ -61,6 +87,8 @@ class EngineConsumer {
       const std::string& page_content,
       const ConversationHistory& conversation_history,
       const std::string& selected_language,
+      const std::vector<base::WeakPtr<Tool>>& tools,
+      std::optional<std::string_view> preferred_tool_name,
       GenerationDataCallback data_received_callback,
       GenerationCompletedCallback completed_callback) = 0;
 
@@ -86,6 +114,16 @@ class EngineConsumer {
 
   virtual void UpdateModelOptions(const mojom::ModelOptions& options) = 0;
 
+  // Given a list of tabs, return a list of suggested topics from the server.
+  virtual void GetSuggestedTopics(const std::vector<Tab>& tabs,
+                                  GetSuggestedTopicsCallback callback) = 0;
+  // Given a list of tabs and a specific topic, return a list of tabs to be
+  // focused on from the server.
+  virtual void GetFocusTabs(const std::vector<Tab>& tabs,
+                            const std::string& topic,
+                            GetFocusTabsCallback callback) = 0;
+  virtual const std::string& GetModelName() const;
+
   void SetMaxAssociatedContentLengthForTesting(
       uint32_t max_associated_content_length) {
     max_associated_content_length_ = max_associated_content_length;
@@ -100,6 +138,8 @@ class EngineConsumer {
   bool CanPerformCompletionRequest(
       const ConversationHistory& conversation_history) const;
   uint32_t max_associated_content_length_ = 0;
+  std::string model_name_ = "";
+  raw_ptr<ModelService> model_service_;
 };
 
 }  // namespace ai_chat

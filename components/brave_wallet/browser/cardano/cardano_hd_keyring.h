@@ -6,6 +6,7 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_CARDANO_CARDANO_HD_KEYRING_H_
 #define BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_CARDANO_CARDANO_HD_KEYRING_H_
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
@@ -15,6 +16,9 @@
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 
 namespace brave_wallet {
+
+inline constexpr uint32_t kCardanoSignatureSize =
+    kEd25519PublicKeySize + kEd25519SignatureSize;
 
 // Keyring based on SLIP-0023 keys.
 class CardanoHDKeyring {
@@ -30,6 +34,11 @@ class CardanoHDKeyring {
       const mojom::CardanoKeyId& payment_key_id);
 
   std::optional<std::string> AddNewHDAccount(uint32_t index);
+
+  std::optional<std::array<uint8_t, kCardanoSignatureSize>> SignMessage(
+      uint32_t account,
+      const mojom::CardanoKeyId& key_id,
+      base::span<const uint8_t> message);
 
   mojom::KeyringId keyring_id() const { return keyring_id_; }
   bool IsTestnet() const;

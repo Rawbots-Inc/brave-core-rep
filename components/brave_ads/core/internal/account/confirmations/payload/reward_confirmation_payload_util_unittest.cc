@@ -27,26 +27,22 @@ TEST_F(BraveAdsRewardConfirmationPayloadUtilTest,
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
   const RewardInfo reward = test::BuildReward(*confirmation);
 
-  // Act
-  const base::Value::Dict reward_confirmation_payload =
-      BuildRewardConfirmationPayload(reward);
-
-  // Assert
+  // Act &s Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "blindedPaymentTokens": [
                         "Ev5JE4/9TZI/5TqyN9JWfJ1To0HBwQw2rWeAPcdjX3Q="
                       ],
                       "publicKey": "RJ2i/o/pZkrH+i0aGEMY1G9FXtd7Q7gfRi3YdNRnDDk="
-                    })"),
-            reward_confirmation_payload);
+                    })JSON"),
+            BuildRewardConfirmationPayload(reward));
 }
 
 }  // namespace brave_ads

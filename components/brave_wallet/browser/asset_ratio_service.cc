@@ -11,9 +11,11 @@
 #include <utility>
 
 #include "base/base64.h"
+#include "base/containers/fixed_flat_map.h"
 #include "base/environment.h"
 #include "base/json/json_writer.h"
-#include "base/no_destructor.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "brave/components/api_request_helper/api_request_helper.h"
 #include "brave/components/brave_wallet/browser/asset_ratio_response_parser.h"
@@ -100,17 +102,19 @@ std::vector<std::string> VectorToLowerCase(const std::vector<std::string>& v) {
   return v_lower;
 }
 
-std::optional<std::string> ChainIdToStripeChainId(const std::string& chain_id) {
-  static base::NoDestructor<base::flat_map<std::string, std::string>>
-      chain_id_lookup({{brave_wallet::mojom::kMainnetChainId, "ethereum"},
-                       {brave_wallet::mojom::kSolanaMainnet, "solana"},
-                       {brave_wallet::mojom::kPolygonMainnetChainId, "polygon"},
-                       {brave_wallet::mojom::kBitcoinMainnet, "bitcoin"}});
-  if (!chain_id_lookup->contains(chain_id)) {
+std::optional<std::string_view> ChainIdToStripeChainId(
+    std::string_view chain_id) {
+  static constexpr auto kChainIdLookup =
+      base::MakeFixedFlatMap<std::string_view, std::string_view>(
+          {{brave_wallet::mojom::kMainnetChainId, "ethereum"},
+           {brave_wallet::mojom::kSolanaMainnet, "solana"},
+           {brave_wallet::mojom::kPolygonMainnetChainId, "polygon"},
+           {brave_wallet::mojom::kBitcoinMainnet, "bitcoin"}});
+  if (!kChainIdLookup.contains(chain_id)) {
     return std::nullopt;
   }
 
-  return chain_id_lookup->at(chain_id);
+  return kChainIdLookup.at(chain_id);
 }
 
 }  // namespace
@@ -181,7 +185,8 @@ GURL AssetRatioService::GetSardineBuyURL(const std::string& chain_id,
                                          const std::string& amount,
                                          const std::string& currency_code,
                                          const std::string& auth_token) {
-  const std::string sardine_network_name = GetSardineNetworkName(chain_id);
+  std::string_view sardine_network_name =
+      GetSardineNetworkName(chain_id).value_or(std::string_view());
   GURL url = GURL(kSardineStorefrontBaseURL);
   url = net::AppendQueryParameter(url, "address", address);
   url = net::AppendQueryParameter(url, "network", sardine_network_name);
@@ -414,7 +419,7 @@ void AssetRatioService::GetStripeBuyURL(
     const std::string& chain_id,
     const std::string& destination_currency) {
   // Convert the frontend supplied chain ID to the chain ID used by Stripe
-  std::optional<std::string> destination_network =
+  std::optional<std::string_view> destination_network =
       ChainIdToStripeChainId(chain_id);
   if (!destination_network) {
     std::move(callback).Run("", "UNSUPPORTED_CHAIN_ID");
@@ -517,7 +522,7 @@ GURL AssetRatioService::GetCoinMarketsURL(const std::string& vs_asset,
                                          ? GetAssetRatioBaseURL().c_str()
                                          : base_url_for_test_.spec().c_str()));
   url = net::AppendQueryParameter(url, "vsCurrency", vs_asset);
-  url = net::AppendQueryParameter(url, "limit", std::to_string(limit));
+  url = net::AppendQueryParameter(url, "limit", base::NumberToString(limit));
   return url;
 }
 

@@ -26,7 +26,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/metrics/field_trial_params.h"
 #include "base/no_destructor.h"
-#include "base/notreached.h"
 #include "base/numerics/clamped_math.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
@@ -34,6 +33,7 @@
 #include "base/values.h"
 #include "brave/brave_domains/service_domains.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_credential_manager.h"
+#include "brave/components/ai_chat/core/browser/model_service.h"
 #include "brave/components/ai_chat/core/common/buildflags/buildflags.h"
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
@@ -87,100 +87,8 @@ net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
     )");
 }
 
-mojom::ConversationEntryEventPtr ParseResponseEvent(
-    base::Value::Dict& response_event) {
-  const std::string* type = response_event.FindString("type");
-  if (!type) {
-    return nullptr;
-  }
-  // Vary response parsing based on type
-  if (*type == "completion") {
-    const std::string* completion = response_event.FindString("completion");
-    if (!completion) {
-      return nullptr;
-    }
-    return mojom::ConversationEntryEvent::NewCompletionEvent(
-        mojom::CompletionEvent::New(*completion));
-  } else if (*type == "isSearching") {
-    return mojom::ConversationEntryEvent::NewSearchStatusEvent(
-        mojom::SearchStatusEvent::New());
-  } else if (*type == "searchQueries") {
-    const base::Value::List* queries = response_event.FindList("queries");
-    if (!queries) {
-      return nullptr;
-    }
-    auto event = mojom::SearchQueriesEvent::New();
-    for (auto& item : *queries) {
-      if (item.is_string()) {
-        event->search_queries.push_back(item.GetString());
-      }
-    }
-    return mojom::ConversationEntryEvent::NewSearchQueriesEvent(
-        std::move(event));
-  } else if (*type == "webSources") {
-    const base::Value::List* sources = response_event.FindList("sources");
-    if (!sources) {
-      return nullptr;
-    }
-    auto event = mojom::WebSourcesEvent::New();
-    for (auto& item : *sources) {
-      if (!item.is_dict()) {
-        continue;
-      }
-      const base::Value::Dict& source = item.GetDict();
-      const std::string* title = source.FindString("title");
-      const std::string* url = source.FindString("url");
-      const std::string* favicon_url = source.FindString("favicon");
-      if (!title || !url || !favicon_url) {
-        DVLOG(2) << "Missing required fields in web source event: "
-                 << item.DebugString();
-        continue;
-      }
-      GURL item_url(*url);
-      GURL item_favicon_url(*favicon_url);
-      if (!item_url.is_valid() || !item_favicon_url.is_valid()) {
-        DVLOG(2) << "Invalid URL in webSource event: " << item.DebugString();
-        continue;
-      }
-      // Validate favicon is private source
-      if (!item_favicon_url.SchemeIs(url::kHttpsScheme) ||
-          base::CompareCaseInsensitiveASCII(item_favicon_url.host_piece(),
-                                            kAllowedWebSourceFaviconHost) !=
-              0) {
-        DVLOG(2) << "webSource event contained disallowed host or scheme: "
-                 << item.DebugString();
-        continue;
-      }
-      event->sources.push_back(
-          mojom::WebSource::New(*title, item_url, item_favicon_url));
-    }
-    if (event->sources.empty()) {
-      return nullptr;
-    }
-    return mojom::ConversationEntryEvent::NewSourcesEvent(std::move(event));
-  } else if (*type == "conversationTitle") {
-    const std::string* title = response_event.FindString("title");
-    if (!title) {
-      return nullptr;
-    }
-    return mojom::ConversationEntryEvent::NewConversationTitleEvent(
-        mojom::ConversationTitleEvent::New(*title));
-  } else if (*type == "selectedLanguage") {
-    const std::string* selected_language =
-        response_event.FindString("language");
-    if (!selected_language) {
-      return nullptr;
-    }
-    return mojom::ConversationEntryEvent::NewSelectedLanguageEvent(
-        mojom::SelectedLanguageEvent::New(*selected_language));
-  }
-  // Server will provide different types of events. From time to time, new
-  // types of events will be introduced and we should ignore unknown ones.
-  return nullptr;
-}
-
 base::Value::List ConversationEventsToList(
-    const std::vector<ConversationEvent>& conversation) {
+    std::vector<ConversationEvent> conversation) {
   static const base::NoDestructor<std::map<mojom::CharacterType, std::string>>
       kRoleMap({{mojom::CharacterType::HUMAN, "user"},
                 {mojom::CharacterType::ASSISTANT, "assistant"}});
@@ -200,7 +108,14 @@ base::Value::List ConversationEventsToList(
            {ConversationEventType::RequestSuggestedActions,
             "requestSuggestedActions"},
            {ConversationEventType::SuggestedActions, "suggestedActions"},
-           {ConversationEventType::UploadImage, "uploadImage"}});
+           {ConversationEventType::GetSuggestedTopicsForFocusTabs,
+            "suggestFocusTopics"},
+           {ConversationEventType::DedupeTopics, "dedupeFocusTopics"},
+           {ConversationEventType::GetSuggestedAndDedupeTopicsForFocusTabs,
+            "suggestAndDedupeFocusTopics"},
+           {ConversationEventType::GetFocusTabsForTopic, "classifyTabs"},
+           {ConversationEventType::UploadImage, "uploadImage"},
+           {ConversationEventType::PageScreenshot, "pageScreenshot"}});
 
   base::Value::List events;
   for (const auto& event : conversation) {
@@ -216,7 +131,22 @@ base::Value::List ConversationEventsToList(
     CHECK(type_it != kTypeMap->end());
     event_dict.Set("type", type_it->second);
 
-    event_dict.Set("content", event.content);
+    if (event.content.empty()) {
+      event_dict.Set("content", "");
+    } else if (event.content.size() == 1) {
+      event_dict.Set("content", event.content.front());
+    } else {
+      base::Value::List content_list;
+      for (const auto& content : event.content) {
+        content_list.Append(content);
+      }
+      event_dict.Set("content", std::move(content_list));
+    }
+
+    if (event.type == ConversationEventType::GetFocusTabsForTopic) {
+      event_dict.Set("topic", event.topic);
+    }
+
     events.Append(std::move(event_dict));
   }
   return events;
@@ -251,11 +181,29 @@ GURL GetEndpointUrl(bool premium, const std::string& path) {
 
 }  // namespace
 
+ConversationAPIClient::ConversationEvent::ConversationEvent(
+    mojom::CharacterType role,
+    ConversationEventType type,
+    const std::vector<std::string>& content,
+    const std::string& topic)
+    : role(role), type(type), content(content), topic(topic) {}
+ConversationAPIClient::ConversationEvent::ConversationEvent() = default;
+ConversationAPIClient::ConversationEvent::~ConversationEvent() = default;
+
+ConversationAPIClient::ConversationEvent::ConversationEvent(
+    ConversationAPIClient::ConversationEvent&& other) = default;
+
+ConversationAPIClient::ConversationEvent& ConversationEvent::operator=(
+    ConversationAPIClient::ConversationEvent&& other) = default;
+
 ConversationAPIClient::ConversationAPIClient(
     const std::string& model_name,
     scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
-    AIChatCredentialManager* credential_manager)
-    : model_name_(model_name), credential_manager_(credential_manager) {
+    AIChatCredentialManager* credential_manager,
+    ModelService* model_service)
+    : model_name_(model_name),
+      credential_manager_(credential_manager),
+      model_service_(model_service) {
   CHECK(!model_name_.empty());
   api_request_helper_ = std::make_unique<api_request_helper::APIRequestHelper>(
       GetNetworkTrafficAnnotationTag(), url_loader_factory);
@@ -268,27 +216,29 @@ void ConversationAPIClient::ClearAllQueries() {
 }
 
 void ConversationAPIClient::PerformRequest(
-    const std::vector<ConversationEvent>& conversation,
+    std::vector<ConversationEvent> conversation,
     const std::string& selected_language,
     GenerationDataCallback data_received_callback,
-    GenerationCompletedCallback completed_callback) {
+    GenerationCompletedCallback completed_callback,
+    const std::optional<std::string>& model_name) {
   // Get credentials and then perform request
-  auto callback =
-      base::BindOnce(&ConversationAPIClient::PerformRequestWithCredentials,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(conversation),
-                     selected_language, std::move(data_received_callback),
-                     std::move(completed_callback));
+  auto callback = base::BindOnce(
+      &ConversationAPIClient::PerformRequestWithCredentials,
+      weak_ptr_factory_.GetWeakPtr(), std::move(conversation),
+      selected_language, model_name, std::move(data_received_callback),
+      std::move(completed_callback));
   credential_manager_->FetchPremiumCredential(std::move(callback));
 }
 
 std::string ConversationAPIClient::CreateJSONRequestBody(
-    const std::vector<ConversationEvent>& conversation,
+    std::vector<ConversationEvent> conversation,
     const std::string& selected_language,
+    const std::optional<std::string>& model_name,
     const bool is_sse_enabled) {
   base::Value::Dict dict;
 
-  dict.Set("events", ConversationEventsToList(conversation));
-  dict.Set("model", model_name_);
+  dict.Set("events", ConversationEventsToList(std::move(conversation)));
+  dict.Set("model", model_name ? *model_name : model_name_);
   dict.Set("selected_language", selected_language);
   dict.Set("system_language",
            base::StrCat({brave_l10n::GetDefaultISOLanguageCodeString(), "_",
@@ -296,6 +246,9 @@ std::string ConversationAPIClient::CreateJSONRequestBody(
   base::StrCat({brave_l10n::GetDefaultISOLanguageCodeString(), "_",
                 brave_l10n::GetDefaultISOCountryCodeString()});
   dict.Set("stream", is_sse_enabled);
+#if !BUILDFLAG(IS_IOS)
+  dict.Set("use_citations", true);
+#endif
 
   std::string json;
   base::JSONWriter::Write(dict, &json);
@@ -303,8 +256,9 @@ std::string ConversationAPIClient::CreateJSONRequestBody(
 }
 
 void ConversationAPIClient::PerformRequestWithCredentials(
-    const std::vector<ConversationEvent>& conversation,
-    const std::string selected_language,
+    std::vector<ConversationEvent> conversation,
+    const std::string& selected_language,
+    const std::optional<std::string>& model_name,
     GenerationDataCallback data_received_callback,
     GenerationCompletedCallback completed_callback,
     std::optional<CredentialCacheEntry> credential) {
@@ -324,7 +278,7 @@ void ConversationAPIClient::PerformRequestWithCredentials(
   const bool is_sse_enabled =
       ai_chat::features::kAIChatSSE.Get() && !data_received_callback.is_null();
   const std::string request_body = CreateJSONRequestBody(
-      std::move(conversation), selected_language, is_sse_enabled);
+      std::move(conversation), selected_language, model_name, is_sse_enabled);
 
   base::flat_map<std::string, std::string> headers;
   const auto digest_header = brave_service_keys::GetDigestHeader(request_body);
@@ -376,11 +330,13 @@ void ConversationAPIClient::PerformRequestWithCredentials(
 void ConversationAPIClient::OnQueryCompleted(
     std::optional<CredentialCacheEntry> credential,
     GenerationCompletedCallback callback,
-    APIRequestResult result) {
+    api_request_helper::APIRequestResult result) {
   const bool success = result.Is2XXResponseCode();
   // Handle successful request
   if (success) {
     std::string completion = "";
+    std::optional<std::string> model_key = std::nullopt;
+    mojom::ConversationEntryEventPtr completion_event = nullptr;
     // We're checking for a value body in case for non-streaming API results.
     // TODO(petemill): server should provide parseable history events even for
     // non-streaming requests?
@@ -391,9 +347,19 @@ void ConversationAPIClient::OnQueryCompleted(
         // Trimming necessary for Llama 2 which prepends responses with a " ".
         completion = base::TrimWhitespaceASCII(*value, base::TRIM_ALL);
       }
+
+      const std::string* model_value =
+          result.value_body().GetDict().FindString("model");
+      if (model_value) {
+        model_key = model_service_->GetLeoModelKeyByName(*model_value);
+      }
     }
 
-    std::move(callback).Run(base::ok(std::move(completion)));
+    completion_event = mojom::ConversationEntryEvent::NewCompletionEvent(
+        mojom::CompletionEvent::New(completion));
+    GenerationResultData data(std::move(completion_event),
+                              std::move(model_key));
+    std::move(callback).Run(base::ok(std::move(data)));
     return;
   }
 
@@ -422,10 +388,135 @@ void ConversationAPIClient::OnQueryDataReceived(
   if (!result.has_value() || !result->is_dict()) {
     return;
   }
-  auto event = ParseResponseEvent(result->GetDict());
-  if (event) {
-    callback.Run(std::move(event));
+  auto result_data = ParseResponseEvent(result->GetDict(), model_service_);
+  if (result_data) {
+    callback.Run(std::move(*result_data));
   }
+}
+
+// static
+std::optional<ConversationAPIClient::GenerationResultData>
+ConversationAPIClient::ParseResponseEvent(base::Value::Dict& response_event,
+                                          ModelService* model_service) {
+  mojom::ConversationEntryEventPtr event;
+  const std::string* model = response_event.FindString("model");
+  if (!model) {
+    return std::nullopt;
+  }
+
+  const std::string* type = response_event.FindString("type");
+  if (!type) {
+    return std::nullopt;
+  }
+
+  // Vary response parsing based on type
+  if (*type == "completion") {
+    const std::string* completion = response_event.FindString("completion");
+    if (!completion) {
+      return std::nullopt;
+    }
+    event = mojom::ConversationEntryEvent::NewCompletionEvent(
+        mojom::CompletionEvent::New(*completion));
+  } else if (*type == "isSearching") {
+    event = mojom::ConversationEntryEvent::NewSearchStatusEvent(
+        mojom::SearchStatusEvent::New());
+  } else if (*type == "searchQueries") {
+    const base::Value::List* queries = response_event.FindList("queries");
+    if (!queries) {
+      return std::nullopt;
+    }
+    auto search_queries_event = mojom::SearchQueriesEvent::New();
+    for (auto& item : *queries) {
+      if (item.is_string()) {
+        search_queries_event->search_queries.push_back(item.GetString());
+      }
+    }
+    event = mojom::ConversationEntryEvent::NewSearchQueriesEvent(
+        std::move(search_queries_event));
+  } else if (*type == "webSources") {
+    const base::Value::List* sources = response_event.FindList("sources");
+    if (!sources) {
+      return std::nullopt;
+    }
+    auto web_sources_event = mojom::WebSourcesEvent::New();
+    for (auto& item : *sources) {
+      if (!item.is_dict()) {
+        continue;
+      }
+      const base::Value::Dict& source = item.GetDict();
+      const std::string* title = source.FindString("title");
+      const std::string* url = source.FindString("url");
+      const std::string* favicon_url = source.FindString("favicon");
+      if (!title || !url) {
+        DVLOG(2) << "Missing required fields in web source event: "
+                 << item.DebugString();
+        continue;
+      }
+      GURL item_url(*url);
+      GURL item_favicon_url =
+          favicon_url
+              ? GURL(*favicon_url)
+              : GURL("chrome-untrusted://resources/brave-icons/globe.svg");
+
+      if (!item_url.is_valid() || !item_favicon_url.is_valid()) {
+        DVLOG(2) << "Invalid URL in webSource event: " << item.DebugString();
+        continue;
+      }
+      // Validate favicon is private source
+      if (favicon_url && (!item_favicon_url.SchemeIs(url::kHttpsScheme) ||
+                          base::CompareCaseInsensitiveASCII(
+                              item_favicon_url.host_piece(),
+                              kAllowedWebSourceFaviconHost) != 0)) {
+        DVLOG(2) << "webSource event contained disallowed host or scheme: "
+                 << item.DebugString();
+        continue;
+      }
+      web_sources_event->sources.push_back(
+          mojom::WebSource::New(*title, item_url, item_favicon_url));
+    }
+    if (web_sources_event->sources.empty()) {
+      return std::nullopt;
+    }
+    event = mojom::ConversationEntryEvent::NewSourcesEvent(
+        std::move(web_sources_event));
+  } else if (*type == "conversationTitle") {
+    const std::string* title = response_event.FindString("title");
+    if (!title) {
+      return std::nullopt;
+    }
+    event = mojom::ConversationEntryEvent::NewConversationTitleEvent(
+        mojom::ConversationTitleEvent::New(*title));
+  } else if (*type == "selectedLanguage") {
+    const std::string* selected_language =
+        response_event.FindString("language");
+    if (!selected_language) {
+      return std::nullopt;
+    }
+    event = mojom::ConversationEntryEvent::NewSelectedLanguageEvent(
+        mojom::SelectedLanguageEvent::New(*selected_language));
+  } else if (*type == "contentReceipt") {
+    std::optional<int> total_tokens_opt =
+        response_event.FindInt("total_tokens");
+    uint64_t total_tokens =
+        total_tokens_opt.has_value() && total_tokens_opt.value() >= 0
+            ? static_cast<uint64_t>(total_tokens_opt.value())
+            : 0;
+    std::optional<int> trimmed_tokens_opt =
+        response_event.FindInt("trimmed_tokens");
+    uint64_t trimmed_tokens =
+        trimmed_tokens_opt.has_value() && trimmed_tokens_opt.value() >= 0
+            ? static_cast<uint64_t>(trimmed_tokens_opt.value())
+            : 0;
+    event = mojom::ConversationEntryEvent::NewContentReceiptEvent(
+        mojom::ContentReceiptEvent::New(total_tokens, trimmed_tokens));
+  } else {
+    // Server will provide different types of events. From time to time, new
+    // types of events will be introduced and we should ignore unknown ones.
+    return std::nullopt;
+  }
+
+  return GenerationResultData(std::move(event),
+                              model_service->GetLeoModelKeyByName(*model));
 }
 
 }  // namespace ai_chat

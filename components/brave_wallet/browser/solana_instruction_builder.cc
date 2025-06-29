@@ -5,9 +5,11 @@
 
 #include "brave/components/brave_wallet/browser/solana_instruction_builder.h"
 
+#include <array>
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/containers/span.h"
 #include "base/containers/span_writer.h"
 #include "base/numerics/safe_conversions.h"

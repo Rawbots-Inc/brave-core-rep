@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "brave/browser/ui/tabs/split_view_browser_data.h"
-#include "brave/browser/ui/views/frame/vertical_tab_strip_region_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_region_view.h"
 #include "chrome/browser/ui/views/tabs/dragging/tab_drag_controller.h"
 
 class TabDragController : public TabDragControllerChromium {
@@ -22,19 +22,17 @@ class TabDragController : public TabDragControllerChromium {
   // So, just hide Chromium's Init and make clients use this version
   Liveness Init(TabDragContext* source_context,
                 TabSlotView* source_view,
-                const std::vector<raw_ptr<TabSlotView, VectorExperimental>>&
-                    dragging_views,
+                const std::vector<TabSlotView*>& dragging_views,
                 const gfx::Point& mouse_offset,
                 int source_view_offset,
                 ui::ListSelectionModel initial_selection_model,
                 ui::mojom::DragEventSource event_source);
 
   // TabDragControllerChromium:
-  gfx::Point GetAttachedDragPoint(const gfx::Point& point_in_screen) override;
-  void MoveAttached(const gfx::Point& point_in_screen,
-                    bool just_attached) override;
   views::Widget* GetAttachedBrowserWidget() override;
-
+  gfx::Vector2d CalculateWindowDragOffset() override;
+  void StartDraggingTabsSession(bool initial_move,
+                                gfx::Point start_point_in_screen) override;
   Liveness GetLocalProcessWindow(const gfx::Point& screen_point,
                                  bool exclude_dragged_view,
                                  gfx::NativeWindow* window) override;
@@ -42,21 +40,13 @@ class TabDragController : public TabDragControllerChromium {
   void DetachAndAttachToNewContext(ReleaseCapture release_capture,
                                    TabDragContext* target_context) override;
 
-  gfx::Rect CalculateNonMaximizedDraggedBrowserBounds(
-      views::Widget* widget,
-      const gfx::Point& point_in_screen) override;
-  gfx::Rect CalculateDraggedBrowserBounds(
-      TabDragContext* source,
-      const gfx::Point& point_in_screen,
-      std::vector<gfx::Rect>* drag_bounds) override;
   [[nodiscard]] Liveness ContinueDragging(
       const gfx::Point& point_in_screen) override;
-
-  void InitDragData(TabSlotView* view, TabDragData* drag_data) override;
 
  private:
   gfx::Vector2d GetVerticalTabStripWidgetOffset();
 
+  gfx::Point mouse_offset_;
   bool is_showing_vertical_tabs_ = false;
 
   VerticalTabStripRegionView::ScopedStateResetter vertical_tab_state_resetter_;

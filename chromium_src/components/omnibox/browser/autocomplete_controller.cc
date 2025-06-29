@@ -9,15 +9,17 @@
 #include <memory>
 #include <vector>
 
+#include "base/check.h"
 #include "base/memory/scoped_refptr.h"
-#include "base/strings/string_util.h"
 #include "brave/components/ai_chat/core/browser/utils.h"
+#include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/brave_search_conversion/utils.h"
 #include "brave/components/commander/common/buildflags/buildflags.h"
 #include "brave/components/omnibox/browser/brave_bookmark_provider.h"
 #include "brave/components/omnibox/browser/brave_history_quick_provider.h"
 #include "brave/components/omnibox/browser/brave_history_url_provider.h"
 #include "brave/components/omnibox/browser/brave_local_history_zero_suggest_provider.h"
+#include "brave/components/omnibox/browser/brave_on_device_head_provider.h"
 #include "brave/components/omnibox/browser/brave_search_provider.h"
 #include "brave/components/omnibox/browser/brave_shortcuts_provider.h"
 #include "brave/components/omnibox/browser/leo_provider.h"
@@ -78,15 +80,22 @@ void MaybeAddLeoProvider(AutocompleteController::Providers& providers,
   }
 }
 
+}  // namespace
+
+namespace ai_chat {
+
 void MaybeShowLeoMatch(AutocompleteResult* result) {
   DCHECK(result);
 
-  // Regardless of the relevance score, we want to show the Leo match at the
-  // bottom. But could be followed by Brave Search promotion.
-  result->MoveMatchToBeLast(&LeoProvider::IsMatchFromLeoProvider);
+  // If we're not in AI first mode, regardless of the relevance score, we want
+  // to show the Leo match at the bottom. But could be followed by Brave Search
+  // promotion.
+  if (!ai_chat::features::IsAIChatFirstEnabled()) {
+    result->MoveMatchToBeLast(&LeoProvider::IsMatchFromLeoProvider);
+  }
 }
 
-}  // namespace
+}  // namespace ai_chat
 
 #define SearchProvider BraveSearchProvider
 #define HistoryQuickProvider BraveHistoryQuickProvider
@@ -94,6 +103,7 @@ void MaybeShowLeoMatch(AutocompleteResult* result) {
 #define LocalHistoryZeroSuggestProvider BraveLocalHistoryZeroSuggestProvider
 #define BookmarkProvider BraveBookmarkProvider
 #define ShortcutsProvider BraveShortcutsProvider
+#define OnDeviceHeadProvider BraveOnDeviceHeadProvider
 #define BRAVE_AUTOCOMPLETE_CONTROLLER_AUTOCOMPLETE_CONTROLLER         \
   MaybeAddCommanderProvider(providers_, this);                        \
   MaybeAddLeoProvider(providers_, this);                              \
@@ -106,7 +116,7 @@ void MaybeShowLeoMatch(AutocompleteResult* result) {
 // the AutocompleteController::SortCullAndAnnotateResult() to make our sorting
 // run last but before notifying.
 #define BRAVE_AUTOCOMPLETE_CONTROLLER_UPDATE_RESULT \
-  MaybeShowLeoMatch(&internal_result_);             \
+  ai_chat::MaybeShowLeoMatch(&internal_result_);    \
   SortBraveSearchPromotionMatch(&internal_result_); \
   MaybeShowCommands(&internal_result_, input_);
 
@@ -114,6 +124,7 @@ void MaybeShowLeoMatch(AutocompleteResult* result) {
 
 #undef BRAVE_AUTOCOMPLETE_CONTROLLER_UPDATE_RESULT
 #undef BRAVE_AUTOCOMPLETE_CONTROLLER_AUTOCOMPLETE_CONTROLLER
+#undef OnDeviceHeadProvider
 #undef ShortcutsProvider
 #undef BookmarkProvider
 #undef LocalHistoryZeroSuggestProvider

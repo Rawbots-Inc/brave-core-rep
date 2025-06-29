@@ -17,29 +17,29 @@ import { WalletSelectors } from '../selectors'
 // Hooks
 import {
   useGetIsSyncInProgressQuery,
-  useClearChainTipStatusCacheMutation
+  useClearChainTipStatusCacheMutation,
+  useClearZCashBalanceCacheMutation,
 } from '../slices/api.slice'
 
 export const useIsAccountSyncing = (accountId?: BraveWallet.AccountId) => {
   // State
-  const [syncingId, setSyncingId] = React.useState<
-    string | undefined
-  >()
+  const [syncingId, setSyncingId] = React.useState<string | undefined>()
   const [clearChainTipStatusCache] = useClearChainTipStatusCacheMutation()
+  const [clearZCashBalanceCache] = useClearZCashBalanceCacheMutation()
 
   // Selectors
   const isZCashShieldedTransactionsEnabled = useSafeWalletSelector(
-    WalletSelectors.isZCashShieldedTransactionsEnabled
+    WalletSelectors.isZCashShieldedTransactionsEnabled,
   )
 
   // Queries
   const { data: isSyncAlreadyInProgress } = useGetIsSyncInProgressQuery(
-    isZCashShieldedTransactionsEnabled &&
-      !syncingId &&
-      accountId &&
-      accountId.coin === BraveWallet.CoinType.ZEC
+    isZCashShieldedTransactionsEnabled
+      && !syncingId
+      && accountId
+      && accountId.coin === BraveWallet.CoinType.ZEC
       ? accountId
-      : skipToken
+      : skipToken,
   )
 
   // Effects
@@ -53,20 +53,21 @@ export const useIsAccountSyncing = (accountId?: BraveWallet.AccountId) => {
         },
         onSyncStop: (id: BraveWallet.AccountId) => {
           clearChainTipStatusCache()
+          clearZCashBalanceCache()
           if (accountId && accountId.uniqueKey === id.uniqueKey) {
             setSyncingId('')
           }
         },
         onSyncStatusUpdate: () => {},
-        onSyncError: () => {}
+        onSyncError: () => {},
       })
 
     getAPIProxy().zcashWalletService.addObserver(
-      zcashWalletServiceObserver.$.bindNewPipeAndPassRemote()
+      zcashWalletServiceObserver.$.bindNewPipeAndPassRemote(),
     )
 
     return () => zcashWalletServiceObserver.$.close()
-  }, [accountId, clearChainTipStatusCache])
+  }, [accountId, clearChainTipStatusCache, clearZCashBalanceCache])
 
   return syncingId === undefined
     ? isSyncAlreadyInProgress

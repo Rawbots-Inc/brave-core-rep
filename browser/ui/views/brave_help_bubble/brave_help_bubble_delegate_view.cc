@@ -8,6 +8,7 @@
 #include <array>
 #include <utility>
 
+#include "base/check.h"
 #include "base/strings/utf_string_conversions.h"
 #include "components/grit/brave_components_strings.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -36,10 +37,9 @@ class BorderWithArrow : public views::BubbleBorder {
  public:
   enum BubbleArrowPart { kFill, kBorder };
 
-  explicit BorderWithArrow(Arrow arrow, ui::ColorId color_id)
-      : views::BubbleBorder(arrow,
-                            BubbleBorder::Shadow::STANDARD_SHADOW,
-                            color_id) {
+  explicit BorderWithArrow(Arrow arrow, ui::ColorVariant color_id)
+      : views::BubbleBorder(arrow, BubbleBorder::Shadow::STANDARD_SHADOW) {
+    SetColor(color_id);
     set_visible_arrow(true);
   }
 
@@ -88,7 +88,7 @@ class BorderWithArrow : public views::BubbleBorder {
         GetVisibleArrowPath(arrow(), arrow_bounds, BubbleArrowPart::kBorder),
         flags);
 
-    flags.setColor(color());
+    flags.setColor(color().ResolveToSkColor(view.GetColorProvider()));
     flags.setStyle(cc::PaintFlags::kFill_Style);
     flags.setStrokeWidth(1.0);
     flags.setAntiAlias(true);
@@ -151,7 +151,7 @@ BraveHelpBubbleDelegateView::BraveHelpBubbleDelegateView(
   SetButtons(static_cast<int>(ui::mojom::DialogButton::kNone));
   set_shadow(BubbleBorder::Shadow::STANDARD_SHADOW);
   set_corner_radius(10);
-  set_color(kBgColor);
+  SetBackgroundColor(kBgColor);
   SetLayoutManager(std::make_unique<views::BoxLayout>(
       views::BoxLayout::Orientation::kVertical));
 
@@ -180,11 +180,11 @@ BraveHelpBubbleDelegateView::CreateNonClientFrameView(views::Widget* widget) {
   CHECK(frame);
 
   std::unique_ptr<BorderWithArrow> border =
-      std::make_unique<BorderWithArrow>(arrow(), color());
-  border->SetColor(color());
+      std::make_unique<BorderWithArrow>(arrow(), background_color());
+  border->SetColor(background_color());
 
   if (GetParams().round_corners) {
-    border->SetCornerRadius(GetCornerRadius());
+    border->set_rounded_corners(gfx::RoundedCornersF(GetCornerRadius()));
   }
 
   static_cast<BubbleFrameView*>(frame.get())

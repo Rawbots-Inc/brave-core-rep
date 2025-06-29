@@ -14,7 +14,6 @@
 #include "brave/components/brave_ads/core/internal/settings/settings.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_handler_util.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 
 namespace brave_ads {
 
@@ -43,7 +42,7 @@ void MaybeBuildAndSaveCreativeSetConversion(
     return;
   }
 
-  if (const std::optional<CreativeSetConversionInfo> creative_set_conversion =
+  if (std::optional<CreativeSetConversionInfo> creative_set_conversion =
           FromMojomMaybeBuildCreativeSetConversion(mojom_creative_ad)) {
     database::SaveCreativeSetConversions({*creative_set_conversion});
   }
@@ -57,11 +56,6 @@ bool IsAllowedToFireAdEvent(
   if (UserHasJoinedBraveRewards()) {
     // Always allowed to fire events for Rewards users.
     return true;
-  }
-
-  if (!ShouldAlwaysTriggerSearchResultAdEvents()) {
-    // Not allowed to fire events for non-Rewards users.
-    return false;
   }
 
   if (mojom_ad_event_type != mojom::SearchResultAdEventType::kClicked) {

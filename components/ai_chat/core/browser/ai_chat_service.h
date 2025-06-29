@@ -14,6 +14,7 @@
 #include <ostream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "base/callback_list.h"
@@ -32,6 +33,7 @@
 #include "brave/components/ai_chat/core/browser/conversation_handler.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
+#include "brave/components/ai_chat/core/common/mojom/tab_tracker.mojom.h"
 #include "brave/components/skus/common/skus_sdk.mojom.h"
 #include "components/keyed_service/core/keyed_service.h"
 #include "components/prefs/pref_change_registrar.h"
@@ -54,18 +56,25 @@ class SharedURLLoaderFactory;
 namespace ai_chat {
 
 class ModelService;
+class TabTrackerService;
 class AIChatMetrics;
 
 // Main entry point for creating and consuming AI Chat conversations
 class AIChatService : public KeyedService,
                       public mojom::Service,
-                      public ConversationHandler::Observer {
+                      public ConversationHandler::Observer,
+                      public mojom::TabDataObserver {
  public:
   using SkusServiceGetter =
       base::RepeatingCallback<mojo::PendingRemote<skus::mojom::SkusService>()>;
+  using GetSuggestedTopicsCallback = base::OnceCallback<void(
+      base::expected<std::vector<std::string>, mojom::APIError>)>;
+  using GetFocusTabsCallback = base::OnceCallback<void(
+      base::expected<std::vector<std::string>, mojom::APIError>)>;
 
   AIChatService(
       ModelService* model_service,
+      TabTrackerService* tab_tracker_service,
       std::unique_ptr<AIChatCredentialManager> ai_chat_credential_manager,
       PrefService* profile_prefs,
       AIChatMetrics* ai_chat_metrics,
@@ -87,17 +96,22 @@ class AIChatService : public KeyedService,
   // ConversationHandler::Observer
   void OnRequestInProgressChanged(ConversationHandler* handler,
                                   bool in_progress) override;
-  void OnConversationEntryAdded(
-      ConversationHandler* handler,
-      mojom::ConversationTurnPtr& entry,
-      std::optional<std::string_view> associated_content_value) override;
+  void OnConversationEntryAdded(ConversationHandler* handler,
+                                mojom::ConversationTurnPtr& entry,
+                                std::optional<std::vector<std::string_view>>
+                                    maybe_associated_content) override;
   void OnConversationEntryRemoved(ConversationHandler* handler,
                                   std::string entry_uuid) override;
   void OnClientConnectionChanged(ConversationHandler* handler) override;
   void OnConversationTitleChanged(const std::string& conversation_uuid,
                                   const std::string& title) override;
-  void OnAssociatedContentDestroyed(ConversationHandler* handler,
-                                    int content_id) override;
+  void OnConversationTokenInfoChanged(const std::string& conversation_uuid,
+                                      uint64_t total_tokens,
+                                      uint64_t trimmed_tokens) override;
+  void OnAssociatedContentUpdated(ConversationHandler* handler) override;
+
+  // mojom::TabDataObserver
+  void TabDataChanged(std::vector<mojom::TabDataPtr> tab_data) override;
 
   // Adds new conversation and returns the handler
   ConversationHandler* CreateConversation();
@@ -111,16 +125,14 @@ class AIChatService : public KeyedService,
   // is an ephemeral identifier for active browser content.
   ConversationHandler* GetOrCreateConversationHandlerForContent(
       int associated_content_id,
-      base::WeakPtr<ConversationHandler::AssociatedContentDelegate>
-          associated_content);
+      base::WeakPtr<AssociatedContentDelegate> associated_content);
 
   // Creates and owns a new ConversationHandler and associated with the provided
   // content ID. |associated_content_id| should not be stored. It
   // is an ephemeral identifier for active browser content.
   ConversationHandler* CreateConversationHandlerForContent(
       int associated_content_id,
-      base::WeakPtr<ConversationHandler::AssociatedContentDelegate>
-          associated_content);
+      base::WeakPtr<AssociatedContentDelegate> associated_content);
 
   // Removes all in-memory and persisted data for all conversations
   void DeleteConversations(std::optional<base::Time> begin_time = std::nullopt,
@@ -133,20 +145,26 @@ class AIChatService : public KeyedService,
       base::OnceCallback<void(bool)> callback = base::DoNothing());
 
   void OpenConversationWithStagedEntries(
-      base::WeakPtr<ConversationHandler::AssociatedContentDelegate>
-          associated_content,
+      base::WeakPtr<AssociatedContentDelegate> associated_content,
       base::OnceClosure open_ai_chat);
 
-  void AssociateContent(ConversationHandler::AssociatedContentDelegate* content,
-                        const std::string& conversation_uuid);
+  void MaybeAssociateContent(AssociatedContentDelegate* content,
+                             const std::string& conversation_uuid);
+  void DisassociateContent(AssociatedContentDelegate* content,
+                           const std::string& conversation_uuid);
+
+  void GetFocusTabs(const std::vector<Tab>& tabs,
+                    const std::string& topic,
+                    GetFocusTabsCallback callback);
+  void GetSuggestedTopics(const std::vector<Tab>& tabs,
+                          GetSuggestedTopicsCallback callback);
 
   // mojom::Service
   void MarkAgreementAccepted() override;
   void EnableStoragePref() override;
   void DismissStorageNotice() override;
   void DismissPremiumPrompt() override;
-  void GetVisibleConversations(
-      GetVisibleConversationsCallback callback) override;
+  void GetConversations(GetConversationsCallback callback) override;
   void GetActionMenuList(GetActionMenuListCallback callback) override;
   void GetPremiumStatus(GetPremiumStatusCallback callback) override;
   void DeleteConversation(const std::string& id) override;
@@ -171,7 +189,15 @@ class AIChatService : public KeyedService,
   bool IsAIChatHistoryEnabled();
 
   std::unique_ptr<EngineConsumer> GetDefaultAIEngine();
+  std::unique_ptr<EngineConsumer> GetEngineForModel(
+      const std::string& model_key);
 
+  std::unique_ptr<EngineConsumer> GetEngineForTabOrganization();
+
+  void SetCredentialManagerForTesting(
+      std::unique_ptr<AIChatCredentialManager> credential_manager) {
+    credential_manager_ = std::move(credential_manager);
+  }
   AIChatCredentialManager* GetCredentialManagerForTesting() {
     return credential_manager_.get();
   }
@@ -179,7 +205,27 @@ class AIChatService : public KeyedService,
 
   size_t GetInMemoryConversationCountForTesting();
 
+  EngineConsumer* GetTabOrganizationEngineForTesting() {
+    return tab_organization_engine_.get();
+  }
+
+  void SetTabOrganizationEngineForTesting(
+      std::unique_ptr<EngineConsumer> engine) {
+    tab_organization_engine_ = std::move(engine);
+  }
+
+  void SetTabTrackerServiceForTesting(TabTrackerService* tab_tracker_service) {
+    tab_tracker_service_ = tab_tracker_service;
+  }
+
+  void SetDatabaseForTesting(
+      base::SequenceBound<std::unique_ptr<AIChatDatabase>> db) {
+    ai_chat_db_ = std::move(db);
+  }
+
  private:
+  friend class AIChatServiceUnitTest;
+
   // Key is uuid
   using ConversationMap =
       std::map<std::string, mojom::ConversationPtr, std::less<>>;
@@ -197,21 +243,20 @@ class AIChatService : public KeyedService,
       base::OnceCallback<void(ConversationHandler*)> callback,
       mojom::ConversationArchivePtr data);
 
-  void MaybeAssociateContentWithConversation(
+  void MaybeAssociateContent(
       ConversationHandler* conversation,
       int associated_content_id,
-      base::WeakPtr<ConversationHandler::AssociatedContentDelegate>
-          associated_content);
+      base::WeakPtr<AssociatedContentDelegate> associated_content);
   void MaybeUnloadConversation(ConversationHandler* conversation);
-  void HandleFirstEntry(
+  void HandleFirstEntry(ConversationHandler* handler,
+                        mojom::ConversationTurnPtr& entry,
+                        std::optional<std::vector<std::string>> maybe_content,
+                        mojom::ConversationPtr& conversation);
+  void HandleNewEntry(
       ConversationHandler* handler,
       mojom::ConversationTurnPtr& entry,
-      std::optional<std::string_view> associated_content_value,
+      std::optional<std::vector<std::string>> maybe_associated_content,
       mojom::ConversationPtr& conversation);
-  void HandleNewEntry(ConversationHandler* handler,
-                      mojom::ConversationTurnPtr& entry,
-                      std::optional<std::string_view> associated_content_value,
-                      mojom::ConversationPtr& conversation);
 
   void OnUserOptedIn();
   void OnSkusServiceReceived(
@@ -225,7 +270,25 @@ class AIChatService : public KeyedService,
   mojom::ServiceStatePtr BuildState();
   void OnStateChanged();
 
+  void GetEngineForTabOrganization(base::OnceClosure callback);
+  void ContinueGetEngineForTabOrganization(base::OnceClosure callback,
+                                           mojom::PremiumStatus status,
+                                           mojom::PremiumInfoPtr info);
+  void GetSuggestedTopicsWithEngine(const std::vector<Tab>& tabs,
+                                    GetSuggestedTopicsCallback callback);
+  void GetFocusTabsWithEngine(const std::vector<Tab>& tabs,
+                              const std::string& topic,
+                              GetFocusTabsCallback callback);
+
+  void OnSuggestedTopicsReceived(
+      GetSuggestedTopicsCallback callback,
+      base::expected<std::vector<std::string>, mojom::APIError> topics);
+  void OnGetFocusTabs(
+      GetFocusTabsCallback callback,
+      base::expected<std::vector<std::string>, mojom::APIError> result);
+
   raw_ptr<ModelService> model_service_;
+  raw_ptr<TabTrackerService> tab_tracker_service_;
   raw_ptr<PrefService> profile_prefs_;
   raw_ptr<AIChatMetrics> ai_chat_metrics_;
   raw_ptr<os_crypt_async::OSCryptAsync> os_crypt_async_;
@@ -235,10 +298,13 @@ class AIChatService : public KeyedService,
   std::unique_ptr<AIChatFeedbackAPI> feedback_api_;
   std::unique_ptr<AIChatCredentialManager> credential_manager_;
 
+  // Engine for tab organization, created on demand and owned by AIChatService.
+  std::unique_ptr<ai_chat::EngineConsumer> tab_organization_engine_;
+
   base::FilePath profile_path_;
 
   // Storage for conversations
-  base::SequenceBound<AIChatDatabase> ai_chat_db_;
+  base::SequenceBound<std::unique_ptr<AIChatDatabase>> ai_chat_db_;
 
   // nullopt if haven't started fetching, empty if done fetching
   std::optional<std::vector<ConversationMapCallback>>
@@ -264,11 +330,17 @@ class AIChatService : public KeyedService,
   // associated_content_delegate_ for some time.
   std::map<int, std::string> content_conversations_;
 
+  // Cached suggested topics for users to be focused on from the latest
+  // GetSuggestedTopics call, would be cleared when there are tab data changes.
+  std::vector<std::string> cached_focus_topics_;
+
   base::ScopedMultiSourceObservation<ConversationHandler,
                                      ConversationHandler::Observer>
       conversation_observations_{this};
   mojo::ReceiverSet<mojom::Service> receivers_;
   mojo::RemoteSet<mojom::ServiceObserver> observer_remotes_;
+
+  mojo::Receiver<mojom::TabDataObserver> tab_data_observer_receiver_{this};
 
   // AIChatCredentialManager / Skus does not provide an event when
   // subscription status changes. So we cache it and fetch latest fairly

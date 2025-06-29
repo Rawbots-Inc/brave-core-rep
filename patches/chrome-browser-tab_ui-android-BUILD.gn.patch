@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/tab_ui/android/BUILD.gn b/chrome/browser/tab_ui/android/BUILD.gn
-index c35022e35ca28c695a7115e48f67a8288efe3504..63724eb23551df9709a7d74dbb98b3c0c767d9b9 100644
+index 6042bf51587dd28da45b31d3bb07c33d37f7d2c0..f949c81d06c61710716b62a0829ef8e8a6c7b70c 100644
 --- a/chrome/browser/tab_ui/android/BUILD.gn
 +++ b/chrome/browser/tab_ui/android/BUILD.gn
-@@ -23,6 +23,7 @@ android_library("java") {
+@@ -33,6 +33,7 @@ android_library("java") {
      "java/src/org/chromium/chrome/browser/tab_ui/TabUiThemeUtils.java",
      "java/src/org/chromium/chrome/browser/tab_ui/ThumbnailProvider.java",
    ]

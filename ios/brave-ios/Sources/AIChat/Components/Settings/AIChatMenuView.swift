@@ -217,7 +217,7 @@ struct AIChatMenuView: View {
       label: {
         AIChatMenuItemView(
           title: model.displayName,
-          subtitle: modelPurpose(for: model),
+          subtitle: model.purposeDescription,
           isSelected: model.key == currentModel?.key
         ) {
           switch model.options.tag {
@@ -249,26 +249,6 @@ struct AIChatMenuView: View {
     if let lastModel = modelOptions.last, model.key != lastModel.key {
       Color(braveSystemName: .dividerSubtle)
         .frame(height: 1.0)
-    }
-  }
-
-  private func modelPurpose(for model: AiChat.Model) -> String {
-    guard let modelKey = AIChatModelKey(rawValue: model.key) else {
-      return model.displayName
-    }
-
-    switch modelKey {
-    case .chatBasic:
-      return Strings.AIChat.introMessageLlamaModelPurposeDescription
-
-    case .chatExpanded:
-      return Strings.AIChat.introMessageMixtralModelPurposeDescription
-
-    case .chatClaudeHaiku:
-      return Strings.AIChat.introMessageClaudeHaikuModelPurposeDescription
-
-    case .chatClaudeSonnet:
-      return Strings.AIChat.introMessageClaudeSonnetModelPurposeDescription
     }
   }
 
@@ -305,7 +285,6 @@ struct AIChatMenuView_Preview: PreviewProvider {
             leoModelOptions: .init(
               name: "Mixtral-8x7b",
               displayMaker: "Powerful, fast and adaptive",
-              engineType: .llamaRemote,
               category: .chat,
               access: .basicAndPremium,
               maxAssociatedContentLength: 9000,
@@ -314,7 +293,8 @@ struct AIChatMenuView_Preview: PreviewProvider {
           ),
           key: "mixtral_8x7b",
           displayName: "Mixtral 8x7b",
-          visionSupport: false
+          visionSupport: false,
+          supportsTools: false
         ),
       modelOptions: [
         .init(
@@ -322,7 +302,6 @@ struct AIChatMenuView_Preview: PreviewProvider {
             leoModelOptions: .init(
               name: "Mixtral-8x7b",
               displayMaker: "Powerful, fast and adaptive",
-              engineType: .llamaRemote,
               category: .chat,
               access: .basicAndPremium,
               maxAssociatedContentLength: 9000,
@@ -331,14 +310,14 @@ struct AIChatMenuView_Preview: PreviewProvider {
           ),
           key: "mixtral_8x7b",
           displayName: "Mixtral 8x7b",
-          visionSupport: false
+          visionSupport: false,
+          supportsTools: false
         ),
         .init(
           options: .init(
             leoModelOptions: .init(
               name: "Claude-Instant",
               displayMaker: "Strength in creative tasks",
-              engineType: .claudeRemote,
               category: .chat,
               access: .basicAndPremium,
               maxAssociatedContentLength: 9000,
@@ -347,14 +326,14 @@ struct AIChatMenuView_Preview: PreviewProvider {
           ),
           key: "claude_instant",
           displayName: "Claude-Instant",
-          visionSupport: false
+          visionSupport: false,
+          supportsTools: false
         ),
         .init(
           options: .init(
             leoModelOptions: .init(
               name: "Llama-2x13b",
               displayMaker: "General purpose chat",
-              engineType: .llamaRemote,
               category: .chat,
               access: .basicAndPremium,
               maxAssociatedContentLength: 9000,
@@ -363,14 +342,14 @@ struct AIChatMenuView_Preview: PreviewProvider {
           ),
           key: "llama_2x13b",
           displayName: "Llama-2 13b",
-          visionSupport: false
+          visionSupport: false,
+          supportsTools: false
         ),
         .init(
           options: .init(
             leoModelOptions: .init(
               name: "Llama-2x70b",
               displayMaker: "Advanced and accurate chat",
-              engineType: .llamaRemote,
               category: .chat,
               access: .premium,
               maxAssociatedContentLength: 9000,
@@ -379,7 +358,8 @@ struct AIChatMenuView_Preview: PreviewProvider {
           ),
           key: "llama_2x70b",
           displayName: "Llama-2 70b",
-          visionSupport: false
+          visionSupport: false,
+          supportsTools: false
         ),
       ],
       onModelChanged: {

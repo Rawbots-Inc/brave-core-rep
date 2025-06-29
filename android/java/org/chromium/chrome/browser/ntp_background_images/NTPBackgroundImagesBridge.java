@@ -28,8 +28,8 @@ public class NTPBackgroundImagesBridge {
     private long mNativeNTPBackgroundImagesBridge;
     private final ObserverList<NTPBackgroundImageServiceObserver> mObservers =
             new ObserverList<NTPBackgroundImageServiceObserver>();
-    private static List<TopSite> mTopSites = new ArrayList<>();
-    private static NewTabPageListener mNewTabPageListener;
+    private static final List<TopSite> sTopSites = new ArrayList<>();
+    private static NewTabPageListener sNewTabPageListener;
 
     public abstract static class NTPBackgroundImageServiceObserver {
         public abstract void onUpdated();
@@ -94,10 +94,14 @@ public class NTPBackgroundImagesBridge {
     }
 
     public void wallpaperLogoClicked(Wallpaper wallpaper) {
-        NTPBackgroundImagesBridgeJni.get().wallpaperLogoClicked(
-                mNativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge.this,
-                wallpaper.getCreativeInstanceId(),
-                wallpaper.getLogoDestinationUrl(), wallpaper.getWallpaperId());
+        NTPBackgroundImagesBridgeJni.get()
+                .wallpaperLogoClicked(
+                        mNativeNTPBackgroundImagesBridge,
+                        NTPBackgroundImagesBridge.this,
+                        wallpaper.getWallpaperId(),
+                        wallpaper.getCreativeInstanceId(),
+                        wallpaper.getLogoDestinationUrl(),
+                        wallpaper.shouldMetricsFallbackToP3a());
     }
 
     public boolean isSuperReferral() {
@@ -116,9 +120,9 @@ public class NTPBackgroundImagesBridge {
     }
 
     public void getTopSites() {
-        mTopSites.clear();
-        NTPBackgroundImagesBridgeJni.get().getTopSites(
-                mNativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge.this);
+        sTopSites.clear();
+        NTPBackgroundImagesBridgeJni.get()
+                .getTopSites(mNativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge.this);
     }
 
     public String getReferralApiKey() {
@@ -127,17 +131,18 @@ public class NTPBackgroundImagesBridge {
     }
 
     public void setNewTabPageListener(NewTabPageListener newTabPageListener) {
-        mNewTabPageListener = newTabPageListener;
+        sNewTabPageListener = newTabPageListener;
     }
 
     @CalledByNative
-    public static void loadTopSitesData(String name, String destinationUrl, String backgroundColor, String imagePath) {
-        mTopSites.add(new TopSite(name, destinationUrl, backgroundColor, imagePath));
+    public static void loadTopSitesData(
+            String name, String destinationUrl, String backgroundColor, String imagePath) {
+        sTopSites.add(new TopSite(name, destinationUrl, backgroundColor, imagePath));
     }
 
     @CalledByNative
     public static void topSitesLoaded() {
-        mNewTabPageListener.updateTopSites(mTopSites);
+        sNewTabPageListener.updateTopSites(sTopSites);
     }
 
     @CalledByNative
@@ -156,7 +161,8 @@ public class NTPBackgroundImagesBridge {
             boolean isSponsored,
             String creativeInstanceId,
             String wallpaperId,
-            boolean isRichMedia) {
+            boolean isRichMedia,
+            boolean shouldMetricsFallbackToP3a) {
         return new Wallpaper(
                 imagePath,
                 focalPointX,
@@ -167,7 +173,8 @@ public class NTPBackgroundImagesBridge {
                 isSponsored,
                 creativeInstanceId,
                 wallpaperId,
-                isRichMedia);
+                isRichMedia,
+                shouldMetricsFallbackToP3a);
     }
 
     @CalledByNative
@@ -180,23 +187,33 @@ public class NTPBackgroundImagesBridge {
     @NativeMethods
     interface Natives {
         NTPBackgroundImagesBridge getInstance(Profile profile);
+
         NTPImage getCurrentWallpaper(
                 long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
-        void registerPageView(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
-        void wallpaperLogoClicked(long nativeNTPBackgroundImagesBridge,
-                                  NTPBackgroundImagesBridge caller,
-                                  String creativeInstanceId,
-                                  String destinationUrl, String wallpaperId);
-        void getTopSites(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
-        boolean isSuperReferral(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
-        String getSuperReferralThemeName(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
-        String getSuperReferralCode(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
-        String getReferralApiKey(long nativeNTPBackgroundImagesBridge,
-                              NTPBackgroundImagesBridge caller);
+
+        void registerPageView(
+                long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
+
+        void wallpaperLogoClicked(
+                long nativeNTPBackgroundImagesBridge,
+                NTPBackgroundImagesBridge caller,
+                String wallpaperId,
+                String creativeInstanceId,
+                String destinationUrl,
+                boolean shouldMetricsFallbackToP3a);
+
+        void getTopSites(long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
+
+        boolean isSuperReferral(
+                long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
+
+        String getSuperReferralThemeName(
+                long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
+
+        String getSuperReferralCode(
+                long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
+
+        String getReferralApiKey(
+                long nativeNTPBackgroundImagesBridge, NTPBackgroundImagesBridge caller);
     }
 }

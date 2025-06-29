@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.OneshotSupplier;
+import org.chromium.build.annotations.NullUnmarked;
 import org.chromium.chrome.browser.browser_controls.BrowserControlsStateProvider;
 import org.chromium.chrome.browser.lens.LensController;
 import org.chromium.chrome.browser.locale.LocaleManager;
@@ -30,6 +31,7 @@ import org.chromium.ui.permissions.PermissionCallback;
 
 import java.util.function.BooleanSupplier;
 
+@NullUnmarked // Waiting for upstream parent class to be NullMarked
 public class BraveLocationBarMediator extends LocationBarMediator {
     private WindowAndroid mWindowAndroid;
     private LocationBarLayout mLocationBarLayout;
@@ -39,7 +41,9 @@ public class BraveLocationBarMediator extends LocationBarMediator {
     private boolean mNativeInitialized;
     private boolean mIsLocationBarFocusedFromNtpScroll;
     private Context mContext;
-    private @BrandedColorScheme int mBrandedColorScheme = BrandedColorScheme.APP_DEFAULT;
+    private static final @BrandedColorScheme int BRANDED_COLOR_SCHEME =
+            BrandedColorScheme.APP_DEFAULT;
+    private OneshotSupplier<TemplateUrlService> mTemplateUrlServiceSupplier;
 
     public BraveLocationBarMediator(
             @NonNull Context context,
@@ -59,7 +63,8 @@ public class BraveLocationBarMediator extends LocationBarMediator {
             @NonNull BooleanSupplier isToolbarMicEnabledSupplier,
             @NonNull OmniboxSuggestionsDropdownEmbedderImpl dropdownEmbedder,
             @Nullable ObservableSupplier<TabModelSelector> tabModelSelectorSupplier,
-            @Nullable BrowserControlsStateProvider browserControlsStateProvider) {
+            @Nullable BrowserControlsStateProvider browserControlsStateProvider,
+            @NonNull LocationBarCoordinator.OfflineDownloader offlineDownloader) {
         super(
                 context,
                 locationBarLayout,
@@ -78,7 +83,8 @@ public class BraveLocationBarMediator extends LocationBarMediator {
                 isToolbarMicEnabledSupplier,
                 dropdownEmbedder,
                 tabModelSelectorSupplier,
-                browserControlsStateProvider);
+                browserControlsStateProvider,
+                offlineDownloader);
     }
 
     public static Class<OmniboxUma> getOmniboxUmaClass() {
@@ -114,11 +120,26 @@ public class BraveLocationBarMediator extends LocationBarMediator {
         updateQRButtonColors();
     }
 
+    @Override
+    public void onResumeWithNative() {
+        if (mTemplateUrlServiceSupplier.hasValue()
+                && !mTemplateUrlServiceSupplier.get().isLoaded()) {
+            mTemplateUrlServiceSupplier
+                    .get()
+                    .runWhenLoaded(
+                            () -> {
+                                super.onResumeWithNative();
+                            });
+            return;
+        }
+        super.onResumeWithNative();
+    }
+
     void updateQRButtonColors() {
         if (mLocationBarLayout instanceof BraveLocationBarLayout) {
             ((BraveLocationBarLayout) mLocationBarLayout)
                     .setQRButtonTint(
-                            ThemeUtils.getThemedToolbarIconTint(mContext, mBrandedColorScheme));
+                            ThemeUtils.getThemedToolbarIconTint(mContext, BRANDED_COLOR_SCHEME));
         }
     }
 

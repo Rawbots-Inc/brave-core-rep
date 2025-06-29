@@ -7,15 +7,19 @@ import BraveCore
 import Foundation
 import Preferences
 import Shared
+import Web
 import WebKit
 import os.log
 
 protocol BraveTranslateScriptHandlerDelegate: NSObject {
-  func updateTranslateURLBar(tab: Tab, state: TranslateURLBarButton.TranslateState)
-  func canShowTranslateOnboarding(tab: Tab) -> Bool
-  func showTranslateOnboarding(tab: Tab, completion: @escaping (_ translateEnabled: Bool?) -> Void)
-  func presentTranslateToast(tab: Tab, languageInfo: BraveTranslateLanguageInfo)
-  func presentTranslateError(tab: Tab)
+  func updateTranslateURLBar(tab: some TabState, state: TranslateURLBarButton.TranslateState)
+  func canShowTranslateOnboarding(tab: some TabState) -> Bool
+  func showTranslateOnboarding(
+    tab: some TabState,
+    completion: @escaping (_ translateEnabled: Bool) -> Void
+  )
+  func presentTranslateToast(tab: some TabState, languageInfo: BraveTranslateLanguageInfo)
+  func presentTranslateError(tab: some TabState)
 }
 
 class BraveTranslateScriptHandler: NSObject, TabContentScript {
@@ -26,7 +30,7 @@ class BraveTranslateScriptHandler: NSObject, TabContentScript {
   static let scriptName = "BraveTranslateScript"
   static let scriptId = UUID().uuidString
   static let messageHandlerName = "TranslateMessage"
-  static let scriptSandbox = WKContentWorld.world(name: "BraveTranslateContentWorld")
+  static let scriptSandbox = WKContentWorld.defaultClient
   static let userScript: WKUserScript? = {
     guard var script = loadUserScript(named: scriptName) else {
       return nil
@@ -55,8 +59,8 @@ class BraveTranslateScriptHandler: NSObject, TabContentScript {
     tasks.values.forEach({ $0.cancel() })
   }
 
-  static func checkTranslate(tab: Tab) {
-    tab.webView?.evaluateSafeJavaScript(
+  static func checkTranslate(tab: some TabState) {
+    tab.evaluateJavaScript(
       functionName:
         """
         try {
@@ -71,19 +75,19 @@ class BraveTranslateScriptHandler: NSObject, TabContentScript {
   }
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
     // Setup
-    let isReaderMode = tab.url?.isInternalURL(for: .readermode) == true
-    if tab.lastKnownSecureContentState != .secure && !isReaderMode {
+    let isReaderMode = tab.visibleURL?.isInternalURL(for: .readermode) == true
+    if tab.visibleSecureContentState != .secure && !isReaderMode {
       Logger.module.debug("Translation Disabled - Insecure Page")
       replyHandler(nil, BraveTranslateError.translateDisabled.rawValue)
       return
     }
 
-    if Preferences.Translate.translateEnabled.value == false {
+    if !Preferences.Translate.translateEnabled.value {
       Logger.module.debug("Translation Disabled")
       replyHandler(nil, BraveTranslateError.translateDisabled.rawValue)
       return
@@ -116,12 +120,12 @@ class BraveTranslateScriptHandler: NSObject, TabContentScript {
   }
 
   private func processScriptMessage(
-    for tab: Tab,
+    for tab: some TabState,
     command: String,
     body: [String: Any]
   ) async throws -> (Any?, String?) {
     if command == "load_brave_translate_script" {
-      if Preferences.Translate.translateEnabled.value == true {
+      if Preferences.Translate.translateEnabled.value {
         if let script = Self.elementScript {
           return (script, nil)
         }
@@ -130,7 +134,6 @@ class BraveTranslateScriptHandler: NSObject, TabContentScript {
         return (Self.elementScript, nil)
       }
 
-      try await tab.translateHelper?.setupOnboarding()
       return (nil, BraveTranslateError.translateDisabled.rawValue)
     }
 
@@ -226,11 +229,13 @@ class BraveTranslateScriptLanguageDetectionHandler: NSObject, TabContentScript {
   static let scriptName = "BraveTranslateLanguageDetectionScript"
   static let scriptId = UUID().uuidString
   static let messageHandlerName = "LanguageDetectionTextCaptured"
-  static let scriptSandbox = WKContentWorld.world(name: "BraveTranslateContentWorld")
+  // This sandbox must always be the same world as the translate script
+  // Chromium has them as separate handlers, but in the same injected script, in the same sandbox
+  static let scriptSandbox = BraveTranslateScriptHandler.scriptSandbox
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -251,11 +256,15 @@ class BraveTranslateScriptLanguageDetectionHandler: NSObject, TabContentScript {
         from: JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
       )
 
-      if message.hasNoTranslate {
+      // The page cannot be translated because it has "noTranslate" flag set,
+      // Or because the detected language code isn't valid.
+      if message.hasNoTranslate || !Locale.LanguageCode(message.htmlLang).isISOLanguage {
         translateHelper.currentLanguageInfo.pageLanguage = nil
       } else {
         translateHelper.currentLanguageInfo.pageLanguage =
-          !message.htmlLang.isEmpty ? Locale.Language(identifier: message.htmlLang) : nil
+          !message.htmlLang.isEmpty
+          ? Locale.Language(languageCode: .init(message.htmlLang))
+          : nil
       }
 
       if translateHelper.currentLanguageInfo.currentLanguage

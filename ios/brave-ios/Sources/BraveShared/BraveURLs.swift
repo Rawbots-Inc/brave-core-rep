@@ -43,6 +43,9 @@ extension URL {
     public static let braveVPNRefreshCredentials = URL(
       string: "https://account.brave.com/?intent=recover&product=vpn&ux=mobile"
     )!
+    public static let braveVPNCheckoutURL = URL(
+      string: "https://account.brave.com/?intent=checkout&product=vpn"
+    )!
     public static let safeBrowsingHelp = URL(
       string: "https://support.brave.com/hc/en-us/articles/15222663599629-Safe-Browsing-in-Brave"
     )!
@@ -57,6 +60,9 @@ extension URL {
     )!
     public static let braveLeoManageSubscriptionDev = URL(
       string: "https://account.brave.software/plans"
+    )!
+    public static let braveLeoCheckoutURL = URL(
+      string: "https://account.brave.com/?intent=checkout&product=leo"
     )!
     public static let braveLeoLinkReceiptProd = URL(
       string: "https://account.brave.com/?intent=link-order&product=leo"
@@ -74,6 +80,10 @@ extension URL {
       string:
         "https://support.brave.com/hc/en-us/articles/26727364100493-What-are-the-differences-between-Leo-s-AI-Models"
     )!
+    public static let braveLeoPrivacyFeedbackLearnMoreLinkUrl = URL(
+      string:
+        "https://brave.com/privacy/browser/#your-feedback"
+    )!
     public static let braveVPNSmartProxySupport = URL(
       string:
         "https://support.brave.com/hc/en-us/articles/32105253704333-What-is-Smart-Proxy-Routing"
@@ -81,6 +91,14 @@ extension URL {
     public static let braveVPNKillSwitchSupport = URL(
       string:
         "https://support.brave.com/hc/en-us/articles/32389914657549-What-is-the-Brave-VPN-Kill-Switch"
+    )!
+    public static let newTabTakeoverLearnMoreLinkUrl = URL(
+      string:
+        "https://support.brave.com/hc/en-us/articles/35182999599501"
+    )!
+    public static let surveyPanelistLearnMoreLinkUrl = URL(
+      string:
+        "https://support.brave.com/hc/en-us/articles/36550092449165"
     )!
   }
   public enum Apple {

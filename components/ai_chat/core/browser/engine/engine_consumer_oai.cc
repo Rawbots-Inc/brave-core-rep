@@ -26,6 +26,7 @@
 #include "base/values.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
+#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-shared.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "components/grit/brave_components_strings.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
@@ -92,31 +93,45 @@ base::Value::List BuildMessages(
   }
 
   for (const mojom::ConversationTurnPtr& turn : conversation_history) {
-    if (turn->uploaded_images) {
-      base::Value::Dict message;
-      message.Set("role", "user");
-      base::Value::List content;
-      base::Value::Dict user_message;
-      user_message.Set("type", "text");
-      user_message.Set("text", "These images are uploaded by the users");
-      content.Append(std::move(user_message));
-      size_t counter = 0;
-      // Only send the first uploaded_image becasue llama-vision seems to take
-      // the last one if there are multiple uploaded_images
-      for (const auto& uploaded_image : turn->uploaded_images.value()) {
-        if (counter++ > 0) {
-          break;
+    if (turn->uploaded_files) {
+      base::Value::List content_uploaded_images;
+      base::Value::List content_screenshots;
+      content_uploaded_images.Append(
+          base::Value::Dict()
+              .Set("type", "text")
+              .Set("text", "These images are uploaded by the user"));
+      content_screenshots.Append(
+          base::Value::Dict()
+              .Set("type", "text")
+              .Set("text", "These images are screenshots"));
+      for (const auto& uploaded_file : turn->uploaded_files.value()) {
+        if (uploaded_file->type != mojom::UploadedFileType::kImage &&
+            uploaded_file->type != mojom::UploadedFileType::kScreenshot) {
+          continue;
         }
         base::Value::Dict image;
         image.Set("type", "image_url");
         base::Value::Dict image_url_dict;
         image_url_dict.Set(
-            "url", EngineConsumer::GetImageDataURL(uploaded_image->image_data));
+            "url", EngineConsumer::GetImageDataURL(uploaded_file->data));
         image.Set("image_url", std::move(image_url_dict));
-        content.Append(std::move(image));
+        if (uploaded_file->type == mojom::UploadedFileType::kImage) {
+          content_uploaded_images.Append(std::move(image));
+        } else {
+          content_screenshots.Append(std::move(image));
+        }
       }
-      message.Set("content", std::move(content));
-      messages.Append(std::move(message));
+      if (content_uploaded_images.size() > 1) {
+        messages.Append(
+            base::Value::Dict()
+                .Set("role", "user")
+                .Set("content", std::move(content_uploaded_images)));
+      }
+      if (content_screenshots.size() > 1) {
+        messages.Append(base::Value::Dict()
+                            .Set("role", "user")
+                            .Set("content", std::move(content_screenshots)));
+      }
     }
     base::Value::Dict message;
     message.Set("role", turn->character_type == CharacterType::HUMAN
@@ -143,7 +158,9 @@ base::Value::List BuildMessages(
 
 EngineConsumerOAIRemote::EngineConsumerOAIRemote(
     const mojom::CustomModelOptions& model_options,
-    scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory) {
+    scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
+    ModelService* model_service)
+    : EngineConsumer(model_service) {
   model_options_ = model_options;
   max_associated_content_length_ = model_options.max_associated_content_length;
 
@@ -238,13 +255,21 @@ void EngineConsumerOAIRemote::GenerateQuestionSuggestions(
 void EngineConsumerOAIRemote::OnGenerateQuestionSuggestionsResponse(
     SuggestedQuestionsCallback callback,
     GenerationResult result) {
-  if (!result.has_value() || result->empty()) {
+  if (!result.has_value()) {
     // Query resulted in error
     std::move(callback).Run(base::unexpected(std::move(result.error())));
     return;
   }
 
-  base::StringTokenizer tokenizer(*result, "</>");
+  if (!result->event || !result->event->is_completion_event() ||
+      result->event->get_completion_event()->completion.empty()) {
+    // No questions were generated
+    std::move(callback).Run(base::unexpected(mojom::APIError::InternalError));
+    return;
+  }
+
+  base::StringTokenizer tokenizer(
+      result->event->get_completion_event()->completion, "</>");
   tokenizer.set_options(base::StringTokenizer::RETURN_DELIMS);
 
   std::vector<std::string> questions;
@@ -271,6 +296,8 @@ void EngineConsumerOAIRemote::GenerateAssistantResponse(
     const std::string& page_content,
     const ConversationHistory& conversation_history,
     const std::string& selected_language,
+    const std::vector<base::WeakPtr<Tool>>&,
+    std::optional<std::string_view> preferred_tool_name,
     GenerationDataCallback data_received_callback,
     GenerationCompletedCallback completed_callback) {
   if (!CanPerformCompletionRequest(conversation_history)) {
@@ -298,5 +325,17 @@ void EngineConsumerOAIRemote::GenerateAssistantResponse(
 }
 
 void EngineConsumerOAIRemote::SanitizeInput(std::string& input) {}
+
+void EngineConsumerOAIRemote::GetSuggestedTopics(
+    const std::vector<Tab>& tabs,
+    GetSuggestedTopicsCallback callback) {
+  std::move(callback).Run(base::unexpected(mojom::APIError::InternalError));
+}
+
+void EngineConsumerOAIRemote::GetFocusTabs(const std::vector<Tab>& tabs,
+                                           const std::string& topic,
+                                           GetFocusTabsCallback callback) {
+  std::move(callback).Run(base::unexpected(mojom::APIError::InternalError));
+}
 
 }  // namespace ai_chat

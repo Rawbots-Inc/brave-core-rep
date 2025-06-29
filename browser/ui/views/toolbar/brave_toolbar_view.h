@@ -6,6 +6,7 @@
 #ifndef BRAVE_BROWSER_UI_VIEWS_TOOLBAR_BRAVE_TOOLBAR_VIEW_H_
 #define BRAVE_BROWSER_UI_VIEWS_TOOLBAR_BRAVE_TOOLBAR_VIEW_H_
 
+#include "base/gtest_prod_util.h"
 #include "base/memory/raw_ptr.h"
 #include "base/scoped_observation.h"
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
@@ -56,6 +57,7 @@ class BraveToolbarView : public ToolbarView,
       const views::ViewHierarchyChangedDetails& details) override;
 
  private:
+  friend class BraveToolbarViewTest;
   FRIEND_TEST_ALL_PREFIXES(BraveToolbarViewTest, ToolbarDividerNotShownTest);
 
   void LoadImages() override;
@@ -72,6 +74,7 @@ class BraveToolbarView : public ToolbarView,
   void UpdateWalletButtonVisibility();
 
   views::View* toolbar_divider_for_testing() { return toolbar_divider_; }
+  views::View* split_tabs_for_testing() const { return split_tabs_; }
 
   raw_ptr<BraveBookmarkButton> bookmark_ = nullptr;
   // Tracks the preference to determine whether bookmark editing is allowed.

@@ -8,7 +8,9 @@
 
 #include <memory>
 #include <optional>
+#include <vector>
 
+#include "base/gtest_prod_util.h"
 #include "chrome/browser/ui/views/tabs/compound_tab_container.h"
 
 namespace views {
@@ -42,9 +44,8 @@ class BraveCompoundTabContainer : public CompoundTabContainer {
       const views::SizeBounds& available_size) const override;
   gfx::Size GetMinimumSize() const override;
   views::SizeBounds GetAvailableSize(const views::View* child) const override;
-  Tab* AddTab(std::unique_ptr<Tab> tab,
-              int model_index,
-              TabPinned pinned) override;
+  std::vector<Tab*> AddTabs(
+      std::vector<TabInsertionParams> tabs_params) override;
   void MoveTab(int from_model_index, int to_model_index) override;
   void RemoveTab(int index, bool was_active) override;
   void SetTabPinned(int model_index, TabPinned pinned) override;
@@ -72,7 +73,7 @@ class BraveCompoundTabContainer : public CompoundTabContainer {
 
   void UpdatePinnedTabContainerBorder();
   void UpdateUnpinnedContainerSize();
-  void ScrollTabToBeVisible(int model_index);
+  void ScrollTabToBeVisible(Tab* tab);
 
   int GetAvailableWidthConsideringScrollBar();
 

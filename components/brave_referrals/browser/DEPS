@@ -1,8 +1,11 @@
 include_rules = [
   "+brave/components/constants",
+  "+components/prefs",
   "+content/public/browser",
   "+content/public/common",
+  "+content/public/test",
   "+services/network/public",
+  "+services/network/test",
 ]
 
 specific_include_rules = {

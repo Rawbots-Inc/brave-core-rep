@@ -34,7 +34,7 @@ class ConversationClient : public mojom::ConversationUI,
 
  protected:
   // mojom::ConversationUI
-  void OnConversationHistoryUpdate() override;
+  void OnConversationHistoryUpdate(mojom::ConversationTurnPtr entry) override;
   void OnAPIRequestInProgress(bool is_request_in_progress) override;
   void OnAPIResponseError(mojom::APIError error) override;
   void OnModelDataChanged(
@@ -44,7 +44,7 @@ class ConversationClient : public mojom::ConversationUI,
       const std::vector<std::string>& questions,
       mojom::SuggestionGenerationStatus status) override;
   void OnAssociatedContentInfoChanged(
-      const mojom::AssociatedContentPtr site_info,
+      std::vector<mojom::AssociatedContentPtr> site_info,
       bool should_send_content) override;
   void OnConversationDeleted() override;
 

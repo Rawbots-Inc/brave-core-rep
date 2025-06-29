@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grit base_dir="." latest_public_release="0" current_release="1"
-      output_all_resource_defines="false" source_lang_id="en" enc_check="möl">
+      source_lang_id="en" enc_check="möl">
   <outputs>
     <output filename="grit/brave_generated_resources.h" type="rc_header">
       <emit emit_type='prepend'></emit>
     </output>
+    <output filename="grit/brave_generated_resources_webui_strings.h" type="webui_header" />
+    <output filename="grit/brave_generated_resources_webui_strings.ts" type="webui_ts" />
     <output filename="brave_generated_resources.pak" type="data_package" />
     <output filename="brave_generated_resources_af.pak" type="data_package" lang="af" />
     <output filename="brave_generated_resources_am.pak" type="data_package" lang="am" />
@@ -172,6 +174,9 @@
       <!-- Brave Settings WebUI strings -->
       <part file="brave_settings_strings.grdp" />
 
+      <!-- Brave App Management strings -->
+      <part file="brave_app_management.grdp" />
+
       <!--Add new items to the appropriate sections below -->
 
       <!-- App Menu -->
@@ -232,7 +237,7 @@
         Wallet
       </message>
       <message name="IDS_TOGGLE_AI_CHAT" desc="The show Brave Leo AI Chat menu item (app menu)">
-        Leo
+        Leo AI
       </message>
       <message name="IDS_OPEN_MORE_OTHER_DEVICES_SESSIONS" desc="The history sub-menu item to show sessions from other devices">
         More…
@@ -361,6 +366,26 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
         Block elements
       </message>
 
+      <!-- Element Picker -->
+      <message name="IDS_BRAVE_ELEMENT_PICKER_CREATE_BTN_DISABLED_LABEL" desc="Label for Element picker's create button in disabled state">
+        Select element you want to block
+      </message>
+      <message name="IDS_BRAVE_ELEMENT_PICKER_CREATE_BTN_ENABLED_LABEL" desc="Label for Element picker's create button in enabled state">
+        Block Elements
+      </message>
+      <message name="IDS_BRAVE_ELEMENT_PICKER_MANAGE_BTN_LABEL" desc="Label for Element picker's manage button">
+        Manage filters
+      </message>
+      <message name="IDS_BRAVE_ELEMENT_PICKER_SHOW_RULES_BTN_LABEL" desc="Label for Element picker's show rules button">
+        Show rules
+      </message>
+      <message name="IDS_BRAVE_ELEMENT_PICKER_HIDE_RULES_BTN_LABEL" desc="Label for Element picker's hide rules button">
+        Hide rules
+      </message>
+      <message name="IDS_BRAVE_ELEMENT_PICKER_QUIT_BTN_LABEL" desc="Label for Element picker's quit button">
+        Cancel
+      </message>
+
       <message name="IDS_LOCATION_BAR_ONION_AVAILABLE" desc="Button in location bar to indicate onion available site to open a new tab in tor window.">
         .onion
       </message>
@@ -441,12 +466,33 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
         <message name="IDS_HIDE_BRAVE_AI_CHAT_ICON_ON_TOOLBAR" desc="The description for hiding the Brave AI Chat icon on the toolbar">
           Hide Leo AI Icon
         </message>
+        <message name="IDS_OPEN_BRAVE_AI_CHAT_FULL_PAGE" desc="The description for opening the Brave AI Chat in a new tab">
+          Open Leo AI in a New Tab
+        </message>
+        <message name="IDS_OPEN_BRAVE_AI_CHAT_SIDE_PANEL" desc="The description for opening the Brave AI Chat in the sidebar">
+          Open Leo AI in the Sidebar
+        </message>
+        <message name="IDS_MANAGE_BRAVE_AI_CHAT" desc="The description for opening the Brave AI Chat settings">
+          Manage Leo AI Settings
+        </message>
       </if>
       <if expr="not use_titlecase">
         <message name="IDS_HIDE_BRAVE_AI_CHAT_ICON_ON_TOOLBAR" desc="The description for hiding the Brave AI Chat icon on the toolbar">
           Hide Leo AI icon
         </message>
+        <message name="IDS_OPEN_BRAVE_AI_CHAT_FULL_PAGE" desc="The description for opening the Brave AI Chat in a new tab">
+          Open Leo AI in a new tab
+        </message>
+        <message name="IDS_OPEN_BRAVE_AI_CHAT_SIDE_PANEL" desc="The description for opening the Brave AI Chat in the sidebar">
+          Open Leo AI in the sidebar
+        </message>
+        <message name="IDS_MANAGE_BRAVE_AI_CHAT" desc="The description for opening the Brave AI Chat settings">
+          Manage Leo AI settings
+        </message>
       </if>
+      <message name="IDS_ABOUT_BRAVE_AI_CHAT" desc="The description for loading the Brave AI Chat about page">
+        About Leo AI
+      </message>
       <message name="IDS_TOOLTIP_AI_CHAT_TOOLBAR_BUTTON" desc="Text for Leo toolbar button for toggling Leo side panel">
         Leo AI
       </message>
@@ -466,6 +512,9 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
       </message>
       <message name="IDS_EXTENSIONS_BRAVE_PRIVATE_AND_TOR_WARNING" desc="Displayed in extensions management UI after an extension is selected to be run in private mode and Tor mode.">
         To disable this extension in private mode and Tor mode, unselect this option.
+      </message>
+      <message name="IDS_EXTENSIONS_BRAVE_HOSTED" desc="Displayed in extensions management UI if an extension is hosted on the Brave server.">
+        Brave-hosted
       </message>
 
       <!-- App shortcuts -->
@@ -677,6 +726,12 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
       <message name="IDS_BRAVE_ADS_SEARCH_RESULT_AD_LEARN_MORE_OPT_OUT_CHOICES_LABEL" desc="The text label of creative search result ad learn more / opt out choices link">
         Learn more / opt out choices
       </message>
+      <message name="IDS_NEW_TAB_TAKEOVER_INFOBAR_MESSAGE" desc="The text label of new tab takeover infobar message">
+        Sponsored background images support Brave's mission to build an independent, user-first Web. And unlike Big Tech, we measure ad performance anonymously to preserve your privacy.
+      </message>
+      <message name="IDS_NEW_TAB_TAKEOVER_INFOBAR_LEARN_MORE_OPT_OUT_CHOICES" desc="The text of new tab takeover infobar learn more / opt out choices link">
+        Learn more / opt out choices
+      </message>
 
       <!-- Brave Search -->
       <message name="IDS_SETTINGS_WEB_DISCOVERY_LABEL" desc="Description that shows settings for toggle Web Discovery">
@@ -843,24 +898,6 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
       </message>
 
       <!-- Web3 detection -->
-      <message name="IDS_BRAVE_CRYPTO_WALLETS_LAZY_LOAD_TEXT" desc="Text that shows on the info bar when a Dapp is detected">
-        Would you like to start Crypto Wallets for Ethereum support?
-      </message>
-      <message name="IDS_BRAVE_CRYPTO_WALLETS_INFOBAR_TEXT" desc="Text that shows on the info bar when a Dapp is detected">
-        Set up Crypto Wallets to interact with this app and others like it.
-      </message>
-      <message name="IDS_BRAVE_CRYPTO_WALLETS_SETUP_CRYPTO_WALLETS" desc="Set up Crypto Wallets">
-        Set up Crypto Wallets
-      </message>
-       <message name="IDS_BRAVE_CRYPTO_WALLETS_START_AND_RELOAD" desc="Start Crypto Wallets and reload">
-        Start Crypto Wallets and reload
-      </message>
-      <message name="IDS_BRAVE_CRYPTO_WALLETS_SETTINGS" desc="Open Crypto Wallets settings">
-        Settings
-      </message>
-      <message name="IDS_BRAVE_CRYPTO_WALLETS_DONT_ASK" desc="Sets provider to none">
-        Don't ask again
-      </message>
       <message name="IDS_BRAVE_WALLET_SETTINGS_SECTION" desc="Open Wallet settings section">
         Wallet
       </message>
@@ -927,6 +964,12 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
         <message name="IDS_TAB_CXMENU_CLOSE_DUPLICATE_TABS" desc="The label of the 'Close duplicate tabs' tab context menu item">
           Close duplicate tabs
         </message>
+        <message name="IDS_CXMENU_OPEN_IN_CONTAINER" desc="The label of the 'Open in Container' context menu item">
+          Open in container
+        </message>
+        <message name="IDS_CXMENU_OPEN_CONTAINERS_SETTINGS" desc="The label of the context menu item for opening the Containers settings page.">
+          Manage containers
+        </message>
       </if>
       <if expr="use_titlecase">
         <message name="IDS_TAB_CXMENU_BOOKMARK_ALL_TABS" desc="In Title Case: The label of the tab context menu item for creating a bookmark folder containing an entry for each open tab.">
@@ -952,6 +995,12 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
         </message>
         <message name="IDS_TAB_CXMENU_CLOSE_DUPLICATE_TABS" desc="The label of the 'Close duplicate tabs' tab context menu item">
           Close Duplicate Tabs
+        </message>
+        <message name="IDS_CXMENU_OPEN_IN_CONTAINER" desc="The label of the 'Open in Container' context menu item">
+          Open in Container
+        </message>
+        <message name="IDS_CXMENU_OPEN_CONTAINERS_SETTINGS" desc="The label of the tab context menu item for opening the Containers settings page.">
+          Manage Containers
         </message>
       </if>
 
@@ -1372,6 +1421,52 @@ Or change later at <ph name="SETTINGS_EXTENIONS_LINK">$2<ex>brave://settings/ext
       </message>
       <message name="IDS_BRAVE_FILE_SELECT_SAVE_TITLE_NONSTANDARD_URL_IFRAME" desc="">
         An embedded page on this page wants to save
+      </message>
+
+      <!-- Tab Search -->
+      <message name="IDS_BRAVE_ORGANIZE_TAB_TITLE" desc="Title for the tab organizer page">
+        Tab focus
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_SUBTITLE" desc="Subtitle for the tab organizer page">
+        Gather all related tabs into a new window
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_SUGGESTED_TOPICS_SUBTITLE" desc="Subtitle for the suggested topics section">
+        Suggested topics
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_TOPIC_INPUT_PLACEHOLDER" desc="Placeholder text for the input field to enter a topic">
+        Enter a topic to focus on...
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_SUBMIT_BUTTON_LABEL" desc="Label for the submit topic input button">
+        Go
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_UNDO_BUTTON_LABEL" desc="Label for the undo button">
+        Undo
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_WINDOW_CREATED_MESSAGE" desc="Message shown when a new window is created">
+        New window created for <ph name="TOPIC">$1<ex>Social media</ex></ph>
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_SEND_TAB_DATA_MESSAGE" desc="Description of how tab data is shared with Leo">
+        This feature sends data about your open tabs to Leo, Brave's AI-powered browser assistant.
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_LEARN_MORE_LABEL" desc="Text of the learn more link">
+        Learn more
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_GO_PREMIUM_BUTTON_LABEL" desc="Text of go premium button">
+        Go Premium
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_DISMISS_BUTTON_LABEL" desc="Text of the dismiss button">
+        Dismiss
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_PRIVACY_DISCLAIMER" desc="Disclaimer text for enabling the tab focus feature">
+        When opened, this will automatically send the titles and origin of all non-private tabs to Leo to classify them.
+      </message>
+      <message name="IDS_BRAVE_ORGANIZE_TAB_ENABLE_BUTTON_LABEL" desc="Text of enable tab focus button">
+        Enable
+      </message>
+
+      <!--Customize Chrome Panel -->
+      <message name="IDS_BRAVE_CUSTOMIZE_MENU_TOOLBAR_LABEL" desc="The label for the option to customize toolbar icons in the customization menu on the New Tab Page. This is a button which opens a panel for customizing toolbar icons when clicked.">
+        Customize toolbar
       </message>
       <!--Add new items to the appropriate sections above -->
     </messages>

@@ -21,6 +21,7 @@ import org.chromium.chrome.R;
 import org.chromium.chrome.browser.ActivityTabProvider;
 import org.chromium.chrome.browser.app.BraveActivity;
 import org.chromium.chrome.browser.back_press.BackPressManager;
+import org.chromium.chrome.browser.bookmarks.BookmarkManagerOpener;
 import org.chromium.chrome.browser.bookmarks.BookmarkModel;
 import org.chromium.chrome.browser.bookmarks.TabBookmarker;
 import org.chromium.chrome.browser.compositor.CompositorViewHolder;
@@ -45,6 +46,7 @@ import org.chromium.chrome.browser.toolbar.ToolbarIntentMetadata;
 import org.chromium.chrome.browser.ui.appmenu.AppMenuBlocker;
 import org.chromium.chrome.browser.ui.appmenu.AppMenuDelegate;
 import org.chromium.chrome.browser.ui.edge_to_edge.EdgeToEdgeController;
+import org.chromium.chrome.browser.ui.edge_to_edge.EdgeToEdgeUtils;
 import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
 import org.chromium.chrome.browser.ui.system.StatusBarColorController.StatusBarColorProvider;
 import org.chromium.components.browser_ui.edge_to_edge.EdgeToEdgeManager;
@@ -59,8 +61,9 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 public class BraveTabbedRootUiCoordinator extends TabbedRootUiCoordinator {
-    private AppCompatActivity mActivity;
-    private OneshotSupplier<HubManager> mHubManagerSupplier;
+    private final AppCompatActivity mActivity;
+    private final OneshotSupplier<HubManager> mHubManagerSupplier;
+    private final ObservableSupplier<EdgeToEdgeController> mEdgeToEdgeControllerSupplier;
 
     public BraveTabbedRootUiCoordinator(
             @NonNull AppCompatActivity activity,
@@ -108,7 +111,8 @@ public class BraveTabbedRootUiCoordinator extends TabbedRootUiCoordinator {
             @Nullable MultiInstanceManager multiInstanceManager,
             @NonNull ObservableSupplier<Integer> overviewColorSupplier,
             @NonNull ManualFillingComponentSupplier manualFillingComponentSupplier,
-            @NonNull EdgeToEdgeManager edgeToEdgeManager) {
+            @NonNull EdgeToEdgeManager edgeToEdgeManager,
+            @NonNull ObservableSupplier<BookmarkManagerOpener> bookmarkManagerOpenerSupplier) {
         super(
                 activity,
                 onOmniboxFocusChangedListener,
@@ -155,10 +159,12 @@ public class BraveTabbedRootUiCoordinator extends TabbedRootUiCoordinator {
                 multiInstanceManager,
                 overviewColorSupplier,
                 manualFillingComponentSupplier,
-                edgeToEdgeManager);
+                edgeToEdgeManager,
+                bookmarkManagerOpenerSupplier);
 
         mActivity = activity;
         mHubManagerSupplier = hubManagerSupplier;
+        mEdgeToEdgeControllerSupplier = edgeToEdgeSupplier;
     }
 
     @Override
@@ -186,6 +192,11 @@ public class BraveTabbedRootUiCoordinator extends TabbedRootUiCoordinator {
                                             .getResources()
                                             .getDimensionPixelSize(R.dimen.bottom_controls_height)
                                     * -1;
+                    if (EdgeToEdgeUtils.isEdgeToEdgeBottomChinEnabled()
+                            && mEdgeToEdgeControllerSupplier.get() != null) {
+                        bottomToolbarHeight -=
+                                mEdgeToEdgeControllerSupplier.get().getBottomInsetPx();
+                    }
                     hubManager.setStatusIndicatorHeight(bottomToolbarHeight);
                 });
     }

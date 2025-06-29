@@ -12,12 +12,11 @@
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/token_generator_interface.h"
-#include "brave/components/brave_ads/core/internal/common/functional/once_closure_task_queue.h"
-#include "brave/components/brave_ads/core/internal/creatives/conversions/creative_set_conversion_info.h"
 #include "brave/components/brave_ads/core/internal/global_state/global_state.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
 #include "brave/components/brave_ads/core/public/ads.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
+#include "brave/components/brave_ads/core/public/common/functional/once_closure_task_queue.h"
 #include "brave/components/brave_ads/core/public/service/ads_service_callback.h"
 
 namespace base {
@@ -42,7 +41,7 @@ class AdsImpl final : public Ads {
   ~AdsImpl() override;
 
   // Ads:
-  void AddObserver(std::unique_ptr<AdsObserverInterface> observer) override;
+  void AddObserver(std::unique_ptr<AdsObserver> observer) override;
 
   void SetSysInfo(mojom::SysInfoPtr mojom_sys_info) override;
   void SetBuildChannel(mojom::BuildChannelInfoPtr mojom_build_channel) override;
@@ -71,13 +70,14 @@ class AdsImpl final : public Ads {
       mojom::InlineContentAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) override;
 
-  void ParseAndSaveCreativeNewTabPageAds(
+  void ParseAndSaveNewTabPageAds(
       base::Value::Dict dict,
-      ParseAndSaveCreativeNewTabPageAdsCallback callback) override;
+      ParseAndSaveNewTabPageAdsCallback callback) override;
   void MaybeServeNewTabPageAd(MaybeServeNewTabPageAdCallback callback) override;
   void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       mojom::NewTabPageAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) override;
 
@@ -128,6 +128,11 @@ class AdsImpl final : public Ads {
   void CreateOrOpenDatabaseCallback(mojom::WalletInfoPtr mojom_wallet,
                                     InitializeCallback callback,
                                     bool success);
+
+  void MigrateStateCallback(mojom::WalletInfoPtr mojom_wallet,
+                            InitializeCallback callback,
+                            bool success);
+
   void FailedToInitialize(InitializeCallback callback);
   void SuccessfullyInitialized(mojom::WalletInfoPtr mojom_wallet,
                                InitializeCallback callback);
@@ -146,10 +151,6 @@ class AdsImpl final : public Ads {
   void LoadConfirmationStateCallback(mojom::WalletInfoPtr mojom_wallet,
                                      InitializeCallback callback,
                                      bool success);
-  void GetActiveCallback(
-      GetInternalsCallback callback,
-      bool success,
-      const CreativeSetConversionList& creative_set_conversions);
 
   bool is_initialized_ = false;
 

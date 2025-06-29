@@ -5,6 +5,7 @@
 import BraveShields
 import Data
 import Foundation
+import Web
 import WebKit
 
 class FingerprintingProtection: TabContentScript {
@@ -29,13 +30,14 @@ class FingerprintingProtection: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: (Any?, String?) -> Void
   ) {
     defer { replyHandler(nil, nil) }
-    let stats = tab.contentBlocker.stats
-    tab.contentBlocker.stats = stats.adding(fingerprintingCount: 1)
+    guard let tabData = tab.browserData else { return }
+    let stats = tabData.contentBlocker.stats
+    tabData.contentBlocker.stats = stats.adding(fingerprintingCount: 1)
     BraveGlobalShieldStats.shared.fpProtection += 1
   }
 }

@@ -14,6 +14,7 @@
 #include <iterator>
 
 #include "base/base64.h"
+#include "base/check.h"
 #include "brave/components/brave_ads/core/internal/common/crypto/key_pair_info.h"
 #include "crypto/random.h"
 #include "third_party/boringssl/src/include/openssl/curve25519.h"
@@ -79,7 +80,7 @@ std::optional<KeyPairInfo> GenerateSignKeyPairFromSeed(
     return std::nullopt;
   }
 
-  const std::optional<std::vector<uint8_t>> derived_key = GetHKDF(seed);
+  std::optional<std::vector<uint8_t>> derived_key = GetHKDF(seed);
   if (!derived_key) {
     return std::nullopt;
   }
@@ -105,7 +106,7 @@ std::vector<uint8_t> GenerateRandomNonce() {
 
 std::optional<std::string> Sign(const std::string& message,
                                 const std::string& secret_key_base64) {
-  const std::optional<std::vector<uint8_t>> secret_key =
+  std::optional<std::vector<uint8_t>> secret_key =
       base::Base64Decode(secret_key_base64);
   if (!secret_key) {
     return std::nullopt;
@@ -126,13 +127,13 @@ std::optional<std::string> Sign(const std::string& message,
 bool Verify(const std::string& message,
             const std::string& public_key_base64,
             const std::string& signature_base64) {
-  const std::optional<std::vector<uint8_t>> public_key =
+  std::optional<std::vector<uint8_t>> public_key =
       base::Base64Decode(public_key_base64);
   if (!public_key) {
     return false;
   }
 
-  const std::optional<std::vector<uint8_t>> signature =
+  std::optional<std::vector<uint8_t>> signature =
       base::Base64Decode(signature_base64);
   if (!signature) {
     return false;

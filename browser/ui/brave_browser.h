@@ -6,16 +6,8 @@
 #ifndef BRAVE_BROWSER_UI_BRAVE_BROWSER_H_
 #define BRAVE_BROWSER_UI_BRAVE_BROWSER_H_
 
-#include <memory>
-
 #include "base/memory/weak_ptr.h"
 #include "chrome/browser/ui/browser.h"
-
-#if defined(TOOLKIT_VIEWS)
-namespace sidebar {
-class SidebarController;
-}  // namespace sidebar
-#endif
 
 class BraveBrowserWindow;
 
@@ -51,6 +43,14 @@ class BraveBrowser : public Browser {
   void UpdateTargetURL(content::WebContents* source, const GURL& url) override;
   void ResetTryToCloseWindow() override;
 
+  // This overrides ChromeWebModalDialogManagerDelegate::IsWebContentsVisible()
+  // and it's called from WebContentsModalDialogManager.
+  // That manager prevents web modal dialog when web contents is not visible.
+  // As we have visible but inactive tabs in split tab, this should return false
+  // when it's inactive tab. Otherwse, web modal from inactive split tab can be
+  // shown.
+  bool IsWebContentsVisible(content::WebContents* web_contents) override;
+
   void OnTabClosing(content::WebContents* contents) override;
   void TabStripEmpty() override;
 
@@ -61,12 +61,6 @@ class BraveBrowser : public Browser {
   // Returns true when we should ask browser closing to users before handling
   // any warning/onbeforeunload handlers.
   bool ShouldAskForBrowserClosingBeforeHandlers();
-
-#if defined(TOOLKIT_VIEWS)
-  sidebar::SidebarController* sidebar_controller() {
-    return sidebar_controller_.get();
-  }
-#endif
 
   BraveBrowserWindow* brave_window();
 
@@ -85,8 +79,6 @@ class BraveBrowser : public Browser {
   static void SuppressBrowserWindowClosingDialogForTesting(bool suppress);
 
   bool AreAllTabsSharedPinnedTabs();
-
-  std::unique_ptr<sidebar::SidebarController> sidebar_controller_;
 
   // Set true when user allowed to close browser before starting any
   // warning or onbeforeunload handlers.

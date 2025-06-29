@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/functional/bind.h"
 #include "base/values.h"
 #include "brave/browser/webcompat_reporter/webcompat_reporter_service_factory.h"
@@ -168,7 +170,7 @@ void DefaultBraveShieldsHandler::IsAdControlEnabled(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(),
+  ResolveJavascriptCallback(args[0],
                             base::Value(setting == ControlType::BLOCK));
 }
 
@@ -193,7 +195,7 @@ void DefaultBraveShieldsHandler::IsFirstPartyCosmeticFilteringEnabled(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(), base::Value(enabled));
+  ResolveJavascriptCallback(args[0], base::Value(enabled));
 }
 
 void DefaultBraveShieldsHandler::SetCosmeticFilteringControlType(
@@ -218,8 +220,7 @@ void DefaultBraveShieldsHandler::GetCookieControlType(
       CookieSettingsFactory::GetForProfile(profile_).get(), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(),
-                            base::Value(ControlTypeToString(setting)));
+  ResolveJavascriptCallback(args[0], base::Value(ControlTypeToString(setting)));
 }
 
 void DefaultBraveShieldsHandler::GetHideBlockAllCookieFlag(
@@ -234,7 +235,7 @@ void DefaultBraveShieldsHandler::GetHideBlockAllCookieFlag(
       brave_shields::features::kBlockAllCookiesToggle);
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(),
+  ResolveJavascriptCallback(args[0],
                             base::Value(setting != ControlType::BLOCK &&
                                         !block_all_cookies_feature_enabled));
 }
@@ -260,8 +261,7 @@ void DefaultBraveShieldsHandler::GetFingerprintingControlType(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(),
-                            base::Value(ControlTypeToString(setting)));
+  ResolveJavascriptCallback(args[0], base::Value(ControlTypeToString(setting)));
 }
 
 void DefaultBraveShieldsHandler::SetFingerprintingControlType(
@@ -285,7 +285,7 @@ void DefaultBraveShieldsHandler::GetFingerprintingBlockEnabled(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
   bool result = setting != ControlType::ALLOW;
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(), base::Value(result));
+  ResolveJavascriptCallback(args[0], base::Value(result));
 }
 
 void DefaultBraveShieldsHandler::SetFingerprintingBlockEnabled(
@@ -309,8 +309,7 @@ void DefaultBraveShieldsHandler::GetHttpsUpgradeControlType(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(),
-                            base::Value(ControlTypeToString(setting)));
+  ResolveJavascriptCallback(args[0], base::Value(ControlTypeToString(setting)));
 }
 
 void DefaultBraveShieldsHandler::SetHttpsUpgradeControlType(
@@ -365,7 +364,7 @@ void DefaultBraveShieldsHandler::GetContactInfo(const base::Value::List& args) {
     base::Value::Dict params_dict;
     params_dict.Set("contactInfo", "");
     params_dict.Set("contactInfoSaveFlag", false);
-    ResolveJavascriptCallback(args[0].Clone(), std::move(params_dict));
+    ResolveJavascriptCallback(args[0], std::move(params_dict));
     return;
   }
 
@@ -404,5 +403,5 @@ void DefaultBraveShieldsHandler::GetForgetFirstPartyStorageEnabled(
       HostContentSettingsMapFactory::GetForProfile(profile_), GURL());
 
   AllowJavascript();
-  ResolveJavascriptCallback(args[0].Clone(), base::Value(result));
+  ResolveJavascriptCallback(args[0], base::Value(result));
 }

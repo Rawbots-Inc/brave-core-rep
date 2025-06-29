@@ -182,13 +182,6 @@ void BatAdsClientMojoBridge::GetSiteHistory(
                                                     std::move(callback));
 }
 
-void BatAdsClientMojoBridge::RecordP2AEvents(
-    const std::vector<std::string>& events) {
-  if (bat_ads_client_associated_remote_.is_bound()) {
-    bat_ads_client_associated_remote_->RecordP2AEvents(events);
-  }
-}
-
 void BatAdsClientMojoBridge::Load(const std::string& name,
                                   brave_ads::LoadCallback callback) {
   if (!bat_ads_client_associated_remote_.is_bound()) {
@@ -197,16 +190,6 @@ void BatAdsClientMojoBridge::Load(const std::string& name,
   }
 
   bat_ads_client_associated_remote_->Load(name, std::move(callback));
-}
-
-std::string BatAdsClientMojoBridge::LoadDataResource(const std::string& name) {
-  if (!bat_ads_client_associated_remote_.is_bound()) {
-    return {};
-  }
-
-  std::string value;
-  bat_ads_client_associated_remote_->LoadDataResource(name, &value);
-  return value;
 }
 
 void BatAdsClientMojoBridge::ShowScheduledCaptcha(

@@ -21,20 +21,20 @@ extension BrowserViewController {
   @objc private func goBackKeyCommand() {
     if let tab = tabManager.selectedTab, tab.canGoBack, favoritesController == nil {
       tab.goBack()
-      tab.resetExternalAlertProperties()
+      tab.browserData?.resetExternalAlertProperties()
     }
   }
 
   @objc private func goForwardKeyCommand() {
     if let tab = tabManager.selectedTab, tab.canGoForward {
       tab.goForward()
-      tab.resetExternalAlertProperties()
+      tab.browserData?.resetExternalAlertProperties()
     }
   }
 
   @objc private func findInPageKeyCommand() {
     if let tab = tabManager.selectedTab, favoritesController == nil {
-      self.tab(tab, didSelectFindInPageFor: "")
+      tab.presentFindInteraction()
     }
   }
 
@@ -87,7 +87,7 @@ extension BrowserViewController {
     }
 
     let tabs = tabManager.tabsForCurrentMode
-    if let index = tabs.firstIndex(of: currentTab), index + 1 < tabs.count {
+    if let index = tabs.firstIndex(where: { $0 === currentTab }), index + 1 < tabs.count {
       tabManager.selectTab(tabs[index + 1])
     } else if let firstTab = tabs.first {
       tabManager.selectTab(firstTab)
@@ -100,7 +100,9 @@ extension BrowserViewController {
     }
 
     let tabs = tabManager.tabsForCurrentMode
-    if let index = tabs.firstIndex(of: currentTab), index - 1 < tabs.count && index != 0 {
+    if let index = tabs.firstIndex(where: { $0 === currentTab }),
+      index - 1 < tabs.count && index != 0
+    {
       tabManager.selectTab(tabs[index - 1])
     } else if let lastTab = tabs.last {
       tabManager.selectTab(lastTab)
@@ -133,7 +135,7 @@ extension BrowserViewController {
 
   @objc private func addToFavouritesCommand() {
     guard let selectedTab = tabManager.selectedTab,
-      let selectedUrl = selectedTab.url,
+      let selectedUrl = selectedTab.visibleURL,
       !(selectedUrl.isLocal || selectedUrl.isInternalURL(for: .readermode))
     else {
       return

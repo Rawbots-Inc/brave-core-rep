@@ -5,13 +5,14 @@
 
 #include "chrome/browser/ui/views/tabs/tab_strip_layout_helper.h"
 
+#include "base/check.h"
 #include "brave/browser/ui/views/tabs/brave_tab_strip.h"
 
 #define CalculateTabBounds                                                     \
   FillTiledState(tab_widths, static_cast<BraveTabStrip*>(tab_strip_.get())) && \
           use_vertical_tabs_&& FillGroupInfo(tab_widths)                       \
       ? tabs::CalculateVerticalTabBounds(                                      \
-            layout_constants, tab_widths, tabstrip_width,                      \
+            tab_widths, available_width,                                       \
             GetBraveTabStrip() -> IsVerticalTabsFloating())                    \
       : CalculateTabBounds
 
@@ -33,7 +34,7 @@ bool TabStripLayoutHelper::FillGroupInfo(
   for (auto i = 0u; i < tab_widths.size(); i++) {
     auto& tab_width_constraints = tab_widths.at(i);
     tab_width_constraints.set_is_tab_in_group(
-        slots_.at(i).type == ViewType::kTab &&
+        slots_.at(i).type == TabSlotView::ViewType::kTab &&
         slots_.at(i).view->group().has_value());
   }
   return true;

@@ -38,7 +38,8 @@ bool ChromePermissionsClient::BraveCanBypassEmbeddingOriginCheck(
   // SolanaProviderRendererTest.Iframe3P and
   // JSEthereumProviderBrowserTest.Iframe3P
   if (type == ContentSettingsType::BRAVE_ETHEREUM ||
-      type == ContentSettingsType::BRAVE_SOLANA) {
+      type == ContentSettingsType::BRAVE_SOLANA ||
+      type == ContentSettingsType::BRAVE_CARDANO) {
     return true;
   }
 
@@ -51,16 +52,19 @@ ChromePermissionsClient::MaybeCreateMessageUI(
     content::WebContents* web_contents,
     ContentSettingsType type,
     base::WeakPtr<permissions::PermissionPromptAndroid> prompt) {
-  std::vector<raw_ptr<permissions::PermissionRequest, VectorExperimental>>
-      requests = prompt->delegate_public()->Requests();
+  const auto& requests = prompt->delegate_public()->Requests();
   if (requests.size() > 0) {
     brave_wallet::mojom::CoinType coin_type =
         brave_wallet::mojom::CoinType::ETH;
     permissions::RequestType request_type = requests[0]->request_type();
     if (request_type == permissions::RequestType::kBraveEthereum ||
-        request_type == permissions::RequestType::kBraveSolana) {
+        request_type == permissions::RequestType::kBraveSolana ||
+        request_type == permissions::RequestType::kBraveCardano) {
       if (request_type == permissions::RequestType::kBraveSolana) {
         coin_type = brave_wallet::mojom::CoinType::SOL;
+      }
+      if (request_type == permissions::RequestType::kBraveCardano) {
+        coin_type = brave_wallet::mojom::CoinType::ADA;
       }
       auto delegate = std::make_unique<BraveWalletPermissionPrompt::Delegate>(
           std::move(prompt));

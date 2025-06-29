@@ -70,7 +70,7 @@ std::optional<PredictionMap> LinearModel::GetTopCountPredictions(
 std::optional<PredictionMap> LinearModel::GetTopCountPredictionsImpl(
     const VectorData& data,
     std::optional<size_t> top_count) const {
-  const std::optional<PredictionMap> predictions = Predict(data);
+  std::optional<PredictionMap> predictions = Predict(data);
   if (!predictions) {
     return std::nullopt;
   }
@@ -84,7 +84,7 @@ std::optional<PredictionMap> LinearModel::GetTopCountPredictionsImpl(
   std::ranges::sort(base::Reversed(prediction_order));
 
   PredictionMap top_predictions;
-  if (top_count && *top_count < prediction_order.size()) {
+  if (top_count && top_count < prediction_order.size()) {
     prediction_order.resize(*top_count);
   }
   for (const auto& [probability, segment] : prediction_order) {

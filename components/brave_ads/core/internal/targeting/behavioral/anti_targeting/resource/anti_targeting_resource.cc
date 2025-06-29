@@ -17,7 +17,6 @@
 #include "brave/components/brave_ads/core/internal/targeting/behavioral/anti_targeting/anti_targeting_feature.h"
 #include "brave/components/brave_ads/core/internal/targeting/behavioral/anti_targeting/resource/anti_targeting_resource_constants.h"
 #include "brave/components/brave_ads/core/internal/targeting/behavioral/anti_targeting/resource/anti_targeting_resource_info.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 
 namespace brave_ads {
 
@@ -25,18 +24,14 @@ namespace {
 
 bool DoesRequireResourceForNewTabPageAds() {
   // Require resource only if:
-  // - The user has opted into new tab page ads and has either joined Brave
-  //   Rewards or new tab page ad events should always be triggered.
-  return UserHasOptedInToNewTabPageAds() &&
-         (UserHasJoinedBraveRewards() ||
-          ShouldAlwaysTriggerNewTabPageAdEvents());
+  // - The user has opted into new tab page ads and joined Brave Rewards.
+  return UserHasJoinedBraveRewards() && UserHasOptedInToNewTabPageAds();
 }
 
 bool DoesRequireResource() {
   // Require resource only if:
   // - The user has opted into Brave News ads.
-  // - The user has opted into new tab page ads and has either joined Brave
-  //   Rewards or new tab page ad events should always be triggered.
+  // - The user has opted into new tab page ads and and joined Brave Rewards.
   // - The user has joined Brave Rewards and opted into notification ads.
   return UserHasOptedInToBraveNewsAds() ||
          DoesRequireResourceForNewTabPageAds() ||
@@ -89,15 +84,13 @@ void AntiTargetingResource::Load() {
 }
 
 void AntiTargetingResource::LoadCallback(
-    ResourceComponentParsingErrorOr<AntiTargetingResourceInfo> result) {
-  if (!result.has_value()) {
+    std::optional<AntiTargetingResourceInfo> resource) {
+  if (!resource) {
     return BLOG(0, "Failed to load and parse " << kAntiTargetingResourceId
-                                               << " anti-targeting resource ("
-                                               << result.error() << ")");
+                                               << " anti-targeting resource");
   }
-  AntiTargetingResourceInfo& resource = result.value();
 
-  if (!resource.version) {
+  if (!resource->version) {
     return BLOG(1, kAntiTargetingResourceId
                        << " anti-targeting resource is unavailable");
   }
@@ -120,11 +113,6 @@ void AntiTargetingResource::Unload() {
        "Unloaded " << kAntiTargetingResourceId << " anti-targeting resource");
 
   resource_.reset();
-}
-
-void AntiTargetingResource::OnNotifyLocaleDidChange(
-    const std::string& /*locale*/) {
-  MaybeLoad();
 }
 
 void AntiTargetingResource::OnNotifyPrefDidChange(const std::string& path) {

@@ -20,6 +20,7 @@
 #include "base/functional/callback_helpers.h"
 #include "base/logging.h"
 #include "base/metrics/histogram_macros.h"
+#include "base/strings/string_util.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool.h"
@@ -28,14 +29,15 @@
 #include "base/types/optional_ref.h"
 #include "base/values.h"
 #import "brave/build/ios/mojom/cpp_transformations.h"
+#include "brave/components/brave_ads/core/browser/service/virtual_pref_provider.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
 #include "brave/components/brave_ads/core/public/ad_units/inline_content_ad/inline_content_ad_info.h"
+#include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_info.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_info.h"
 #include "brave/components/brave_ads/core/public/ads.h"
 #include "brave/components/brave_ads/core/public/ads_callback.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/brave_ads/core/public/ads_util.h"
 #include "brave/components/brave_ads/core/public/flags/flags_util.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
@@ -43,18 +45,20 @@
 #include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/brave_rewards/core/pref_registry.h"
 #include "brave/components/brave_rewards/core/rewards_flags.h"
-#include "brave/components/l10n/common/country_code_util.h"
 #include "brave/components/l10n/common/locale_util.h"
 #include "brave/components/l10n/common/prefs.h"
+#include "brave/components/ntp_background_images/browser/new_tab_takeover_infobar_util.h"
 #include "brave/components/ntp_background_images/common/pref_names.h"
 #import "brave/ios/browser/api/ads/ads_client_bridge.h"
 #import "brave/ios/browser/api/ads/ads_client_ios.h"
 #import "brave/ios/browser/api/ads/brave_ads.mojom.objc+private.h"
 #import "brave/ios/browser/api/ads/inline_content_ad_ios.h"
+#import "brave/ios/browser/api/ads/new_tab_page_ad_ios.h"
 #import "brave/ios/browser/api/ads/notification_ad_ios.h"
 #import "brave/ios/browser/api/common/common_operations.h"
 #include "brave/ios/browser/brave_ads/ads_service_factory_ios.h"
 #include "brave/ios/browser/brave_ads/ads_service_impl_ios.h"
+#include "brave/ios/browser/brave_ads/virtual_pref_provider_delegate_ios.h"
 #include "build/build_config.h"
 #include "components/prefs/pref_service.h"
 #include "ios/chrome/browser/shared/model/application_context/application_context.h"
@@ -100,8 +104,14 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
     (const brave_ads::InlineContentAdInfo&)info;
 @end
 
+@interface NewTabPageAdIOS ()
+- (instancetype)initWithNewTabPageAdInfo:
+    (const brave_ads::NewTabPageAdInfo&)info;
+@end
+
 @interface BraveAds () <AdsClientBridge> {
   std::unique_ptr<brave_ads::AdsClientNotifier> adsClientNotifier;
+  std::unique_ptr<brave_ads::VirtualPrefProvider> virtualPrefProvider;
   raw_ptr<brave_ads::AdsServiceImplIOS> adsService;
   nw_path_monitor_t networkMonitor;
   dispatch_queue_t monitorQueue;
@@ -144,6 +154,12 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
     [self initObservers];
 
     adsClientNotifier = std::make_unique<brave_ads::AdsClientNotifier>();
+
+    ProfileIOS* profile = [self getLastUsedProfile];
+    CHECK(profile);
+    virtualPrefProvider = std::make_unique<brave_ads::VirtualPrefProvider>(
+        self.profilePrefService, self.localStatePrefService,
+        std::make_unique<brave_ads::VirtualPrefProviderDelegateIOS>(*profile));
   }
   return self;
 }
@@ -154,6 +170,8 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
   [self stopComponentUpdaterTimer];
 
   [self stopNetworkMonitor];
+
+  virtualPrefProvider.reset();
 
   [self deallocAdsClientNotifier];
 
@@ -179,17 +197,8 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
          adsService->IsInitialized();
 }
 
-+ (BOOL)shouldAlwaysRunService {
-  return brave_ads::ShouldAlwaysRunService();
-}
-
-+ (BOOL)shouldSupportSearchResultAds {
-  return brave_ads::ShouldSupportSearchResultAds();
-}
-
 - (BOOL)shouldShowSponsoredImagesAndVideosSetting {
-  const std::string country_code =
-      brave_l10n::GetCountryCode(self->_localStatePrefService);
+  const std::string country_code = brave_l10n::GetDefaultISOCountryCodeString();
 
   // Currently, sponsored videos are only supported in Japan.
   return base::ToLowerASCII(country_code) == "jp";
@@ -205,11 +214,45 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
       brave_ads::prefs::kShouldShowSearchResultAdClickedInfoBar);
 }
 
+- (BOOL)shouldDisplayNewTabTakeoverInfobar {
+  return ntp_background_images::ShouldDisplayNewTabTakeoverInfobar(
+      self.profilePrefService);
+}
+
+- (void)recordNewTabTakeoverInfobarWasDisplayed {
+  ntp_background_images::RecordNewTabTakeoverInfobarWasDisplayed(
+      self.profilePrefService);
+}
+
+- (void)suppressNewTabTakeoverInfobar {
+  ntp_background_images::SuppressNewTabTakeoverInfobar(self.profilePrefService);
+}
+
 - (void)notifyBraveNewsIsEnabledPreferenceDidChange:(BOOL)isEnabled {
   [self setProfilePref:brave_news::prefs::kBraveNewsOptedIn
                  value:base::Value(isEnabled)];
   [self setProfilePref:brave_news::prefs::kNewTabPageShowToday
                  value:base::Value(isEnabled)];
+}
+
+- (void)notifySponsoredImagesIsEnabledPreferenceDidChange:(BOOL)isEnabled {
+  [self setProfilePref:ntp_background_images::prefs::
+                           kNewTabPageShowBackgroundImage
+                 value:base::Value(isEnabled)];
+  [self setProfilePref:ntp_background_images::prefs::
+                           kNewTabPageShowSponsoredImagesBackgroundImage
+                 value:base::Value(isEnabled)];
+}
+
+- (BOOL)isSurveyPanelistEnabled {
+  return self.profilePrefService->GetBoolean(
+      ntp_background_images::prefs::kNewTabPageSponsoredImagesSurveyPanelist);
+}
+
+- (void)setIsSurveyPanelistEnabled:(BOOL)enabled {
+  [self setProfilePref:ntp_background_images::prefs::
+                           kNewTabPageSponsoredImagesSurveyPanelist
+                 value:base::Value(enabled)];
 }
 
 - (BOOL)isEnabled {
@@ -1351,23 +1394,6 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
       base::BindOnce(std::move(callback)));
 }
 
-- (std::string)loadDataResource:(const std::string&)name {
-  const auto bundle = [NSBundle bundleForClass:[BraveAds class]];
-  const auto path = [bundle pathForResource:base::SysUTF8ToNSString(name)
-                                     ofType:nil];
-  if (!path || path.length == 0) {
-    return "";
-  }
-  NSError* error = nil;
-  const auto contents = [NSString stringWithContentsOfFile:path
-                                                  encoding:NSUTF8StringEncoding
-                                                     error:&error];
-  if (!contents || error) {
-    return "";
-  }
-  return base::SysNSStringToUTF8(contents);
-}
-
 - (void)showScheduledCaptcha:(const std::string&)payment_id
                    captchaId:(const std::string&)captcha_id {
   [self.captchaHandler
@@ -1375,24 +1401,11 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
                               captchaId:base::SysUTF8ToNSString(captcha_id)];
 }
 
-- (void)recordP2AEvents:(const std::vector<std::string>&)events {
-  // TODO(https://github.com/brave/brave-browser/issues/33786): Unify Brave Ads
-  // P3A analytics.
-}
-
 - (bool)findProfilePref:(const std::string&)path {
   return !!self.profilePrefService->FindPreference(path);
 }
 
 - (std::optional<base::Value>)getProfilePref:(const std::string&)path {
-  if (path == ntp_background_images::prefs::kNewTabPageShowBackgroundImage ||
-      path == ntp_background_images::prefs::
-                  kNewTabPageShowSponsoredImagesBackgroundImage) {
-    // TODO(https://github.com/brave/brave-browser/issues/33745): Decouple Brave
-    // Rewards, News and New Tab Page prefs from core.
-    return base::Value(/*enabled*/ true);
-  }
-
   return self.profilePrefService->GetValue(path).Clone();
 }
 
@@ -1433,8 +1446,11 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
 }
 
 - (base::Value::Dict)getVirtualPrefs {
-  // Intentionally empty.
-  return {};
+  if (virtualPrefProvider == nullptr) {
+    return {};
+  }
+
+  return virtualPrefProvider->GetPrefs();
 }
 
 - (void)log:(const char*)file
@@ -1513,22 +1529,22 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
       base::BindOnce(completion));
 }
 
-// TODO(https://github.com/brave/brave-browser/issues/33470): Unify Brave Ads
-// new tab page ad serving.
-
 - (void)triggerNewTabPageAdEvent:(NSString*)wallpaperId
               creativeInstanceId:(NSString*)creativeInstanceId
+      shouldMetricsFallbackToP3a:(BOOL)shouldMetricsFallbackToP3a
                        eventType:(BraveAdsNewTabPageAdEventType)eventType
                       completion:(void (^)(BOOL success))completion {
   if (![self isServiceRunning]) {
     return completion(/*success=*/false);
   }
 
+  const brave_ads::mojom::NewTabPageAdEventType mojom_event_type =
+      static_cast<brave_ads::mojom::NewTabPageAdEventType>(eventType);
+
   adsService->TriggerNewTabPageAdEvent(
       base::SysNSStringToUTF8(wallpaperId),
-      base::SysNSStringToUTF8(creativeInstanceId),
-      static_cast<brave_ads::mojom::NewTabPageAdEventType>(eventType),
-      base::BindOnce(completion));
+      base::SysNSStringToUTF8(creativeInstanceId), shouldMetricsFallbackToP3a,
+      mojom_event_type, base::BindOnce(completion));
 }
 
 - (void)maybeGetNotificationAd:(NSString*)identifier
@@ -1642,6 +1658,34 @@ constexpr NSString* kAdsResourceComponentMetadataVersion = @".v1";
   }
 
   adsService->ClearData(base::IgnoreArgs<bool>(base::BindOnce(completion)));
+}
+
+#pragma mark - New Tab Page Ad
+
+- (NewTabPageAdIOS*)maybeGetPrefetchedNewTabPageAd {
+  if (![self isServiceRunning]) {
+    return nil;
+  }
+
+  const std::optional<brave_ads::NewTabPageAdInfo> new_tab_page_ad =
+      adsService->MaybeGetPrefetchedNewTabPageAd();
+  adsService->PrefetchNewTabPageAd();
+  if (!new_tab_page_ad) {
+    return nil;
+  }
+
+  return [[NewTabPageAdIOS alloc] initWithNewTabPageAdInfo:*new_tab_page_ad];
+}
+
+- (void)onFailedToPrefetchNewTabPageAd:(NSString*)placementId
+                    creativeInstanceId:(NSString*)creativeInstanceId {
+  if (![self isServiceRunning]) {
+    return;
+  }
+
+  adsService->OnFailedToPrefetchNewTabPageAd(
+      base::SysNSStringToUTF8(placementId),
+      base::SysNSStringToUTF8(creativeInstanceId));
 }
 
 #pragma mark - Ads client notifier

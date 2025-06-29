@@ -15,6 +15,7 @@
 #include "base/functional/callback_helpers.h"
 #include "base/memory/raw_ptr.h"
 #include "base/scoped_observation.h"
+#include "base/strings/string_util.h"
 #include "base/test/bind.h"
 #include "base/test/metrics/histogram_tester.h"
 #include "base/test/mock_callback.h"
@@ -67,6 +68,7 @@
 #include "url/origin.h"
 
 using content::StoragePartition;
+using testing::Contains;
 using testing::ElementsAre;
 using testing::Eq;
 
@@ -977,30 +979,85 @@ TEST_F(BraveWalletServiceUnitTest, GetUserAssetsAlwaysHasNativeTokensForBtc) {
 }
 
 TEST_F(BraveWalletServiceUnitTest, GetUserAssetsAlwaysHasNativeTokensForZec) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndEnableFeatureWithParameters(
-      features::kBraveWalletZCashFeature,
-      {{"zcash_shielded_transactions_enabled", "false"}});
+  {
+    base::test::ScopedFeatureList feature_list;
+    feature_list.InitAndEnableFeatureWithParameters(
+        features::kBraveWalletZCashFeature,
+        {{"zcash_shielded_transactions_enabled", "false"}});
 
-  GetPrefs()->SetList(kBraveWalletUserAssetsList, base::Value::List());
+    GetPrefs()->SetList(kBraveWalletUserAssetsList, base::Value::List());
 
-  auto zec_mainnet_token = GetZcashNativeToken(mojom::kZCashMainnet);
-  auto zec_testnet_token = GetZcashNativeToken(mojom::kZCashTestnet);
+    auto zec_mainnet_token = GetZcashNativeToken(mojom::kZCashMainnet);
+    auto zec_testnet_token = GetZcashNativeToken(mojom::kZCashTestnet);
 
-  EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
-              ElementsAre(Eq(std::ref(zec_mainnet_token))));
-  EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
-              ElementsAre(Eq(std::ref(zec_testnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                ElementsAre(Eq(std::ref(zec_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                ElementsAre(Eq(std::ref(zec_testnet_token))));
 
-  zec_mainnet_token->visible = false;
-  zec_testnet_token->visible = false;
-  AddUserAsset(zec_mainnet_token.Clone());
-  AddUserAsset(zec_testnet_token.Clone());
+    zec_mainnet_token->visible = false;
+    zec_testnet_token->visible = false;
+    AddUserAsset(zec_mainnet_token.Clone());
+    AddUserAsset(zec_testnet_token.Clone());
 
-  EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
-              ElementsAre(Eq(std::ref(zec_mainnet_token))));
-  EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
-              ElementsAre(Eq(std::ref(zec_testnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                ElementsAre(Eq(std::ref(zec_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                ElementsAre(Eq(std::ref(zec_testnet_token))));
+  }
+
+  {
+    base::test::ScopedFeatureList feature_list;
+    feature_list.InitAndEnableFeatureWithParameters(
+        features::kBraveWalletZCashFeature,
+        {{"zcash_shielded_transactions_enabled", "true"}});
+
+    GetPrefs()->SetList(kBraveWalletUserAssetsList, base::Value::List());
+
+    auto zec_mainnet_token = GetZcashNativeToken(mojom::kZCashMainnet);
+    auto zec_testnet_token = GetZcashNativeToken(mojom::kZCashTestnet);
+    auto zec_shielded_mainnet_token =
+        GetZcashNativeShieldedToken(mojom::kZCashMainnet);
+    auto zec_shielded_testnet_token =
+        GetZcashNativeShieldedToken(mojom::kZCashTestnet);
+
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_testnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_testnet_token))));
+
+    zec_mainnet_token->visible = false;
+    zec_testnet_token->visible = false;
+    AddUserAsset(zec_mainnet_token.Clone());
+    AddUserAsset(zec_testnet_token.Clone());
+
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_testnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_testnet_token))));
+
+    zec_shielded_mainnet_token->visible = false;
+    zec_shielded_testnet_token->visible = false;
+    AddUserAsset(zec_shielded_mainnet_token.Clone());
+    AddUserAsset(zec_shielded_testnet_token.Clone());
+
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_testnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashMainnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_mainnet_token))));
+    EXPECT_THAT(GetUserAssets(mojom::kZCashTestnet, mojom::CoinType::ZEC),
+                Contains(Eq(std::ref(zec_shielded_testnet_token))));
+  }
 }
 
 TEST_F(BraveWalletServiceUnitTest, DefaultAssets) {
@@ -1426,9 +1483,6 @@ TEST_F(BraveWalletServiceUnitTest, SetAssetSpamStatus) {
 TEST_F(BraveWalletServiceUnitTest, GetAndSetDefaultEthereumWallet) {
   SetDefaultEthereumWallet(mojom::DefaultWallet::BraveWallet);
   EXPECT_EQ(GetDefaultEthereumWallet(), mojom::DefaultWallet::BraveWallet);
-
-  SetDefaultEthereumWallet(mojom::DefaultWallet::CryptoWallets);
-  EXPECT_EQ(GetDefaultEthereumWallet(), mojom::DefaultWallet::CryptoWallets);
 
   SetDefaultEthereumWallet(mojom::DefaultWallet::None);
   EXPECT_EQ(GetDefaultEthereumWallet(), mojom::DefaultWallet::None);
@@ -1940,13 +1994,13 @@ TEST_F(BraveWalletServiceUnitTest, MigrateEip1559ForCustomNetworks) {
               "0xe708": true
             })"));
 
-  EXPECT_FALSE(*network_manager_->IsEip1559Chain("0x4e454152"));
-  EXPECT_TRUE(*network_manager_->IsEip1559Chain("0x1"));
-  EXPECT_TRUE(*network_manager_->IsEip1559Chain("0xe708"));
-  EXPECT_FALSE(*network_manager_->IsEip1559Chain(mojom::kLocalhostChainId));
+  EXPECT_FALSE(network_manager_->IsEip1559Chain("0x4e454152"));
+  EXPECT_TRUE(network_manager_->IsEip1559Chain("0x1"));
+  EXPECT_TRUE(network_manager_->IsEip1559Chain("0xe708"));
+  EXPECT_FALSE(network_manager_->IsEip1559Chain(mojom::kLocalhostChainId));
 
   // solana does not get into this list.
-  EXPECT_FALSE(network_manager_->IsEip1559Chain("0x66").has_value());
+  EXPECT_FALSE(network_manager_->IsEip1559Chain("0x66"));
 
   EXPECT_TRUE(
       GetPrefs()->GetBoolean(kBraveWalletEip1559ForCustomNetworksMigrated));
@@ -2385,6 +2439,9 @@ TEST_F(BraveWalletServiceUnitTest, Reset) {
 
   const std::string eth_addr = "0x407637cC04893DA7FA4A7C0B58884F82d69eD448";
   const std::string sol_addr = "BrG44HdsEhzapvs8bEqzvkq4egwevS3fRE6ze2ENo6S8";
+  const std::string ada_addr =
+      "Ae2tdPwUPEZFSi1cTyL1ZL6bgixhc2vSy5heg6Zg9uP7PpumkAJ82Qprt8b";
+
   auto origin = url::Origin::Create(GURL(kBraveUrl));
   auto* delegate = service_->GetDelegateForTesting();
   ASSERT_TRUE(delegate);
@@ -2393,14 +2450,18 @@ TEST_F(BraveWalletServiceUnitTest, Reset) {
       blink::PermissionType::BRAVE_ETHEREUM, profile_.get(), origin, eth_addr));
   ASSERT_TRUE(permissions::BraveWalletPermissionContext::AddPermission(
       blink::PermissionType::BRAVE_SOLANA, profile_.get(), origin, sol_addr));
+  ASSERT_TRUE(permissions::BraveWalletPermissionContext::AddPermission(
+      blink::PermissionType::BRAVE_CARDANO, profile_.get(), origin, ada_addr));
 
   ASSERT_TRUE(delegate->HasPermission(mojom::CoinType::ETH, origin, eth_addr));
   ASSERT_TRUE(delegate->HasPermission(mojom::CoinType::SOL, origin, sol_addr));
+  ASSERT_TRUE(delegate->HasPermission(mojom::CoinType::ADA, origin, ada_addr));
 
   service_->Reset();
 
   EXPECT_FALSE(delegate->HasPermission(mojom::CoinType::ETH, origin, eth_addr));
   EXPECT_FALSE(delegate->HasPermission(mojom::CoinType::SOL, origin, sol_addr));
+  EXPECT_FALSE(delegate->HasPermission(mojom::CoinType::ADA, origin, ada_addr));
 
   EXPECT_FALSE(GetPrefs()->HasPrefPath(kBraveWalletUserAssetsList));
   EXPECT_FALSE(GetPrefs()->HasPrefPath(kDefaultBaseCurrency));

@@ -17,6 +17,7 @@ import Shared
 import SnapKit
 import SwiftUI
 import UIKit
+import Web
 
 /// The behavior for sizing sections when the user is in landscape orientation
 enum NTPLandscapeSizingBehavior {
@@ -90,6 +91,7 @@ protocol NewTabPageDelegate: AnyObject {
   func brandedImageCalloutActioned(_ state: BrandedImageCalloutState)
   func tappedQRCodeButton(url: URL)
   func showNTPOnboarding()
+  func showNewTabTakeoverInfoBarIfNeeded()
 }
 
 /// The new tab page. Shows users a variety of information, including stats and
@@ -115,7 +117,7 @@ class NewTabPageViewController: UIViewController {
 
   private let layout = NewTabPageFlowLayout()
   private let collectionView: NewTabCollectionView
-  private weak var browserTab: Tab?
+  private weak var browserTab: (any TabState)?
   private let rewards: BraveRewards
 
   private var background: NewTabPageBackground
@@ -166,7 +168,7 @@ class NewTabPageViewController: UIViewController {
   private let p3aHelper: NewTabPageP3AHelper
 
   init(
-    tab: Tab,
+    tab: some TabState,
     profile: Profile,
     dataSource: NTPDataSource,
     feedDataSource: FeedDataSource,
@@ -421,6 +423,7 @@ class NewTabPageViewController: UIViewController {
     super.viewDidAppear(animated)
 
     reportSponsoredBackgroundEvent(.servedImpression) { [weak self] _ in
+      self?.delegate?.showNewTabTakeoverInfoBarIfNeeded()
       self?.reportSponsoredBackgroundEvent(.viewedImpression)
     }
 
@@ -692,12 +695,13 @@ class NewTabPageViewController: UIViewController {
         default: return nil
         }
       }()
-      if let eventType {
+      if let eventType, sponsoredBackground.shouldMetricsFallbackToP3A {
         p3aHelper.recordEvent(eventType, on: tab, for: sponsoredBackground)
       }
       rewards.ads.triggerNewTabPageAdEvent(
         background.wallpaperId.uuidString,
         creativeInstanceId: sponsoredBackground.creativeInstanceId,
+        shouldMetricsFallbackToP3a: sponsoredBackground.shouldMetricsFallbackToP3A,
         eventType: event,
         completion: { success in
           completion?(success)

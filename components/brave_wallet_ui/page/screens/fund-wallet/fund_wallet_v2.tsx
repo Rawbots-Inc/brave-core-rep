@@ -23,19 +23,19 @@ import { UISelectors } from '../../../common/selectors'
 
 // Components
 import {
-  WalletPageWrapper //
+  WalletPageWrapper, //
 } from '../../../components/desktop/wallet-page-wrapper/wallet-page-wrapper'
 import {
-  PageTitleHeader //
+  PageTitleHeader, //
 } from '../../../components/desktop/card-headers/page-title-header'
 import {
-  PanelActionHeader //
+  PanelActionHeader, //
 } from '../../../components/desktop/card-headers/panel-action-header'
 import {
-  SelectAssetButton //
+  SelectAssetButton, //
 } from './components/select_asset_button/select_asset_button'
 import {
-  SelectAccountButton //
+  SelectAccountButton, //
 } from './components/select_account_button/select_account_button'
 import { AmountButton } from './components/amount_button/amount_button'
 import { SelectCurrency } from './components/select_currency/select_currency'
@@ -58,16 +58,12 @@ import {
   DropdownRow,
   Dropdown,
   InfoIconWrapper,
-  InfoIcon
+  InfoIcon,
 } from './fund_wallet_v2.style'
 import { Column, Row, Text } from '../../../components/shared/style'
 import { SearchInput } from './components/shared/style'
 
-interface Props {
-  isAndroid?: boolean
-}
-
-export const FundWalletScreen = ({ isAndroid }: Props) => {
+export const FundWalletScreen = () => {
   // State
   const [isCurrencyDialogOpen, setIsCurrencyDialogOpen] = React.useState(false)
   const [isAssetDialogOpen, setIsAssetDialogOpen] = React.useState(false)
@@ -108,22 +104,23 @@ export const FundWalletScreen = ({ isAndroid }: Props) => {
     hasQuoteError,
     showCreateAccount,
     onCloseCreateAccount,
-    pendingSelectedToken
+    pendingSelectedToken,
   } = useBuy()
 
   // Redux
   const isPanel = useSafeUISelector(UISelectors.isPanel)
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
 
   // Computed
   const selectedCountry = countries?.find(
     (country) =>
-      country.countryCode.toLowerCase() === selectedCountryCode.toLowerCase()
+      country.countryCode.toLowerCase() === selectedCountryCode.toLowerCase(),
   )
   const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
   const isStorybook = isComponentInStorybook()
   const pageTitle = getLocale('braveWalletBuyAsset').replace(
     '$1',
-    getAssetSymbol(selectedAsset)
+    getAssetSymbol(selectedAsset),
   )
   const isFetchingFirstTimeQuotes = isFetchingQuotes && quotes?.length === 0
 
@@ -242,9 +239,9 @@ export const FundWalletScreen = ({ isAndroid }: Props) => {
                           <PaymentMethodIcon
                             src={
                               isStorybook
-                                ? logoUrl ?? ''
+                                ? (logoUrl ?? '')
                                 : `chrome://image?url=${encodeURIComponent(
-                                    logoUrl ?? ''
+                                    logoUrl ?? '',
                                   )}&staticEncode=true`
                             }
                           />
@@ -284,7 +281,7 @@ export const FundWalletScreen = ({ isAndroid }: Props) => {
                     >
                       {getLocale('braveWalletNoProviderFound').replace(
                         '$1',
-                        getAssetSymbol(selectedAsset)
+                        getAssetSymbol(selectedAsset),
                       )}
                     </Text>
                     <Text
@@ -313,7 +310,7 @@ export const FundWalletScreen = ({ isAndroid }: Props) => {
                         >
                           {getLocale('braveWalletNoResultsFound').replace(
                             '$1',
-                            searchTerm
+                            searchTerm,
                           )}
                         </Text>
                         <Text

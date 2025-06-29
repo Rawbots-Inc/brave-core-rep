@@ -11,7 +11,6 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -29,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.ImageViewCompat;
@@ -69,7 +69,6 @@ import org.chromium.chrome.browser.ntp.NtpUtil;
 import org.chromium.chrome.browser.omnibox.BraveLocationBarCoordinator;
 import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
 import org.chromium.chrome.browser.onboarding.OnboardingPrefManager;
-import org.chromium.chrome.browser.onboarding.SearchActivity;
 import org.chromium.chrome.browser.onboarding.v2.HighlightItem;
 import org.chromium.chrome.browser.onboarding.v2.HighlightView;
 import org.chromium.chrome.browser.playlist.PlaylistServiceFactoryAndroid;
@@ -94,13 +93,14 @@ import org.chromium.chrome.browser.theme.ThemeUtils;
 import org.chromium.chrome.browser.toolbar.ToolbarDataProvider;
 import org.chromium.chrome.browser.toolbar.ToolbarProgressBar;
 import org.chromium.chrome.browser.toolbar.ToolbarTabController;
+import org.chromium.chrome.browser.toolbar.back_button.BackButtonCoordinator;
 import org.chromium.chrome.browser.toolbar.bottom.BottomToolbarConfiguration;
 import org.chromium.chrome.browser.toolbar.bottom.BottomToolbarVariationManager;
 import org.chromium.chrome.browser.toolbar.home_button.HomeButton;
 import org.chromium.chrome.browser.toolbar.menu_button.BraveMenuButtonCoordinator;
 import org.chromium.chrome.browser.toolbar.menu_button.MenuButtonCoordinator;
+import org.chromium.chrome.browser.toolbar.reload_button.ReloadButtonCoordinator;
 import org.chromium.chrome.browser.toolbar.top.NavigationPopup.HistoryDelegate;
-import org.chromium.chrome.browser.toolbar.top.ToolbarTablet.OfflineDownloader;
 import org.chromium.chrome.browser.user_education.UserEducationHelper;
 import org.chromium.chrome.browser.util.BraveConstants;
 import org.chromium.chrome.browser.util.BraveTouchUtils;
@@ -125,7 +125,6 @@ import org.chromium.url.mojom.Url;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -133,7 +132,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.function.BooleanSupplier;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,
@@ -145,8 +143,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 PlaylistServiceObserverImplDelegate {
     private static final String TAG = "BraveToolbar";
 
-    private static final List<String> BRAVE_SEARCH_ENGINE_DEFAULT_REGIONS =
-            Arrays.asList("CA", "DE", "FR", "GB", "US", "AT", "ES", "MX", "BR", "AR", "IN");
     private static final int URL_FOCUS_TOOLBAR_BUTTONS_TRANSLATION_X_DP = 10;
 
     private static final int DAYS_7 = 7;
@@ -154,7 +150,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
     private PlaylistServiceObserverImpl mPlaylistServiceObserver;
 
-    private DatabaseHelper mDatabaseHelper = DatabaseHelper.getInstance();
+    private final DatabaseHelper mDatabaseHelper = DatabaseHelper.getInstance();
 
     private ImageButton mBraveWalletButton;
     private ImageButton mBraveShieldsButton;
@@ -195,9 +191,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
     private ColorStateList mDarkModeTint;
     private ColorStateList mLightModeTint;
-
-    // See comment at onUrlFocusChange
-    // private SearchWidgetPromoPanel mSearchWidgetPromoPanel;
 
     private final Set<Integer> mTabsWithWalletIcon =
             Collections.synchronizedSet(new HashSet<Integer>());
@@ -263,9 +256,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         mDarkModeTint = ThemeUtils.getThemedToolbarIconTint(getContext(), false);
         mLightModeTint =
                 ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.brave_white));
-
-        // See comment at onUrlFocusChange
-        // mSearchWidgetPromoPanel = new SearchWidgetPromoPanel(getContext());
 
         if (mHomeButton != null) {
             mHomeButton.setOnLongClickListener(this);
@@ -603,7 +593,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     private void showOnBoarding() {
         try {
             BraveActivity activity = BraveActivity.getBraveActivity();
-            int deviceWidth = ConfigurationUtils.getDisplayMetrics(activity).get("width");
+            int deviceWidth = ConfigurationUtils.getDisplayMetricsWidth(activity);
             boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
             deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
             RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth);
@@ -816,6 +806,9 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     private void checkForTooltip(Tab tab) {
+        // We are disabling this feature for now for bottom address bar, until new design is ready
+        // https://github.com/brave/brave-browser/issues/46252
+        if (BottomToolbarConfiguration.isToolbarBottomAnchored()) return;
         try {
             if (!BraveShieldsUtils.isTooltipShown
                     && !BraveActivity.getBraveActivity().mIsDeepLink) {
@@ -1195,46 +1188,10 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     @Override
-    public void onUrlFocusChange(boolean hasFocus) {
-        Context context = getContext();
-        String countryCode = Locale.getDefault().getCountry();
-        try {
-            BraveActivity braveActivity = BraveActivity.getBraveActivity();
-            if (hasFocus
-                    && PackageUtils.isFirstInstall(context)
-                    && braveActivity.getActivityTab() != null
-                    && UrlUtilities.isNtpUrl(braveActivity.getActivityTab().getUrl().getSpec())
-                    && !OnboardingPrefManager.getInstance().hasSearchEngineOnboardingShown()
-                    && OnboardingPrefManager.getInstance().getUrlFocusCount() == 1
-                    && !BRAVE_SEARCH_ENGINE_DEFAULT_REGIONS.contains(countryCode)
-                    && !countryCode.equals("JP")) {
-                Intent searchActivityIntent = new Intent(context, SearchActivity.class);
-                searchActivityIntent.setAction(Intent.ACTION_VIEW);
-                context.startActivity(searchActivityIntent);
-            }
-        } catch (BraveActivity.BraveActivityNotFoundException e) {
-            Log.e(TAG, "onUrlFocusChange " + e);
-        }
-
-        // We need to enable the promo for later release.
-        // Delay showing the panel. Otherwise there are ANRs on holding onUrlFocusChange
-        /* PostTask.postTask(TaskTraits.UI_DEFAULT, () -> {
-            int appOpenCountForWidgetPromo = ChromeSharedPreferences.getInstance().readInt(
-                    BravePreferenceKeys.BRAVE_APP_OPEN_COUNT_FOR_WIDGET_PROMO);
-            if (hasFocus
-                    && appOpenCountForWidgetPromo >= BraveActivity.APP_OPEN_COUNT_FOR_WIDGET_PROMO)
-                mSearchWidgetPromoPanel.showIfNeeded(this);
-        }); */
-
-        if (OnboardingPrefManager.getInstance().getUrlFocusCount() == 0) {
-            OnboardingPrefManager.getInstance().updateUrlFocusCount();
-        }
-        super.onUrlFocusChange(hasFocus);
-    }
-
-    @Override
-    public void populateUrlAnimatorSetImpl(boolean showExpandedState,
-            int urlFocusToolbarButtonsDuration, int urlClearFocusTabStackDelayMs,
+    public void populateUrlAnimatorSetImpl(
+            boolean showExpandedState,
+            int urlFocusToolbarButtonsDuration,
+            int urlClearFocusTabStackDelayMs,
             List<Animator> animators) {
         if (mBraveShieldsButton != null) {
             Animator animator;
@@ -1501,7 +1458,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     public void onBottomControlsVisibilityChanged(boolean isVisible) {
-        if (BottomToolbarConfiguration.isToolbarBottomAnchored()) return;
         mIsBottomControlsVisible = isVisible;
         if (BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class)
                 && getMenuButtonCoordinator() != null) {
@@ -1544,26 +1500,27 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             MenuButtonCoordinator menuButtonCoordinator,
             ToggleTabStackButtonCoordinator tabSwitcherButtonCoordinator,
             HistoryDelegate historyDelegate,
-            BooleanSupplier partnerHomepageEnabledSupplier,
-            OfflineDownloader offlineDownloader,
             UserEducationHelper userEducationHelper,
             ObservableSupplier<Tracker> trackerSupplier,
-            ToolbarProgressBar progressBar) {
+            ToolbarProgressBar progressBar,
+            @Nullable ReloadButtonCoordinator reloadButtonCoordinator,
+            @Nullable BackButtonCoordinator backButtonCoordinator) {
         super.initialize(
                 toolbarDataProvider,
                 tabController,
                 menuButtonCoordinator,
                 tabSwitcherButtonCoordinator,
                 historyDelegate,
-                partnerHomepageEnabledSupplier,
-                offlineDownloader,
                 userEducationHelper,
                 trackerSupplier,
-                progressBar);
+                progressBar,
+                reloadButtonCoordinator,
+                backButtonCoordinator);
 
         BraveMenuButtonCoordinator.setMenuFromBottom(
                 isMenuButtonOnBottomControls()
-                        || BottomToolbarConfiguration.isToolbarBottomAnchored());
+                        || (isToolbarPhone()
+                                && BottomToolbarConfiguration.isToolbarBottomAnchored()));
     }
 
     public void updateWalletBadgeVisibility(boolean visible) {
@@ -1572,8 +1529,12 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     public void updateMenuButtonState() {
-        BraveMenuButtonCoordinator.setMenuFromBottom(
-                mIsBottomControlsVisible || BottomToolbarConfiguration.isToolbarBottomAnchored());
+        if (BottomToolbarConfiguration.isBraveBottomControlsEnabled()) {
+            BraveMenuButtonCoordinator.setMenuFromBottom(mIsBottomControlsVisible);
+        } else {
+            BraveMenuButtonCoordinator.setMenuFromBottom(
+                    isToolbarPhone() && BottomToolbarConfiguration.isToolbarBottomAnchored());
+        }
     }
 
     @Override
@@ -1632,9 +1593,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
     }
 
-    /** Opens hompage in the current tab. Override it here to make it publicly accessible. */
-    @Override
-    public void openHomepage() {
-        super.openHomepage();
+    private boolean isToolbarPhone() {
+        return BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class);
     }
 }

@@ -9,11 +9,14 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "brave/browser/brave_wallet/brave_wallet_provider_delegate_impl.h"
 #include "brave/browser/brave_wallet/brave_wallet_service_factory.h"
+#include "brave/components/brave_wallet/browser/cardano/cardano_provider_impl.h"
 #include "brave/components/brave_wallet/browser/ethereum_provider_impl.h"
 #include "brave/components/brave_wallet/browser/permission_utils.h"
 #include "brave/components/brave_wallet/browser/solana_provider_impl.h"
+#include "brave/components/brave_wallet/common/common_utils.h"
 #include "brave/components/constants/webui_url_constants.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "components/permissions/permission_request.h"
@@ -102,6 +105,40 @@ void BraveWalletTabHelper::BindSolanaProvider(
 
   tab_helper->solana_provider_receivers_.Add(
       std::make_unique<SolanaProviderImpl>(
+          *host_content_settings_map, brave_wallet_service,
+          std::make_unique<BraveWalletProviderDelegateImpl>(web_contents,
+                                                            frame_host)),
+      std::move(receiver));
+}
+
+// static
+void BraveWalletTabHelper::BindCardanoProvider(
+    content::RenderFrameHost* const frame_host,
+    mojo::PendingReceiver<mojom::CardanoProvider> receiver) {
+  if (!IsCardanoDAppSupportEnabled()) {
+    return;
+  }
+  auto* brave_wallet_service = BraveWalletServiceFactory::GetServiceForContext(
+      frame_host->GetBrowserContext());
+  if (!brave_wallet_service) {
+    return;
+  }
+  auto* host_content_settings_map =
+      HostContentSettingsMapFactory::GetForProfile(
+          frame_host->GetBrowserContext());
+  if (!host_content_settings_map) {
+    return;
+  }
+  content::WebContents* web_contents =
+      content::WebContents::FromRenderFrameHost(frame_host);
+
+  auto* tab_helper = BraveWalletTabHelper::FromWebContents(web_contents);
+  if (!tab_helper) {
+    return;
+  }
+
+  tab_helper->cardano_provider_receivers_.Add(
+      std::make_unique<CardanoProviderImpl>(
           *host_content_settings_map, brave_wallet_service,
           std::make_unique<BraveWalletProviderDelegateImpl>(web_contents,
                                                             frame_host)),
@@ -220,7 +257,7 @@ GURL BraveWalletTabHelper::GetBubbleURL() {
   // Handle ConnectWithSite (ethereum permission) request.
   std::vector<std::string> accounts;
   url::Origin requesting_origin;
-  for (permissions::PermissionRequest* request : manager->Requests()) {
+  for (const auto& request : manager->Requests()) {
     std::string account;
     if (!ParseRequestingOriginFromSubRequest(
             request->request_type(),

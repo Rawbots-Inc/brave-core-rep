@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "base/base64.h"
+#include "base/check.h"
 #include "base/containers/span.h"
 #include "base/containers/span_writer.h"
 #include "base/functional/bind.h"
@@ -25,6 +26,8 @@
 #include "base/json/json_writer.h"
 #include "base/notreached.h"
 #include "base/numerics/byte_conversions.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/test/bind.h"
 #include "base/test/mock_callback.h"
@@ -129,7 +132,7 @@ std::string GetGasFilEstimateResponse(int64_t value) {
           }
       })";
   base::ReplaceSubstringsAfterOffset(&response, 0, "{gas_limit}",
-                                     std::to_string(value));
+                                     base::NumberToString(value));
   return response;
 }
 
@@ -161,7 +164,7 @@ std::string GetFilStateSearchMsgLimitedResponse(int64_t value) {
       }
     )";
   base::ReplaceSubstringsAfterOffset(&response, 0, "{exit_code}",
-                                     std::to_string(value));
+                                     base::NumberToString(value));
   return response;
 }
 
@@ -817,7 +820,7 @@ class JsonRpcServiceUnitTest : public testing::Test {
   }
 
   bool GetIsEip1559FromPrefs(const std::string& chain_id) {
-    return network_manager_->IsEip1559Chain(chain_id).value_or(false);
+    return network_manager_->IsEip1559Chain(chain_id);
   }
 
   void SetEthTokenInfoInterceptor(const GURL& network_url,
@@ -1415,7 +1418,7 @@ class JsonRpcServiceUnitTest : public testing::Test {
   void TestGetEthNftStandard(
       const std::string& contract_address,
       const std::string& chain_id,
-      std::vector<std::string>& interfaces,
+      base::span<const std::string_view> interfaces,
       const std::optional<std::string>& expected_standard,
       mojom::ProviderError expected_error,
       const std::string& expected_error_message) {
@@ -1528,14 +1531,14 @@ class JsonRpcServiceUnitTest : public testing::Test {
   void GetFilStateSearchMsgLimited(const std::string& chain_id,
                                    const std::string& cid,
                                    uint64_t period,
-                                   int64_t expected_exit_code,
+                                   std::optional<int64_t> expected_exit_code,
                                    mojom::FilecoinProviderError expected_error,
                                    const std::string& expected_error_message) {
     bool callback_called = false;
     base::RunLoop run_loop;
     json_rpc_service_->GetFilStateSearchMsgLimited(
         chain_id, cid, period,
-        base::BindLambdaForTesting([&](int64_t exit_code,
+        base::BindLambdaForTesting([&](std::optional<int64_t> exit_code,
                                        mojom::FilecoinProviderError error,
                                        const std::string& error_message) {
           EXPECT_EQ(exit_code, expected_exit_code);
@@ -4031,39 +4034,81 @@ TEST_F(JsonRpcServiceUnitTest, IsValidUnstoppableDomain) {
       "test.wallet",
       "test.blockchain",
       "test.bitcoin",
-      "brave.zil",
+      "test.brave",
       "brave.altimist",
       "brave.anime",
-      "brave.klever",
-      "brave.manga",
-      "brave.polygon",
-      "brave.unstoppable",
-      "brave.pudgy",
-      "brave.tball",
-      "brave.stepn",
-      "brave.secret",
-      "brave.raiin",
-      "brave.pog",
-      "brave.clay",
-      "brave.metropolis",
-      "brave.witg",
-      "brave.ubu",
-      "brave.kryptic",
-      "brave.farms",
-      "brave.dfz",
-      "brave.kresus",
-      "brave.binanceus",
+      "brave.ask",
       "brave.austin",
-      "brave.bitget",
-      "brave.wrkx",
       "brave.bald",
+      "brave.basenji",
+      "brave.bay",
       "brave.benji",
+      "brave.binanceus",
+      "brave.bitcoin",
+      "brave.bitget",
+      "brave.bitscrunch",
+      "brave.blockchain",
+      "brave.boomer",
+      "brave.brave",
+      "brave.calicoin",
+      "brave.caw",
       "brave.chomp",
+      "brave.clay",
+      "brave.crypto",
+      "brave.dao",
+      "brave.dfz",
+      "brave.doga",
+      "brave.donut",
       "brave.dream",
+      "brave.emir",
       "brave.ethermail",
+      "brave.farms",
+      "brave.grow",
+      "brave.her",
+      "brave.kingdom",
+      "brave.klever",
+      "brave.kresus",
+      "brave.kryptic",
       "brave.lfg",
+      "brave.ltc",
+      "brave.manga",
+      "brave.metropolis",
+      "brave.miku",
+      "brave.ministry",
+      "brave.moon",
+      "brave.mumu",
+      "brave.nft",
+      "brave.nibi",
+      "brave.npc",
+      "brave.onchain",
+      "brave.pastor",
+      "brave.podcast",
+      "brave.pog",
+      "brave.polygon",
+      "brave.privacy",
       "brave.propykeys",
+      "brave.pudgy",
+      "brave.quantum",
+      "brave.rad",
+      "brave.raiin",
+      "brave.secret",
       "brave.smobler",
+      "brave.south",
+      "brave.stepn",
+      "brave.tball",
+      "brave.tea",
+      "brave.tribe",
+      "brave.u",
+      "brave.ubu",
+      "brave.unstoppable",
+      "brave.wallet",
+      "brave.wifi",
+      "brave.witg",
+      "brave.wrkx",
+      "brave.x",
+      "brave.xec",
+      "brave.xmr",
+      "brave.zil",
       "a.crypto",
       "1.crypto",
       "-.crypto",
@@ -4074,7 +4119,6 @@ TEST_F(JsonRpcServiceUnitTest, IsValidUnstoppableDomain) {
       "crypto.",
       "crypto.1",
       ".crypto",
-      "crypto.brave",
       "brave.crypto-",
       "brave.test.crypto",
       "test.coin",
@@ -5431,8 +5475,8 @@ TEST_F(JsonRpcServiceUnitTest, GetFilStateSearchMsgLimited) {
 
   GetFilStateSearchMsgLimited(
       mojom::kLocalhostChainId,
-      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30, 0,
-      mojom::FilecoinProviderError::kSuccess, "");
+      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30,
+      std::optional<int64_t>(0), mojom::FilecoinProviderError::kSuccess, "");
 
   SetInterceptor(GetNetwork(mojom::kLocalhostChainId, mojom::CoinType::FIL),
                  "Filecoin.StateSearchMsgLimited", "", R"(
@@ -5446,15 +5490,16 @@ TEST_F(JsonRpcServiceUnitTest, GetFilStateSearchMsgLimited) {
   })");
   GetFilStateSearchMsgLimited(
       mojom::kLocalhostChainId,
-      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30, -1,
-      mojom::FilecoinProviderError::kInvalidParams, "wrong param count");
+      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30,
+      std::nullopt, mojom::FilecoinProviderError::kInvalidParams,
+      "wrong param count");
 
   SetInterceptor(GetNetwork(mojom::kLocalhostChainId, mojom::CoinType::FIL),
                  "Filecoin.StateSearchMsgLimited", "", R"({,})");
   GetFilStateSearchMsgLimited(
       mojom::kLocalhostChainId,
-      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30, -1,
-      mojom::FilecoinProviderError::kInternalError,
+      "bafy2bzacebundyopm3trenj47hxkwiqn2cbvvftz3fss4dxuttu2u6xbbtkqy", 30,
+      std::nullopt, mojom::FilecoinProviderError::kInternalError,
       l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
 
   SetInterceptor(GetNetwork(mojom::kLocalhostChainId, mojom::CoinType::FIL),
@@ -7428,7 +7473,7 @@ TEST_F(JsonRpcServiceUnitTest, GetEthTokenUri) {
 }
 
 TEST_F(JsonRpcServiceUnitTest, GetEthNftStandard) {
-  std::vector<std::string> interfaces;
+  std::vector<std::string_view> interfaces;
   // Empty interface IDs yields invalid params error
   TestGetEthNftStandard(
       "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d", mojom::kMainnetChainId,

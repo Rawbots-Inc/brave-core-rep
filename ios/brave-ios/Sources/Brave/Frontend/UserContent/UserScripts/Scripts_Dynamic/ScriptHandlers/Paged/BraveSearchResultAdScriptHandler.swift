@@ -5,6 +5,7 @@
 
 import BraveCore
 import BraveShared
+import Web
 import WebKit
 import os.log
 
@@ -49,7 +50,7 @@ class BraveSearchResultAdScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: (Any?, String?) -> Void
   ) {

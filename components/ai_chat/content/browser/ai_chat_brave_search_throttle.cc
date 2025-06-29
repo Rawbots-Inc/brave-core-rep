@@ -19,12 +19,12 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/navigation_handle.h"
 #include "content/public/browser/permission_controller.h"
+#include "content/public/browser/permission_descriptor_util.h"
 #include "content/public/browser/permission_request_description.h"
 #include "content/public/browser/permission_result.h"
 #include "content/public/browser/web_contents.h"
 #include "third_party/blink/public/common/permissions/permission_utils.h"
 #include "third_party/blink/public/mojom/permissions/permission_status.mojom-shared.h"
-#include "url/gurl.h"
 
 namespace content {
 class RenderFrameHost;
@@ -33,33 +33,33 @@ class RenderFrameHost;
 namespace ai_chat {
 
 // static
-std::unique_ptr<AIChatBraveSearchThrottle>
-AIChatBraveSearchThrottle::MaybeCreateThrottleFor(
+void AIChatBraveSearchThrottle::MaybeCreateAndAdd(
     base::OnceCallback<void(content::WebContents*)> open_leo_delegate,
-    content::NavigationHandle* navigation_handle,
+    content::NavigationThrottleRegistry& registry,
     AIChatService* ai_chat_service,
     PrefService* pref_service) {
-  auto* web_contents = navigation_handle->GetWebContents();
+  auto* web_contents = registry.GetNavigationHandle().GetWebContents();
   if (!web_contents) {
-    return nullptr;
+    return;
   }
 
   if (!open_leo_delegate || !ai_chat_service ||
       !IsAIChatEnabled(pref_service) ||
       !features::IsOpenAIChatFromBraveSearchEnabled() ||
-      !IsOpenAIChatButtonFromBraveSearchURL(navigation_handle->GetURL())) {
-    return nullptr;
+      !IsOpenAIChatButtonFromBraveSearchURL(
+          registry.GetNavigationHandle().GetURL())) {
+    return;
   }
 
-  return std::make_unique<AIChatBraveSearchThrottle>(
-      std::move(open_leo_delegate), navigation_handle, ai_chat_service);
+  registry.AddThrottle(std::make_unique<AIChatBraveSearchThrottle>(
+      std::move(open_leo_delegate), registry, ai_chat_service));
 }
 
 AIChatBraveSearchThrottle::AIChatBraveSearchThrottle(
     base::OnceCallback<void(content::WebContents*)> open_leo_delegate,
-    content::NavigationHandle* handle,
+    content::NavigationThrottleRegistry& registry,
     AIChatService* ai_chat_service)
-    : content::NavigationThrottle(handle),
+    : content::NavigationThrottle(registry),
       open_ai_chat_delegate_(std::move(open_leo_delegate)),
       ai_chat_service_(ai_chat_service) {
   CHECK(open_ai_chat_delegate_);
@@ -122,7 +122,10 @@ void AIChatBraveSearchThrottle::OnGetOpenAIChatButtonNonce(
       web_contents->GetBrowserContext()->GetPermissionController();
   content::PermissionResult permission_status =
       permission_controller->GetPermissionResultForCurrentDocument(
-          blink::PermissionType::BRAVE_OPEN_AI_CHAT, rfh);
+          content::PermissionDescriptorUtil::
+              CreatePermissionDescriptorForPermissionType(
+                  blink::PermissionType::BRAVE_OPEN_AI_CHAT),
+          rfh);
 
   if (permission_status.status == content::PermissionStatus::DENIED) {
     CancelDeferredNavigation(content::NavigationThrottle::CANCEL);
@@ -133,7 +136,10 @@ void AIChatBraveSearchThrottle::OnGetOpenAIChatButtonNonce(
     permission_controller->RequestPermissionFromCurrentDocument(
         rfh,
         content::PermissionRequestDescription(
-            blink::PermissionType::BRAVE_OPEN_AI_CHAT, /*user_gesture=*/true),
+            content::PermissionDescriptorUtil::
+                CreatePermissionDescriptorForPermissionType(
+                    blink::PermissionType::BRAVE_OPEN_AI_CHAT),
+            /*user_gesture=*/true),
         base::BindOnce(&AIChatBraveSearchThrottle::OnPermissionPromptResult,
                        weak_factory_.GetWeakPtr()));
   }

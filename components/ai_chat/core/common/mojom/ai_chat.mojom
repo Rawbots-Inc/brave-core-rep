@@ -8,6 +8,7 @@ module ai_chat.mojom;
 import "brave/components/ai_chat/core/common/mojom/untrusted_frame.mojom";
 import "brave/components/ai_chat/core/common/mojom/tab_tracker.mojom";
 import "mojo/public/mojom/base/time.mojom";
+import "mojo/public/mojom/base/values.mojom";
 import "url/mojom/url.mojom";
 
 enum CharacterType {
@@ -17,18 +18,13 @@ enum CharacterType {
 
 enum APIError {
   None,
+  InternalError,
   ConnectionIssue,
   RateLimitReached,
   ContextLimitReached,
   InvalidEndpointURL,
   InvalidAPIKey,
   ServiceOverloaded
-};
-
-enum ModelEngineType {
-  LLAMA_REMOTE,
-  CLAUDE_REMOTE,
-  BRAVE_CONVERSATION_API,
 };
 
 // When adding or modifying category names, associated UI strings must also
@@ -83,30 +79,44 @@ struct AssociatedContent {
   string title;
 
   // This is the ID of the content currently loaded in the tab.
+  // It is not persisted.
   int32 content_id;
 
   url.mojom.Url url;
 
   // Percentage of the content that has been utilized by remote LLM (0-100)
   int32 content_used_percentage;
-
-  // Indicates content has been refined through extracting most relevant parts
-  // from long page content
-  bool is_content_refined;
 };
 
 struct Conversation {
   string uuid;
   // Set by the LLM or the user
   string title;
-  // Time used for ordering purposes
+
+  // Time is used for ordering purposes.
+  // This is not persisted - this is inferred from the
+  // last updated time from the most recent
+  // conversation entry.
   mojo_base.mojom.Time updated_time;
-  // If there are entries and the conversation should be selectable
+
+  // If there are entries and the conversation should be selectable.
+  // This is not persisted - this is inferred from the entries.
   bool has_content;
+
   // Model key, if different than default
   string? model_key;
+  // Indicates the total number of tokens for the conversation.
+  // This info is determined by the server side and applies to the whole conversation.
+  uint64 total_tokens;
+  // Indicates the number of tokens that were trimmed from the conversation.
+  // This info is determined by the server side and applies to the whole conversation.
+  // Things that can be trimmed include associated content(s) and server side things like search results.
+  uint64 trimmed_tokens;
+  // Indicates whether the conversation is temporary which would be in-memory
+  // only and not persisted in database.
+  bool temporary = false;
 
-  AssociatedContent? associated_content;
+  array<AssociatedContent> associated_content;
 };
 
 struct ContentArchive {
@@ -150,10 +160,6 @@ enum ActionType {
   SUGGESTION,
 };
 
-struct PageContentRefineEvent {
-  bool is_refining = true;
-};
-
 struct SearchQueriesEvent {
   array<string> search_queries;
 };
@@ -173,6 +179,8 @@ struct WebSourcesEvent {
 };
 
 struct CompletionEvent {
+  // TODO(petemill): Use ContentBlock or even array<ContentBlock>
+  // and rely less on multiple events.
   string completion;
 };
 
@@ -180,27 +188,72 @@ struct SelectedLanguageEvent {
   string selected_language;
 };
 
+struct ContentReceiptEvent {
+  uint64 total_tokens;
+  uint64 trimmed_tokens;
+};
+
 struct ConversationTitleEvent {
   string title;
 };
 
-struct UploadedImage {
+enum UploadedFileType {
+  kImage = 0,
+  kScreenshot,
+};
+
+struct UploadedFile {
   string filename;
   uint32 filesize;
-  array<uint8> image_data;
+  array<uint8> data;
+  UploadedFileType type;
+};
+
+struct ImageContentBlock {
+  // Only base64 encoded data uri is supported
+  url.mojom.Url image_url;
+};
+
+struct TextContentBlock {
+  string text;
+};
+
+union ContentBlock {
+  ImageContentBlock image_content_block;
+  TextContentBlock text_content_block;
+};
+
+struct ToolUseEvent {
+  // Name of the tool, used to identify which
+  // tool to run in order to produce the output
+  // from the given arguments.
+  string tool_name;
+
+  // ID of the tool use request
+  string id;
+
+  // Arguments for the Tool. The LLM may hallucinate and generate
+  // incorrect arguments or even invalid JSON, so this should be
+  // interpreted defensively.
+  mojo_base.mojom.DictionaryValue arguments;
+
+  // Output from the Tool. When null, the Tool
+  // has not yet run or completed.
+  array<ContentBlock>? output;
 };
 
 // Events that occur during a conversation turn (only assistant for now)
 union ConversationEntryEvent {
   CompletionEvent completion_event;
-  PageContentRefineEvent page_content_refine_event;
   SearchQueriesEvent search_queries_event;
   SearchStatusEvent search_status_event;
   WebSourcesEvent sources_event;
+  ToolUseEvent tool_use_event;
 
   // These events don't normally get added to the conversation entry
   // but are used in engine responses.
   SelectedLanguageEvent selected_language_event;
+  ContentReceiptEvent content_receipt_event;
   ConversationTitleEvent conversation_title_event;
 };
 
@@ -242,12 +295,20 @@ struct ConversationTurn {
   // engine or displaying the most recent text to users.
   array<ConversationTurn>? edits;
 
-  // Due to server limitation, we only support one image in one turn for the
-  // entire conversation. Each turns will share the same image.
-  array<UploadedImage>? uploaded_images;
+  // User uploaded files, currently including image and screenshot
+  array<UploadedFile>? uploaded_files;
 
   // Whether the turn was generated from Brave Search SERP.
   bool from_brave_search_SERP = false;
+
+  // Null in BYOM conversations.
+  // In assistant turns, it indicates which model generated this turn.
+  // In human turns, it indicates which model to be used for regenerating
+  // answers.
+  // TODO(petemill): It should always store which model was used so that
+  // if the user changed the conversation model mid-conversation then we
+  // can see which answers were generated by which model.
+  string? model_key;
 };
 
 // Represents an AI engine model choice, usually for the user to choose for a
@@ -261,8 +322,6 @@ struct LeoModelOptions {
   string name;
   // maker, for users
   string display_maker;
-  // how to run this model
-  ModelEngineType engine_type;
   // user-facing category
   ModelCategory category;
   // Which access level grants permission to use the model
@@ -301,6 +360,8 @@ struct Model {
   string display_name;
   // whether accept image as input
   bool vision_support;
+  // Model supports tool use
+  bool supports_tools = false;
 };
 
 struct ModelWithSubtitle {
@@ -339,8 +400,8 @@ interface Service {
   DismissStorageNotice();
   DismissPremiumPrompt();
 
-  // Get metadata for non-archived conversations
-  GetVisibleConversations() => (array<Conversation> conversations);
+  // Get metadata for conversations
+  GetConversations() => (array<Conversation> conversations);
 
   // Get metadata for all quick actions
   GetActionMenuList() => (array<ActionGroup> action_list);
@@ -395,7 +456,13 @@ interface AIChatUIHandler {
   ManagePremium();
   HandleVoiceRecognition(string conversation_uuid);
   ShowSoftKeyboard();
-  UploadImage(string conversation_uuid) => (UploadedImage? uploaded_image);
+  // use_media_capture is used on Android only currently. It could
+  // be used on desktop as well in the future when a camera support is added.
+  UploadImage(bool use_media_capture)
+      => (array<UploadedFile>? uploaded_images);
+
+  // Get a plural string for the given key and count.
+  GetPluralString(string key, int32 count) => (string plural_string);
 
   // This might be a no-op if the UI isn't closeable
   CloseUI();
@@ -414,6 +481,9 @@ interface AIChatUIHandler {
   // Associates an open tab with a conversation.
   AssociateTab(TabData tab, string conversation_uuid);
 
+  // Disassociates an open tab from a conversation.
+  DisassociateTab(TabData tab, string conversation_uuid);
+
   // Make a completely new conversation, which may
   // be bound to the associated conversation, if this UI has a target
   NewConversation(pending_receiver<ConversationHandler> conversation,
@@ -424,8 +494,13 @@ interface AIChatUIHandler {
 interface ChatUI {
   // Notifies that the default conversation for the
   // panel has changed. e.g. Tab navigation with AIChat open in sidebar.
-  OnNewDefaultConversation();
+  // Content ID is the content ID of the tab associated with the conversation,
+  // if any.
+  OnNewDefaultConversation(int32? content_id);
   OnChildFrameBound(pending_receiver<ParentUIFrame> receiver);
+  // Notifies that files are selected between AIChatUIHandler::UploadImage() is
+  // called and return of uploaded files after processed.
+  OnUploadFilesSelected();
 };
 
 struct ConversationState {
@@ -435,9 +510,12 @@ struct ConversationState {
   string current_model_key;
   array<string> suggested_questions;
   SuggestionGenerationStatus suggestion_status;
-  AssociatedContent? associated_content;
+  array<AssociatedContent> associated_content;
   bool should_send_content;
   APIError error;
+  // Indicates whether the conversation is temporary which would be in-memory
+  // only and not persisted in database.
+  bool temporary = false;
   // TODO(petemill): include conversation history, once
   // `OnConversationHistoryUpdate` is more intelligent (see TOOD in definition).
 };
@@ -448,14 +526,18 @@ struct ConversationEntriesState {
   bool is_generating;
   // Whether the current model is a built-in Leo model
   bool is_leo_model;
+  array<Model> all_models;
+  string current_model_key;
   // How much of the content has been used by the AI engine, percentage,or null
   // if no content is associated.
   uint32? content_used_percentage;
-  // Whether the content has been refined
-  bool is_content_refined;
   // Whether the UI should represent that the user cannot submit new messages
   // or edits to the conversation.
   bool can_submit_user_entries;
+  // Indicates the total number of tokens for the conversation
+  uint64 total_tokens;
+  // Indicates the number of tokens that were trimmed from the conversation
+  uint64 trimmed_tokens;
 };
 
 // Browser-side handler for a Conversation
@@ -481,7 +563,7 @@ interface ConversationHandler {
   GenerateQuestions();
 
   SubmitHumanConversationEntry(
-      string input, array<UploadedImage>? uploaded_images);
+      string input, array<UploadedFile>? uploaded_files);
   SubmitHumanConversationEntryWithAction(string input, ActionType action_type);
   ModifyConversation(uint32 turn_index, string new_text);
   SubmitSummarizationRequest();
@@ -491,9 +573,9 @@ interface ConversationHandler {
   SubmitSuggestion(string suggestion);
 
   // Get associated page information. If there is none then |associated_content|
-  // will be |null|.
+  // will be empty.
   GetAssociatedContentInfo() => (
-      AssociatedContent? associated_content, bool should_send_content);
+      array<AssociatedContent> associated_content, bool should_send_content);
 
   SetShouldSendPageContents(bool should_send);
 
@@ -517,6 +599,12 @@ interface ConversationHandler {
       string category,
       string feedback,
       string rating_id, bool send_hostname) => (bool is_success);
+
+  GetScreenshots() => (array<UploadedFile>? screenshots);
+
+  // Make it a temporary conversation, only available at the start of the
+  // conversation. It would be a no-op if the conversation is not empty.
+  SetTemporary(bool temporary);
 };
 
 // Browser-side handler for a Conversation's UI responsible for displaying
@@ -530,23 +618,24 @@ interface UntrustedConversationHandler {
   GetConversationHistory() => (array<ConversationTurn> conversation_history);
 
   ModifyConversation(uint32 turn_index, string new_text);
+
+  // Regenerate answer using specified model.
+  RegenerateAnswer(string turn_uuid, string model_key);
 };
 
 // Untrusted-UI-side handler for a Conversation, responsible for displaying
 // content generated by the AI engine.
 interface UntrustedConversationUI {
-  // TODO(petemill): Provide single entry that's been updated so that we don't
-  // need to fetch (and clone) all conversation entries each time text is added
-  // to the most recent entry.
-  OnConversationHistoryUpdate();
+  OnConversationHistoryUpdate(ConversationTurn? entry);
   OnEntriesUIStateChanged(ConversationEntriesState state);
+
+  // Called when the associated content is changed - called when the untrusted
+  // conversation frame is attached and when the content is changed.
+  AssociatedContentChanged(array<AssociatedContent> associated_content);
 };
 
 interface ConversationUI {
-  // TODO(petemill): Provide single entry that's been updated so that we don't
-  // need to fetch (and clone) all conversation entries each time text is added
-  // to the most recent entry.
-  OnConversationHistoryUpdate();
+  OnConversationHistoryUpdate(ConversationTurn? entry);
   OnAPIRequestInProgress(bool is_request_in_progress);
   OnAPIResponseError(APIError error);
   // Usually the model is changed from the UI client, but occassionally
@@ -560,7 +649,7 @@ interface ConversationUI {
       array<string> questions, SuggestionGenerationStatus status);
   // Associated page information has changed. If there is none then |associated_content|
   // will be |null|.
-  OnAssociatedContentInfoChanged(AssociatedContent? associated_content, bool should_send_page_contents);
+  OnAssociatedContentInfoChanged(array<AssociatedContent> associated_content, bool should_send_page_contents);
   OnConversationDeleted();
 };
 

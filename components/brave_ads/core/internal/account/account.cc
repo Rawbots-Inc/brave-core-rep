@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "base/check_op.h"
 #include "base/functional/bind.h"
 #include "brave/components/brave_ads/core/internal/account/account_util.h"
@@ -53,7 +54,7 @@ void Account::RemoveObserver(AccountObserver* const observer) {
 
 void Account::SetWallet(const std::string& payment_id,
                         const std::string& recovery_seed_base64) {
-  const std::optional<WalletInfo> wallet =
+  std::optional<WalletInfo> wallet =
       CreateWalletFromRecoverySeed(payment_id, recovery_seed_base64);
   if (!wallet) {
     BLOG(0, "Failed to initialize wallet");
@@ -75,15 +76,6 @@ void Account::GetStatement(GetStatementOfAccountsCallback callback) {
   return BuildStatement(std::move(callback));
 }
 
-void Account::Deposit(const std::string& creative_instance_id,
-                      const std::string& segment,
-                      mojom::AdType mojom_ad_type,
-                      mojom::ConfirmationType mojom_confirmation_type) const {
-  DepositWithUserData(creative_instance_id, segment, mojom_ad_type,
-                      mojom_confirmation_type,
-                      /*user_data=*/base::Value::Dict());
-}
-
 void Account::DepositWithUserData(
     const std::string& creative_instance_id,
     const std::string& segment,
@@ -94,21 +86,19 @@ void Account::DepositWithUserData(
   CHECK_NE(mojom::AdType::kUndefined, mojom_ad_type);
   CHECK_NE(mojom::ConfirmationType::kUndefined, mojom_confirmation_type);
 
-  if (!IsAllowedToDeposit(mojom_ad_type, mojom_confirmation_type)) {
+  if (!IsAllowedToDeposit(creative_instance_id, mojom_ad_type,
+                          mojom_confirmation_type)) {
     return;
   }
 
-  const std::unique_ptr<DepositInterface> deposit =
-      DepositsFactory::Build(mojom_confirmation_type);
-  if (!deposit) {
-    return;
+  if (const std::unique_ptr<DepositInterface> deposit =
+          DepositsFactory::Build(mojom_confirmation_type)) {
+    deposit->GetValue(
+        creative_instance_id,
+        base::BindOnce(&Account::DepositCallback, weak_factory_.GetWeakPtr(),
+                       creative_instance_id, segment, mojom_ad_type,
+                       mojom_confirmation_type, std::move(user_data)));
   }
-
-  deposit->GetValue(
-      creative_instance_id,
-      base::BindOnce(&Account::DepositCallback, weak_factory_.GetWeakPtr(),
-                     creative_instance_id, segment, mojom_ad_type,
-                     mojom_confirmation_type, std::move(user_data)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -208,11 +198,14 @@ void Account::InitializeConfirmations() {
 }
 
 void Account::MaybeInitializeUserRewards() {
-  if (!wallet_) {
+  if (user_rewards_) {
+    // Already initialized.
     return;
   }
 
-  if (user_rewards_ || !UserHasJoinedBraveRewards()) {
+  if (!UserHasJoinedBraveRewardsAndConnectedWallet()) {
+    // No-op if the user has not joined Brave Rewards and connected a wallet,
+    // as rewards can only be earned when connected.
     return;
   }
 
@@ -222,10 +215,12 @@ void Account::MaybeInitializeUserRewards() {
   // Brave Rewards because the associated data and the `Ads` instance will be
   // destroyed.
 
+  if (!HasWallet()) {
+    return;
+  }
+
   user_rewards_ = std::make_unique<UserRewards>(*wallet_);
-
   user_rewards_->FetchIssuers();
-
   user_rewards_->MaybeRedeemPaymentTokens();
 }
 

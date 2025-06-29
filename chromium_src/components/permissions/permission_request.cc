@@ -8,8 +8,10 @@
 #include <optional>
 #include <vector>
 
+#include "base/check.h"
 #include "base/containers/contains.h"
 #include "base/containers/fixed_flat_set.h"
+#include "base/notreached.h"
 #include "build/build_config.h"
 #include "components/grit/brave_components_strings.h"
 #include "components/strings/grit/components_strings.h"
@@ -24,12 +26,14 @@
 #define BRAVE_ENUM_ITEMS_FOR_SWITCH \
   case RequestType::kBraveEthereum: \
   case RequestType::kBraveSolana:   \
+  case RequestType::kBraveCardano:  \
   case RequestType::kWidevine:      \
     NOTREACHED();
 #else
 #define BRAVE_ENUM_ITEMS_FOR_SWITCH \
   case RequestType::kBraveEthereum: \
   case RequestType::kBraveSolana:   \
+  case RequestType::kBraveCardano:  \
   case RequestType::kWidevine:      \
     NOTREACHED();
 #endif
@@ -97,25 +101,13 @@ const unsigned int IDS_VR_PERMISSION_FRAGMENT_OVERRIDE =
 namespace permissions {
 
 PermissionRequest::PermissionRequest(
-    const GURL& requesting_origin,
-    RequestType request_type,
-    bool has_gesture,
+    std::unique_ptr<PermissionRequestData> request_data,
     PermissionDecidedCallback permission_decided_callback,
-    base::OnceClosure delete_callback)
-    : PermissionRequest_ChromiumImpl(requesting_origin,
-                                     request_type,
-                                     has_gesture,
-                                     std::move(permission_decided_callback),
-                                     std::move(delete_callback)) {}
-
-PermissionRequest::PermissionRequest(
-    PermissionRequestData request_data,
-    PermissionDecidedCallback permission_decided_callback,
-    base::OnceClosure delete_callback,
+    base::OnceClosure request_finished_callback,
     bool uses_automatic_embargo)
     : PermissionRequest_ChromiumImpl(std::move(request_data),
                                      std::move(permission_decided_callback),
-                                     std::move(delete_callback),
+                                     std::move(request_finished_callback),
                                      uses_automatic_embargo) {}
 
 PermissionRequest::~PermissionRequest() = default;

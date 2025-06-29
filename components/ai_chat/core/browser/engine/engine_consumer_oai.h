@@ -9,12 +9,12 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "base/memory/weak_ptr.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_credential_manager.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/engine/oai_api_client.h"
-#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 
 template <class T>
@@ -36,7 +36,8 @@ class EngineConsumerOAIRemote : public EngineConsumer {
  public:
   explicit EngineConsumerOAIRemote(
       const mojom::CustomModelOptions& model_options,
-      scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory);
+      scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
+      ModelService* model_service);
   EngineConsumerOAIRemote(const EngineConsumerOAIRemote&) = delete;
   EngineConsumerOAIRemote& operator=(const EngineConsumerOAIRemote&) = delete;
   ~EngineConsumerOAIRemote() override;
@@ -52,6 +53,8 @@ class EngineConsumerOAIRemote : public EngineConsumer {
       const std::string& page_content,
       const ConversationHistory& conversation_history,
       const std::string& selected_language,
+      const std::vector<base::WeakPtr<Tool>>&,
+      std::optional<std::string_view> preferred_tool_name,
       GenerationDataCallback data_received_callback,
       GenerationCompletedCallback completed_callback) override;
   void GenerateRewriteSuggestion(
@@ -63,6 +66,11 @@ class EngineConsumerOAIRemote : public EngineConsumer {
   void SanitizeInput(std::string& input) override;
   void ClearAllQueries() override;
   bool SupportsDeltaTextResponses() const override;
+  void GetSuggestedTopics(const std::vector<Tab>& tabs,
+                          GetSuggestedTopicsCallback callback) override;
+  void GetFocusTabs(const std::vector<Tab>& tabs,
+                    const std::string& topic,
+                    GetFocusTabsCallback callback) override;
 
   void SetAPIForTesting(std::unique_ptr<OAIAPIClient> api_for_testing) {
     api_ = std::move(api_for_testing);

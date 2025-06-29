@@ -12,12 +12,12 @@ import AssistantResponse from '.'
 
 const eventTemplate: Mojom.ConversationEntryEvent = {
   completionEvent: undefined,
-  pageContentRefineEvent: undefined,
   searchQueriesEvent: undefined,
   searchStatusEvent: undefined,
   selectedLanguageEvent: undefined,
   conversationTitleEvent: undefined,
-  sourcesEvent: undefined
+  sourcesEvent: undefined,
+  contentReceiptEvent: undefined
 }
 
 function getCompletionEvent(text: string): Mojom.ConversationEntryEvent {
@@ -59,7 +59,8 @@ test('AssistantResponse should include expandable sources', async () => {
       ])
     ]
   }
-  render(<AssistantResponse entry={testEntry} isEntryInProgress={false} />)
+  render(<AssistantResponse
+            entry={testEntry} isEntryInProgress={false} allowedLinks={[]} />)
   // There should be the first items showing
   let links = screen.getAllByRole('link')
   expect(links).toHaveLength(4)

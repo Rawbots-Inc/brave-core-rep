@@ -10,12 +10,13 @@ import Growth
 import Preferences
 import Shared
 import UIKit
+import Web
 import os.log
 
 extension BrowserViewController {
   func makeShareActivities(
     for url: URL,
-    tab: Tab?,
+    tab: (any TabState)?,
     sourceView: UIView?,
     sourceRect: CGRect,
     arrowDirection: UIPopoverArrowDirection
@@ -40,7 +41,7 @@ extension BrowserViewController {
     }
 
     // Send Tab To Self Activity - Show device selection screen
-    if braveCore.syncAPI.isSendTabToSelfVisible, !privateBrowsingManager.isPrivateBrowsing,
+    if profileController.syncAPI.isSendTabToSelfVisible, !privateBrowsingManager.isPrivateBrowsing,
       !url.isLocal, !InternalURL.isValid(url: url), !url.isInternalURL(for: .readermode)
     {
       activities.append(
@@ -49,7 +50,7 @@ extension BrowserViewController {
           callback: { [weak self] in
             guard let self = self else { return }
 
-            let deviceList = self.braveCore.sendTabAPI.getListOfSyncedDevices()
+            let deviceList = self.profileController.sendTabAPI.getListOfSyncedDevices()
             let dataSource = SendableTabInfoDataSource(
               with: deviceList,
               displayTitle: tab?.displayTitle ?? "",
@@ -57,7 +58,7 @@ extension BrowserViewController {
             )
 
             let controller = SendTabToSelfController(
-              sendTabAPI: self.braveCore.sendTabAPI,
+              sendTabAPI: self.profileController.sendTabAPI,
               dataSource: dataSource
             )
 
@@ -68,7 +69,7 @@ extension BrowserViewController {
                 SendTabProcessController(
                   type: .progress,
                   data: dataSource,
-                  sendTabAPI: self.braveCore.sendTabAPI
+                  sendTabAPI: self.profileController.sendTabAPI
                 ),
                 animated: true,
                 completion: nil
@@ -81,26 +82,22 @@ extension BrowserViewController {
     }
 
     // Toogle Reader Mode Activity
-    // If the reader mode button is occluded due to a secure content state warning add it as an activity
-    if let tab = tabManager.selectedTab, tab.lastKnownSecureContentState.shouldDisplayWarning {
-      if tab.readerModeAvailableOrActive {
-        activities.append(
-          BasicMenuActivity(
-            activityType: .toggleReaderMode,
-            callback: { [weak self] in
-              self?.toggleReaderMode()
-            }
-          )
+    if let tab = tabManager.selectedTab, tab.readerModeAvailableOrActive == true {
+      activities.append(
+        BasicMenuActivity(
+          activityType: .toggleReaderMode,
+          callback: { [weak self] in
+            self?.toggleReaderMode()
+          }
         )
-      }
-      // Any other buttons on the leading side of the location view should be added here as well
+      )
     }
 
     // Translate Activity
     if FeatureList.kBraveTranslateEnabled.enabled,
       let translationState = tab?.translationState,
       translationState != .unavailable,
-      Preferences.Translate.translateEnabled.value != false
+      Preferences.Translate.translateEnabled.value
     {
       activities.append(
         BasicMenuActivity(
@@ -126,13 +123,9 @@ extension BrowserViewController {
     activities.append(
       BasicMenuActivity(
         activityType: .findInPage,
-        callback: { [weak self] in
-          guard let self = self else { return }
-
-          if let findInteraction = self.tabManager.selectedTab?.webView?.findInteraction {
-            findInteraction.searchText = ""
-            findInteraction.presentFindNavigator(showingReplace: false)
-          }
+        callback: { [weak tab] in
+          guard let tab else { return }
+          tab.presentFindInteraction(with: "")
         }
       )
     )
@@ -170,7 +163,7 @@ extension BrowserViewController {
       }
 
       // Request Desktop Site Activity
-      let isDesktopSite = tab?.isDesktopSite ?? false
+      let isDesktopSite = tab?.currentUserAgentType == .desktop
       var requestDesktopSite = BasicMenuActivity.ActivityType.requestDesktopSite
       if isDesktopSite {
         requestDesktopSite.title = Strings.appMenuViewMobileSiteTitleString
@@ -186,7 +179,7 @@ extension BrowserViewController {
       )
 
       // Add Feed To Brave News Activity
-      if Preferences.BraveNews.isEnabled.value, let metadata = tab?.pageMetadata,
+      if Preferences.BraveNews.isEnabled.value, let metadata = tab?.pageMetadataHelper?.metadata,
         !metadata.feeds.isEmpty
       {
         let feeds: [RSSFeedLocation] = metadata.feeds.compactMap { feed in
@@ -216,52 +209,48 @@ extension BrowserViewController {
       }
 
       // Create PDF Activity
-      if let webView = tab?.webView, tab?.temporaryDocument == nil {
+      if let tab, tab.temporaryDocument == nil {
         activities.append(
           BasicMenuActivity(
             activityType: .createPDF,
             callback: {
-              webView.createPDF { [weak self] result in
-                dispatchPrecondition(condition: .onQueue(.main))
-                guard let self = self else {
-                  return
-                }
-                switch result {
-                case .success(let pdfData):
-                  Task {
-                    // Create a valid filename
-                    let validFilenameSet = CharacterSet(charactersIn: ":/")
-                      .union(.newlines)
-                      .union(.controlCharacters)
-                      .union(.illegalCharacters)
-                    let filename = webView.title?.components(separatedBy: validFilenameSet).joined()
-                    let url = URL(fileURLWithPath: NSTemporaryDirectory())
-                      .appendingPathComponent("\(filename ?? "Untitled").pdf")
-                    do {
-                      try await Task.detached {
-                        try pdfData.write(to: url)
-                      }.value
-                      let pdfActivityController = UIActivityViewController(
-                        activityItems: [url],
-                        applicationActivities: nil
-                      )
-                      if let popoverPresentationController = pdfActivityController
-                        .popoverPresentationController
-                      {
-                        popoverPresentationController.sourceView = sourceView
-                        popoverPresentationController.sourceRect = sourceRect
-                        popoverPresentationController.permittedArrowDirections = arrowDirection
-                        popoverPresentationController.delegate = self
-                      }
-                      self.present(pdfActivityController, animated: true)
-                    } catch {
-                      Logger.module.error(
-                        "Failed to write PDF to disk: \(error.localizedDescription, privacy: .public)"
-                      )
-                    }
+              Task { @MainActor in
+                do {
+                  guard let pdfData = try await tab.createFullPagePDF() else {
+                    return
                   }
-
-                case .failure(let error):
+                  // Create a valid filename
+                  let validFilenameSet = CharacterSet(charactersIn: ":/")
+                    .union(.newlines)
+                    .union(.controlCharacters)
+                    .union(.illegalCharacters)
+                  let filename =
+                    tab.title?.components(separatedBy: validFilenameSet).joined() ?? ""
+                  let url = URL(fileURLWithPath: NSTemporaryDirectory())
+                    .appendingPathComponent("\(filename.isEmpty ? "Untitled" : filename).pdf")
+                  do {
+                    try await Task.detached {
+                      try pdfData.write(to: url)
+                    }.value
+                    let pdfActivityController = UIActivityViewController(
+                      activityItems: [url],
+                      applicationActivities: nil
+                    )
+                    if let popoverPresentationController = pdfActivityController
+                      .popoverPresentationController
+                    {
+                      popoverPresentationController.sourceView = sourceView
+                      popoverPresentationController.sourceRect = sourceRect
+                      popoverPresentationController.permittedArrowDirections = arrowDirection
+                      popoverPresentationController.delegate = self
+                    }
+                    self.present(pdfActivityController, animated: true)
+                  } catch {
+                    Logger.module.error(
+                      "Failed to write PDF to disk: \(error.localizedDescription, privacy: .public)"
+                    )
+                  }
+                } catch {
                   Logger.module.error(
                     "Failed to create PDF with error: \(error.localizedDescription)"
                   )
@@ -275,7 +264,8 @@ extension BrowserViewController {
       // Add Feed To Brave News Activity
       // Check if it's a feed, url is a temp document file URL
       if let selectedTab = tabManager.selectedTab,
-        selectedTab.mimeType == "application/xml" || selectedTab.mimeType == "application/json",
+        selectedTab.contentsMimeType == "application/xml"
+          || selectedTab.contentsMimeType == "application/json",
         let tabURL = selectedTab.url
       {
 
@@ -305,8 +295,8 @@ extension BrowserViewController {
     }
 
     // Add Search Engine Activity
-    if let webView = tabManager.selectedTab?.webView,
-      evaluateWebsiteSupportOpenSearchEngine(webView)
+    if let tab = tabManager.selectedTab,
+      evaluateWebsiteSupportOpenSearchEngine(in: tab)
     {
       activities.append(
         BasicMenuActivity(
@@ -319,8 +309,8 @@ extension BrowserViewController {
     }
 
     // Display Certificate Activity
-    if let tabURL = tabManager.selectedTab?.webView?.url,
-      tabManager.selectedTab?.webView?.serverTrust != nil
+    if let tabURL = tabManager.selectedTab?.visibleURL,
+      tabManager.selectedTab?.serverTrust != nil
         || ErrorPageHelper.hasCertificates(for: tabURL)
     {
       activities.append(
@@ -346,7 +336,7 @@ extension BrowserViewController {
 
   func presentActivityViewController(
     _ url: URL,
-    tab: Tab? = nil,
+    tab: (any TabState)? = nil,
     sourceView: UIView?,
     sourceRect: CGRect,
     arrowDirection: UIPopoverArrowDirection

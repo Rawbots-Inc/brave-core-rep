@@ -32,10 +32,8 @@ public class AppState {
   public static let shared = AppState()
 
   public let braveCore: BraveCoreMain
-  public let dau: DAU
   public let migration: Migration
   public let profile: Profile
-  public let rewards: Brave.BraveRewards
   public let newsFeedDataSource: FeedDataSource
   public let uptimeMonitor = UptimeMonitor()
   private var didBecomeActive = false
@@ -55,6 +53,21 @@ public class AppState {
           DataController.shared.initializeOnce()
           DataController.sharedInMemory.initializeOnce()
           Migration.migrateLostTabsActiveWindow()
+
+          let useChromiumWebViews = FeatureList.kUseChromiumWebViews.enabled
+          var purgeSessionData =
+            useChromiumWebViews && !Preferences.Chromium.invalidatedRestorationOnUpgrade.value
+          if let value = Preferences.Chromium.lastWebViewsFlagState.value,
+            value != useChromiumWebViews
+          {
+            purgeSessionData = true
+          }
+          if purgeSessionData {
+            Preferences.Chromium.invalidatedRestorationOnUpgrade.value = true
+            SessionTab.purgeSessionData()
+          }
+
+          Preferences.Chromium.lastWebViewsFlagState.value = useChromiumWebViews
         }
 
         if !AppConstants.isOfficialBuild || Preferences.Debug.developerOptionsEnabled.value {
@@ -80,26 +93,19 @@ public class AppState {
       $0.scheduleLowPriorityStartupTasks()
     }
 
-    // Setup DAU
-    dau = DAU(braveCoreStats: braveCore.braveStats)
-
     // Setup Profile
-    profile = BrowserProfile(localName: "profile")
+    profile = BrowserProfile()
 
     // Setup Migrations
-    migration = Migration(braveCore: braveCore)
+    migration = Migration()
 
     // Perform Migrations
-    migration.launchMigrations(keyPrefix: profile.prefs.getBranchPrefix(), profile: profile)
+    migration.launchMigrations(keyPrefix: "profile")
 
-    // Setup Rewards & Ads
-    let configuration = BraveRewards.Configuration.current()
-    Self.migrateAdsConfirmations(for: configuration)
-    rewards = BraveRewards(configuration: configuration)
     newsFeedDataSource = FeedDataSource()
 
     // Setup Custom URL scheme handlers
-    setupCustomSchemeHandlers(profile: profile)
+    setupCustomSchemeHandlers()
   }
 
   public enum State {
@@ -198,15 +204,17 @@ public class AppState {
     switches.append(.init(key: .rewardsFlags, value: BraveRewards.Configuration.current().flags))
 
     // Initialize BraveCore
-    return BraveCoreMain(userAgent: UserAgent.mobile, additionalSwitches: switches)
+    let braveCoreMain = BraveCoreMain(additionalSwitches: switches)
+    // `UserAgent.mobile` requires a feature flag, so it must be initialized after BraveCore
+    braveCoreMain.setUserAgent(UserAgent.mobile)
+    return braveCoreMain
   }
 
-  private func setupCustomSchemeHandlers(profile: Profile) {
+  private func setupCustomSchemeHandlers() {
     let responders: [(String, InternalSchemeResponse)] = [
       (AboutHomeHandler.path, AboutHomeHandler()),
-      (AboutLicenseHandler.path, AboutLicenseHandler()),
       (ErrorPageHandler.path, ErrorPageHandler()),
-      (ReaderModeHandler.path, ReaderModeHandler(profile: profile)),
+      (ReaderModeHandler.path, ReaderModeHandler()),
       (Web3DomainHandler.path, Web3DomainHandler()),
       (BlockedDomainHandler.path, BlockedDomainHandler()),
       (HTTPBlockedHandler.path, HTTPBlockedHandler()),
@@ -214,40 +222,6 @@ public class AppState {
 
     responders.forEach { (path, responder) in
       InternalSchemeHandler.responders[path] = responder
-    }
-  }
-
-  private static func migrateAdsConfirmations(for configuruation: Brave.BraveRewards.Configuration)
-  {
-    // To ensure after a user launches 1.21 that their ads confirmations, viewed count and
-    // estimated payout remain correct.
-    //
-    // This hack is unfortunately neccessary due to a missed migration path when moving
-    // confirmations from ledger to ads, we must extract `confirmations.json` out of ledger's
-    // state file and save it as a new file under the ads directory.
-    let base = configuruation.storageURL
-    let ledgerStateContainer = base.appendingPathComponent("ledger/random_state.plist")
-    let adsConfirmations = base.appendingPathComponent("ads/confirmations.json")
-    let fm = FileManager.default
-
-    if !fm.fileExists(atPath: ledgerStateContainer.path)
-      || fm.fileExists(atPath: adsConfirmations.path)
-    {
-      // Nothing to migrate or already migrated
-      return
-    }
-
-    do {
-      let contents = NSDictionary(contentsOfFile: ledgerStateContainer.path)
-      guard let confirmations = contents?["confirmations.json"] as? String else {
-        adsRewardsLog.debug("No confirmations found to migrate in ledger's state container")
-        return
-      }
-      try confirmations.write(toFile: adsConfirmations.path, atomically: true, encoding: .utf8)
-    } catch {
-      adsRewardsLog.error(
-        "Failed to migrate confirmations.json to ads folder: \(error.localizedDescription)"
-      )
     }
   }
 }

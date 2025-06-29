@@ -12,10 +12,10 @@
 #include <vector>
 
 #include "base/base64.h"
-#include "base/check_op.h"
+#include "base/check.h"
 #include "base/containers/span.h"
 #include "base/notreached.h"
-#include "base/strings/string_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/value_iterators.h"
 #include "base/values.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_prefs.h"

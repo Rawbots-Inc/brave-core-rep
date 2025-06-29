@@ -38,6 +38,7 @@ export type IconSize =
   | 'massive'
   | 'huge'
   | 'big'
+  | 'large'
   | 'medium'
   | 'small'
   | 'tiny'
@@ -56,6 +57,8 @@ function getNetworkIconWidthFromSize(size?: IconSize): string {
       return '32px'
     case 'big':
       return '24px'
+    case 'large':
+      return '20px'
     case 'medium':
       return '18px'
     case 'small':
@@ -90,7 +93,7 @@ export const NetworkIcon = AssetIconFactory<IconProps>((props) => ({
   width: props.isExternalProvider
     ? getExternalProviderIconSize(props.size)
     : getNetworkIconWidthFromSize(props.size),
-  height: 'auto'
+  height: 'auto',
 }))
 
 export const Placeholder = styled.div<{

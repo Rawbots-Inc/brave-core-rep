@@ -24,7 +24,10 @@
       'upwardSelector': results.upwardSelector,
       'localFrameElement': results.localFrameElement,
       'hasTextDisplayIsNone': results.hasTextDisplayIsNone,
-      'hasDisplayIsNone': results.hasDisplayIsNone
+      'hasDisplayIsNone': results.hasDisplayIsNone,
+      'delayedHasTextHidden': results.delayedHasTextHidden,
+      'delayedChildHasTextHidden': results.delayedChildHasTextHidden,
+      'altMutationStrategyHidden': results.altMutationStrategyHidden
     })
   }
 
@@ -45,7 +48,10 @@
       upwardSelector: false,
       localFrameElement: false,
       hasTextDisplayIsNone: false,
-      hasDisplayIsNone: false
+      hasDisplayIsNone: false,
+      delayedHasTextHidden: false,
+      delayedChildHasTextHidden: [],
+      altMutationStrategyHidden: false
     }
 
     elements.forEach((node) => {
@@ -88,6 +94,16 @@
         results.hasTextDisplayIsNone = nodeDisplay === 'none'
       }
 
+      if (node.id === 'test-delayed-has-text') {
+        const nodeDisplay = window.getComputedStyle(node).display
+        results.delayedHasTextHidden = nodeDisplay === 'none'
+      }
+
+      if (node.id === 'test-alt-mutation-observation-strategy') {
+        const nodeDisplay = window.getComputedStyle(node).display
+        results.altMutationStrategyHidden = nodeDisplay === 'none'
+      }
+
       if (node.id === 'test-has') {
         results.hasDisplayIsNone = window.getComputedStyle(node).display === 'none'
       }
@@ -102,6 +118,21 @@
             results.localFrameElement = window.getComputedStyle(node).display === 'none'
           }
         })
+      }
+    })
+
+    const elementsWithClass = document.querySelectorAll('[class]')
+    elementsWithClass.forEach((node) => {
+      if (!node.hasAttribute('class')) {
+        return
+      }
+
+      if (node.getAttribute('class') === 'procedural-filter-child-node-class') {
+        const nodeDisplay = window.getComputedStyle(node).display
+        // 2 elements have this class, we want to test both their display values
+        const delayedChildHasTextHidden = results.delayedChildHasTextHidden
+        delayedChildHasTextHidden.push(nodeDisplay === 'none')
+        results.delayedChildHasTextHidden = delayedChildHasTextHidden
       }
     })
 

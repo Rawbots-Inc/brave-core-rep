@@ -2,7 +2,10 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-# This file configures how to generate GN rules for third-party Rust crates.
+# This file configures how `gnrt` vendors and generates `BUILD.gn` files for
+# third-party Rust crates.  After modifying this file you probably want to run
+# either `tools/crates/run_gnrt.py vendor` or `tools/crates/run_gnrt.py gen` to
+# regenerate `gnrt`-managed files with the new `gnrt_config.toml` contents.
 #
 # `[crate.foo]` sections below can configure generation of `BUILD.gn` and/or
 # `README.chromium` by specifying the following options:
@@ -57,9 +60,22 @@
 #   README.chromium. It defaults to true if the crate is not in the 'test'
 #   group.
 #
-# bin_targets: A list of binary target names to cover.  This list is empty by
-#   default, which means that the default generated `BUILD.gn` will only cover
-#   the library target (if any) of the package.
+# extra_kv: A dictionary with arbitrary data (i.e. that doesn't come from
+#   `gnrt`).  The following enries are currently supported/used by
+#   `BUILD.gn.hbs`:
+#
+#     allow_unsafe: If true, then the crate is allowed to use `unsafe` Rust.
+#
+#     allow_unstable_features: A list of unstable feature names to allow
+#       in a given crate.  (Using unstable features adds extra risk
+#       to `rustc` rolls - please justify the risk and think about
+#       mitigation strategies.  See
+#       https://docs.google.com/document/d/1lh9x43gtqXFh5bP1LeYevWj0EcIRgIu0XGahHY08aeY/edit?usp=sharing
+#       as an example.)
+#
+#     configs_to_remove / configs_to_add: A list of GN config labels.
+#
+#     visibility: A list of targets that the crate should be visible to.
 #
 # Additional, less commonly needed options can also be discovered by reading
 # the doc comments in `//tools/crates/gnrt/lib/config.rs` (e.g. `CrateConfig`'s
@@ -119,11 +135,11 @@ license_files = ['LICENSE']
 extra_input_roots = ['../doc', '../README.md' ]
 license_files = ['LICENSE.txt']
 
+[crate.bytes]
+license_files = ['../../../../../../third_party/rust/chromium_crates_io/vendor/bytes-v1/LICENSE']
+
 [crate.cid]
 license_files = ['LICENSE']
-
-[crate.cbor4ii]
-extra_input_roots = [ "../README.md" ]
 
 [crate.chacha20]
 extra_kv = { raw_gn = '''
@@ -156,7 +172,7 @@ build_script_outputs = [ "lib.rs" ]
 license_files = ['LICENSE']
 extra_kv = { raw_gn = '''
 if (epoch == "0.29") {
-    build_script_inputs = [ "//brave/third_party/rust/chromium_crates_io/vendor/cssparser-" + cargo_pkg_version + "/build/match_byte.rs" ]
+    build_script_inputs = [ "//brave/third_party/rust/chromium_crates_io/vendor/cssparser-v0_29/build/match_byte.rs" ]
     build_script_outputs = [ "tokenizer.rs" ]
   }
 ''' }
@@ -166,14 +182,6 @@ license_files = ['LICENSE']
 
 [crate.curve25519-dalek]
 extra_input_roots = [ "../docs", "../README.md" ]
-extra_kv = { raw_gn = '''
-if (target_cpu == "x64") {
-    deps += [
-      "//brave/third_party/rust/cpufeatures/v0_2:lib",
-      "//brave/third_party/rust/curve25519_dalek_derive/v0_1:lib",
-    ]
-  }
-''' }
 
 [crate.curve25519-dalek-derive]
 extra_input_roots = [ "../README.md" ]
@@ -184,23 +192,14 @@ license_files = ['LICENSE']
 [crate.encoding_rs]
 license_files = ['LICENSE-APACHE']
 
-[crate.ff_derive]
-license_files = ['../../../../../common/licenses/Apache-2.0']
+[crate.equivalent]
+license_files = ['../../../../../../third_party/rust/chromium_crates_io/vendor/equivalent-v1/LICENSE-APACHE']
 
-[crate.forest_bigint]
+[crate.ff_derive]
 license_files = ['../../../../../common/licenses/Apache-2.0']
 
 [crate.funty]
 license_files = ['LICENSE.txt']
-
-[crate.fvm_ipld_blockstore]
-license_files = ['../../../../../common/licenses/Apache-2.0']
-
-[crate.fvm_ipld_encoding]
-license_files = ['../../../../../common/licenses/Apache-2.0']
-
-[crate.fvm_shared]
-license_files = ['../../../../../common/licenses/Apache-2.0']
 
 [crate.fxhash]
 license_files = ['../../../../../common/licenses/Apache-2.0']
@@ -214,26 +213,28 @@ license_files = ['../../../../../common/licenses/Apache-2.0']
 [crate.halo2_proofs]
 license_files = ['../../../../../common/licenses/Apache-2.0']
 
-[crate.ipld-core]
-extra_input_roots = [ "../README.md" ]
+[crate.http]
+extra_kv = { raw_gn = '''
+rustflags += [
+  "-A",
+  "dead_code",
+  "-A",
+  "dangerous_implicit_autorefs",
+]
+''' }
+
+[crate.indexmap]
+license_files = ['../../../../../../third_party/rust/chromium_crates_io/vendor/indexmap-v2/LICENSE-APACHE']
 
 [crate.itoa]
 license_files = ['LICENSE-APACHE']
 
+[crate.hashbrown]
+license_files = ['../../../../../../third_party/rust/chromium_crates_io/vendor/hashbrown-v0_15/LICENSE-APACHE']
+
 [crate.libm]
 extra_kv = { rustenv = [ "OPT_LEVEL=0" ]}
-
-[crate.libsecp256k1]
-build_script_outputs = [ "const.rs", "const_gen.rs" ]
-
-[crate.libsecp256k1-core]
-license_files = ['../../../../../common/licenses/Apache-2.0']
-
-[crate.libsecp256k1-gen-ecmult]
-license_files = ['../../../../../common/licenses/Apache-2.0']
-
-[crate.libsecp256k1-gen-genmult]
-license_files = ['../../../../../common/licenses/Apache-2.0']
+license_files = ['../../../../../../third_party/rust/chromium_crates_io/vendor/libm-v0_2/LICENSE.txt']
 
 [crate.lock_api]
 extra_kv = { rustflags = [ "--cfg", "has_const_fn_trait_bound" ] }
@@ -248,23 +249,8 @@ build_script_outputs = [ "generated.rs", "named_entities.rs", ]
 [crate.match_token]
 license_files = ['../../../../../common/licenses/Apache-2.0']
 
-[crate.multihash]
-extra_kv = { rustenv = [ "CARGO_MANIFEST_DIR=\" + rebase_path(\"//brave/third_party/rust/chromium_crates_io/vendor/multihash-0.19.2\") + \"" ]}
-
-[crate.multihash-codetable]
-license_files = ['LICENSE']
-extra_kv = { rustenv = [
-  "CARGO=\" + rebase_path(\"//third_party/rust-toolchain/bin/cargo\")  + \"",
-  "CARGO_MANIFEST_DIR=\" + rebase_path(\"//brave/third_party/rust/chromium_crates_io/vendor/multihash-codetable-0.1.4\") + \"" ]}
-
-[crate.multihash-derive]
-license_files = ['LICENSE']
-
-[crate.multihash-derive-impl]
-license_files = ['LICENSE']
-
 [crate.num-bigint]
-extra_input_roots = [ "../README.md" ]
+license_files = ['../../../../../common/licenses/Apache-2.0']
 extra_kv = { raw_gn = '''
 if (target_cpu == "arm64" || target_cpu == "x64") {
   rustenv = [ "CARGO_CFG_TARGET_POINTER_WIDTH=64" ]
@@ -276,9 +262,17 @@ if (epoch != "0.2") {
 } else {
   rustflags += [ "--cfg", "has_i128" ]
 }
-''' }
+rustflags += [
+  "-A",
+  "unused_variables",
+]
+''', allow_unsafe = true }
+
+[crate.num-integer]
+license_files = ['../../../../../common/licenses/Apache-2.0']
 
 [crate.num-traits]
+license_files = ['../../../../../common/licenses/Apache-2.0']
 extra_kv = { rustflags = [ "--cfg", "has_i128", "--cfg", "has_to_int_unchecked", "--cfg", "has_reverse_bits", "--cfg", "has_leading_trailing_ones", "--cfg", "has_int_assignop_ref", "--cfg", "has_div_euclid", "--cfg", "has_copysign" ] }
 
 [crate.phf_macros]
@@ -310,6 +304,9 @@ license_files = ['../../../../../common/licenses/Apache-2.0']
 [crate.rand_core]
 license_files = ['LICENSE-APACHE']
 
+[crate.readability]
+license_files = ['../../../../../../brave/components/speedreader/rust/lib/src/readability/LICENSE']
+
 [crate.reddsa]
 extra_input_roots = [ "../README.md" ]
 license_files = ['LICENSE.Apache-2.0']
@@ -317,9 +314,6 @@ license_files = ['LICENSE.Apache-2.0']
 [crate.selectors]
 build_script_outputs = [ "ascii_case_insensitive_html_attributes.rs" ]
 license_files = ['../../../../../common/licenses/MPL-2.0']
-
-[crate.semver]
-license_files = ['../../../../../common/licenses/Apache-2.0']
 
 [crate.serde_derive]
 license_files = ['../../../../../common/licenses/Apache-2.0']
@@ -336,6 +330,9 @@ license_files = ['LICENSE']
 
 [crate.star-constellation]
 license_files = ['LICENSE']
+
+[crate.strobe-rs]
+extra_input_roots = [ "../README.md" ]
 
 [crate.syn]
 extra_kv = { raw_gn = '''
@@ -395,9 +392,6 @@ license_files = ['../../../../../common/licenses/Apache-2.0']
 [crate.windows-targets]
 license_files = ['../../../../../common/licenses/Apache-2.0']
 
-[crate.winnow]
-extra_src_roots = ['../examples']
-
 [crate.wyz]
 license_files = ['LICENSE.txt']
 
@@ -414,4 +408,7 @@ license_files = ['../../../../../common/licenses/Apache-2.0']
 license_files = ['../../../../../common/licenses/Apache-2.0']
 
 [crate.zcash_client_backend]
+license_files = ['../../../../../common/licenses/Apache-2.0']
+
+[crate.zerocopy]
 license_files = ['../../../../../common/licenses/Apache-2.0']

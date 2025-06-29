@@ -14,39 +14,38 @@ using TabDragControllerBrave = TabDragController;
 
 #define TabDragController TabDragControllerChromium
 
-#define GetAttachedDragPoint      \
-  Unused_GetAttachedDragPoint() { \
-    return {};                    \
-  }                               \
-  virtual gfx::Point GetAttachedDragPoint
-
-#define InitDragData             \
-  Unused_MoveUattached() {}      \
+#define CompleteDrag             \
+  CompleteDrag_Unused();         \
   friend TabDragControllerBrave; \
-  virtual void InitDragData
+  void CompleteDrag
+
 #define GetAttachedBrowserWidget      \
   GetAttachedBrowserWidget_Unused() { \
     return {};                        \
   }                                   \
   virtual views::Widget* GetAttachedBrowserWidget
+
+#define CalculateWindowDragOffset      \
+  CalculateWindowDragOffset_Unused() { \
+    return {};                         \
+  }                                    \
+  virtual gfx::Vector2d CalculateWindowDragOffset
+
 #define GetLocalProcessWindow virtual GetLocalProcessWindow
 #define DetachAndAttachToNewContext virtual DetachAndAttachToNewContext
-#define CalculateNonMaximizedDraggedBrowserBounds \
-  virtual CalculateNonMaximizedDraggedBrowserBounds
-#define CalculateDraggedBrowserBounds virtual CalculateDraggedBrowserBounds
 #define ContinueDragging virtual ContinueDragging
+#define StartDraggingTabsSession virtual StartDraggingTabsSession
 
 #include "src/chrome/browser/ui/views/tabs/dragging/tab_drag_controller.h"  // IWYU pragma: export
 
+#undef StartDraggingTabsSession
 #undef ContinueDragging
-#undef CalculateDraggedBrowserBounds
-#undef CalculateNonMaximizedDraggedBrowserBounds
 #undef DetachAndAttachToNewContext
 #undef GetLocalProcessWindow
+#undef CalculateWindowDragOffset
 #undef GetAttachedBrowserWidget
 #undef TabDragController
-#undef InitDragData
-#undef GetAttachedDragPoint
+#undef CompleteDrag
 
 #include "brave/browser/ui/views/tabs/dragging/tab_drag_controller.h"
 

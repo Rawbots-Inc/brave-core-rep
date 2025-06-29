@@ -20,15 +20,21 @@ extension Preferences {
       default: nil
     )
 
-    /// A boolean indicating whether or not the user has URL-Bar/Search-Bar auto-complete for AI-Chat
-    public static let autocompleteSuggestionsEnabled = Option<Bool>(
-      key: "aichat.autocompletesuggestions-enabled",
-      default: true
-    )
-
     /// A boolean indicating whether or not the user has dismissed the Premium Prompt on the Feedback Form
     public static let showPremiumFeedbackAd = Option<Bool>(
       key: "aichat.show-premium-feedback-ad",
+      default: true
+    )
+
+    /// A boolean indicating whether or not to show Leo button inside the Quick Search Engines Bar
+    public static let leoInQuickSearchBarEnabled = Option<Bool>(
+      key: "aichat.leo-in-quick-search-bar-enabled",
+      default: true
+    )
+
+    /// Flag that determines whether or not to show the Feedback Privacy Warning
+    public static let showFeedbackPrivacyWarning = Option<Bool>(
+      key: "aichat.feedback-privacy-warning",
       default: true
     )
   }

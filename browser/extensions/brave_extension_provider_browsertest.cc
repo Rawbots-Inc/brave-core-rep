@@ -4,7 +4,6 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 #include "base/path_service.h"
-#include "base/strings/utf_string_conversions.h"
 #include "base/test/thread_test_helper.h"
 #include "brave/browser/extensions/brave_extension_functional_test.h"
 #include "brave/components/constants/brave_paths.h"
@@ -56,8 +55,8 @@ IN_PROC_BROWSER_TEST_F(BraveExtensionProviderTest, ExtensionsCanGetCookies) {
   GetTestDataDir(&test_data_dir);
   scoped_refptr<const extensions::Extension> extension =
       InstallExtensionSilently(
-      extension_service(),
-      test_data_dir.AppendASCII("extension-compat-test-extension.crx"));
+          extension_service(),
+          test_data_dir.AppendASCII("extension-compat-test-extension.crx"));
   GURL url = GURL(std::string(kChromeExtensionScheme) + "://" +
                   extension->id() + "/blocking.html");
 
@@ -75,8 +74,8 @@ IN_PROC_BROWSER_TEST_F(BraveExtensionProviderTest, ExtensionsCanSetCookies) {
   GetTestDataDir(&test_data_dir);
   scoped_refptr<const extensions::Extension> extension =
       InstallExtensionSilently(
-      extension_service(),
-      test_data_dir.AppendASCII("extension-compat-test-extension.crx"));
+          extension_service(),
+          test_data_dir.AppendASCII("extension-compat-test-extension.crx"));
   GURL url = GURL(std::string(kChromeExtensionScheme) + "://" +
                   extension->id() + "/blocking.html");
 

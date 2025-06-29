@@ -144,22 +144,22 @@ export class SearchableDropDownElement extends PolymerElement {
     };
   }
 
-  override autofocus: boolean;
-  readonly: boolean;
-  errorMessageAllowed: boolean;
-  errorMessage: string;
-  loadingMessage: string;
-  placeholder: string;
-  invalid: boolean;
-  items: string[];
-  value: string;
-  label: string;
-  updateValueOnInput: boolean;
-  showLoading: boolean;
+  declare autofocus: boolean;
+  declare readonly: boolean;
+  declare errorMessageAllowed: boolean;
+  declare errorMessage: string;
+  declare loadingMessage: string;
+  declare placeholder: string;
+  declare invalid: boolean;
+  declare items: string[];
+  declare value: string;
+  declare label: string;
+  declare updateValueOnInput: boolean;
+  declare showLoading: boolean;
 
-  private searchTerm_: string;
-  private dropdownRefitPending_: boolean;
-  private opened_: boolean;
+  private declare searchTerm_: string;
+  private declare dropdownRefitPending_: boolean;
+  private declare opened_: boolean;
   private openDropdownTimeoutId_: number = 0;
   private resizeObserver_: ResizeObserver|null = null;
   private pointerDownListener_: (e: Event) => void;
@@ -391,12 +391,12 @@ export class SearchableDropDownElement extends PolymerElement {
     } else {
       const delta = moveDown ? 1 : -1;
       nextIndex = (numItems + currentIndex + delta) % numItems;
-      items[currentIndex]!.removeAttribute('selected_');
+      items[currentIndex].removeAttribute('selected_');
     }
-    items[nextIndex]!.setAttribute('selected_', '');
+    items[nextIndex].setAttribute('selected_', '');
     // The newly selected item might not be visible because the dropdown needs
     // to be scrolled. So scroll the dropdown if necessary.
-    items[nextIndex]!.scrollIntoViewIfNeeded();
+    items[nextIndex].scrollIntoViewIfNeeded();
   }
 
   private onInput_() {

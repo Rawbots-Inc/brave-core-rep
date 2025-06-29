@@ -20,9 +20,8 @@ class ClientTests: XCTestCase {
 
     let responders: [(String, InternalSchemeResponse)] = [
       (AboutHomeHandler.path, AboutHomeHandler()),
-      (AboutLicenseHandler.path, AboutLicenseHandler()),
       (ErrorPageHandler.path, ErrorPageHandler()),
-      (ReaderModeHandler.path, ReaderModeHandler(profile: BrowserProfile(localName: "profile"))),
+      (ReaderModeHandler.path, ReaderModeHandler()),
     ]
 
     responders.forEach { (path, responder) in

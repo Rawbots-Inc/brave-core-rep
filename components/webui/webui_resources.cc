@@ -9,7 +9,6 @@
 
 #include "base/containers/flat_map.h"
 #include "base/no_destructor.h"
-#include "base/strings/utf_string_conversions.h"
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
 #include "brave/components/constants/url_constants.h"
 #include "brave/components/tor/buildflags/buildflags.h"
@@ -162,6 +161,12 @@ base::span<const webui::LocalizedString> GetWebUILocalizedStrings(
                {"cards", IDS_BRAVE_NEW_TAB_SHOW_CARDS},
                {"brandedWallpaperOptIn",
                 IDS_BRAVE_NEW_TAB_BRANDED_WALLPAPER_OPT_IN},
+               {"sponsoredImageCanEarnDescription",
+                IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_CAN_EARN_DESCRIPTION},
+               {"sponsoredImageEarningDescription",
+                IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_EARNING_DESCRIPTION},
+               {"sponsoredImageLearnMore",
+                IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_LEARN_MORE},
                {"sponsoredImageEarningTitle",
                 IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_EARNING_TITLE},
                {"sponsoredImageEnableRewards",
@@ -892,8 +897,10 @@ base::span<const webui::LocalizedString> GetWebUILocalizedStrings(
                {"eventLogKey", IDS_BRAVE_REWARDS_INTERNALS_EVENT_LOG_KEY},
                {"eventLogValue", IDS_BRAVE_REWARDS_INTERNALS_EVENT_LOG_VALUE},
                {"eventLogTime", IDS_BRAVE_REWARDS_INTERNALS_EVENT_LOG_TIME},
-               {"mainDisclaimer", IDS_BRAVE_REWARDS_INTERNALS_MAIN_DISCLAIMER},
-               {"logDisclaimer", IDS_BRAVE_REWARDS_INTERNALS_LOG_DISCLAIMER},
+               {"pageDisclaimerText",
+                IDS_BRAVE_REWARDS_INTERNALS_MAIN_DISCLAIMER},
+               {"fullLogDisclaimerText",
+                IDS_BRAVE_REWARDS_INTERNALS_LOG_DISCLAIMER},
                {"rewardsTypeAuto",
                 IDS_BRAVE_REWARDS_INTERNALS_REWARDS_TYPE_AUTO},
                {"rewardsTypeOneTimeTip",
@@ -912,7 +919,7 @@ base::span<const webui::LocalizedString> GetWebUILocalizedStrings(
                {"invalid", IDS_BRAVE_REWARDS_INTERNALS_INVALID},
                {"keyInfoSeed", IDS_BRAVE_REWARDS_INTERNALS_KEY_INFO_SEED},
                {"logNotice", IDS_BRAVE_REWARDS_INTERNALS_LOG_NOTICE},
-               {"mainTitle", IDS_BRAVE_REWARDS_INTERNALS_MAIN_TITLE},
+               {"pageTitle", IDS_BRAVE_REWARDS_INTERNALS_MAIN_TITLE},
                {"notSet", IDS_BRAVE_REWARDS_INTERNALS_NOT_SET},
                {"personaId", IDS_BRAVE_REWARDS_INTERNALS_PERSONA_ID},
                {"processorBraveTokens", IDS_BRAVE_UI_PROCESSOR_BRAVE_TOKENS},

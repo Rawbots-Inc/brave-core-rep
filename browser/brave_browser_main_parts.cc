@@ -8,10 +8,10 @@
 #include <memory>
 #include <utility>
 
+#include "base/check.h"
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "brave/browser/browsing_data/brave_clear_browsing_data.h"
-#include "brave/browser/ethereum_remote_client/buildflags/buildflags.h"
 #include "brave/components/brave_component_updater/browser/brave_on_demand_updater.h"
 #include "brave/components/brave_rewards/core/rewards_flags.h"
 #include "brave/components/brave_rewards/core/rewards_util.h"
@@ -61,13 +61,7 @@
 #include "chrome/browser/ui/browser_finder.h"
 #include "components/infobars/content/content_infobar_manager.h"
 #else
-#include "brave/browser/android/background_video/features.h"
-#endif
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED) && BUILDFLAG(ENABLE_EXTENSIONS)
-#include "brave/browser/extensions/brave_component_loader.h"
-#include "chrome/browser/extensions/extension_service.h"
-#include "extensions/browser/extension_system.h"
+#include "brave/browser/android/youtube_script_injector/features.h"
 #endif
 
 #if BUILDFLAG(DEPRECATE_IPFS)
@@ -201,21 +195,10 @@ void ChromeBrowserMainParts::PostProfileInit(Profile* profile,
 
 #if BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
-          preferences::features::kBraveBackgroundVideoPlayback) ||
+          preferences::features::kBraveBackgroundVideoPlayback) &&
       profile->GetPrefs()->GetBoolean(kBackgroundVideoPlaybackEnabled)) {
-    content::RenderFrameHost::AllowInjectingJavaScript();
     auto* command_line = base::CommandLine::ForCurrentProcess();
     command_line->AppendSwitch(switches::kDisableBackgroundMediaSuspend);
-  }
-#endif
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED) && BUILDFLAG(ENABLE_EXTENSIONS)
-  extensions::ExtensionService* service =
-      extensions::ExtensionSystem::Get(profile)->extension_service();
-  if (service) {
-    extensions::ComponentLoader* loader = service->component_loader();
-    static_cast<extensions::BraveComponentLoader*>(loader)
-        ->AddEthereumRemoteClientExtensionOnStartup();
   }
 #endif
 }

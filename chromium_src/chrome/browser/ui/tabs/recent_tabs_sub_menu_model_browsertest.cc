@@ -6,16 +6,12 @@
 #include <string_view>
 
 #include "base/containers/to_vector.h"
-#include "base/strings/string_util.h"
 
 // Disabling these tests because they refer to g_brave_browser_process which is
 // not initialized in unit tests, is null and so they are crashing. Not related
 // to change in RecentTabsSubMenuModel for additional `More...` menu item
 #define RecentlyClosedTabsFromCurrentSession \
   DISABLED_RecentlyClosedTabsFromCurrentSession
-
-#define RecentlyClosedTabsAndWindowsFromLastSession \
-  DISABLED_RecentlyClosedTabsAndWindowsFromLastSession
 
 #define RecentlyClosedGroupsFromCurrentSession \
   DISABLED_RecentlyClosedGroupsFromCurrentSession
@@ -58,7 +54,6 @@
 #undef RecentlyClosedTabsAndWindowsFromLastSessionWithRefresh
 #undef MaxTabsPerSessionAndRecency
 #undef MaxSessionsAndRecency
-#undef RecentlyClosedTabsAndWindowsFromLastSession
 #undef RecentlyClosedTabsFromCurrentSession
 #undef RecentlyClosedGroupsFromCurrentSession
 

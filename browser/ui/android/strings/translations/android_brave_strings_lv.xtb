@@ -84,7 +84,6 @@
 <translation id="1118970888826017401">Iespējot atbalstu augstākā līmeņa novirzīšanas izsekošanas URL apiešanai.</translation>
 <translation id="94154759592465111">Bloķēt skriptus</translation>
 <translation id="7714773920987474116">Bloķē JavaScript (var salauzt vietnes)</translation>
-<translation id="995782501881226248">YouTube</translation>
 <translation id="2233004324252915283">Bloķēt YouTube ieteikto saturu</translation>
 <translation id="1005372663692637999">Bloķē nākamo un beigu kartes elementus vietnē youtube.com.</translation>
 <translation id="5152595963250646670">Bloķēt YouTube elementus, kas novērš uzmanību</translation>
@@ -97,7 +96,6 @@
 <translation id="5165042248369837294">Atļaut Twitter iegultos tvītus</translation>
 <translation id="958971637207126733">Atļaut LinkedIn iegultās ziņas</translation>
 <translation id="6302422639282249274">Pārvaldīt Brave Rewards</translation>
-<translation id="2709516037105925701">Automātiskā aizpilde</translation>
 <translation id="8617525558807213034">Automātiskā aizpilde inkognito cilnēs</translation>
 <translation id="8685431198160039193">Saglabāto informāciju var izmantot automātiskai aizpildīšanai inkognito cilnēs</translation>
 <translation id="6583902294974160967">Atbalsts</translation>
@@ -109,14 +107,9 @@
 <translation id="7304425663107214334">Rādīt pārlūka ieteikumus</translation>
 <translation id="8982438328166986164">Attēlo tīmekļa vietnes ierosinājumus, balstoties uz jūsu grāmatzīmēm un pārlūkošanas vēsturi.</translation>
 <translation id="924029461438529367">Rādīt meklēšanas ieteikumus</translation>
-<translation id="1571106259128580884">Rādīt vadošo vietņu ieteikumus</translation>
+<translation id="5989135139219497991">Rādīt populārākos ieteikumus</translation>
 <translation id="6285118765755298263">Indeksēt citas meklētājprogrammas</translation>
 <translation id="919715748352669592">Automātiski indeksē tīmekļa vietnes, kas atbilst OpenSearch specifikācijām.</translation>
-<translation id="412411722208944922">Ātrās meklēšanas programmas</translation>
-<translation id="2836969042340015500">Ātrās meklēšanas programmas</translation>
-<translation id="9120455214794270250">Rādīt ātrās meklēšanas joslu</translation>
-<translation id="1052991798173010693">Šobrīd izmantotās meklētājprogrammas</translation>
-<translation id="335303688425891752">Nospiediet un turiet, lai mainītu secību</translation>
 <translation id="9148058034647219655">Iziet</translation>
 <translation id="8047754398610073499">Bloķēt paziņojumus par piekrišanu sīkfailiem</translation>
 <translation id="2621893359845808115">Bloķē tīmekļa vietnes iznirstošos logus, kas lūdz jums apstiprināt/noraidīt sīkfailus vietnē.</translation>
@@ -231,7 +224,8 @@
 <translation id="2433507940547922241">Izskats</translation>
 <translation id="9040069796107003510">Brave balvu ikona</translation>
 <translation id="6333347122924254968">Rādīt Brave Atlīdzību ikonu adrešu joslā</translation>
-<translation id="8495235435594442882">Aktivizēt apakšējo rīkjoslu</translation>
+<translation id="1215433243238902715">Iespējot apakšējo navigācijas rīkjoslu</translation>
+<translation id="1422686363939271829">Šis iestatījums ir atspējots, ja ir atlasīta apakšējā adrešu joslas pozīcija</translation>
 <translation id="6587448235155023666">Šīs izmaiņas tiks piemērotas nākamajā reizē, kad atvērsiet programmu Brave</translation>
 <translation id="8701563696941209024">ATVĒRT TAGAD</translation>
 <translation id="834487290629916192">VĒLĀK</translation>
@@ -245,9 +239,6 @@
 <translation id="2888496576732880897">Atbalstiet Brave meklēšanas izaugsmi</translation>
 <translation id="7044431516245362795">Pievienojieties Tīmekļa izpētes projektam, lai palīdzētu mums paplašināt indeksu un uzlabot meklēšanas rezultātus. <ph name="LEARN_MORE_START"/>Uzzināt vairāk.<ph name="LEARN_MORE_END"/></translation>
 <translation id="7818938154803162778">Protams, es palīdzēšu</translation>
-<translation id="2877653791257935258">Ierakstiet tīmekļa vietnes nosaukumu vai URL</translation>
-<translation id="5329830149661250028">Apskatiet, ar ko atšķiras Brave: bez reklāmām. Bez sekotājiem. Daudz ātrāka lapas ielāde.</translation>
-<translation id="3941792073703079607">Uzziniet par Brave atšķirību: bloķējiet reklāmas. Saglabājiet datus. Straumējiet ātrāk.</translation>
 <translation id="3545804467215833536">Pieskarieties, lai apskatītu Brave aizsargus</translation>
 <translation id="1724327820822194498">Skatiet visu, ko Brave ir bloķējusi katrā lapā, izmantojot aizsargus.</translation>
 <translation id="5386259141409498372">Bloķēti <ph name="BIG_TECH"/> un <ph name="TRACKER"/>citas reklāmas un izsekotāji.</translation>
@@ -257,8 +248,6 @@
 <translation id="1377600615067678409">Pagaidām izlaist</translation>
 <translation id="6165508094623778733">Uzziniet vairāk</translation>
 <translation id="986879628471635371">Traucējummeklēšanas pievienošana</translation>
-<translation id="5808759341041733958">Izvēlēties noklusējuma meklētājprogrammu</translation>
-<translation id="1331593888918588693">Savas preferences vienmēr varēsiet mainīt lietotnes iestatījumos.</translation>
 <translation id="5806601733251372221">Brave aizsargi</translation>
 <translation id="8537217141725709400">Nopelniet <ph name="TOKEN"/></translation>
 <translation id="3333887201479867589">Brave balvas</translation>
@@ -276,9 +265,6 @@
 <translation id="4225265925807365011">Man ir 24 vārdu atkopšanas frāze</translation>
 <translation id="3570367516044491911">Iestatīt kā noklusējuma pārlūku</translation>
 <translation id="6800338374677644736">Iestatīt kā noklusējuma pārlūku</translation>
-<translation id="19715420010996093">Atlasiet Brave pārlūku un pieskarieties pie "Vienmēr"</translation>
-<translation id="3546439402724649282">Brave jau ir iestatīts kā jūsu noklusējuma pārlūks.</translation>
-<translation id="8389661903259423907">Jums jau ir iestatīts noklusējuma pārlūks. Savu noklusējuma pārlūku varat nomainīt lietotņu iestatījumos.</translation>
 <translation id="1545749641540134597">Ieskenēt QR kodu</translation>
 <translation id="5317781812114905957">Instrukcijas</translation>
 <translation id="8515319483805157233">Lai meklētu pēc kvadrātkoda, ietilpiniet kvadrātkodu rāmja centrā.</translation>
@@ -428,9 +414,12 @@ Vai tiešām vēlaties to darīt?</translation>
 <translation id="8520059774736886747">Izstrādātājs <ph name="PUBLISHER_NAME"/> nesen verificēja</translation>
 <translation id="1486343603936278248">marķieris</translation>
 <translation id="7781069478569868053">Jaunas cilnes lapa</translation>
+<translation id="5927196110206824867">Sponsorētie fona attēli veicina Brave apņemšanos izveidot neatkarīgu, uz lietotāju orientētu tīmekli. Atšķirībā no lielajiem tehnoloģiju uzņēmumiem mēs reklāmas snieguma datus mērām anonimizēti, lai saglabātu jūsu konfidencialitāti.</translation>
+<translation id="8748471354357836070">Uzzināt vairāk/izvēles atteikties</translation>
 <translation id="3171669670217312786">Fona attēli</translation>
 <translation id="8522669544471808198">Rādīt fona attēlus</translation>
 <translation id="3870475560794762985">Rādīt sponsorētos attēlus</translation>
+<translation id="6937724381960478525">Uzziniet vairāk par Sponsorētajiem attēliem</translation>
 <translation id="8793108040181436796">Logrīki</translation>
 <translation id="8643377320501056697">Rādīt populāras vietnes</translation>
 <translation id="7275773481201277457">Rādīt Brave statistiku</translation>
@@ -509,6 +498,7 @@ Vai tiešām vēlaties to darīt?</translation>
 <translation id="5299848999918506028">Paldies!</translation>
 <translation id="76550953340008122">Paldies, ka paziņojāt Brave izstrādātājiem par problēmām ar šo vietni. Pacentīsimies to salabot!</translation>
 <translation id="650318023204990401">Papildu vadīklas</translation>
+<translation id="7205939464631857223">Notīrīt visus bloķētos elementus</translation>
 <translation id="5370478469168390143">Saglabāt datus tiešsaistē</translation>
 <translation id="1118508688433541158">Pārlūkojiet ātrāk un bloķējiet reklāmas ar Brave</translation>
 <translation id="7427391215172269363">Es katru dienu ietaupu datus, tīmekli pārlūkojot ar Brave.</translation>
@@ -550,7 +540,6 @@ Vai tiešām vēlaties to darīt?</translation>
 <translation id="1945330434665345785">Ar Brave pārlūku jūs pēdējā nedēļā esat bloķējis <ph name="COUNT"/> izsekotājus un reklāmas.</translation>
 <translation id="2883868922264431515">Nopelniet marķierus, skatot privātumu cienošas reklāmas, un atbalstiet savas iecienītās vietnes.</translation>
 <translation id="7408493389591475748">Sāciet pārlūkot, lai redzētu privātuma ziņojumus</translation>
-<translation id="9080777565335515917">Iestatiet Brave kā savu noklusējuma pārlūku privātai un drošai pārlūkošanai.</translation>
 <translation id="1390943217516275883">Ļauj Brave rādīt jūsu privātuma statistiku</translation>
 <translation id="1763352720905582220">Sūta iknedēļas privātuma ziņojumu</translation>
 <translation id="1811691435325545066">Notīrīt visus privātuma ziņojumu datus</translation>
@@ -594,16 +583,6 @@ Vai tiešām vēlaties to darīt?</translation>
 <translation id="2977501775944575564">Paralēla lejupielāde</translation>
 <translation id="6224180438946945617">Iespējojiet paralēlu lejupielādi, lai palielinātu lejupielādes ātrumu</translation>
 <translation id="8967385052772844086">Skatīt pilnu konfidencialitātes ziņojumu</translation>
-<translation id="6864343534748973390">Populārākais</translation>
-<translation id="4608192160278975831">Privāts un bez izsekošanas</translation>
-<translation id="7208522820527289601">Privāts un bez izsekošanas, atrodas ES</translation>
-<translation id="1161008391729450974">Google rezultāti bez izsekotājiem</translation>
-<translation id="7320542277711359296">Otrais populārākais</translation>
-<translation id="8295049095570748497">Vadošā meklētājprogramma Krievijā</translation>
-<translation id="2642661895835126239">Stāda kokus, atrodas Berlīnē</translation>
-<translation id="2422627462367776805">Dienvidkorejas portāls &amp; meklētājs</translation>
-<translation id="177282784098234156">Privāts, neitrāls, orientēts uz lietotāju</translation>
-<translation id="1410130669636877548">Veicot meklēšanu tīmeklī, dažas meklētājprogrammas jūsu konfidencialitāti aizsargā labāk nekā citas.</translation>
 <translation id="3479552764303398839">Vēlāk</translation>
 <translation id="7138272885617540195">Ļaut lietotņu saites atvērt lietotnēs ārpus Brave</translation>
 <translation id="4954512758656527938">Noklusējuma Ethereum maks</translation>
@@ -693,6 +672,7 @@ Vai tiešām vēlaties to darīt?</translation>
 <translation id="3952797765659730604">Ievadiet, ielīmējiet vai importējiet privātās atslēgas virknes failu vai JSON.</translation>
 <translation id="569068482611873351">Notiek importēšana...</translation>
 <translation id="4522570452068850558">Informācija</translation>
+<translation id="3114681061018999547">Šifrē</translation>
 <translation id="3784455785234192852">Bloķēt</translation>
 <translation id="4412698727486357573">Palīdzības centrs</translation>
 <translation id="8239147115686034860">Automātiski bloķēt Brave maku</translation>
@@ -824,18 +804,6 @@ Ja šo pieprasījumu nepieņemsiet, savienojums ar VPN netiks atkārtoti izveido
 <translation id="2199215899212542417">FUNKCIJAS VEIDS: <ph name="FTYPE"/></translation>
 <translation id="4803003663447398145">Nav datu</translation>
 <translation id="1105525362447173583">Solana Dapp paraksta darījums</translation>
-<translation id="9061799688859969073"><ph name="ACCOUNT_NAME"/> nosūtīts <ph name="CRYPTO_VALUE"/> <ph name="ASSET"/> ($<ph name="FIAT_VALUE"/>) - <ph name="DATE"/></translation>
-<translation id="1148985422232712046"><ph name="ACCOUNT_NAME"/> nosūtīja <ph name="ASSET"/> #<ph name="ASSET_ID"/> – <ph name="DATE"/></translation>
-<translation id="2911329628253651823"><ph name="ACCOUNT_NAME"/> apstiprināts <ph name="ASSET"/> - <ph name="DATE"/></translation>
-<translation id="7400134344541309180">Apstiprināts neierobežots <ph name="ASSET"/> - <ph name="PROXY"/></translation>
-<translation id="2428770727194227378"><ph name="ACCOUNT_NAME"/> mijmaiņa - <ph name="DATE"/></translation>
-<translation id="2833661570529295305">Nav apstiprināts</translation>
-<translation id="8034530868111548216">Apstiprināts</translation>
-<translation id="6015436276085482001">Noraidīts</translation>
-<translation id="6666273175654835609">Iesniegts</translation>
-<translation id="2331676293859649642">Apstiprināts</translation>
-<translation id="8214232307424031138">Parakstīts</translation>
-<translation id="1165039591588034296">Kļūda</translation>
 <translation id="2561824823738097741">Vai jūs izmantojat ātrāko tīmekļa pārlūku?</translation>
 <translation id="2065971949051836200">Trīsreiz ātrāks internets jau ir pieejams jūsu tālrunī. Izmantojiet Brave tīmekļa pārlūkošanai.</translation>
 <translation id="2888278614497184977">Brave = trīsreiz ātrāka tīmekļa pārlūkošana</translation>
@@ -1046,7 +1014,7 @@ Ja šo pieprasījumu nepieņemsiet, savienojums ar VPN netiks atkārtoti izveido
 <translation id="5888208462949095139">Meklē ar <ph name="DEFAULT_SEARCH_ENGINE"/></translation>
 <translation id="5456039738087398178">Sākuma ekrāna logrīks</translation>
 <translation id="703185154752046151">Logrīks pievienots sākuma ekrānam</translation>
-<translation id="3290805388004282161">Izmēģini Brave meklēšanas logrīku</translation>
+<translation id="4635094429202343515">Izmēģini Brave meklēšanas logrīku</translation>
 <translation id="4809681171446727314">Piekļūsti privātai, neatkarīgai meklēšanai taisni no sākuma ekrāna.</translation>
 <translation id="7751715172931488388">Pievienot logrīku</translation>
 <translation id="7285167584112910782">Brave ātrā meklēšana</translation>
@@ -1113,6 +1081,8 @@ Ja šo pieprasījumu nepieņemsiet, savienojums ar VPN netiks atkārtoti izveido
 <translation id="1179407411385015942">Leo ir mākslīgā intelekta nodrošināts viedais asistents, kas iestrādāts tieši pārlūkā</translation>
 <translation id="5781842473834867765">Saglabāt manu sarunu vēsturi</translation>
 <translation id="4109670531935487117">Rādīt automātiskās aizpildes ieteikumus adrešu joslā</translation>
+<translation id="4983005227524068187">Rādīt ātrās meklēšanas programmu joslā</translation>
+<translation id="8514910864411336826">Iespējo saīsni Leo palaišanai no ātrās meklēšanas programmu joslas.</translation>
 <translation id="6106701981952170121">Dzēst visus Leo MI sarunu datus</translation>
 <translation id="423600389315522551">Atiestatot Leo MI, jūsu tērzēšanas vēsture tiks dzēsta, un jums būs atkal jāpiekrīt Brave Leo MI lietošanai. Dzēšot tērzēšanas vēsturi, visas jūsu iepriekšējās sarunas ar Brave Leo MI tiks dzēstas. Šo darbību nav iespējams atsaukt.</translation>
 <translation id="6742599753610126012">Notīrīt tērzēšanas vēsturi</translation>
@@ -1235,11 +1205,12 @@ Ja šo pieprasījumu nepieņemsiet, savienojums ar VPN netiks atkārtoti izveido
 <translation id="6891382640886173702">Apvienot logus</translation>
 <translation id="2912247081180973411">Aizvērt logus</translation>
 <translation id="4010699428656610296">Lūdzu, apvienojiet citas cilnes citā Brave logā.</translation>
-<translation id="208634871997892083">VPN vienmēr ieslēgts</translation>
+<translation id="4306918392910017801">Automātiski atkārtot VPN savienojuma izveidi</translation>
 <translation id="1599073346542156922">Kā ieslēgt:</translation>
-<translation id="7001163334415463127">1. Atveriet ierīces iestatījumus lietotņu sarakstā vai nospiežot zemāk redzamo pogu.</translation>
-<translation id="887443138775437899">2. Atrodiet Brave VPN un atlasiet iestatījumu ikonu labajā pusē.</translation>
-<translation id="3776051499611941773">3. Atlasiet <ph name="ALWAYS_ON_TUTORIAL_START"/>VPN vienmēr ieslēgts<ph name="ALWAYS_ON_TUTORIAL_END"/>, lai iespējotu to.</translation>
+<translation id="7001163334415463127">1. Atveriet ierīces iestatījumus, atrodot tos savā lietotņu sarakstā, vai pieskaroties pogai zemāk.</translation>
+<translation id="887443138775437899">2. Atrodiet Brave VPN un pieskarieties iestatījumu ikonai labajā pusē.</translation>
+<translation id="7546805138087561624">3. Ieslēdziet <ph name="AUTO_RECONNECT_VPN_TUTORIAL_START"/>Vienmēr ieslēgts VPN<ph name="AUTO_RECONNECT_VPN_TUTORIAL_END"/>, lai iespējotu to.</translation>
+<translation id="2446001600399646984">Ņemiet vērā, ka Android ierobežojumu dēļ funkcija "Bloķēt savienojumus bez VPN" nestrādā kā paredzēts. <ph name="LEARN_MORE_START"/>Uzzināt vairāk.<ph name="LEARN_MORE_END"/></translation>
 <translation id="4776146737004271126">Atvērt Android iestatījumus</translation>
 <translation id="2728518864712716830">Atjauninājums ir lejupielādēts.</translation>
 <translation id="8403338849301491865">Filtru saraksts ir veiksmīgi atjaunināts</translation>
@@ -1249,4 +1220,7 @@ Ja šo pieprasījumu nepieņemsiet, savienojums ar VPN netiks atkārtoti izveido
 <translation id="2361906291514218784">Leo MI</translation>
 <translation id="7942415993090181327">Tērzēšanas vēsture</translation>
 <translation id="6859935199732075666">Rādīt drošās pārlūkošanas kļūdas</translation>
+<translation id="2735247450315842119">Atļaut ekrānuzņēmumu veikšanu inkognito cilnēs</translation>
+<translation id="8420414929552321089">Šī funkcija nodrošina, ka privātās cilnes ir redzamas pat tad, ja ir atvērtas vairākas citas lietotnes.</translation>
+<translation id="7956713633345437162">Mobilo ierīču grāmatzīmes</translation>
 </translationbundle>

@@ -50,7 +50,6 @@ constexpr std::string_view kBravePinsJson = R"brave_pins_json({
     { "name": "feedback.brave.com", "pins": "brave"},
     { "name": "gaia.brave.com", "pins": "brave"},
     { "name": "go-updater.brave.com", "pins": "brave"},
-    { "name": "mobile-data.s3.brave.com", "pins": "brave"},
     { "name": "pcdn.brave.com", "pins": "brave"},
     { "name": "redirector.brave.com", "pins": "brave"},
     { "name": "safebrowsing.brave.com", "pins": "brave"},
@@ -215,11 +214,6 @@ constexpr std::string_view kBraveHstsJson = R"brave_hsts_json({
     },
     {
       "name": "go-updater.brave.com",
-      "mode": "force-https",
-      "policy": "custom"
-    },
-    {
-      "name": "mobile-data.s3.brave.com",
       "mode": "force-https",
       "policy": "custom"
     },
@@ -552,9 +546,9 @@ bool ParseCertificatesFile(std::string_view certs_input,
                            Pinsets* pinsets,
                            base::Time* timestamp) {
   constexpr std::string_view brave_certs = R"brave_certs(
-# Last updated: Tue Mar 11 18:45:14 UTC 2025
+# Last updated: Tue Jun 24 19:38:28 2025
 PinsListTimestamp
-1741718714
+1750790308
 
 # =====BEGIN BRAVE ROOTS ASC=====
 #From https://www.amazontrust.com/repository/

@@ -18,7 +18,8 @@
 
 namespace bat_ads {
 
-class BatAdsClientNotifierImpl : public bat_ads::mojom::BatAdsClientNotifier {
+class BatAdsClientNotifierImpl final
+    : public bat_ads::mojom::BatAdsClientNotifier {
  public:
   explicit BatAdsClientNotifierImpl(
       mojo::PendingReceiver<mojom::BatAdsClientNotifier>
@@ -27,10 +28,6 @@ class BatAdsClientNotifierImpl : public bat_ads::mojom::BatAdsClientNotifier {
   BatAdsClientNotifierImpl(const BatAdsClientNotifierImpl& other) = delete;
   BatAdsClientNotifierImpl& operator=(const BatAdsClientNotifierImpl& other) =
       delete;
-
-  BatAdsClientNotifierImpl(BatAdsClientNotifierImpl&& other) noexcept = delete;
-  BatAdsClientNotifierImpl& operator=(
-      BatAdsClientNotifierImpl&& other) noexcept = delete;
 
   ~BatAdsClientNotifierImpl() override;
 
@@ -41,9 +38,6 @@ class BatAdsClientNotifierImpl : public bat_ads::mojom::BatAdsClientNotifier {
 
   // Invoked when ads did initialize.
   void NotifyDidInitializeAds() override;
-
-  // Invoked when the operating system locale changes.
-  void NotifyLocaleDidChange(const std::string& locale) override;
 
   // Invoked when a preference has changed for the specified `path`.
   void NotifyPrefDidChange(const std::string& path) override;

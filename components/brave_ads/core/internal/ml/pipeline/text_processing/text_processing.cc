@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "base/check.h"
 #include "base/files/file.h"
 #include "brave/components/brave_ads/core/internal/common/strings/string_strip_util.h"
 #include "brave/components/brave_ads/core/internal/ml/data/text_data.h"
@@ -133,7 +134,7 @@ std::optional<PredictionMap> TextProcessing::GetPredictions(
 
 std::optional<PredictionMap> TextProcessing::GetTopPredictions(
     const std::string& text) const {
-  const std::optional<PredictionMap> predictions = GetPredictions(text);
+  std::optional<PredictionMap> predictions = GetPredictions(text);
   if (!predictions) {
     return std::nullopt;
   }

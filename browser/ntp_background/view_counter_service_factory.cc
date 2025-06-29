@@ -19,6 +19,7 @@
 #include "brave/components/ntp_background_images/browser/ntp_sponsored_rich_media_source.h"
 #include "brave/components/ntp_background_images/browser/view_counter_service.h"
 #include "brave/components/ntp_background_images/buildflags/buildflags.h"
+#include "brave/components/ntp_background_images/common/view_counter_pref_registry.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -69,12 +70,11 @@ ViewCounterServiceFactory::BuildServiceInstanceForBrowserContext(
   if (auto* service =
           g_brave_browser_process->ntp_background_images_service()) {
     Profile* profile = Profile::FromBrowserContext(browser_context);
-    bool is_supported_locale = false;
     brave_ads::AdsService* const ads_service =
         brave_ads::AdsServiceFactory::GetForProfile(profile);
-    if (ads_service) {
-      is_supported_locale = brave_ads::IsSupportedRegion();
-    }
+    const bool is_supported_locale =
+        ads_service ? brave_ads::IsSupportedRegion() : false;
+
     content::URLDataSource::Add(
         browser_context, std::make_unique<NTPBackgroundImagesSource>(service));
     content::URLDataSource::Add(
@@ -108,7 +108,7 @@ ViewCounterServiceFactory::BuildServiceInstanceForBrowserContext(
 
 void ViewCounterServiceFactory::RegisterProfilePrefs(
     user_prefs::PrefRegistrySyncable* registry) {
-  ViewCounterService::RegisterProfilePrefs(registry);
+  ::ntp_background_images::RegisterProfilePrefs(registry);
 }
 
 bool ViewCounterServiceFactory::ServiceIsCreatedWithBrowserContext() const {

@@ -12,35 +12,29 @@ cargo_crate("lib") {
   crate_name = "challenge_bypass_ristretto"
   epoch = "2"
   crate_type = "rlib"
-  crate_root = "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/lib.rs"
+  crate_root = "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/lib.rs"
   sources = [
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/dleq.rs",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/errors.rs",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/lib.rs",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/macros.rs",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/oprf.rs",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/voprf.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/dleq.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/errors.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/lib.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/macros.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/oprf.rs",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/voprf.rs",
   ]
   inputs = [
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/../README.md",
-    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-2.0.0/src/../docs/PROTOCOL.md",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/../README.md",
+    "//brave/third_party/rust/chromium_crates_io/vendor/challenge-bypass-ristretto-v2/src/../docs/PROTOCOL.md",
   ]
 
   build_native_rust_unit_tests = false
   edition = "2018"
-  cargo_pkg_version = "2.0.0"
   cargo_pkg_authors = "eV <ev@7pr.xyz>"
   cargo_pkg_name = "challenge-bypass-ristretto"
   cargo_pkg_description = "A rust implemention of the privacy pass cryptographic protocol using the Ristretto group (WIP)"
-  library_configs -= [ "//build/config/compiler:chromium_code" ]
-  library_configs += [ "//build/config/compiler:no_chromium_code" ]
-  executable_configs -= [ "//build/config/compiler:chromium_code" ]
-  executable_configs += [ "//build/config/compiler:no_chromium_code" ]
-  proc_macro_configs -= [ "//build/config/compiler:chromium_code" ]
-  proc_macro_configs += [ "//build/config/compiler:no_chromium_code" ]
+  cargo_pkg_version = "2.0.2"
+
   deps = [
-    "//brave/third_party/rust/base64/v0_13:lib",
-    "//brave/third_party/rust/crypto_mac/v0_11:lib",
+    "//brave/third_party/rust/base64/v0_22:lib",
     "//brave/third_party/rust/curve25519_dalek/v4:lib",
     "//brave/third_party/rust/digest/v0_10:lib",
     "//brave/third_party/rust/hmac/v0_12:lib",
@@ -54,11 +48,41 @@ cargo_crate("lib") {
   features = [
     "alloc",
     "base64",
+    "default",
     "serde",
     "serde_base64",
     "std",
   ]
-  rustflags = [
-    "--cap-lints=allow",  # Suppress all warnings in crates.io crates
+  rustenv = []
+  rustflags = []
+
+  #####################################################################
+  # Tweaking which GN `config`s apply to this target.
+
+  # Config changes that apply to all `//third_party/rust` crates.
+  _configs_to_remove = [
+    # We don't need code coverage data for any `chromium_crates_io` crates.
+    "//build/config/coverage:default_coverage",
+
+    # This is third-party code, so remove `chromium_code` config.  We are not
+    # at the same time adding `//build/config/compiler:no_chromium_code`,
+    # because 1) we don't want to pull how warnings are handled by that config
+    # and 2) that config doesn't have any non-warnings-related stuff.
+    "//build/config/compiler:chromium_code",
   ]
+  _configs_to_add = []
+
+  # Changing (if needed) which configs apply to this specific crate (based on
+  # `extra_kv.configs_to_remove` and `extra_kv.configs_to_add` from
+  # `gnrt_config.toml`).
+  _configs_to_remove += []
+  _configs_to_add += []
+
+  # Applying config changes.
+  library_configs -= _configs_to_remove
+  library_configs += _configs_to_add
+  executable_configs -= _configs_to_remove
+  executable_configs += _configs_to_add
+  proc_macro_configs -= _configs_to_remove
+  proc_macro_configs += _configs_to_add
 }

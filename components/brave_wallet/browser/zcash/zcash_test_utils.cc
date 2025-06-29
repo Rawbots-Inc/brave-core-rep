@@ -6,8 +6,11 @@
 #include "brave/components/brave_wallet/browser/zcash/zcash_test_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <utility>
 #include <vector>
+
+#include "base/strings/string_number_conversions.h"
 
 namespace brave_wallet {
 

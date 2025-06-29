@@ -5,11 +5,17 @@
 
 #include "brave/components/brave_ads/core/internal/account/confirmations/queue/confirmation_queue_database_table.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
+#include <limits>
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/debug/crash_logging.h"
+#include "base/debug/dump_without_crashing.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
@@ -18,13 +24,14 @@
 #include "base/strings/string_util.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/confirmations_feature.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/queue/queue_item/confirmation_queue_item_builder_util.h"
+#include "brave/components/brave_ads/core/internal/account/confirmations/queue/queue_item/confirmation_queue_item_info.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/queue/queue_item/confirmation_queue_item_util.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/reward/reward_confirmation_util.h"
+#include "brave/components/brave_ads/core/internal/common/algorithm/split_vector_util.h"
 #include "brave/components/brave_ads/core/internal/common/challenge_bypass_ristretto/blinded_token.h"
 #include "brave/components/brave_ads/core/internal/common/challenge_bypass_ristretto/public_key.h"
 #include "brave/components/brave_ads/core/internal/common/challenge_bypass_ristretto/token.h"
 #include "brave/components/brave_ads/core/internal/common/challenge_bypass_ristretto/unblinded_token.h"
-#include "brave/components/brave_ads/core/internal/common/containers/container_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_column_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_statement_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_table_util.h"
@@ -43,7 +50,13 @@ constexpr char kTableName[] = "confirmation_queue";
 
 constexpr int kDefaultBatchSize = 50;
 
-constexpr base::TimeDelta kMaximumRetryDelay = base::Hours(1);
+// The `kMaximumRetryCount` constant is calculated as the number of bits in an
+// `int` minus one. This ensures that the retry count does not exceed the
+// maximum number of left shifts possible for an int, preventing potential
+// overflow issues during delay calculations.
+constexpr int kMaximumRetryCount = (std::numeric_limits<int>::digits) - 1;
+
+constexpr base::TimeDelta kMaximumRetryAfter = base::Hours(1);
 
 void BindColumnTypes(const mojom::DBActionInfoPtr& mojom_db_action) {
   CHECK(mojom_db_action);
@@ -75,10 +88,7 @@ size_t BindColumns(const mojom::DBActionInfoPtr& mojom_db_action,
 
   int32_t index = 0;
   for (const auto& confirmation_queue_item : confirmation_queue_items) {
-    if (!confirmation_queue_item.IsValid()) {
-      BLOG(0, "Invalid confirmation queue item");
-      continue;
-    }
+    CHECK(confirmation_queue_item.IsValid());
 
     // The queue does not store dynamic user data for a confirmation due to the
     // token redemption process which rebuilds the confirmation. Hence, we must
@@ -229,6 +239,11 @@ void GetCallback(
     const ConfirmationQueueItemInfo confirmation_queue_item =
         FromMojomRow(mojom_db_row);
     if (!confirmation_queue_item.IsValid()) {
+      SCOPED_CRASH_KEY_BOOL("Issue45296", "process_at",
+                            !!confirmation_queue_item.process_at);
+      SCOPED_CRASH_KEY_STRING64("Issue45296", "failure_reason",
+                                "Invalid confirmation queue item");
+      base::debug::DumpWithoutCrashing();
       BLOG(0, "Invalid confirmation queue item");
       continue;
     }
@@ -289,16 +304,32 @@ ConfirmationQueue::ConfirmationQueue() : batch_size_(kDefaultBatchSize) {}
 void ConfirmationQueue::Save(
     const ConfirmationQueueItemList& confirmation_queue_items,
     ResultCallback callback) const {
-  if (confirmation_queue_items.empty()) {
+  ConfirmationQueueItemList filtered_confirmation_queue_items;
+  std::copy_if(confirmation_queue_items.cbegin(),
+               confirmation_queue_items.cend(),
+               std::back_inserter(filtered_confirmation_queue_items),
+               [](const ConfirmationQueueItemInfo& confirmation_queue_item) {
+                 const bool is_valid = confirmation_queue_item.IsValid();
+                 if (!is_valid) {
+                   SCOPED_CRASH_KEY_BOOL("Issue45296", "process_at",
+                                         !!confirmation_queue_item.process_at);
+                   SCOPED_CRASH_KEY_STRING64("Issue45296", "failure_reason",
+                                             "Invalid confirmation queue item");
+                   base::debug::DumpWithoutCrashing();
+                   BLOG(0, "Invalid confirmation queue item");
+                 }
+
+                 return is_valid;
+               });
+  if (filtered_confirmation_queue_items.empty()) {
     return std::move(callback).Run(/*success=*/true);
   }
 
+  const std::vector<ConfirmationQueueItemList> batches =
+      SplitVector(filtered_confirmation_queue_items, batch_size_);
+
   mojom::DBTransactionInfoPtr mojom_db_transaction =
       mojom::DBTransactionInfo::New();
-
-  const std::vector<ConfirmationQueueItemList> batches =
-      SplitVector(confirmation_queue_items, batch_size_);
-
   for (const auto& batch : batches) {
     Insert(mojom_db_transaction, batch);
   }
@@ -335,33 +366,42 @@ void ConfirmationQueue::Delete(const std::string& transaction_id,
 
 void ConfirmationQueue::Retry(const std::string& transaction_id,
                               ResultCallback callback) const {
-  const std::string retry_after =
-      base::NumberToString(RetryProcessingConfirmationAfter().InMicroseconds());
-
-  const std::string max_retry_delay =
-      base::NumberToString(kMaximumRetryDelay.InMicroseconds());
-
-  // Exponentially backoff `process_at` for the next retry up to
-  // `kMaximumRetryDelay`.
   mojom::DBTransactionInfoPtr mojom_db_transaction =
       mojom::DBTransactionInfo::New();
+
+  const std::string retry_after =
+      base::NumberToString(RetryProcessingConfirmationAfter().InMicroseconds());
+  const std::string max_retry_after =
+      base::NumberToString(kMaximumRetryAfter.InMicroseconds());
   Execute(
       mojom_db_transaction, R"(
+          UPDATE
+            $1
+          SET
+            process_at = $2 + (
+              CASE
+                WHEN ($3 << retry_count) < $4
+                THEN ($5 << retry_count)
+                ELSE $6
+              END
+            )
+          WHERE
+            transaction_id = '$7')",
+      {GetTableName(), TimeToSqlValueAsString(base::Time::Now()), retry_after,
+       max_retry_after, retry_after, max_retry_after, transaction_id});
+
+  const std::string max_retry_count = base::NumberToString(kMaximumRetryCount);
+  Execute(mojom_db_transaction, R"(
             UPDATE
               $1
             SET
-              retry_count = retry_count + 1,
-              process_at = $2 + (
-                CASE
-                  WHEN ($3 << retry_count) < $4
-                  THEN ($5 << retry_count)
-                  ELSE $6
-                END
-              )
+              retry_count = CASE
+                              WHEN retry_count + 1 < $2 THEN retry_count + 1
+                              ELSE $3
+                            END
             WHERE
-              transaction_id = '$7')",
-      {GetTableName(), TimeToSqlValueAsString(base::Time::Now()), retry_after,
-       max_retry_delay, retry_after, max_retry_delay, transaction_id});
+              transaction_id = '$4')",
+          {GetTableName(), max_retry_count, max_retry_count, transaction_id});
 
   RunTransaction(FROM_HERE, std::move(mojom_db_transaction),
                  std::move(callback));
@@ -507,10 +547,7 @@ void ConfirmationQueue::Insert(
     const mojom::DBTransactionInfoPtr& mojom_db_transaction,
     const ConfirmationQueueItemList& confirmation_queue_items) const {
   CHECK(mojom_db_transaction);
-
-  if (confirmation_queue_items.empty()) {
-    return;
-  }
+  CHECK(!confirmation_queue_items.empty());
 
   mojom::DBActionInfoPtr mojom_db_action = mojom::DBActionInfo::New();
   mojom_db_action->type = mojom::DBActionInfo::Type::kExecuteWithBindings;

@@ -9,22 +9,21 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/app/vector_icons/vector_icons.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/browser/ui/brave_icon_with_badge_image_source.h"
 #include "brave/browser/ui/webui/brave_rewards/rewards_page_top_ui.h"
-#include "brave/browser/ui/webui/brave_rewards/rewards_panel_ui.h"
 #include "brave/components/brave_rewards/content/rewards_p3a.h"
 #include "brave/components/brave_rewards/content/rewards_service.h"
-#include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/vector_icons/vector_icons.h"
 #include "brave/grit/brave_generated_resources.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/omnibox/omnibox_theme.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/bubble/webui_bubble_manager.h"
@@ -34,6 +33,7 @@
 #include "components/grit/brave_components_strings.h"
 #include "components/prefs/pref_service.h"
 #include "extensions/common/constants.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/color/color_provider_manager.h"
 #include "ui/gfx/canvas.h"
@@ -52,8 +52,6 @@
 namespace {
 
 using brave_rewards::RewardsNotificationService;
-using brave_rewards::RewardsPanelCoordinator;
-using brave_rewards::RewardsPanelUI;
 using brave_rewards::RewardsServiceFactory;
 using brave_rewards::RewardsTabHelper;
 
@@ -177,14 +175,8 @@ class RewardsActionMenuModel : public ui::SimpleMenuModel,
 std::unique_ptr<WebUIBubbleManager> CreateBubbleManager(
     views::View* anchor_view,
     BrowserWindowInterface* browser_window_interface) {
-  if (base::FeatureList::IsEnabled(
-          brave_rewards::features::kNewRewardsUIFeature)) {
-    return WebUIBubbleManager::Create<brave_rewards::RewardsPageTopUI>(
-        anchor_view, browser_window_interface, GURL(kRewardsPageTopURL),
-        IDS_BRAVE_UI_BRAVE_REWARDS);
-  }
-  return WebUIBubbleManager::Create<brave_rewards::RewardsPanelUI>(
-      anchor_view, browser_window_interface, GURL(kBraveRewardsPanelURL),
+  return WebUIBubbleManager::Create<brave_rewards::RewardsPageTopUI>(
+      anchor_view, browser_window_interface, GURL(kRewardsPageTopURL),
       IDS_BRAVE_UI_BRAVE_REWARDS);
 }
 
@@ -211,8 +203,7 @@ BraveRewardsActionView::BraveRewardsActionView(
 
   SetHorizontalAlignment(gfx::ALIGN_CENTER);
   SetLayoutInsets(gfx::Insets(0));
-  SetAccessibleName(
-      brave_l10n::GetLocalizedResourceUTF16String(IDS_BRAVE_UI_BRAVE_REWARDS));
+  SetAccessibleName(l10n_util::GetStringUTF16(IDS_BRAVE_UI_BRAVE_REWARDS));
 
   auto* profile = browser_window_interface_->GetProfile();
 
@@ -240,8 +231,8 @@ BraveRewardsActionView::BraveRewardsActionView(
     notification_service_observation_.Observe(notification_service);
   }
 
-  panel_coordinator_ = RewardsPanelCoordinator::FromBrowser(
-      browser_window_interface_->GetBrowserForMigrationOnly());
+  panel_coordinator_ =
+      browser_window_interface_->GetFeatures().rewards_panel_coordinator();
   if (panel_coordinator_) {
     panel_observation_.Observe(panel_coordinator_);
   }
@@ -345,8 +336,7 @@ void BraveRewardsActionView::OnPublisherForTabUpdated(
   }
 }
 
-void BraveRewardsActionView::OnRewardsPanelRequested(
-    const brave_rewards::mojom::RewardsPanelArgs& args) {
+void BraveRewardsActionView::OnRewardsPanelRequested() {
   if (!IsPanelOpen()) {
     ToggleRewardsPanel();
   }

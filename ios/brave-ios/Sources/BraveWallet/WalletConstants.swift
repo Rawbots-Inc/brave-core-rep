@@ -28,7 +28,7 @@ public struct WalletConstants {
 
   /// The url to Brave Help Center for Wallet.
   static let braveWalletSupportURL = URL(
-    string: "https://support.brave.com/hc/en-us/categories/360001059151-Brave-Wallet"
+    string: "https://support.brave.com/hc/categories/360001062531-Wallet"
   )!
 
   // TODO: update wiki link
@@ -75,6 +75,7 @@ public struct WalletConstants {
     BraveWallet.FilecoinTestnet,
     BraveWallet.FilecoinEthereumTestnetChainId,
     BraveWallet.BitcoinTestnet,
+    BraveWallet.ZCashTestnet,
   ]
 
   /// Primary network chain ids
@@ -83,6 +84,7 @@ public struct WalletConstants {
     BraveWallet.MainnetChainId,
     BraveWallet.FilecoinMainnet,
     BraveWallet.BitcoinMainnet,
+    BraveWallet.ZCashMainnet,
   ]
 
   public enum SupportedCoinTypesMode {
@@ -100,35 +102,40 @@ public struct WalletConstants {
   public static func supportedCoinTypes(
     _ mode: SupportedCoinTypesMode = .general
   ) -> OrderedSet<BraveWallet.CoinType> {
+    var result = OrderedSet<BraveWallet.CoinType>()
     switch mode {
     case .general:
       #if DEBUG
-      // Only enable .btc for unit tests.
+      // Only enable .btc and .zec for unit tests.
       // Local Debug build need to
       // 1. Remove this check
       // 2. Enable bitcoin feature via build argument
       if isUnitTesting {
-        return [.eth, .sol, .fil, .btc]
+        return [.eth, .sol, .fil, .btc, .zec]
       }
       #endif
-      // Any non-debug build will check bitcoin feature flag from core
+      // Any non-debug build will check bitcoin & zcash feature flag from core
       // TF public build can use BraveCore Switches in Browser Settings,
       // Debug section in order to enable Bitcoin.
+      result = [.eth, .sol, .fil]
       if FeatureList.kBraveWalletBitcoinFeature.enabled {
-        return [.eth, .sol, .fil, .btc]
-      } else {
-        return [.eth, .sol, .fil]
+        result.append(.btc)
+      }
+      if FeatureList.kBraveWalletZCashFeature.enabled {
+        result.append(.zec)
       }
     case .dapps:
       return [.eth, .sol]
     }
+    return result
   }
 
   /// All of currently supported `OnRampProvider`s.
   /// Use `OnRampProvider.allSupportedOnRampProviders` to get providers available for current device locale.
   /// Exclude `.ramp` due to #44542
+  /// Exclude `.transak` due to #46567
   static let supportedOnRampProviders: OrderedSet<BraveWallet.OnRampProvider> = [
-    .sardine, .transak, .stripe, .coinbase,
+    .sardine, .stripe, .coinbase,
   ]
 
   /// The supported Ethereum Name Service (ENS) extensions
@@ -137,14 +144,80 @@ public struct WalletConstants {
   static let supportedSNSExtensions = [".sol"]
   /// The supported Unstoppable Domain (UD) extensions
   public static let supportedUDExtensions = [
-    ".crypto", ".x", ".nft", ".dao", ".wallet",
-    ".blockchain", ".bitcoin", ".zil", ".altimist", ".anime",
-    ".klever", ".manga", ".polygon", ".unstoppable", ".pudgy",
-    ".tball", ".stepn", ".secret", ".raiin", ".pog", ".clay",
-    ".metropolis", ".witg", ".ubu", ".kryptic", ".farms", ".dfz",
-    ".kresus", ".binanceus", ".austin", ".bitget", ".wrkx",
-    ".bald", ".benji", ".chomp", ".dream", ".ethermail", ".lfg",
-    ".propykeys", ".smobler",
+    ".altimist",
+    ".anime",
+    ".ask",
+    ".austin",
+    ".bald",
+    ".basenji",
+    ".bay",
+    ".benji",
+    ".binanceus",
+    ".bitcoin",
+    ".bitget",
+    ".bitscrunch",
+    ".blockchain",
+    ".boomer",
+    ".brave",
+    ".calicoin",
+    ".caw",
+    ".chomp",
+    ".clay",
+    ".crypto",
+    ".dao",
+    ".dfz",
+    ".doga",
+    ".donut",
+    ".dream",
+    ".emir",
+    ".ethermail",
+    ".farms",
+    ".grow",
+    ".her",
+    ".kingdom",
+    ".klever",
+    ".kresus",
+    ".kryptic",
+    ".lfg",
+    ".ltc",
+    ".manga",
+    ".metropolis",
+    ".miku",
+    ".ministry",
+    ".moon",
+    ".mumu",
+    ".nft",
+    ".nibi",
+    ".npc",
+    ".onchain",
+    ".pastor",
+    ".podcast",
+    ".pog",
+    ".polygon",
+    ".privacy",
+    ".propykeys",
+    ".pudgy",
+    ".quantum",
+    ".rad",
+    ".raiin",
+    ".secret",
+    ".smobler",
+    ".south",
+    ".stepn",
+    ".tball",
+    ".tea",
+    ".tribe",
+    ".u",
+    ".ubu",
+    ".unstoppable",
+    ".wallet",
+    ".wifi",
+    ".witg",
+    ".wrkx",
+    ".x",
+    ".xec",
+    ".xmr",
+    ".zil",
   ]
 
   /// The supported IPFS schemes

@@ -6,6 +6,7 @@
 import XCTest
 
 @testable import Brave
+@testable import Web
 
 class DownloadQueueTests: XCTestCase {
 
@@ -176,6 +177,11 @@ class DownloadQueueTests: XCTestCase {
         .didCompleteWithError(error: nil),
       ]
     )
+  }
+
+  func test_downloadSuggestedFileName_UnicodeBidiControlEscaped() {
+    let download = Download(suggestedFilename: "file\u{0000202e}4pm.doc", originalURL: nil)
+    XCTAssertEqual(download.filename, "file4pm.doc")
   }
 }
 

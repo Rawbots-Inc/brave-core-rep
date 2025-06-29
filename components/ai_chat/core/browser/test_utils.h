@@ -14,13 +14,18 @@
 
 namespace ai_chat {
 
+class AssociatedContentManager;
+
 void ExpectConversationEquals(base::Location location,
                               const mojom::ConversationPtr& a,
-                              const mojom::ConversationPtr& b);
+                              const mojom::ConversationPtr& b,
+                              bool compare_non_persisted_fields = false);
 
-void ExpectAssociatedContentEquals(base::Location location,
-                                   const mojom::AssociatedContentPtr& a,
-                                   const mojom::AssociatedContentPtr& b);
+void ExpectAssociatedContentEquals(
+    base::Location location,
+    const std::vector<mojom::AssociatedContentPtr>& a,
+    const std::vector<mojom::AssociatedContentPtr>& b,
+    bool compare_non_persisted_fields = false);
 
 void ExpectConversationEntryEquals(base::Location location,
                                    const mojom::ConversationTurnPtr& a,
@@ -41,10 +46,12 @@ mojom::Conversation* GetConversation(
 std::vector<mojom::ConversationTurnPtr> CreateSampleChatHistory(
     size_t num_query_pairs,
     int32_t future_hours = 0,
-    size_t num_uploaded_images_per_query = 0);
+    size_t num_uploaded_files_per_query = 0);
 
 std::vector<mojom::ConversationTurnPtr> CloneHistory(
     std::vector<mojom::ConversationTurnPtr>& history);
+
+void WaitForAssociatedContentFetch(AssociatedContentManager* manager);
 
 }  // namespace ai_chat
 

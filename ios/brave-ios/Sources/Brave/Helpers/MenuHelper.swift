@@ -17,8 +17,6 @@ import UIKit
   @objc optional func menuHelperReveal()
   /// Triggered when "Hide" menu item is selected
   @objc optional func menuHelperSecure()
-  /// Triggered when "Find in Page" menu item is selected
-  @objc optional func menuHelperFindInPage()
   /// Triggered when "Search with Brave" menu item is selected
   @objc optional func menuHelperSearchWithBrave()
 }
@@ -66,15 +64,8 @@ open class MenuHelper: NSObject {
       title: Strings.menuItemOpenWebsiteTitle,
       action: MenuHelper.selectorOpenWebsite
     )
-    let searchWithBraveItem = UIMenuItem(
-      title: Strings.searchWithBrave,
-      action: MenuHelper.selectorSearchWithBrave
-    )
-    let forcePaste = UIMenuItem(title: Strings.forcePaste, action: MenuHelper.selectorForcePaste)
-
     UIMenuController.shared.menuItems = [
-      copyItem, forcePaste, revealPasswordItem, hidePasswordItem, openWebsiteItem,
-      searchWithBraveItem,
+      copyItem, revealPasswordItem, hidePasswordItem, openWebsiteItem,
     ]
   }
 }

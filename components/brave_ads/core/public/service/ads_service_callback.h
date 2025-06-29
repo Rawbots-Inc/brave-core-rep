@@ -7,7 +7,6 @@
 #define BRAVE_COMPONENTS_BRAVE_ADS_CORE_PUBLIC_SERVICE_ADS_SERVICE_CALLBACK_H_
 
 #include <optional>
-#include <string>
 
 #include "base/functional/callback.h"
 #include "base/values.h"
@@ -18,17 +17,13 @@ namespace brave_ads {
 using ClearDataCallback = base::OnceCallback<void(bool success)>;
 
 using GetInternalsCallback =
-    base::OnceCallback<void(std::optional<base::Value::List> internals)>;
+    base::OnceCallback<void(std::optional<base::Value::Dict> internals)>;
 
 using GetDiagnosticsCallback =
     base::OnceCallback<void(std::optional<base::Value::List> diagnostics)>;
 
 using GetStatementOfAccountsCallback =
     base::OnceCallback<void(mojom::StatementInfoPtr mojom_statement)>;
-
-using MaybeServeInlineContentAdAsDictCallback =
-    base::OnceCallback<void(const std::string& dimensions,
-                            std::optional<base::Value::Dict> ads)>;
 
 using PurgeOrphanedAdEventsForTypeCallback =
     base::OnceCallback<void(bool success)>;

@@ -12,10 +12,54 @@ import XCTest
 
 class UserAgentTests: XCTestCase {
 
-  override func setUp() {
-    super.setUp()
-    Preferences.UserAgent.alwaysRequestDesktopSite.reset()
+  // MARK: Brave User Agent
+
+  let desktopBraveUARegex: (String) -> Bool = { ua in
+    let range = ua.range(
+      of:
+        "^Mozilla/5\\.0 \\(Macintosh; Intel Mac OS X [0-9_]+\\) AppleWebKit/[0-9\\.]+ \\(KHTML, like Gecko\\) Brave/[0-9\\.]+ Version/[0-9\\.]+ Safari/[0-9\\.]+$",
+      options: .regularExpression
+    )
+    return range != nil
   }
+
+  let mobileBraveUARegex: (String) -> Bool = { ua in
+    let cpuPart =
+      UIDevice.isPhone
+      ? "\\(iPhone; CPU iPhone OS [0-9_]+ like Mac OS X\\)"
+      : "\\(iPad; CPU OS [0-9_]+ like Mac OS X\\)"
+
+    let range = ua.range(
+      of:
+        "^Mozilla/5\\.0 \(cpuPart) AppleWebKit/[0-9\\.]+ \\(KHTML, like Gecko\\) Brave/[0-9\\.]+ Mobile/[A-Za-z0-9]+ Safari/[0-9\\.]+$",
+      options: .regularExpression
+    )
+    return range != nil
+  }
+
+  // Simple test to make sure the WKWebView UA matches the expected Brave iOS pattern.
+  func testBraveWebViewUserAgentOnPhone() {
+    if UIDevice.current.userInterfaceIdiom != .phone { return }
+
+    XCTAssertTrue(mobileBraveUARegex(UserAgent.mobile), "User agent computes correctly.")
+
+    let expectation = self.expectation(description: "Found Brave user agent")
+
+    let webView = WKWebView(frame: .zero)
+    webView.customUserAgent = UserAgent.mobile
+
+    webView.evaluateJavaScript("navigator.userAgent") { result, error in
+      let userAgent = result as! String
+      if !self.mobileBraveUARegex(userAgent) || self.desktopBraveUARegex(userAgent) {
+        XCTFail("User agent did not match expected pattern! \(userAgent)")
+      }
+      expectation.fulfill()
+    }
+
+    waitForExpectations(timeout: 60, handler: nil)
+  }
+
+  // MARK: Masked User Agent
 
   let desktopUARegex: (String) -> Bool = { ua in
     let range = ua.range(
@@ -40,22 +84,18 @@ class UserAgentTests: XCTestCase {
     return range != nil
   }
 
-  // Simple test to make sure the WKWebView UA matches the expected FxiOS pattern.
-  func testBraveWebViewUserAgentOnPhone() {
+  // Simple test to make sure the WKWebView masked UA matches the expected masked Brave iOS pattern.
+  func testBraveMaskedWebViewUserAgentOnPhone() {
     if UIDevice.current.userInterfaceIdiom != .phone { return }
 
-    XCTAssertTrue(mobileUARegex(UserAgent.mobile), "User agent computes correctly.")
+    XCTAssertTrue(mobileUARegex(UserAgent.mobileMasked), "Masked user agent computes correctly.")
 
-    let expectation = self.expectation(description: "Found Firefox user agent")
+    let expectation = self.expectation(description: "Found user agent")
 
     let webView = WKWebView(frame: .zero)
-    webView.customUserAgent = UserAgent.userAgentForIdiom()
+    webView.customUserAgent = UserAgent.mobileMasked
 
-    webView.evaluateSafeJavaScript(
-      functionName: "navigator.userAgent",
-      contentWorld: .page,
-      asFunction: false
-    ) { result, error in
+    webView.evaluateJavaScript("navigator.userAgent") { result, error in
       let userAgent = result as! String
       if !self.mobileUARegex(userAgent) || self.desktopUARegex(userAgent) {
         XCTFail("User agent did not match expected pattern! \(userAgent)")
@@ -74,23 +114,14 @@ class UserAgentTests: XCTestCase {
     let webView = WKWebView(frame: .zero)
     let wkWebView = WKWebView()
 
-    webView.evaluateSafeJavaScript(
-      functionName: "navigator.userAgent",
-      args: [],
-      contentWorld: .page,
-      asFunction: false
-    ) { result, error in
+    webView.evaluateJavaScript("navigator.userAgent") { result, error in
 
       guard let braveFirstPartOfUA = (result as? String)?.components(separatedBy: "Gecko") else {
         XCTFail("Could not unwrap BraveWebView UA")
         return
       }
 
-      wkWebView.evaluateSafeJavaScript(
-        functionName: "navigator.userAgent",
-        contentWorld: .page,
-        asFunction: false
-      ) { wkResult, wkError in
+      wkWebView.evaluateJavaScript("navigator.userAgent") { wkResult, wkError in
         guard
           let wkWebViewFirstPartOfUA = (result as? String)?
             .components(separatedBy: "Gecko")
@@ -108,28 +139,5 @@ class UserAgentTests: XCTestCase {
     }
 
     waitForExpectations(timeout: 60, handler: nil)
-  }
-
-  func testDesktopUserAgentOnPad() {
-    Preferences.UserAgent.alwaysRequestDesktopSite.value = true
-
-    XCTAssertTrue(desktopUARegex(UserAgent.desktop), "User agent computes correctly.")
-
-    let userAgent = UserAgent.userAgentForIdiom(.pad)
-
-    if self.mobileUARegex(userAgent) || !self.desktopUARegex(userAgent) {
-      XCTFail("User agent did not match expected pattern! \(userAgent)")
-    }
-  }
-
-  func testMobileUserAgentOnPad() {
-    Preferences.UserAgent.alwaysRequestDesktopSite.value = false
-
-    XCTAssertTrue(mobileUARegex(UserAgent.mobile), "User agent computes correctly.")
-    let userAgent = UserAgent.userAgentForIdiom(.pad)
-
-    if !self.mobileUARegex(userAgent) || self.desktopUARegex(userAgent) {
-      XCTFail("User agent did not match expected pattern! \(userAgent)")
-    }
   }
 }

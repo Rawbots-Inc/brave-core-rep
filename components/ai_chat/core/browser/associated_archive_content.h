@@ -9,8 +9,7 @@
 #include <string>
 #include <string_view>
 
-#include "base/memory/weak_ptr.h"
-#include "brave/components/ai_chat/core/browser/conversation_handler.h"
+#include "brave/components/ai_chat/core/browser/associated_content_delegate.h"
 #include "url/gurl.h"
 
 namespace ai_chat {
@@ -27,13 +26,13 @@ namespace ai_chat {
 // multiple conversations, consider changing owner to the AIChatService and
 // having it subclass AssociatedContentDriver for related conversation
 // management.
-class AssociatedArchiveContent
-    : public ConversationHandler::AssociatedContentDelegate {
+class AssociatedArchiveContent : public AssociatedContentDelegate {
  public:
   AssociatedArchiveContent(GURL url,
                            std::string text_content,
                            std::u16string title,
-                           bool is_video);
+                           bool is_video,
+                           std::string uuid);
   ~AssociatedArchiveContent() override;
   AssociatedArchiveContent(const AssociatedArchiveContent&) = delete;
   AssociatedArchiveContent& operator=(const AssociatedArchiveContent&) = delete;
@@ -47,10 +46,9 @@ class AssociatedArchiveContent
   GURL GetURL() const override;
   std::u16string GetTitle() const override;
 
-  void GetContent(
-      ConversationHandler::GetPageContentCallback callback) override;
-  std::string_view GetCachedTextContent() override;
-  bool GetCachedIsVideo() override;
+  void GetContent(GetPageContentCallback callback) override;
+  std::string_view GetCachedTextContent() const override;
+  bool GetCachedIsVideo() const override;
 
   base::WeakPtr<AssociatedContentDelegate> GetWeakPtr();
 
@@ -59,9 +57,6 @@ class AssociatedArchiveContent
   std::string text_content_;
   std::u16string title_;
   bool is_video_;
-
-  base::WeakPtrFactory<ConversationHandler::AssociatedContentDelegate>
-      weak_ptr_factory_{this};
 };
 
 }  // namespace ai_chat

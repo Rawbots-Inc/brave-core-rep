@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "base/check_op.h"
 #include "base/memory/raw_ptr.h"
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/views/frame/brave_contents_view_util.h"
@@ -74,12 +75,12 @@ ReaderModeToolbarView::ReaderModeToolbarView(
   AddChildView(toolbar_.get());
 
   if (use_rounded_corners_) {
-    SetBackground(views::CreateThemedRoundedRectBackground(kColorToolbar,
-                                                           kRoundedCorners));
+    SetBackground(
+        views::CreateRoundedRectBackground(kColorToolbar, kRoundedCorners));
   } else {
-    SetBorder(views::CreateThemedSolidSidedBorder(
-        gfx::Insets::TLBR(0, 0, 1, 0), kColorToolbarContentAreaSeparator));
-    SetBackground(views::CreateThemedSolidBackground(kColorToolbar));
+    SetBorder(views::CreateSolidSidedBorder(gfx::Insets::TLBR(0, 0, 1, 0),
+                                            kColorToolbarContentAreaSeparator));
+    SetBackground(views::CreateSolidBackground(kColorToolbar));
   }
 }
 

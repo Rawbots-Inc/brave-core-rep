@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 
+#include "base/check.h"
 #include "base/memory/raw_ptr.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/browser/ui/brave_browser.h"
@@ -15,13 +16,14 @@
 #include "brave/browser/ui/sidebar/sidebar_controller.h"
 #include "brave/browser/ui/sidebar/sidebar_service_factory.h"
 #include "brave/browser/ui/sidebar/sidebar_utils.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/sidebar/browser/sidebar_service.h"
 #include "brave/grit/brave_generated_resources.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/chrome_layout_provider.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "content/public/browser/web_contents.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/dialog_button.mojom.h"
 #include "ui/base/resource/resource_bundle.h"
@@ -114,7 +116,7 @@ views::Widget* SidebarAddItemBubbleDelegateView::Create(
   frame_view->SetDisplayVisibleArrow(true);
   delegate->set_adjust_if_offscreen(true);
   delegate->SizeToContents();
-  frame_view->SetCornerRadius(4);
+  frame_view->SetRoundedCorners(gfx::RoundedCornersF(4));
 
   return bubble;
 }
@@ -134,7 +136,8 @@ SidebarAddItemBubbleDelegateView::SidebarAddItemBubbleDelegateView(
 
   if (const ui::ColorProvider* color_provider =
           BrowserView::GetBrowserViewForBrowser(browser_)->GetColorProvider()) {
-    set_color(color_provider->GetColor(kColorSidebarAddBubbleBackground));
+    SetBackgroundColor(
+        color_provider->GetColor(kColorSidebarAddBubbleBackground));
   }
   AddChildViews();
 }
@@ -157,9 +160,7 @@ void SidebarAddItemBubbleDelegateView::AddChildViews() {
           .DeriveWithSizeDelta(size_diff)
           .DeriveWithWeight(gfx::Font::Weight::SEMIBOLD)};
   auto* header = site_part->AddChildView(std::make_unique<views::Label>(
-      brave_l10n::GetLocalizedResourceUTF16String(
-          IDS_SIDEBAR_ADD_ITEM_BUBBLE_TITLE),
-      font));
+      l10n_util::GetStringUTF16(IDS_SIDEBAR_ADD_ITEM_BUBBLE_TITLE), font));
   const ui::ColorProvider* color_provider =
       BrowserView::GetBrowserViewForBrowser(browser_)->GetColorProvider();
   if (color_provider) {
@@ -221,7 +222,7 @@ void SidebarAddItemBubbleDelegateView::OnDefaultItemsButtonPressed(
 }
 
 void SidebarAddItemBubbleDelegateView::OnCurrentItemButtonPressed() {
-  browser_->sidebar_controller()->AddItemWithCurrentTab();
+  browser_->GetFeatures().sidebar_controller()->AddItemWithCurrentTab();
   CloseOrReLayoutAfterAddingItem();
 }
 

@@ -1,9 +1,9 @@
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-index 375f6db0d2802d175b957176e32cb1301dbefb94..33f5fa62d763be3d8d0f27671fd56a208b529794 100644
+index e4bb3943331be4264953f8c3a95c762b6718b494..459dd4d813aeaca4c72250c852a9b9f174688b45 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -57,7 +57,7 @@ import org.chromium.device.DeviceFeatureMap;
- import org.chromium.ui.text.SpanApplier;
+@@ -78,7 +78,7 @@ import java.util.concurrent.TimeUnit;
+ import java.util.function.Consumer;
  
  /** Fragment to keep track of the all the privacy related preferences. */
 -public class PrivacySettings extends ChromeBaseSettingsFragment
@@ -11,7 +11,7 @@ index 375f6db0d2802d175b957176e32cb1301dbefb94..33f5fa62d763be3d8d0f27671fd56a20
          implements Preference.OnPreferenceChangeListener {
      private static final String PREF_CAN_MAKE_PAYMENT = "can_make_payment";
      private static final String PREF_PRELOAD_PAGES = "preload_pages";
-@@ -457,6 +457,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -551,6 +551,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      @Override
      public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
          menu.clear();
@@ -19,7 +19,7 @@ index 375f6db0d2802d175b957176e32cb1301dbefb94..33f5fa62d763be3d8d0f27671fd56a20
          MenuItem help =
                  menu.add(Menu.NONE, R.id.menu_id_targeted_help, Menu.NONE, R.string.menu_help);
          help.setIcon(
-@@ -471,7 +472,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -565,7 +566,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
                      .show(getActivity(), getString(R.string.help_context_privacy), null);
              return true;
          }

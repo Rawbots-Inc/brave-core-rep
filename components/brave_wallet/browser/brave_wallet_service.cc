@@ -11,7 +11,10 @@
 #include <optional>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/contains.h"
+#include "base/logging.h"
 #include "base/notreached.h"
 #include "base/strings/string_util.h"
 #include "base/values.h"
@@ -61,6 +64,17 @@ bool AccountMatchesCoinAndChain(const mojom::AccountId& account_id,
                         account_id.keyring_id);
 }
 
+bool ContainsToken(const std::vector<mojom::BlockchainTokenPtr>& tokens,
+                   mojom::CoinType coin,
+                   const std::string& chain_id,
+                   bool is_shielded) {
+  return std::ranges::find_if(
+             tokens, [&](const mojom::BlockchainTokenPtr& token) {
+               return token->coin == coin && token->chain_id == chain_id &&
+                      token->is_shielded == is_shielded;
+             }) != tokens.end();
+}
+
 // Ensure token list contains native tokens when appears empty. Only for BTC,
 // ZEC and ADA by now.
 std::vector<mojom::BlockchainTokenPtr> EnsureNativeTokens(
@@ -72,19 +86,26 @@ std::vector<mojom::BlockchainTokenPtr> EnsureNativeTokens(
     return tokens;
   }
 
-  if (!tokens.empty()) {
-    return tokens;
-  }
-
-  if (coin == mojom::CoinType::BTC && IsBitcoinNetwork(chain_id)) {
+  if (coin == mojom::CoinType::BTC && IsBitcoinNetwork(chain_id) &&
+      !ContainsToken(tokens, coin, chain_id, false)) {
     tokens.push_back(GetBitcoinNativeToken(chain_id));
   }
 
   if (coin == mojom::CoinType::ZEC && IsZCashNetwork(chain_id)) {
-    tokens.push_back(GetZcashNativeToken(chain_id));
+    if (!ContainsToken(tokens, coin, chain_id, false)) {
+      tokens.push_back(GetZcashNativeToken(chain_id));
+    }
+#if BUILDFLAG(ENABLE_ORCHARD)
+    if (IsZCashShieldedTransactionsEnabled()) {
+      if (!ContainsToken(tokens, coin, chain_id, true)) {
+        tokens.push_back(GetZcashNativeShieldedToken(chain_id));
+      }
+    }
+#endif  // BUILDFLAG(ENABLE_ORCHARD)
   }
 
-  if (coin == mojom::CoinType::ADA && IsCardanoNetwork(chain_id)) {
+  if (coin == mojom::CoinType::ADA && IsCardanoNetwork(chain_id) &&
+      !ContainsToken(tokens, coin, chain_id, false)) {
     tokens.push_back(GetCardanoNativeToken(chain_id));
   }
 
@@ -147,7 +168,8 @@ BraveWalletService::BraveWalletService(
 
   tx_service_ = std::make_unique<TxService>(
       json_rpc_service(), GetBitcoinWalletService(), GetZcashWalletService(),
-      *keyring_service(), profile_prefs, delegate_->GetWalletBaseDirectory(),
+      GetCardanoWalletService(), *keyring_service(), profile_prefs,
+      delegate_->GetWalletBaseDirectory(),
       base::SequencedTaskRunner::GetCurrentDefault());
 
   brave_wallet_p3a_ = std::make_unique<BraveWalletP3A>(
@@ -339,12 +361,11 @@ bool BraveWalletService::AddUserAssetInternal(mojom::BlockchainTokenPtr token) {
 
 void BraveWalletService::AddUserAsset(mojom::BlockchainTokenPtr token,
                                       AddUserAssetCallback callback) {
-  const auto& interfaces_to_check = GetEthSupportedNftInterfaces();
   if (token->is_nft && token->coin == mojom::CoinType::ETH) {
     const std::string contract_address = token->contract_address;
     const std::string chain_id = token->chain_id;
     json_rpc_service_->GetEthNftStandard(
-        contract_address, chain_id, interfaces_to_check,
+        contract_address, chain_id, kEthSupportedNftInterfaces,
         base::BindOnce(&BraveWalletService::OnGetEthNftStandard,
                        weak_ptr_factory_.GetWeakPtr(), std::move(token),
                        std::move(callback)));
@@ -676,7 +697,8 @@ void BraveWalletService::SetNetworkForAccountOnActiveOrigin(
     return;
   }
 
-  SetNetworkForAccountOnOriginSync(origin.value(), account, chain_id);
+  std::move(callback).Run(
+      SetNetworkForAccountOnOriginSync(origin.value(), account, chain_id));
 }
 
 void BraveWalletService::SetNetworkForSelectedAccountOnActiveOrigin(
@@ -1607,11 +1629,9 @@ void BraveWalletService::SetPrivateWindowsEnabled(bool enabled) {
 
 void BraveWalletService::GetBalanceScannerSupportedChains(
     GetBalanceScannerSupportedChainsCallback callback) {
-  const auto& contract_addresses = GetEthBalanceScannerContractAddresses();
-
   std::vector<std::string> chain_ids;
-  for (const auto& entry : contract_addresses) {
-    chain_ids.push_back(entry.first);
+  for (const auto& entry : kEthBalanceScannerContractAddresses) {
+    chain_ids.push_back(std::string(entry.first));
   }
 
   std::move(callback).Run(chain_ids);
@@ -1663,6 +1683,18 @@ void BraveWalletService::GenerateReceiveAddress(
     return;
   }
 
+  if (account_id->coin == mojom::CoinType::ADA) {
+    if (!cardano_wallet_service_) {
+      std::move(callback).Run("", WalletInternalErrorMessage());
+      return;
+    }
+    cardano_wallet_service_->DiscoverNextUnusedAddress(
+        std::move(account_id), mojom::CardanoKeyRole::kExternal,
+        base::BindOnce(&BraveWalletService::OnGenerateCardanoReceiveAddress,
+                       weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
+    return;
+  }
+
   if (account_id->coin == mojom::CoinType::ETH ||
       account_id->coin == mojom::CoinType::SOL ||
       account_id->coin == mojom::CoinType::FIL) {
@@ -1696,6 +1728,17 @@ void BraveWalletService::OnGenerateBtcReceiveAddress(
 void BraveWalletService::OnGenerateZecReceiveAddress(
     GenerateReceiveAddressCallback callback,
     base::expected<mojom::ZCashAddressPtr, std::string> result) {
+  if (result.has_value()) {
+    std::move(callback).Run(result.value()->address_string, std::nullopt);
+    return;
+  }
+
+  std::move(callback).Run(std::nullopt, result.error());
+}
+
+void BraveWalletService::OnGenerateCardanoReceiveAddress(
+    GenerateReceiveAddressCallback callback,
+    base::expected<mojom::CardanoAddressPtr, std::string> result) {
   if (result.has_value()) {
     std::move(callback).Run(result.value()->address_string, std::nullopt);
     return;
@@ -1836,11 +1879,9 @@ void BraveWalletService::DiscoverEthAllowances(
 
 void BraveWalletService::GetAnkrSupportedChainIds(
     GetAnkrSupportedChainIdsCallback callback) {
-  const auto& blockchains = GetAnkrBlockchains();
-
   std::vector<std::string> chain_ids;
-  for (const auto& entry : blockchains) {
-    chain_ids.push_back(entry.first);
+  for (const auto& entry : kAnkrBlockchains) {
+    chain_ids.push_back(std::string(entry.first));
   }
 
   std::move(callback).Run(std::move(chain_ids));
@@ -1866,8 +1907,8 @@ void BraveWalletService::SetTransactionSimulationOptInStatus(
 }
 
 void BraveWalletService::GetCountryCode(GetCountryCodeCallback callback) {
-  std::move(callback).Run(country_codes::CountryIDToCountryString(
-      country_codes::GetCountryIDFromPrefs(profile_prefs_)));
+  std::move(callback).Run(std::string(
+      country_codes::GetCountryIDFromPrefs(profile_prefs_).CountryCode()));
 }
 
 }  // namespace brave_wallet

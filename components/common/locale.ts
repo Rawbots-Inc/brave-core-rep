@@ -4,6 +4,7 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import { loadTimeData } from './loadTimeData'
+import * as React from 'react'
 
 /**
  * Gets the localized string
@@ -38,115 +39,150 @@ export const getLocale = (
   return returnVal
 }
 
-/**
- * Gets the localized string
- * @param {string} key - translation identifier
- * @param {object} replacements - replacements for specific key
- * @returns {string} - the localized string
- * Usage:
- *    const replacement = {
- *      $1: 10,
- *      $2: 20
- *    }
- *    getLocaleWithReplacements('$1 cities, $2 servers', replacement)
- *    returns '10 cities, 20 servers`.
- */
-export function getLocaleWithReplacements(
-  key: string,
-  replacements: { [key: `${number}`]: string }
-) {
-  return getLocale(key).replace(/\$\d+/g, (m: keyof typeof replacements) => replacements[m])
+type Content = string | React.ReactNode
+type Replacement = Content | ((contents: string) => Content)
+type ReturnType<T extends Replacement> = T extends (string | ((contents: string) => string)) ? string : React.ReactNode
+type Options = {
+  noErrorOnMissingReplacement?: boolean
 }
 
-interface SplitStringForTagResult {
-  beforeTag: string
-  duringTag: string | null
-  afterTag: string | null
+interface ReplacedRange {
+  start: number
+  end: number
+  key: `$${number}`
+
+  children: ReplacedRange[]
 }
 
 /**
- * Returns text for translations with a single HTML tag
- * (like a link or button)
- * @param {string} key - translation identifier
- * @param {object} replacements - replacements for specific translation, replacement should be defined as {{key}}
- * @returns {SplitStringForTagResult}
- */
-export const getLocaleWithTag = (
-  key: string,
-  replacements?: Record<string, string>
-) => {
-  const text = getLocale(key, replacements)
-  return splitStringForTag(text)
-}
-
-/**
- * Returns text for translations with a multiple HTML tags
- * (like a link or button)
- * @param {string} key - translation identifier
- * @param {number} tags - how many tags is in translation
- * @param {object} replacements - replacements for specific translation, replacement should be defined as {{key}}
- * @returns {SplitStringForTagResult}
- */
-export const getLocaleWithTags = (
-  key: string,
-  tags: number,
-  replacements?: Record<string, string>
-) => {
-  let text = getLocale(key, replacements)
-  let result = []
-  for (let i = 1; i <= tags; i++) {
-    const split = splitStringForTag(text, i * 2 - 1)
-    text = split.afterTag || ''
-    if (i !== tags) {
-      split.afterTag = ''
-    }
-    result.push(split)
-  }
-  return result
-}
-
-/**
- * Allows an html or xml tag, or React component etc., to be injected in to a string by extracting
- * the components of the string before, during and after the tag.
- * Usage:
- *    splitStringForTag('my string with some $1bold text$2')
- *    splitStringForTag('Get more info at $1')
+ * Formats a string with replacements. Replacements can be strings or React
+ * Nodes. When you're interested in the content between tags you can pass a
+ * function as a replacement - the content will be passed to the function as the
+ * first argument and the return value will be used in the replacement.
+ * @param text The text to format.
+ * @param replacements The replacements to use. Can either be a string, a React Node or a function that returns a string or a React Node.
+ * @returns The formatted string. If the replacements are all strings (or all return strings) the result will be a string. Otherwise the result will be a React Fragment.
+ * @example
+ * formatString('Hello $1', {
+ *   $1: 'world'
+ * }) // 'Hello world'
  *
- * @export
- * @param {string} text
- * @param {number} tagStartNumber - starting number for the tag
- * @returns {SplitStringForTagResult}
+ * formatString('Hello $1world$1', {
+ *   $1: (content) => <a href="#">{content}</a>
+ * }) // 'Hello <a href="#">world</a>'
  */
-export function splitStringForTag(
-  text: string,
-  tagStartNumber: number = 1
-): SplitStringForTagResult {
-  const tagOpenPlaceholder = `$${tagStartNumber}`
-  const tagClosePlaceholder = `$${tagStartNumber + 1}`
-  const tagStartIndex: number = text.indexOf(tagOpenPlaceholder)
-  const tagEndIndex: number = text.lastIndexOf(tagClosePlaceholder)
-  const isValid = tagStartIndex !== -1
-  let beforeTag = text
-  let duringTag: string | null = null
-  let afterTag: string | null = null
-  if (isValid) {
-    beforeTag = text.substring(0, tagStartIndex)
-    if (tagEndIndex !== -1) {
-      // Handle we have 'open' and 'close' tags
-      duringTag = text.substring(
-        tagStartIndex + tagOpenPlaceholder.length,
-        tagEndIndex
-      )
-      afterTag = text.substring(tagEndIndex + tagClosePlaceholder.length)
-    } else {
-      // Handle we have a single replacement block
-      afterTag = text.substring(tagStartIndex + tagOpenPlaceholder.length)
+export function formatString<T extends Replacement>(text: string, replacements: Record<`$${string}`, T>, options?: Options): ReturnType<T> {
+  const result: ReplacedRange = {
+    children: [],
+    start: 0,
+    end: text.length,
+    key: `` as any
+  }
+
+  const getReplacedContent = (range: ReplacedRange): Content | Content[] => {
+    const bits: Content[] = []
+    const maybePushSlice = (start: number, end: number) => {
+      if (start === end) return
+      bits.push(text.slice(start, end))
+    }
+
+    let consumed = range.start + range.key.length
+    for (let i = 0; i < range.children.length; i++) {
+      const child = range.children[i]
+      maybePushSlice(consumed, child.start)
+      bits.push(getReplacedContent(child))
+      consumed = child.end
+    }
+    maybePushSlice(consumed, range.end - range.key.length)
+
+    const childContent = bits.every(c => typeof c === 'string')
+      ? bits.join('')
+      : React.createElement(React.Fragment, null, ...bits)
+
+    const replacement = replacements[range.key]
+    if (!replacement) return childContent
+
+    return typeof replacement === 'function'
+      ? replacement(childContent as string)
+      : replacement
+  }
+
+  const stack = [result]
+  const regex = /\$(\d+)/gm
+
+  // Keep track of the keys we've seen, so we can throw an error if a key is
+  // missing.
+  const seen = new Set<string>()
+
+  for (const match of text.matchAll(regex)) {
+    const key = match[0] as keyof typeof replacements
+
+    // If we should throw an error for missing replacements, keep track of the
+    // keys we've seen.
+    if (!options?.noErrorOnMissingReplacement) {
+      seen.add(key)
+    }
+
+    // If this is a closing tag, pop the element off the stack.
+    if (stack.at(-1)!.key === key) {
+      stack.pop()
+      continue
+    }
+
+    // We're not going to replace this key, so ignore it.
+    if (!replacements[key]) { continue }
+
+    // Check if we have a closing tag for this key.
+    let selfClosing = false
+    let endIndex = text.indexOf(key, match.index + key.length)
+
+    // If we don't have a closing tag, the end tag is the same as the start tag.
+    if (endIndex === -1) {
+      endIndex = match.index
+      selfClosing = true
+    }
+
+    // Add the key length so it is fully included in the range.
+    endIndex += key.length
+
+    const range: ReplacedRange = {
+      children: [],
+      end: endIndex,
+      start: match.index,
+      key: key as `$${number}`,
+    }
+    stack.at(-1)!.children.push(range)
+
+    // If this is not a self-closing tag, push the element onto the stack, so
+    // elements inside it can be added as children.
+    if (!selfClosing) {
+      stack.push(range)
     }
   }
 
-  return {
-    beforeTag,
-    duringTag,
-    afterTag
+  // If we should throw an error for missing replacements check to see if they
+  // were all present in our text.
+  if (!options?.noErrorOnMissingReplacement && seen.size < Object.keys(replacements).length) {
+    throw new Error(`Missing replacements (${Object.keys(replacements).filter(key => !seen.has(key)).join(', ')} we not found in ${text})`)
   }
+
+  const formatted = getReplacedContent(result) as ReturnType<T>
+  return Array.isArray(formatted) ?
+    React.createElement(React.Fragment, null, ...formatted)
+    : formatted as any
+}
+
+/**
+ * Formats a locale string with replacements. This is the same as formatString
+ * but looks up the localized string from getLocale before formatting.
+ * @param key The key for the localeString to format
+ * @param replacements The replacements to use. Can either be a string, a React Node or a function that returns a string or a React Node.
+ * @returns The formatted string. If the replacements are all strings (or all return strings) the result will be a string. Otherwise the result will be a React Fragment.
+ * @example
+ * formatLocale('shieldsStatus', {
+ *   $1: status => <b>${status}</b>
+ * }) // <>Shields are <b>UP</b></>
+ */
+export function formatLocale<T extends Replacement>(key: string, replacements: Record<`$${string}`, T>, options?: Options): ReturnType<T> {
+  return formatString(getLocale(key), replacements, options)
 }

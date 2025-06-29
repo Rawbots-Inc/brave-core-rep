@@ -5,7 +5,9 @@
 
 #include "brave/components/brave_ads/core/internal/ads_client/ads_client_notifier_for_testing.h"
 
+#include "base/check.h"
 #include "base/check_op.h"
+#include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
 #include "url/gurl.h"
 
 namespace brave_ads {
@@ -14,14 +16,24 @@ AdsClientNotifierForTesting::AdsClientNotifierForTesting() = default;
 
 AdsClientNotifierForTesting::~AdsClientNotifierForTesting() = default;
 
+void AdsClientNotifierForTesting::AddObserver(
+    AdsClientNotifierObserver* const observer) {
+  ads_client_notifier_.AddObserver(observer);
+}
+
+void AdsClientNotifierForTesting::RemoveObserver(
+    AdsClientNotifierObserver* const observer) {
+  ads_client_notifier_.RemoveObserver(observer);
+}
+
 void AdsClientNotifierForTesting::NotifyPendingObservers() {
-  AdsClientNotifier::NotifyPendingObservers();
+  ads_client_notifier_.NotifyPendingObservers();
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyDidInitializeAds() {
-  AdsClientNotifier::NotifyDidInitializeAds();
+  ads_client_notifier_.NotifyDidInitializeAds();
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -29,21 +41,14 @@ void AdsClientNotifierForTesting::NotifyDidInitializeAds() {
 void AdsClientNotifierForTesting::NotifyRewardsWalletDidUpdate(
     const std::string& payment_id,
     const std::string& recovery_seed_base64) {
-  AdsClientNotifier::NotifyRewardsWalletDidUpdate(payment_id,
-                                                  recovery_seed_base64);
-
-  RunTaskEnvironmentUntilIdle();
-}
-
-void AdsClientNotifierForTesting::NotifyLocaleDidChange(
-    const std::string& locale) {
-  AdsClientNotifier::NotifyLocaleDidChange(locale);
+  ads_client_notifier_.NotifyRewardsWalletDidUpdate(payment_id,
+                                                    recovery_seed_base64);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyPrefDidChange(const std::string& path) {
-  AdsClientNotifier::NotifyPrefDidChange(path);
+  ads_client_notifier_.NotifyPrefDidChange(path);
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -51,14 +56,14 @@ void AdsClientNotifierForTesting::NotifyPrefDidChange(const std::string& path) {
 void AdsClientNotifierForTesting::NotifyResourceComponentDidChange(
     const std::string& manifest_version,
     const std::string& id) {
-  AdsClientNotifier::NotifyResourceComponentDidChange(manifest_version, id);
+  ads_client_notifier_.NotifyResourceComponentDidChange(manifest_version, id);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyDidUnregisterResourceComponent(
     const std::string& id) {
-  AdsClientNotifier::NotifyDidUnregisterResourceComponent(id);
+  ads_client_notifier_.NotifyDidUnregisterResourceComponent(id);
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -67,8 +72,8 @@ void AdsClientNotifierForTesting::NotifyTabTextContentDidChange(
     int32_t tab_id,
     const std::vector<GURL>& redirect_chain,
     const std::string& text) {
-  AdsClientNotifier::NotifyTabTextContentDidChange(tab_id, redirect_chain,
-                                                   text);
+  ads_client_notifier_.NotifyTabTextContentDidChange(tab_id, redirect_chain,
+                                                     text);
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -77,21 +82,21 @@ void AdsClientNotifierForTesting::NotifyTabHtmlContentDidChange(
     int32_t tab_id,
     const std::vector<GURL>& redirect_chain,
     const std::string& html) {
-  AdsClientNotifier::NotifyTabHtmlContentDidChange(tab_id, redirect_chain,
-                                                   html);
+  ads_client_notifier_.NotifyTabHtmlContentDidChange(tab_id, redirect_chain,
+                                                     html);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyTabDidStartPlayingMedia(
     int32_t tab_id) {
-  AdsClientNotifier::NotifyTabDidStartPlayingMedia(tab_id);
+  ads_client_notifier_.NotifyTabDidStartPlayingMedia(tab_id);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyTabDidStopPlayingMedia(int32_t tab_id) {
-  AdsClientNotifier::NotifyTabDidStopPlayingMedia(tab_id);
+  ads_client_notifier_.NotifyTabDidStopPlayingMedia(tab_id);
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -102,7 +107,7 @@ void AdsClientNotifierForTesting::NotifyTabDidChange(
     bool is_new_navigation,
     bool is_restoring,
     bool is_visible) {
-  AdsClientNotifier::NotifyTabDidChange(
+  ads_client_notifier_.NotifyTabDidChange(
       tab_id, redirect_chain, is_new_navigation, is_restoring, is_visible);
 
   RunTaskEnvironmentUntilIdle();
@@ -110,26 +115,26 @@ void AdsClientNotifierForTesting::NotifyTabDidChange(
 
 void AdsClientNotifierForTesting::NotifyTabDidLoad(int32_t tab_id,
                                                    int http_status_code) {
-  AdsClientNotifier::NotifyTabDidLoad(tab_id, http_status_code);
+  ads_client_notifier_.NotifyTabDidLoad(tab_id, http_status_code);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyDidCloseTab(int32_t tab_id) {
-  AdsClientNotifier::NotifyDidCloseTab(tab_id);
+  ads_client_notifier_.NotifyDidCloseTab(tab_id);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyUserGestureEventTriggered(
     int32_t page_transition_type) {
-  AdsClientNotifier::NotifyUserGestureEventTriggered(page_transition_type);
+  ads_client_notifier_.NotifyUserGestureEventTriggered(page_transition_type);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyUserDidBecomeIdle() {
-  AdsClientNotifier::NotifyUserDidBecomeIdle();
+  ads_client_notifier_.NotifyUserDidBecomeIdle();
 
   RunTaskEnvironmentUntilIdle();
 }
@@ -137,52 +142,39 @@ void AdsClientNotifierForTesting::NotifyUserDidBecomeIdle() {
 void AdsClientNotifierForTesting::NotifyUserDidBecomeActive(
     base::TimeDelta idle_time,
     bool screen_was_locked) {
-  AdsClientNotifier::NotifyUserDidBecomeActive(idle_time, screen_was_locked);
+  ads_client_notifier_.NotifyUserDidBecomeActive(idle_time, screen_was_locked);
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyBrowserDidEnterForeground() {
-  AdsClientNotifier::NotifyBrowserDidEnterForeground();
+  ads_client_notifier_.NotifyBrowserDidEnterForeground();
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyBrowserDidEnterBackground() {
-  AdsClientNotifier::NotifyBrowserDidEnterBackground();
+  ads_client_notifier_.NotifyBrowserDidEnterBackground();
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyBrowserDidBecomeActive() {
-  AdsClientNotifier::NotifyBrowserDidBecomeActive();
+  ads_client_notifier_.NotifyBrowserDidBecomeActive();
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyBrowserDidResignActive() {
-  AdsClientNotifier::NotifyBrowserDidResignActive();
+  ads_client_notifier_.NotifyBrowserDidResignActive();
 
   RunTaskEnvironmentUntilIdle();
 }
 
 void AdsClientNotifierForTesting::NotifyDidSolveAdaptiveCaptcha() {
-  AdsClientNotifier::NotifyDidSolveAdaptiveCaptcha();
+  ads_client_notifier_.NotifyDidSolveAdaptiveCaptcha();
 
   RunTaskEnvironmentUntilIdle();
-}
-
-void AdsClientNotifierForTesting::SimulateOpeningNewTab(
-    int32_t tab_id,
-    const std::vector<GURL>& redirect_chain,
-    int http_status_code) {
-  CHECK(!redirect_chains_.contains(tab_id)) << "Tab already open";
-
-  redirect_chains_[tab_id] = redirect_chain;
-
-  SimulateSelectTab(tab_id);
-
-  SimulateNavigateToURL(tab_id, redirect_chain, http_status_code);
 }
 
 void AdsClientNotifierForTesting::SimulateNavigateToURL(
@@ -198,6 +190,19 @@ void AdsClientNotifierForTesting::SimulateNavigateToURL(
   NotifyTabDidChange(tab_id, redirect_chain, /*is_new_navigation=*/true,
                      /*is_restoring=*/false, is_visible);
   NotifyTabDidLoad(tab_id, http_status_code);
+}
+
+void AdsClientNotifierForTesting::SimulateOpeningNewTab(
+    int32_t tab_id,
+    const std::vector<GURL>& redirect_chain,
+    int http_status_code) {
+  CHECK(!redirect_chains_.contains(tab_id)) << "Tab already open";
+
+  redirect_chains_[tab_id] = redirect_chain;
+
+  SimulateSelectTab(tab_id);
+
+  SimulateNavigateToURL(tab_id, redirect_chain, http_status_code);
 }
 
 void AdsClientNotifierForTesting::SimulateSelectTab(int32_t tab_id) {

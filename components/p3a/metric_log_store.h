@@ -36,17 +36,16 @@ class MetricLogStore : public metrics::LogStore {
     virtual std::string SerializeLog(std::string_view histogram_name,
                                      uint64_t value,
                                      MetricLogType log_type,
-                                     bool is_constellation,
                                      const std::string& upload_type) = 0;
-    // Returns false if the metric is obsolete and should be cleaned up.
-    virtual bool IsActualMetric(const std::string& histogram_name) const = 0;
+    // Returns std::nullopt if the metric is obsolete and should be cleaned up.
+    virtual std::optional<MetricLogType> GetLogTypeForHistogram(
+        std::string_view histogram_name) const = 0;
     virtual bool IsEphemeralMetric(const std::string& histogram_name) const = 0;
     virtual ~Delegate() {}
   };
 
   MetricLogStore(Delegate& delegate,
                  PrefService& local_state,
-                 bool is_constellation,
                  MetricLogType type);
   ~MetricLogStore() override;
 
@@ -54,6 +53,10 @@ class MetricLogStore : public metrics::LogStore {
   MetricLogStore& operator=(const MetricLogStore&) = delete;
 
   static void RegisterPrefs(PrefRegistrySimple* registry);
+
+  static void RegisterLocalStatePrefsForMigration(PrefRegistrySimple* registry);
+
+  static void MigrateObsoleteLocalStatePrefs(PrefService* local_state);
 
   void UpdateValue(const std::string& histogram_name, uint64_t value);
   // Removes and also unstages the metric value if it is known and/or staged.
@@ -80,6 +83,7 @@ class MetricLogStore : public metrics::LogStore {
   void TrimAndPersistUnsentLogs(bool overwrite_in_memory_store) override;
   // Returns early if founds malformed persisted values.
   void LoadPersistedUnsentLogs() override;
+  void RemoveObsoleteLogs();
 
  private:
   struct LogEntry {
@@ -116,8 +120,6 @@ class MetricLogStore : public metrics::LogStore {
   // Not used for now.
   std::string staged_log_hash_;
   std::string staged_log_signature_;
-
-  bool is_constellation_;
 };
 
 }  // namespace p3a

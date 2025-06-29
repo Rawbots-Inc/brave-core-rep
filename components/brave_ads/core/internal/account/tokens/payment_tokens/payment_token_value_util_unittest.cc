@@ -17,7 +17,7 @@ namespace brave_ads {
 namespace {
 
 constexpr char kPaymentTokensAsJson[] =
-    R"(
+    R"JSON(
         [
           {
             "ad_type": "ad_notification",
@@ -33,7 +33,7 @@ constexpr char kPaymentTokensAsJson[] =
             "transaction_id": "8b742869-6e4a-490c-ac31-31b49130098a",
             "unblinded_token": "hfrMEltWLuzbKQ02Qixh5C/DWiJbdOoaGaidKZ7Mv+cRq5fyxJqemE/MPlARPhl6NgXPHUeyaxzd6/Lk6YHlfXbBA023DYvGMHoKm15NP/nWnZ1V3iLkgOOHZuk80Z4K"
           }
-        ])";
+        ])JSON";
 
 }  // namespace
 
@@ -49,11 +49,8 @@ TEST_F(BraveAdsPaymentTokenValueUtilTest, PaymentTokensToValue) {
 }
 
 TEST_F(BraveAdsPaymentTokenValueUtilTest, EmptyPaymentTokensToValue) {
-  // Act
-  const base::Value::List list = PaymentTokensToValue({});
-
-  // Assert
-  EXPECT_EQ(base::test::ParseJsonList("[]"), list);
+  // Act & Assert
+  EXPECT_THAT(PaymentTokensToValue({}), ::testing::IsEmpty());
 }
 
 TEST_F(BraveAdsPaymentTokenValueUtilTest, PaymentTokensFromValue) {
@@ -69,14 +66,8 @@ TEST_F(BraveAdsPaymentTokenValueUtilTest, PaymentTokensFromValue) {
 }
 
 TEST_F(BraveAdsPaymentTokenValueUtilTest, EmptyPaymentTokensFromValue) {
-  // Arrange
-  const base::Value::List list = base::test::ParseJsonList("[]");
-
-  // Act
-  const PaymentTokenList payment_tokens = PaymentTokensFromValue(list);
-
-  // Assert
-  EXPECT_THAT(payment_tokens, ::testing::IsEmpty());
+  // Act & Assert
+  EXPECT_THAT(PaymentTokensFromValue({}), ::testing::IsEmpty());
 }
 
 }  // namespace brave_ads

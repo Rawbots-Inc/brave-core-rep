@@ -7,6 +7,10 @@ const NSSVG = 'http://www.w3.org/2000/svg'
 let pickerDiv: HTMLDivElement | null
 let shadowRoot: ShadowRoot | null
 let isAndroid: boolean | null
+let btnCreateEnabledText: string
+let btnCreateDisabledText: string
+let btnShowRulesBoxText: string
+let btnHideRulesBoxText: string
 
 const api = {
   cosmeticFilterCreate: (selector: string) => {
@@ -18,11 +22,35 @@ const api = {
   getElementPickerThemeInfo: (callback: (
     isDarkModeEnabled: boolean, bgcolor: number) => void) => {
     cf_worker.getElementPickerThemeInfo().then(
-      (val:{ isDarkModeEnabled: boolean; bgcolor: number }) => {
-      callback(val.isDarkModeEnabled, val.bgcolor)
-    })
+      (val: { isDarkModeEnabled: boolean; bgcolor: number }) => {
+        callback(val.isDarkModeEnabled, val.bgcolor)
+      })
   },
-  getPlatform: ():string => {
+  getLocalizedTexts: (callback: (
+    btnCreateDisabledText: string,
+    btnCreateEnabledText: string,
+    btnManageText: string,
+    btnShowRulesBoxText: string,
+    btnHideRulesBoxText: string,
+    btnQuitText: string) => void) => {
+    cf_worker.getLocalizedTexts().then(
+      (val: {
+        btnCreateDisabledText: string;
+        btnCreateEnabledText: string;
+        btnManageText: string;
+        btnShowRulesBoxText: string;
+        btnHideRulesBoxText: string;
+        btnQuitText: string
+      }) => {
+        callback(val.btnCreateDisabledText,
+          val.btnCreateEnabledText,
+          val.btnManageText,
+          val.btnShowRulesBoxText,
+          val.btnHideRulesBoxText,
+          val.btnQuitText)
+      })
+  },
+  getPlatform: (): string => {
     return cf_worker.getPlatform()
   }
 }
@@ -69,14 +97,14 @@ class ElementSelectorBuilder {
   private readonly rules: Rule[]
   private tag: string
 
-  constructor (elem: Element) {
+  constructor(elem: Element) {
     this.rules = []
     this.tag = ''
     this.elem = elem
     this.hasId = false
   }
 
-  addRule (rule: Rule): void {
+  addRule(rule: Rule): void {
     if (rule.type < Selector.Id || rule.type > Selector.NthOfType) {
       console.log(`Unexpected selector: ${rule.type}`)
       return
@@ -88,15 +116,15 @@ class ElementSelectorBuilder {
     this.rules.push(rule)
   }
 
-  addTag (tag: string): void {
+  addTag(tag: string): void {
     this.tag = tag
   }
 
-  size (): number {
+  size(): number {
     return this.rules.length
   }
 
-  toString (mask: number = mostSpecificMask): string {
+  toString(mask: number = mostSpecificMask): string {
     let selector = this.tag + ''
     for (const rule of this.rules) {
       if (!(mask & SpecificityFlags.Id) && rule.type === Selector.Id) {
@@ -165,7 +193,8 @@ const cssSelectorFromElement = (elem: Element): ElementSelectorBuilder => {
   const builder = new ElementSelectorBuilder(elem)
 
   // ID
-  if (elem.id.length > 0) {
+  if (elem.id.length > 0 &&
+    document.querySelectorAll(`#${elem.id}`).length === 1) {
     builder.addRule({
       type: Selector.Id,
       value: CSS.escape(elem.id)
@@ -333,6 +362,7 @@ const attachElementPicker = () => {
     'visibility: visible',
     'width: 100%',
     'z-index: 2147483647',
+    '--dynamic-color-rgb: rgb(0, 0, 0)',
     '',
   ].join(' !important;')
 
@@ -359,7 +389,7 @@ class Target {
   rectElem: Element
   coord: TargetRect
 
-  constructor (elem: Element) {
+  constructor(elem: Element) {
     this.element = elem
     this.coord = targetRectFromElement(this.element)
   }
@@ -383,8 +413,8 @@ class TargetsCollection {
     this.targets.forEach(t => t.forceRecalcCoords())
     // for case when element no longer in the DOM
     this.targets = this.targets.filter(item =>
-        item.coord.height !== 0 && item.coord.width !== 0)
-    if(this.targets.length === 0 && this.togglePicker) {
+      item.coord.height !== 0 && item.coord.width !== 0)
+    if (this.targets.length === 0 && this.togglePicker) {
       this.togglePicker(false)
     }
   }
@@ -408,7 +438,7 @@ let lastHoveredElem: HTMLElement | null = null
 const targetedElems = new TargetsCollection
 
 const recalculateAndSendTargets = (elems: Element[] | null) => {
-  if(elems) {
+  if (elems) {
     targetedElems.reset(elems)
   } else {
     targetedElems.forceRecalcCoords()
@@ -428,6 +458,15 @@ const hideByCssSelector = (selector: string) => {
   style.innerText += `${selector} {display: none !important;}`
 }
 
+interface SliderOptions {
+  onChange?: (value: number) => void;
+}
+
+interface SliderAPI {
+  getValue: () => number;
+  min: number;
+  max: number;
+}
 
 const onTargetSelected = (selected: Element | null, index: number): string => {
   if (lastHoveredElem === null) { return '' }
@@ -458,7 +497,7 @@ const onTargetSelected = (selected: Element | null, index: number): string => {
     const b = selectorBuilders[i]
     try {
       if ((mask & SpecificityFlags.Id) && b.hasId ||
-          document.querySelectorAll(b.toString(mask)).length === 1) {
+        document.querySelectorAll(b.toString(mask)).length === 1) {
         break
       }
     } catch {
@@ -466,10 +505,10 @@ const onTargetSelected = (selected: Element | null, index: number): string => {
     }
   }
   const selector = selectorBuilders
-      .slice(0, i + 1)
-      .reverse()
-      .map((b) => b.toString(mask))
-      .join(' > ')
+    .slice(0, i + 1)
+    .reverse()
+    .map((b) => b.toString(mask))
+    .join(' > ')
   return selector
 }
 
@@ -483,8 +522,8 @@ const elementPickerHoverCoordsChanged = (x: number, y: number) => {
 
 const getElementBySelector = (selector: string) => {
   let elements: Element[] | null;
-      const nodeList = document.querySelectorAll(selector);
-      elements = nodeList.length > 0 ? Array.from(nodeList) : null;
+  const nodeList = document.querySelectorAll(selector);
+  elements = nodeList.length > 0 ? Array.from(nodeList) : null;
   return elements
 }
 
@@ -494,7 +533,7 @@ const elementPickerUserSelectedTarget = (specificity: number) => {
     if (selector !== '') {
       try {
         recalculateAndSendTargets(getElementBySelector(selector))
-      } catch {}
+      } catch { }
     }
     return {
       isValid: selector !== '',
@@ -511,17 +550,156 @@ const elementPickerUserModifiedRule = (selector: string) => {
   if (selector.length > 0) {
     try {
       recalculateAndSendTargets(Array.from(document.querySelectorAll(selector)))
-    } catch {}
+    } catch { }
   }
+}
+
+const setShowRulesHiddenBtnState = (
+  showRulesButton: HTMLElement | null, show: boolean) => {
+  if (!showRulesButton) return
+  showRulesButton.textContent = show ? btnHideRulesBoxText : btnShowRulesBoxText
+}
+
+const setMinimizeState = (root: ShadowRoot, minimized: boolean) => {
+  const mainSection = root.getElementById('main-section')
+  if (!mainSection) return;
+  mainSection.classList.toggle('minimized', minimized);
+}
+
+const setupDragging = (root: ShadowRoot): void => {
+  const mainSection = root.getElementById('main-section');
+  const dragHeader = root.getElementById('drag-header');
+
+  if (!mainSection || !dragHeader) return;
+
+  const sectionHeight = mainSection.offsetHeight;
+  const HEADER_HEIGHT = 28;
+
+  let isDragging = false;
+  let startY = 0;
+  let startTransform = 0;
+
+  const parseTranslateY = (transform: string): number => {
+    if (transform === 'none') return 0;
+    const match = transform.match(/matrix\(.*,\s*([-\d.]+)\)$/);
+    if (match) return parseFloat(match[1]);
+    const parts = transform.split(',');
+    return parseFloat(parts[5]) ?? 0;
+  };
+
+  const handleDragStart = (e: TouchEvent): void => {
+    isDragging = true;
+    startY = e.touches[0].clientY;
+    startTransform = parseTranslateY(
+      window.getComputedStyle(mainSection).transform);
+  };
+
+  const handleDragMove = (e: Event): void => {
+    if (!isDragging) return;
+
+    const touchEvent = e as TouchEvent;
+    touchEvent.preventDefault();
+
+    const touch = touchEvent.touches[0];
+    if (!touch) return;
+
+    const deltaY = touch.clientY - startY;
+    const newTransform = Math.min(
+      Math.max(startTransform + deltaY, 0), sectionHeight - HEADER_HEIGHT);
+    mainSection.style.transform = `translateY(${newTransform}px)`;
+  };
+
+  const handleDragEnd = (): void => {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const currentTransform = parseTranslateY(
+      window.getComputedStyle(mainSection).transform);
+    setMinimizeState(root, currentTransform > sectionHeight / 4)
+    mainSection.style.transform = '';
+  };
+
+  dragHeader.addEventListener('touchstart', handleDragStart);
+  root.addEventListener('touchmove', handleDragMove);
+  root.addEventListener('touchend', handleDragEnd);
+};
+
+function initSlider(element: HTMLElement
+  | null, options: SliderOptions = {}): SliderAPI | undefined {
+  if (!element) return;
+
+  const inputElement =  element as HTMLInputElement
+  if (!inputElement) return;
+
+  const min = parseInt(inputElement.min ?? '1', 10);
+  const max = parseInt(inputElement.max ?? '4', 10);
+  const initialValue = 4
+
+  inputElement.tabIndex = 0;
+
+  let currentValue = initialValue;
+
+  const updateSlider = (fireEvent: boolean): number => {
+
+    const value = parseFloat(inputElement.value);
+    const currMin = parseFloat(inputElement.min);
+    const currMax = parseFloat(inputElement.max);
+
+    const percentage = ((value - currMin) / (currMax - currMin)) * 100;
+
+    inputElement.style.setProperty('--value', `${percentage}%`);
+
+    currentValue = value;
+
+    if (fireEvent && options.onChange) {
+      options.onChange(currentValue);
+    }
+    return value;
+  };
+
+  inputElement.addEventListener('input', () => updateSlider(true));
+
+  // Initial update
+  updateSlider(false);
+  // Return API for external control
+  return {
+    getValue: () => currentValue,
+    min,
+    max
+  };
 }
 
 const launchElementPicker = (root: ShadowRoot) => {
   let hasSelectedTarget = false
 
-  const btnShowRulesBox = root.getElementById('btnShowRulesBox')
+  const btnShowRulesBox = root.getElementById('btn-show-rules-box')
   if (isAndroid && btnShowRulesBox) {
     btnShowRulesBox.style.display = 'none'
   }
+
+  if (isAndroid) {
+    setupDragging(root)
+  } else {
+    const closeButton = root.getElementById('close-btn')!
+    closeButton.addEventListener('click', () => {
+      quitElementPicker()
+    })
+    const minimizeButton = root.getElementById('minimize-dlg-btn')!
+    minimizeButton.addEventListener('click', () => {
+      setMinimizeState(root, true)
+    })
+    const maximizeButton = root.getElementById('desktop-min-icon-container')!
+    maximizeButton.addEventListener('click', () => {
+      setMinimizeState(root, false);
+    })
+  }
+
+  const sliderElement = root.getElementById('custom-slider');
+  const slider = initSlider(sliderElement, {
+    onChange: () => {
+      dispatchSelect()
+    }
+  });
 
   root.addEventListener(
     'keydown',
@@ -536,18 +714,18 @@ const launchElementPicker = (root: ShadowRoot) => {
   )
 
   const svg = root.getElementById('picker-ui')!
-  if(window.matchMedia("(pointer: fine)").matches &&
-      window.matchMedia("(hover: hover)").matches) {
-        svg.addEventListener(
-          'mousemove',
-          (event) => {
-            if (!hasSelectedTarget) {
-              elementPickerHoverCoordsChanged(event.clientX, event.clientY)
-            }
-            event.stopPropagation()
-          },
-          true,
-        )
+  if (window.matchMedia("(pointer: fine)").matches &&
+    window.matchMedia("(hover: hover)").matches) {
+    svg.addEventListener(
+      'mousemove',
+      (event) => {
+        if (!hasSelectedTarget) {
+          elementPickerHoverCoordsChanged(event.clientX, event.clientY)
+        }
+        event.stopPropagation()
+      },
+      true,
+    )
   }
 
   const rulesTextArea: HTMLInputElement = root.querySelector(
@@ -568,20 +746,11 @@ const launchElementPicker = (root: ShadowRoot) => {
     togglePopup(true)
   })
 
-  const setDarkModeButtons = (isDarkModeEnabled: boolean) => {
-    const elements = root.querySelectorAll('.button');
-    elements.forEach(element => {
-      if (element.classList.contains(isDarkModeEnabled ? 'light' : 'dark')) {
-        element.classList.remove(isDarkModeEnabled ? 'light' : 'dark');
-      }
-      element.classList.add(isDarkModeEnabled ? 'dark' : 'light')
-    });
-  }
-
+  const section = root.getElementById('main-section')!
   const enableButtons = (isDisabled: boolean) => {
     const elements = root.querySelectorAll('.button');
     elements.forEach(element => {
-      if(isDisabled) {
+      if (isDisabled) {
         element.classList.add('disabled')
       } else {
         element.classList.remove('disabled');
@@ -589,40 +758,46 @@ const launchElementPicker = (root: ShadowRoot) => {
     });
   }
 
-  const section = root.getElementById('main-section')!
   if (!isAndroid) {
     section.classList.add('desktop')
   }
 
   const togglePopup = (show: boolean) => {
-      enableButtons(!show)
-      if (show) {
-        createButton.textContent = "Block Element"
-      } else {
-        createButton.textContent = "Select element you want to block"
-      }
+    enableButtons(!show)
+    if (show) {
+      createButton.textContent = btnCreateEnabledText
+    } else {
+      createButton.textContent = btnCreateDisabledText
+    }
     if (!isAndroid) {
       section.style.setProperty('opacity', show ? '1' : '0.2')
     }
   }
   targetedElems.togglePicker = togglePopup
 
-  const slider = root.getElementById('sliderSpecificity') as HTMLInputElement
   if (isAndroid) {
     const sc = root.getElementById('slider-container') as HTMLInputElement
     sc.style.display = 'none'
   }
-
+  const setTitleBarColor = (bgcolor: number) => {
+    const section = root.host as HTMLElement
+    if (section)
+    {
+      const r = (bgcolor >> 16) & 0xff
+      const g = (bgcolor >> 8) & 0xff
+      const b = bgcolor & 0xff
+      section.style.setProperty('--dynamic-color-rgb', `rgb(${r}, ${g}, ${b})`)
+    }
+  }
   const retrieveTheme = () => {
     api.getElementPickerThemeInfo(
       (isDarkModeEnabled: boolean, bgcolor: number) => {
-      const colorHex = `#${(bgcolor & 0xFFFFFF).toString(16).padStart(6, '0')}`
-      section.style.setProperty('background-color', colorHex)
-      root.querySelectorAll('.secondary-button').forEach(e =>
-          (e as HTMLElement).style.setProperty('background-color', colorHex))
-
-      setDarkModeButtons(isDarkModeEnabled)
-    })
+        const bgcolorMaskOut = bgcolor & 0xFFFFFF
+        const colorHex = `#${bgcolorMaskOut.toString(16).padStart(6, '0')}`
+        section.style.setProperty('--theme-background-color', colorHex)
+        setTitleBarColor(bgcolor)
+        dispatchSelect()
+      })
   }
   const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
   const handleColorSchemeChange = (event: MediaQueryListEvent) => {
@@ -633,27 +808,22 @@ const launchElementPicker = (root: ShadowRoot) => {
 
   const dispatchSelect = () => {
     const { isValid, selector } = elementPickerUserSelectedTarget(
-      parseInt(slider.value),
+      slider?.getValue() ?? 4
     )
 
     hasSelectedTarget = isValid
     togglePopup(isValid)
-    if (isValid) {
-      rulesTextArea.value = selector
-    } else {
-      slider.value = '4'
-    }
+    rulesTextArea.value = selector
   }
-
-  slider.addEventListener('input', () => {
-    dispatchSelect()
-  })
 
   const oneClickEventHandler = (event: MouseEvent | TouchEvent) => {
     let elem: Element | null = null
+
+    setMinimizeState(root, false);
+
     if (event instanceof MouseEvent) {
       elem = elementFromFrameCoords(event.clientX, event.clientY)
-    } else if (event instanceof TouchEvent){
+    } else if (event instanceof TouchEvent) {
       const touch = event.touches[0];
       elem = elementFromFrameCoords(touch.clientX, touch.clientY)
     }
@@ -668,7 +838,7 @@ const launchElementPicker = (root: ShadowRoot) => {
 
   svg.addEventListener('click', oneClickEventHandler)
 
-  const createButton = root.getElementById('btnCreate')!
+  const createButton = root.getElementById('btn-create')!
   createButton.addEventListener('click', () => {
     if (createButton.classList.contains('block-button-disabled')) {
       return
@@ -681,33 +851,33 @@ const launchElementPicker = (root: ShadowRoot) => {
     }
   })
 
-  const quitButton = root.getElementById('btnQuit')!
+  const quitButton = root.getElementById('btn-quit')!
   quitButton.addEventListener('click', () => {
     quitElementPicker()
   })
 
-  const manageButton = root.getElementById('btnManage')!
+  const manageButton = root.getElementById('btn-manage')!
   manageButton.addEventListener('click', () => {
     api.cosmeticFilterManage();
   })
 
   const toggleDisplay = (target: HTMLElement | null,
     trigger: HTMLElement | null) => {
-    if(!target || !trigger){
+    if (!target || !trigger) {
       return
     }
     trigger.addEventListener('click', e => {
       if (target.style.display !== 'block') {
         target.style.display = 'block'
-        trigger.textContent = 'Hide rules'
+        setShowRulesHiddenBtnState(trigger, true)
       } else {
         target.style.display = 'none'
-        trigger.textContent = 'Show rules'
+        setShowRulesHiddenBtnState(trigger, false)
       }
     })
   }
   const rulesBox = root.getElementById('rules-box')!
-  const showRulesButton = root.getElementById('btnShowRulesBox')!
+  const showRulesButton = root.getElementById('btn-show-rules-box')!
   toggleDisplay(rulesBox, showRulesButton)
 }
 
@@ -752,8 +922,50 @@ const highlightElements = () => {
   svg.appendChild(svgFragment)
 }
 
+const localizeTextData = (root: ShadowRoot,
+  btnCrDisText: string,
+  btnCrEnblText: string,
+  btnManageText: string,
+  btnShowRulesText: string,
+  btnHideRulesText: string,
+  btnQuitText: string) => {
+  btnCreateDisabledText = btnCrDisText
+  btnCreateEnabledText = btnCrEnblText
+  btnShowRulesBoxText = btnShowRulesText
+  btnHideRulesBoxText = btnHideRulesText
+  const btnCreate = root.getElementById('btn-create')
+  if (btnCreate) {
+    btnCreate.textContent = btnCreateDisabledText
+  }
+  const btnManage = root.getElementById('btn-manage')
+  if (btnManage) {
+    btnManage.textContent = btnManageText
+  }
+  const btnShowRulesBox = root.getElementById('btn-show-rules-box')
+  if (btnShowRulesBox) {
+    btnShowRulesBox.textContent = btnShowRulesBoxText
+  }
+  const btnQuit = root.getElementById('btn-quit')
+  if (btnQuit) {
+    btnQuit.textContent = btnQuitText
+  }
+}
+
 const active = document.getElementById('brave-element-picker')
 if (!active) {
   isAndroid = api.getPlatform() === 'android'
-  launchElementPicker(attachElementPicker())
+  const root = attachElementPicker()
+  api.getLocalizedTexts(
+    (btnCreateDisabledText: string,
+      btnCreateEnabledText: string,
+      btnManageText: string,
+      btnShowRulesBoxText: string,
+      btnHideRulesBoxText: string,
+      btnQuitText: string) => {
+      localizeTextData(root, btnCreateDisabledText,
+        btnCreateEnabledText, btnManageText,
+        btnShowRulesBoxText, btnHideRulesBoxText,
+        btnQuitText)
+      launchElementPicker(root)
+    });
 }

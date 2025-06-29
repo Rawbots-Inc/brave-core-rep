@@ -10,6 +10,7 @@
 #include <string_view>
 #include <vector>
 
+#include "base/check_op.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/i18n/timezone.h"
 #include "base/json/values_util.h"
@@ -48,6 +49,7 @@ constexpr char kMosAttributeName[] = "mos";
 constexpr char kWoiAttributeName[] = "woi";
 constexpr char kYoiAttributeName[] = "yoi";
 constexpr char kDateOfInstallAttributeName[] = "dtoi";
+constexpr char kWeekOfActivationAttributeName[] = "woa";
 constexpr char kDateOfActivationAttributeName[] = "dtoa";
 constexpr char kCountryCodeAttributeName[] = "country_code";
 constexpr char kVersionAttributeName[] = "version";
@@ -72,7 +74,7 @@ constexpr auto kNotableCountries = base::MakeFixedFlatSet<std::string_view>(
     {"US", "FR", "PH", "GB", "IN", "DE", "BR", "CA", "IT", "ES",
      "NL", "MX", "AU", "RU", "JP", "PL", "ID", "KR", "AR", "AT"});
 
-constexpr base::TimeDelta kDateOmissionThreshold = base::Days(30);
+constexpr base::TimeDelta kDateOmissionThreshold = base::Days(31);
 
 std::string FormatUTCDateFromExploded(const base::Time::Exploded& exploded) {
   return base::StringPrintf("%d-%02d-%02d", exploded.year, exploded.month,
@@ -85,11 +87,33 @@ std::string FormatUTCDateFromTime(const base::Time& time) {
   return FormatUTCDateFromExploded(exploded);
 }
 
+bool ShouldIncludeDate(const base::Time& time) {
+  return (base::Time::Now() - time) < kDateOmissionThreshold;
+}
+
+std::string InferActivationDate(const MessageMetainfo& meta,
+                                const MetricConfig* metric_config,
+                                std::string_view metric_name,
+                                bool truncate_to_week) {
+  std::string_view activation_metric_name = metric_name;
+  if (metric_config && metric_config->activation_metric_name.has_value()) {
+    activation_metric_name = *metric_config->activation_metric_name;
+  }
+  auto activation_date = meta.GetActivationDate(activation_metric_name);
+  if (!activation_date || !ShouldIncludeDate(*activation_date)) {
+    return kNone;
+  }
+  if (truncate_to_week) {
+    activation_date = brave_stats::GetLastMondayTime(*activation_date);
+  }
+  return FormatUTCDateFromTime(*activation_date);
+}
+
 std::vector<std::array<std::string, 2>> PopulateConstellationAttributes(
     const std::string_view metric_name,
     const uint64_t metric_value,
     const MessageMetainfo& meta,
-    const std::optional<MetricConfig>& metric_config,
+    const MetricConfig* metric_config,
     const std::vector<MetricAttribute>& attributes_to_load,
     bool is_creative) {
   base::Time::Exploded dtoi_exploded;
@@ -106,8 +130,6 @@ std::vector<std::array<std::string, 2>> PopulateConstellationAttributes(
     attributes = {{kMetricNameAttributeName, std::string(metric_name)}};
   }
   std::string attribute_value;
-  std::string_view activation_metric_name;
-  std::optional<base::Time> activation_date;
 
   for (const auto& attribute : attributes_to_load) {
     switch (attribute) {
@@ -155,24 +177,19 @@ std::vector<std::array<std::string, 2>> PopulateConstellationAttributes(
         break;
       case MetricAttribute::kDateOfInstall:
         attribute_value = kNone;
-        if ((base::Time::Now() - meta.date_of_install()) <
-            kDateOmissionThreshold) {
+        if (ShouldIncludeDate(meta.date_of_install())) {
           attribute_value = FormatUTCDateFromExploded(dtoi_exploded);
         }
         attributes.push_back({kDateOfInstallAttributeName, attribute_value});
         break;
+      case MetricAttribute::kWeekOfActivation:
+        attribute_value =
+            InferActivationDate(meta, metric_config, metric_name, true);
+        attributes.push_back({kWeekOfActivationAttributeName, attribute_value});
+        break;
       case MetricAttribute::kDateOfActivation:
-        activation_metric_name = metric_name;
-        if (metric_config &&
-            metric_config->activation_metric_name.has_value()) {
-          activation_metric_name = *metric_config->activation_metric_name;
-        }
-        attribute_value = kNone;
-        activation_date = meta.GetActivationDate(activation_metric_name);
-        if (activation_date &&
-            (base::Time::Now() - *activation_date) < kDateOmissionThreshold) {
-          attribute_value = FormatUTCDateFromTime(*activation_date);
-        }
+        attribute_value =
+            InferActivationDate(meta, metric_config, metric_name, false);
         attributes.push_back({kDateOfActivationAttributeName, attribute_value});
         break;
       case MetricAttribute::kGeneralPlatform:
@@ -273,12 +290,11 @@ base::Value::Dict GenerateP3AMessageDict(std::string_view metric_name,
   return result;
 }
 
-std::string GenerateP3AConstellationMessage(
-    std::string_view metric_name,
-    uint64_t metric_value,
-    const MessageMetainfo& meta,
-    const std::string& upload_type,
-    const std::optional<MetricConfig>& metric_config) {
+std::string GenerateP3AConstellationMessage(std::string_view metric_name,
+                                            uint64_t metric_value,
+                                            const MessageMetainfo& meta,
+                                            const std::string& upload_type,
+                                            const MetricConfig* metric_config) {
   std::vector<MetricAttribute> attributes_to_load;
   if (metric_config && metric_config->attributes) {
     for (const auto& attr : *metric_config->attributes) {

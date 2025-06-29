@@ -11,7 +11,7 @@ import { color, font, spacing } from '@brave/leo/tokens/css/variables'
 
 // Shared Styles
 import {
-  layoutPanelWidth //
+  layoutPanelWidth, //
 } from '../../../../../components/desktop/wallet-page-wrapper/wallet-page-wrapper.style'
 import { Column } from '../../../../../components/shared/style'
 
@@ -24,6 +24,8 @@ export const StyledWrapper = styled.div<{ isOpen?: boolean }>`
     ${(p) => (p.isOpen ? color.button.background : color.divider.subtle)};
   background-color: ${color.container.background};
   width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 `
 
 export const ProviderName = styled.p`
@@ -116,7 +118,7 @@ export const QuoteTotal = styled.p`
 `
 
 export const BuyButton = styled(Button).attrs({
-  kind: 'filled'
+  kind: 'filled',
 })`
   @media (max-width: ${layoutPanelWidth}px) {
     width: 100%;
@@ -125,7 +127,7 @@ export const BuyButton = styled(Button).attrs({
 
 export const BestOptionLabel = styled(Label).attrs({
   mode: 'default',
-  color: 'green'
+  color: 'green',
 })`
   --leo-label-padding: 12px;
   color: ${color.text.primary};

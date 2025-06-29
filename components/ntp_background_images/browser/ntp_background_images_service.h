@@ -23,6 +23,10 @@ namespace component_updater {
 class ComponentUpdateService;
 }  // namespace component_updater
 
+namespace variations {
+class VariationsService;
+}  // namespace variations
+
 class PrefRegistrySimple;
 class PrefService;
 
@@ -56,6 +60,7 @@ class NTPBackgroundImagesService {
   static void RegisterLocalStatePrefs(PrefRegistrySimple* registry);
 
   NTPBackgroundImagesService(
+      variations::VariationsService* variations_service,
       component_updater::ComponentUpdateService* component_update_service,
       PrefService* pref_service);
   virtual ~NTPBackgroundImagesService();
@@ -65,6 +70,7 @@ class NTPBackgroundImagesService {
       const NTPBackgroundImagesService&) = delete;
 
   void Init();
+  void StartTearDown();
 
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
@@ -75,18 +81,14 @@ class NTPBackgroundImagesService {
       bool super_referral,
       bool supports_rich_media) const;
 
-  bool test_data_used() const { return test_data_used_; }
-
   bool IsSuperReferral() const;
   std::string GetSuperReferralThemeName() const;
   std::string GetSuperReferralCode() const;
 
   void MaybeCheckForSponsoredComponentUpdate();
+  void ForceSponsoredComponentUpdate();
 
  private:
-  friend class NTPSponsoredRichMediaSourceTest;
-  friend class NTPSponsoredRichMediaWithCSPViolationBrowserTest;
-  friend class NTPSponsoredRichMediaBrowserTest;
   friend class NTPBackgroundImagesServiceForTesting;
   friend class NTPBackgroundImagesServiceTest;
   friend class ViewCounterServiceTest;
@@ -98,7 +100,7 @@ class NTPBackgroundImagesService {
       BlockNewTabTakeoverWithRichMediaIfJavaScriptContentSettingIsSetToBlocked);
   FRIEND_TEST_ALL_PREFIXES(
       ViewCounterServiceTest,
-      AllowNewTabTakeOverWithImageIfJavaScriptContentSettingIsSetToAllowed);
+      AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToAllowed);
   FRIEND_TEST_ALL_PREFIXES(
       ViewCounterServiceTest,
       AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToBlocked);
@@ -156,6 +158,24 @@ class NTPBackgroundImagesService {
                            CannotShowBackgroundImagesIfUninitialized);
   FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest,
                            CannotShowBackgroundImagesIfMalformed);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      GetNewTabTakeoverWallpaperOutsideGracePeriodForNonRewardsUser);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      DoNotGetNewTabTakeoverWallpaperOnCuspOfGracePeriodForNonRewardsUser);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      DoNotGetNewTabTakeoverWallpaperWithinGracePeriodForNonRewardsUser);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      GetNewTabTakeoverWallpaperOutsideGracePeriodForRewardsUser);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      DoNotGetNewTabTakeoverWallpaperOnCuspOfGracePeriodForRewardsUser);
+  FRIEND_TEST_ALL_PREFIXES(
+      ViewCounterServiceTest,
+      DoNotGetNewTabTakeoverWallpaperWithinGracePeriodForRewardsUser);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesSourceTest, SponsoredImagesTest);
   FRIEND_TEST_ALL_PREFIXES(NTPBackgroundImagesSourceTest,
                            BasicSuperReferralDataTest);
@@ -169,7 +189,7 @@ class NTPBackgroundImagesService {
   void OnGetComponentJsonData(const std::string& json_string);
   void OnMappingTableComponentReady(const base::FilePath& installed_dir);
   void OnPreferenceChanged(const std::string& pref_name);
-  void OnCountryCodePrefChanged();
+  void OnVariationsCountryPrefChanged();
   void OnGetMappingTableData(const std::string& json_string);
 
   std::string GetReferralPromoCode() const;
@@ -189,14 +209,16 @@ class NTPBackgroundImagesService {
   virtual void UnRegisterSuperReferralComponent();
   virtual void MarkThisInstallIsNotSuperReferralForever();
 
-  base::Time last_update_check_at_;
+  std::optional<base::Time> last_updated_at_;
 
-  bool test_data_used_ = false;
+  // `variations` can be null in test.
+  raw_ptr<variations::VariationsService> variations_service_ =
+      nullptr;  // Not owned.
 
-  const raw_ptr<component_updater::ComponentUpdateService>
-      component_update_service_ = nullptr;
+  raw_ptr<component_updater::ComponentUpdateService> component_update_service_ =
+      nullptr;
 
-  const raw_ptr<PrefService> pref_service_ = nullptr;
+  raw_ptr<PrefService> pref_service_ = nullptr;
   PrefChangeRegistrar pref_change_registrar_;
 
   base::FilePath background_images_installed_dir_;

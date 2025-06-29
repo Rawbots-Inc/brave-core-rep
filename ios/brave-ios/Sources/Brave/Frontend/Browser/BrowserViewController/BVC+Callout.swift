@@ -146,7 +146,7 @@ extension BrowserViewController {
     present(popup, animated: false)
   }
 
-  private func presentDefaultBrowserScreenCallout(skipSafeGuards: Bool = false) {
+  func presentDefaultBrowserScreenCallout(skipSafeGuards: Bool = false) {
     if !Locale.current.isNewOnboardingRegion {
       let onboardingController = WelcomeViewController(
         state: WelcomeViewCalloutState.defaultBrowserCallout(
@@ -252,32 +252,13 @@ extension BrowserViewController {
      
     }
 
-    #if compiler(>=5.8)
-    if #available(iOS 16.4, *) {
-      Task { @MainActor in
-        for await message in StoreKit.Message.messages {
-          guard let windowScene = currentScene else {
-            return
-          }
-
-          try? message.display(in: windowScene)
+    Task { @MainActor in
+      for await message in StoreKit.Message.messages {
+        guard let windowScene = currentScene else {
+          return
         }
-      }
-    } else {
-      presentVPNChurnBilling()
-    }
-    #else
-    presentVPNChurnBilling()
-    #endif
 
-    func presentVPNChurnBilling() {
-      presentVPNChurnPromoCallout(for: .updateBillingExpired) {
-        // Opens Apple's 'manage subscription' screen
-        guard let url = URL.apple.manageSubscriptions else { return }
-
-        if UIApplication.shared.canOpenURL(url) {
-          UIApplication.shared.open(url, options: [:])
-        }
+        try? message.display(in: windowScene)
       }
     }
   }
@@ -337,5 +318,35 @@ extension BrowserViewController {
     }
 
     openBraveLeo()
+  }
+
+  func presentDataImporter() {
+    // DataImportView is typically presented from inside settings, so we need to:
+    //   1. Set up a UINavigationController container
+    //   2. Add a done button to the toolbar
+    let controller = UIHostingController(
+      rootView: DataImportView(
+        openURL: { [unowned self] url in
+          dismiss(animated: true)
+          openURLInNewTab(
+            url,
+            isPrivate: privateBrowsingManager.isPrivateBrowsing,
+            isPrivileged: url.scheme == InternalURL.scheme
+          )
+        },
+        dismiss: { [unowned self] in
+          dismiss(animated: true)
+        },
+        onDismiss: {}
+      )
+    )
+    controller.navigationItem.rightBarButtonItem = .init(
+      systemItem: .done,
+      primaryAction: .init(handler: { [unowned self] _ in
+        dismiss(animated: true)
+      })
+    )
+    let container = UINavigationController(rootViewController: controller)
+    present(container, animated: true)
   }
 }

@@ -199,6 +199,27 @@ extension BraveWallet.BlockchainToken {
     coin: .btc,
     isShielded: false
   )
+
+  static let mockZecToken: BraveWallet.BlockchainToken = .init(
+    contractAddress: "",
+    name: "Zcash",
+    logo: "",
+    isCompressed: false,
+    isErc20: false,
+    isErc721: false,
+    isErc1155: false,
+    splTokenProgram: .unsupported,
+    isNft: false,
+    isSpam: false,
+    symbol: "ZEC",
+    decimals: 8,
+    visible: false,
+    tokenId: "",
+    coingeckoId: "",
+    chainId: BraveWallet.ZCashMainnet,
+    coin: .zec,
+    isShielded: false
+  )
 }
 
 extension BraveWallet.AccountInfo {
@@ -537,6 +558,39 @@ extension BraveWallet.TransactionInfo {
     isRetriable: false,
     swapInfo: nil
   )
+  /// Zcash Unapproved Send
+  static let mockZecUnapprovedSend = BraveWallet.TransactionInfo(
+    id: "10",
+    from: BraveWallet.AccountInfo.mockZcashAccount.accountId,
+    txHash: "",
+    txDataUnion:
+        .init(
+          zecTxData:
+              .init(
+                useShieldedPool: false,
+                to: "t1J3jktmALhAhc2neCSyBrLBhxjTercFhCM",
+                sendingMaxAmount: false,
+                memo: nil,
+                amount: 1_000_000,
+                fee: 100_000,
+                inputs: [],
+                outputs: []
+              )
+        ),
+    txStatus: .unapproved,
+    txType: .other,
+    txParams: [],
+    txArgs: [],
+    createdTime: Date(timeIntervalSince1970: 1_745_873_951),  // Mon, Apr 28, 2025 20:59:11
+    submittedTime: Date(timeIntervalSince1970: 1_745_873_960),  // Mon, Apr 28, 2025 20:59:20
+    confirmedTime: Date(timeIntervalSince1970: 1_745_874_960),  // Mon, Apr 28, 2025 21:16:00
+    originInfo: nil,
+    chainId: BraveWallet.ZCashMainnet,
+    effectiveRecipient: nil,
+    isRetriable: false,
+    swapInfo: nil
+  )
+
   static private func _transactionBase64ToData(_ base64String: String) -> [NSNumber] {
     guard let data = Data(base64Encoded: base64String) else { return [] }
     return Array(data).map(NSNumber.init(value:))

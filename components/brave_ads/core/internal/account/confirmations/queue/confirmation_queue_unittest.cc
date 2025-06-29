@@ -28,7 +28,6 @@
 #include "brave/components/brave_ads/core/internal/account/utility/redeem_confirmation/reward/url_request_builders/create_reward_confirmation_url_request_builder_test_constants.h"
 #include "brave/components/brave_ads/core/internal/account/utility/redeem_confirmation/reward/url_request_builders/create_reward_confirmation_url_request_builder_util.h"
 #include "brave/components/brave_ads/core/internal/account/utility/redeem_confirmation/reward/url_request_builders/fetch_payment_token_url_request_builder_util.h"
-#include "brave/components/brave_ads/core/internal/common/net/http/http_status_code.h"
 #include "brave/components/brave_ads/core/internal/common/test/mock_test_util.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/common/test/time_test_util.h"
@@ -59,7 +58,7 @@ TEST_F(BraveAdsConfirmationQueueTest, AddConfirmation) {
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -104,7 +103,7 @@ TEST_F(BraveAdsConfirmationQueueTest, ProcessConfirmation) {
        {{net::HTTP_OK, test::BuildFetchPaymentTokenUrlResponseBody()}}}};
   test::MockUrlResponses(ads_client_mock_, url_responses);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -137,7 +136,7 @@ TEST_F(BraveAdsConfirmationQueueTest, ProcessMultipleConfirmations) {
   // Arrange
   test::DisableBraveRewards();
 
-  const std::optional<ConfirmationInfo> confirmation_1 =
+  std::optional<ConfirmationInfo> confirmation_1 =
       test::BuildNonRewardConfirmation(/*should_generate_random_uuids=*/true);
   ASSERT_TRUE(confirmation_1);
   {
@@ -163,7 +162,7 @@ TEST_F(BraveAdsConfirmationQueueTest, ProcessMultipleConfirmations) {
 
   const ScopedDelayBeforeProcessingConfirmationQueueItemForTesting
       scoped_delay_before_processing_confirmation_queue_item(base::Minutes(21));
-  const std::optional<ConfirmationInfo> confirmation_2 =
+  std::optional<ConfirmationInfo> confirmation_2 =
       test::BuildNonRewardConfirmation(/*should_generate_random_uuids=*/true);
   ASSERT_TRUE(confirmation_2);
   {
@@ -179,10 +178,10 @@ TEST_F(BraveAdsConfirmationQueueTest, ProcessMultipleConfirmations) {
 
   const test::URLResponseMap url_responses = {
       {BuildCreateNonRewardConfirmationUrlPath(confirmation_1->transaction_id),
-       {{net::kHttpImATeapot,
+       {{net::HTTP_NO_CONTENT,
          test::BuildCreateNonRewardConfirmationUrlResponseBody()}}},
       {BuildCreateNonRewardConfirmationUrlPath(confirmation_2->transaction_id),
-       {{net::kHttpImATeapot,
+       {{net::HTTP_NO_CONTENT,
          test::BuildCreateNonRewardConfirmationUrlResponseBody()}}}};
   test::MockUrlResponses(ads_client_mock_, url_responses);
 

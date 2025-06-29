@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/check_op.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
@@ -62,7 +63,14 @@ BraveConfigurator::BraveConfigurator(
               [](PrefService* pref_service) { return pref_service; },
               pref_service),
           nullptr)),
-      url_loader_factory_(std::move(url_loader_factory)) {}
+      url_loader_factory_(std::move(url_loader_factory)) {
+  base::FilePath path;
+  bool result = base::PathService::Get(chrome::DIR_USER_DATA, &path);
+  crx_cache_ = base::MakeRefCounted<update_client::CrxCache>(
+      result ? std::optional<base::FilePath>(
+                   path.AppendASCII("component_crx_cache"))
+             : std::nullopt);
+}
 
 BraveConfigurator::~BraveConfigurator() = default;
 
@@ -207,12 +215,8 @@ update_client::UpdaterStateProvider BraveConfigurator::GetUpdaterStateProvider()
   return configurator_impl_.GetUpdaterStateProvider();
 }
 
-std::optional<base::FilePath> BraveConfigurator::GetCrxCachePath() const {
-  base::FilePath path;
-  bool result = base::PathService::Get(chrome::DIR_USER_DATA, &path);
-  return result ? std::optional<base::FilePath>(
-                      path.AppendASCII("component_crx_cache"))
-                : std::nullopt;
+scoped_refptr<update_client::CrxCache> BraveConfigurator::GetCrxCache() const {
+  return crx_cache_;
 }
 
 bool BraveConfigurator::IsConnectionMetered() const {

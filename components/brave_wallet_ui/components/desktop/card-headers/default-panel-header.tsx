@@ -16,16 +16,13 @@ import { openWalletRouteTab } from '../../../utils/routes-utils'
 
 // Components
 import { WalletSettingsMenu } from '../wallet-menus/wallet_settings_menu'
-import {
-  DAppConnectionSettings //
-} from '../../extension/dapp-connection-settings/dapp-connection-settings'
 
 // Styled Components
 import {
   Button,
   ButtonIcon,
   LeftRightContainer,
-  ClickAwayArea
+  ClickAwayArea,
 } from './shared-panel-headers.style'
 import { HeaderTitle, MenuWrapper } from './shared-card-headers.style'
 import { Row } from '../../shared/style'
@@ -48,7 +45,7 @@ export const DefaultPanelHeader = (props: Props) => {
   useOnClickOutside(
     settingsMenuRef,
     () => setShowSettingsMenu(false),
-    showSettingsMenu
+    showSettingsMenu,
   )
 
   // Methods
@@ -62,23 +59,24 @@ export const DefaultPanelHeader = (props: Props) => {
 
   return (
     <Row
-      padding='12px 16px'
+      padding='16px'
       justifyContent='space-between'
     >
       <LeftRightContainer
         width='unset'
         justifyContent='flex-start'
       >
-        <Button onClick={onClickExpand}>
-          <ButtonIcon name='expand' />
-        </Button>
+        {expandRoute && (
+          <Button onClick={onClickExpand}>
+            <ButtonIcon name='expand' />
+          </Button>
+        )}
       </LeftRightContainer>
       <HeaderTitle isPanel={true}>{title}</HeaderTitle>
       <LeftRightContainer
         width='unset'
         justifyContent='flex-end'
       >
-        <DAppConnectionSettings />
         <MenuWrapper ref={settingsMenuRef}>
           <Button onClick={() => setShowSettingsMenu((prev) => !prev)}>
             <ButtonIcon name='more-vertical' />

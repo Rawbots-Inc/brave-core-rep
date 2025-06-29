@@ -8,7 +8,11 @@
 
 #include <array>
 #include <optional>
+#include <string>
 #include <string_view>
+
+#include "base/json/json_value_converter.h"
+#include "brave/components/p3a/metric_log_type.h"
 
 namespace p3a {
 
@@ -27,6 +31,7 @@ enum class MetricAttribute {
   kSubregion,
   kRef,
   kDateOfInstall,
+  kWeekOfActivation,
   kDateOfActivation,
   kMaxValue = kDateOfActivation,
 };
@@ -45,8 +50,6 @@ struct MetricConfig {
   // Once the metric value has been sent, the value will be removed from the log
   // store
   bool ephemeral = false;
-  // Should only be sent via Constellation
-  bool constellation_only = false;
   // Should only be sent via Nebula
   bool nebula = false;
   // Avoid reporting "other" for countries not included in the allowlist
@@ -63,6 +66,32 @@ struct MetricConfig {
   // If provided, the activation date recorded from another metric
   // will be reported.
   std::optional<std::string_view> activation_metric_name;
+
+  // If specified in a remote configuration, the cadence of the metric will be
+  // overridden.
+  std::optional<MetricLogType> cadence;
+};
+
+// This struct is used to store the remote configuration for a metric.
+// The remote configuration is provided by the component updater.
+struct RemoteMetricConfig {
+  RemoteMetricConfig();
+  ~RemoteMetricConfig();
+
+  RemoteMetricConfig(const RemoteMetricConfig&);
+  RemoteMetricConfig& operator=(const RemoteMetricConfig&);
+
+  std::optional<bool> ephemeral;
+  std::optional<bool> nebula;
+  std::optional<bool> disable_country_strip;
+  std::optional<MetricAttributes> attributes;
+  std::optional<MetricAttributesToAppend> append_attributes;
+  std::optional<bool> record_activation_date;
+  std::optional<std::string> activation_metric_name;
+  std::optional<MetricLogType> cadence;
+
+  static void RegisterJSONConverter(
+      base::JSONValueConverter<RemoteMetricConfig>* converter);
 };
 
 }  // namespace p3a

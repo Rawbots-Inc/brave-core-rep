@@ -4,8 +4,10 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import BraveShared
+import Preferences
 import Shared
 import Storage
+import Web
 import WebKit
 
 // MARK: - ReaderModeDelegate
@@ -14,7 +16,7 @@ extension BrowserViewController: ReaderModeScriptHandlerDelegate {
   func readerMode(
     _ readerMode: ReaderModeScriptHandler,
     didChangeReaderModeState state: ReaderModeState,
-    forTab tab: Tab
+    forTab tab: some TabState
   ) {
     // If this reader mode availability state change is for the tab that we currently show, then update
     // the button. Otherwise do nothing and the button will be updated when the tab is made active.
@@ -23,8 +25,10 @@ extension BrowserViewController: ReaderModeScriptHandlerDelegate {
     }
   }
 
-  func readerMode(_ readerMode: ReaderModeScriptHandler, didDisplayReaderizedContentForTab tab: Tab)
-  {
+  func readerMode(
+    _ readerMode: ReaderModeScriptHandler,
+    didDisplayReaderizedContentForTab tab: some TabState
+  ) {
     if tabManager.selectedTab !== tab { return }
     showReaderModeBar(animated: true)
     tab.showContent(true)
@@ -33,7 +37,7 @@ extension BrowserViewController: ReaderModeScriptHandlerDelegate {
   func readerMode(
     _ readerMode: ReaderModeScriptHandler,
     didParseReadabilityResult readabilityResult: ReadabilityResult,
-    forTab tab: Tab
+    forTab tab: some TabState
   ) {}
 }
 
@@ -45,12 +49,13 @@ extension BrowserViewController: ReaderModeStyleViewControllerDelegate {
     didConfigureStyle style: ReaderModeStyle
   ) {
     // Persist the new style to the profile
-    let encodedStyle: [String: Any] = style.encodeAsDictionary()
-    profile.prefs.setObject(encodedStyle, forKey: readerModeProfileKeyStyle)
+    Preferences.ReaderMode.style.value = style.encode()
     // Change the reader mode style on all tabs that have reader mode active
     for tabIndex in 0..<tabManager.count {
       if let tab = tabManager[tabIndex] {
-        if let readerMode = tab.getContentScript(name: ReaderModeScriptHandler.scriptName)
+        if let readerMode = tab.browserData?.getContentScript(
+          name: ReaderModeScriptHandler.scriptName
+        )
           as? ReaderModeScriptHandler
         {
           if readerMode.state == ReaderModeState.active {
@@ -67,7 +72,7 @@ extension BrowserViewController: ReaderModeStyleViewControllerDelegate {
 extension BrowserViewController: ReaderModeBarViewDelegate {
   func readerModeSettingsTapped(_ view: UIView) {
     guard
-      let readerMode = tabManager.selectedTab?.getContentScript(
+      let readerMode = tabManager.selectedTab?.browserData?.getContentScript(
         name: ReaderModeScriptHandler.scriptName
       ) as? ReaderModeScriptHandler,
       readerMode.state == ReaderModeState.active
@@ -76,8 +81,8 @@ extension BrowserViewController: ReaderModeBarViewDelegate {
     }
 
     var readerModeStyle = defaultReaderModeStyle
-    if let dict = profile.prefs.dictionaryForKey(readerModeProfileKeyStyle) {
-      if let style = ReaderModeStyle(dict: dict as [String: AnyObject]) {
+    if let encodedString = Preferences.ReaderMode.style.value {
+      if let style = ReaderModeStyle(encodedString: encodedString) {
         readerModeStyle = style
       }
     }
@@ -144,43 +149,43 @@ extension BrowserViewController {
   /// of the current page is there. And if so, we go there.
 
   func enableReaderMode() {
-    guard let tab = tabManager.selectedTab, let webView = tab.webView else { return }
+    guard let tab = tabManager.selectedTab, let backForwardList = tab.backForwardList else {
+      return
+    }
 
-    let backList = webView.backForwardList.backList
-    let forwardList = webView.backForwardList.forwardList
+    let backList = backForwardList.backList
+    let forwardList = backForwardList.forwardList
 
-    guard let currentURL = webView.backForwardList.currentItem?.url,
-      let headers = (tab.responses[currentURL] as? HTTPURLResponse)?.allHeaderFields
+    guard let currentURL = backForwardList.currentItem?.url,
+      let headers = (tab.responses?[currentURL] as? HTTPURLResponse)?.allHeaderFields
         as? [String: String],
       let readerModeURL = currentURL.encodeEmbeddedInternalURL(for: .readermode, headers: headers)
     else { return }
 
     recordTimeBasedNumberReaderModeUsedP3A(activated: true)
 
+    let playlistItem = tab.playlistItem
+    let translationState = tab.translationState ?? .unavailable
     if backList.count > 1 && backList.last?.url == readerModeURL {
-      let playlistItem = tab.playlistItem
-      let translationState = tab.translationState
-      webView.go(to: backList.last!)
+      tab.goToBackForwardListItem(backList.last!)
       PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
       self.updateTranslateURLBar(tab: tab, state: translationState)
     } else if !forwardList.isEmpty && forwardList.first?.url == readerModeURL {
-      let playlistItem = tab.playlistItem
-      let translationState = tab.translationState
-      webView.go(to: forwardList.first!)
+      tab.goToBackForwardListItem(forwardList.first!)
       PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
       self.updateTranslateURLBar(tab: tab, state: translationState)
     } else {
       // Store the readability result in the cache and load it. This will later move to the ReadabilityHelper.
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "\(readerModeNamespace).readerize",
         contentWorld: ReaderModeScriptHandler.scriptSandbox
       ) { (object, error) -> Void in
         if let readabilityResult = ReadabilityResult(object: object as AnyObject?) {
           let playlistItem = tab.playlistItem
-          let translationState = tab.translationState
+          let translationState = tab.translationState ?? .unavailable
           Task { @MainActor in
             try? await self.readerModeCache.put(currentURL, readabilityResult)
-            if webView.load(PrivilegedRequest(url: readerModeURL) as URLRequest) != nil {
+            if tab.loadRequest(PrivilegedRequest(url: readerModeURL) as URLRequest) != nil {
               PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
               self.updateTranslateURLBar(tab: tab, state: translationState)
             }
@@ -196,30 +201,24 @@ extension BrowserViewController {
   /// of the page is either to the left or right in the BackForwardList. If that is the case, we navigate there.
 
   func disableReaderMode() {
-    if let tab = tabManager.selectedTab,
-      let webView = tab.webView
-    {
-      let backList = webView.backForwardList.backList
-      let forwardList = webView.backForwardList.forwardList
+    if let tab = tabManager.selectedTab, let backForwardList = tab.backForwardList {
+      let backList = backForwardList.backList
+      let forwardList = backForwardList.forwardList
 
-      if let currentURL = webView.backForwardList.currentItem?.url {
+      if let currentURL = backForwardList.currentItem?.url {
         if let originalURL = currentURL.decodeEmbeddedInternalURL(for: .readermode) {
+          let playlistItem = tab.playlistItem
+          let translationState = tab.translationState ?? .unavailable
           if backList.count > 1 && backList.last?.url == originalURL {
-            let playlistItem = tab.playlistItem
-            let translationState = tab.translationState
-            webView.go(to: backList.last!)
+            tab.goToBackForwardListItem(backList.last!)
             PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
             self.updateTranslateURLBar(tab: tab, state: translationState)
           } else if !forwardList.isEmpty && forwardList.first?.url == originalURL {
-            let playlistItem = tab.playlistItem
-            let translationState = tab.translationState
-            webView.go(to: forwardList.first!)
+            tab.goToBackForwardListItem(forwardList.first!)
             PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
             self.updateTranslateURLBar(tab: tab, state: translationState)
           } else {
-            let playlistItem = tab.playlistItem
-            let translationState = tab.translationState
-            if webView.load(URLRequest(url: originalURL)) != nil {
+            if tab.loadRequest(URLRequest(url: originalURL)) != nil {
               PlaylistScriptHandler.updatePlaylistTab(tab: tab, item: playlistItem)
               self.updateTranslateURLBar(tab: tab, state: translationState)
             }
@@ -233,8 +232,8 @@ extension BrowserViewController {
     guard notification.name == .dynamicFontChanged else { return }
 
     var readerModeStyle = defaultReaderModeStyle
-    if let dict = profile.prefs.dictionaryForKey(readerModeProfileKeyStyle) {
-      if let style = ReaderModeStyle(dict: dict as [String: AnyObject]) {
+    if let encodedString = Preferences.ReaderMode.style.value {
+      if let style = ReaderModeStyle(encodedString: encodedString) {
         readerModeStyle = style
       }
     }

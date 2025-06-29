@@ -9,16 +9,15 @@
 #include <string_view>
 #include <utility>
 
+#include "base/check.h"
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
-#include "base/notreached.h"
+#include "base/notimplemented.h"
 #include "base/strings/sys_string_conversions.h"
-#include "base/strings/utf_string_conversions.h"
 #include "base/task/thread_pool.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/skus/browser/pref_names.h"
 #include "brave/components/skus/browser/resources/grit/skus_internals_generated_map.h"
 #include "brave/ios/browser/skus/skus_service_factory.h"
@@ -34,6 +33,7 @@
 #include "ios/web/public/webui/web_ui_ios_message_handler.h"
 #include "ui/base/clipboard/clipboard_ios.h"
 #include "ui/base/clipboard/scoped_clipboard_writer.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/webui/resource_path.h"
 #include "ui/base/webui/web_ui_util.h"
 
@@ -95,7 +95,10 @@ SkusInternalsUI::SkusInternalsUI(web::WebUIIOS* web_ui, const GURL& url)
                           base::Unretained(this)));
 }
 
-SkusInternalsUI::~SkusInternalsUI() {}
+SkusInternalsUI::~SkusInternalsUI() {
+  web_ui()->GetWebState()->GetInterfaceBinderForMainFrame()->RemoveInterface(
+      skus::mojom::SkusInternals::Name_);
+}
 
 void SkusInternalsUI::BindInterface(
     mojo::PendingReceiver<skus::mojom::SkusInternals> pending_receiver) {

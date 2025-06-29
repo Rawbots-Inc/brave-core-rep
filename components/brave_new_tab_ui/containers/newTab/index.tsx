@@ -37,7 +37,7 @@ import { MAX_GRID_SIZE } from '../../constants/new_tab_ui'
 import Settings, { TabType as SettingsTabType } from './settings'
 
 import { BraveNewsContextProvider } from '../../../brave_news/browser/resources/shared/Context'
-import BraveNewsModal from '../../components/default/braveNews/customize/Modal'
+import BraveNewsModal from '../../../brave_news/browser/resources/customize/Modal'
 import BraveNewsHint from '../../components/default/braveNews/hint'
 import SponsoredImageClickArea from '../../components/default/sponsoredImage/sponsoredImageClickArea'
 import GridWidget from './gridWidget'
@@ -119,6 +119,7 @@ function GetSponsoredRichMediaBackground(props: Props): SponsoredRichMediaBackgr
     url: wallpaperData.wallpaperImageUrl,
     placementId: wallpaperData.wallpaperId,
     creativeInstanceId: wallpaperData.creativeInstanceId,
+    shouldMetricsFallbackToP3a: wallpaperData.shouldMetricsFallbackToP3a,
     targetUrl: wallpaperData.logo.destinationUrl
   } : undefined
 }
@@ -706,9 +707,10 @@ class NewTabPage extends React.Component<Props, State> {
                   return
                 }
 
-                getNTPBrowserAPI().sponsoredRichMediaAdEventHandler.reportRichMediaAdEvent(
+                getNTPBrowserAPI().sponsoredRichMediaAdEventHandler.maybeReportRichMediaAdEvent(
                   this.sponsoredRichMediaBackgroundInfo.placementId,
                   this.sponsoredRichMediaBackgroundInfo.creativeInstanceId,
+                  this.sponsoredRichMediaBackgroundInfo.shouldMetricsFallbackToP3a,
                   adEventType)
 
                 if (adEventType === BraveAds.NewTabPageAdEventType.kClicked) {

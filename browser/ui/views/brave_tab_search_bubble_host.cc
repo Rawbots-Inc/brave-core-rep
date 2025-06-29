@@ -5,6 +5,8 @@
 
 #include "brave/browser/ui/views/brave_tab_search_bubble_host.h"
 
+#include "base/check.h"
+#include "base/dcheck_is_on.h"
 #include "brave/browser/ui/views/tabs/vertical_tab_utils.h"
 #include "chrome/browser/ui/layout_constants.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
@@ -36,13 +38,15 @@ bool BraveTabSearchBubbleHost::ShowTabSearchBubble(
   anchor_widget = anchor_widget->GetTopLevelWidget();
   DCHECK(anchor_widget);
 
-#if DCHECK_IS_ON()
-  // This path is reachable only when it's vertical tabs.
   auto* browser_view = BrowserView::GetBrowserViewForNativeWindow(
       anchor_widget->GetNativeWindow());
+#if DCHECK_IS_ON()
   DCHECK(browser_view);
-  DCHECK(tabs::utils::ShouldShowVerticalTabs(browser_view->browser()));
 #endif
+
+  if (!tabs::utils::ShouldShowVerticalTabs(browser_view->browser())) {
+    return result;
+  }
 
   bubble_delegate->SetArrow(*arrow_);
 

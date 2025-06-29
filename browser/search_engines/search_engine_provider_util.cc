@@ -10,6 +10,8 @@
 #include <string_view>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/contains.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/values.h"
@@ -17,7 +19,7 @@
 #include "brave/components/l10n/common/locale_util.h"
 #include "brave/components/search_engines/brave_prepopulated_engines.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/search_engine_choice/search_engine_choice_service_factory.h"
+#include "chrome/browser/search_engines/template_url_prepopulate_data_resolver_factory.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/common/pref_names.h"
 #include "components/prefs/pref_service.h"
@@ -25,6 +27,7 @@
 #include "components/search_engines/template_url_data.h"
 #include "components/search_engines/template_url_data_util.h"
 #include "components/search_engines/template_url_prepopulate_data.h"
+#include "components/search_engines/template_url_prepopulate_data_resolver.h"
 #include "components/search_engines/template_url_service.h"
 
 namespace brave {
@@ -36,28 +39,27 @@ constexpr auto kTargetCountriesForEnableSearchSuggestionsByDefault =
                                               "MX", "US"});
 }
 
-void SetBraveAsDefaultPrivateSearchProvider(Profile* profile) {
-  auto* prefs = profile->GetPrefs();
-  search_engines::SearchEngineChoiceService* search_engine_choice_service =
-      search_engines::SearchEngineChoiceServiceFactory::GetForProfile(profile);
-
-  auto data = TemplateURLPrepopulateData::GetPrepopulatedEngine(
-      prefs, search_engine_choice_service,
-      TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_BRAVE);
-  DCHECK(data);
-  prefs->SetString(prefs::kSyncedDefaultPrivateSearchProviderGUID,
-                   data->sync_guid);
-  prefs->SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
-                 TemplateURLDataToDictionary(*data));
+void SetBraveAsDefaultPrivateSearchProvider(Profile& profile) {
+  auto& prefs = *profile.GetPrefs();
+  auto* prepopulate_data_resolver =
+      TemplateURLPrepopulateData::ResolverFactory::GetForProfile(&profile);
+  const auto template_url_data =
+      prepopulate_data_resolver->GetPrepopulatedEngine(
+          TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_BRAVE);
+  DCHECK(template_url_data);
+  prefs.SetString(prefs::kSyncedDefaultPrivateSearchProviderGUID,
+                  template_url_data->sync_guid);
+  prefs.SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
+                TemplateURLDataToDictionary(*template_url_data));
 }
 
-void UpdateDefaultPrivateSearchProviderData(Profile* profile) {
-  auto* service = TemplateURLServiceFactory::GetForProfile(profile);
+void UpdateDefaultPrivateSearchProviderData(Profile& profile) {
+  auto* service = TemplateURLServiceFactory::GetForProfile(&profile);
   DCHECK(service->loaded());
 
-  auto* prefs = profile->GetPrefs();
+  auto& prefs = *profile.GetPrefs();
   const std::string private_provider_guid =
-      prefs->GetString(prefs::kSyncedDefaultPrivateSearchProviderGUID);
+      prefs.GetString(prefs::kSyncedDefaultPrivateSearchProviderGUID);
 
   if (private_provider_guid.empty()) {
     // This can happen while resetting whole settings.
@@ -69,8 +71,8 @@ void UpdateDefaultPrivateSearchProviderData(Profile* profile) {
   // Sync kSyncedDefaultPrivateSearchProviderData with newly updated provider's
   // one.
   if (auto* url = service->GetTemplateURLForGUID(private_provider_guid)) {
-    prefs->SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
-                   TemplateURLDataToDictionary(url->data()));
+    prefs.SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
+                  TemplateURLDataToDictionary(url->data()));
     return;
   }
 
@@ -80,19 +82,19 @@ void UpdateDefaultPrivateSearchProviderData(Profile* profile) {
   SetBraveAsDefaultPrivateSearchProvider(profile);
 }
 
-void PrepareDefaultPrivateSearchProviderDataIfNeeded(Profile* profile) {
-  auto* prefs = profile->GetPrefs();
+void PrepareDefaultPrivateSearchProviderDataIfNeeded(Profile& profile) {
+  auto& prefs = *profile.GetPrefs();
   auto* preference =
-      prefs->FindPreference(prefs::kSyncedDefaultPrivateSearchProviderGUID);
+      prefs.FindPreference(prefs::kSyncedDefaultPrivateSearchProviderGUID);
 
   if (!preference)
     return;
 
-  auto* service = TemplateURLServiceFactory::GetForProfile(profile);
+  auto* service = TemplateURLServiceFactory::GetForProfile(&profile);
   DCHECK(service->loaded());
 
   const std::string private_provider_guid =
-      prefs->GetString(prefs::kSyncedDefaultPrivateSearchProviderGUID);
+      prefs.GetString(prefs::kSyncedDefaultPrivateSearchProviderGUID);
 
   // Set Brave as a private window's initial search provider.
   if (private_provider_guid.empty()) {
@@ -101,12 +103,12 @@ void PrepareDefaultPrivateSearchProviderDataIfNeeded(Profile* profile) {
   }
 
   preference =
-      prefs->FindPreference(prefs::kSyncedDefaultPrivateSearchProviderData);
+      prefs.FindPreference(prefs::kSyncedDefaultPrivateSearchProviderData);
   // Cache if url data is not yet existed.
   if (preference->IsDefaultValue()) {
     if (auto* url = service->GetTemplateURLForGUID(private_provider_guid)) {
-      prefs->SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
-                     TemplateURLDataToDictionary(url->data()));
+      prefs.SetDict(prefs::kSyncedDefaultPrivateSearchProviderData,
+                    TemplateURLDataToDictionary(url->data()));
     } else {
       // This could happen with update default provider list when brave is not
       // updated for longtime. So it doesn't have any chance to cache url data.
@@ -128,15 +130,15 @@ void PrepareDefaultPrivateSearchProviderDataIfNeeded(Profile* profile) {
   }
 }
 
-void ResetDefaultPrivateSearchProvider(Profile* profile) {
-  PrefService* prefs = profile->GetPrefs();
-  prefs->ClearPref(prefs::kSyncedDefaultPrivateSearchProviderGUID);
-  prefs->ClearPref(prefs::kSyncedDefaultPrivateSearchProviderData);
+void ResetDefaultPrivateSearchProvider(Profile& profile) {
+  PrefService& prefs = *profile.GetPrefs();
+  prefs.ClearPref(prefs::kSyncedDefaultPrivateSearchProviderGUID);
+  prefs.ClearPref(prefs::kSyncedDefaultPrivateSearchProviderData);
 
   PrepareDefaultPrivateSearchProviderDataIfNeeded(profile);
 }
 
-void PrepareSearchSuggestionsConfig(PrefService* local_state, bool first_run) {
+void PrepareSearchSuggestionsConfig(PrefService& local_state, bool first_run) {
   if (!first_run) {
     return;
   }
@@ -148,18 +150,18 @@ void PrepareSearchSuggestionsConfig(PrefService* local_state, bool first_run) {
       kTargetCountriesForEnableSearchSuggestionsByDefault.count(
           default_country_code);
 
-  local_state->SetBoolean(kEnableSearchSuggestionsByDefault,
-                          enable_search_suggestions_default_value);
+  local_state.SetBoolean(kEnableSearchSuggestionsByDefault,
+                         enable_search_suggestions_default_value);
 }
 
-void UpdateDefaultSearchSuggestionsPrefs(PrefService* local_state,
-                                         PrefService* profile_prefs) {
-  if (!local_state->GetBoolean(kEnableSearchSuggestionsByDefault)) {
+void UpdateDefaultSearchSuggestionsPrefs(PrefService& local_state,
+                                         PrefService& profile_prefs) {
+  if (!local_state.GetBoolean(kEnableSearchSuggestionsByDefault)) {
     return;
   }
 
-  profile_prefs->SetDefaultPrefValue(prefs::kSearchSuggestEnabled,
-                                     base::Value(true));
+  profile_prefs.SetDefaultPrefValue(prefs::kSearchSuggestEnabled,
+                                    base::Value(true));
 }
 
 }  // namespace brave

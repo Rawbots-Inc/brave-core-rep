@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "base/containers/flat_set.h"
-#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/values_test_util.h"
@@ -222,11 +221,7 @@ TEST_F(NetworkManagerUnitTest, GetAllChainsTest) {
 
   EXPECT_EQ(network_manager()->GetAllChains().size(), 24u);
   for (auto& chain : network_manager()->GetAllChains()) {
-    if (chain->coin == mojom::CoinType::ADA) {
-      EXPECT_FALSE(chain->rpc_endpoints[0].is_valid());
-    } else {
-      EXPECT_TRUE(chain->rpc_endpoints[0].is_valid());
-    }
+    EXPECT_TRUE(chain->rpc_endpoints[0].is_valid());
     EXPECT_EQ(chain->active_rpc_endpoint_index, 0);
   }
 
@@ -424,7 +419,7 @@ TEST_F(NetworkManagerUnitTest, GetNetworkURLTest) {
             network_manager()->GetNetworkURL(mojom::kBitcoinMainnet,
                                              mojom::CoinType::BTC));
 
-  EXPECT_EQ(GURL("https://zec.rocks:443/"),
+  EXPECT_EQ(GURL("https://zcash.wallet.brave.com/"),
             network_manager()->GetNetworkURL(mojom::kZCashMainnet,
                                              mojom::CoinType::ZEC));
   auto custom_zec_network = network_manager()->GetKnownChain(
@@ -437,8 +432,9 @@ TEST_F(NetworkManagerUnitTest, GetNetworkURLTest) {
             network_manager()->GetNetworkURL(mojom::kZCashMainnet,
                                              mojom::CoinType::ZEC));
 
-  EXPECT_EQ(GURL(), network_manager()->GetNetworkURL(mojom::kCardanoMainnet,
-                                                     mojom::CoinType::ADA));
+  EXPECT_EQ(GURL("https://cardano-mainnet.wallet.brave.com/"),
+            network_manager()->GetNetworkURL(mojom::kCardanoMainnet,
+                                             mojom::CoinType::ADA));
   auto custom_cardano_network = network_manager()->GetKnownChain(
       mojom::kCardanoMainnet, mojom::CoinType::ADA);
   custom_cardano_network->rpc_endpoints.emplace_back(
@@ -563,8 +559,8 @@ TEST_F(NetworkManagerUnitTest, GetChain) {
   // Zcash
   mojom::NetworkInfo zec_mainnet(mojom::kZCashMainnet, "Zcash Mainnet",
                                  {"https://3xpl.com/zcash/transaction"}, {}, 0,
-                                 {GURL("https://zec.rocks:443/")}, "ZEC",
-                                 "Zcash", 8, mojom::CoinType::ZEC,
+                                 {GURL("https://zcash.wallet.brave.com/")},
+                                 "ZEC", "Zcash", 8, mojom::CoinType::ZEC,
                                  {mojom::KeyringId::kZCashMainnet});
   EXPECT_FALSE(network_manager()->GetChain("0x123", mojom::CoinType::ZEC));
   EXPECT_EQ(network_manager()->GetChain("zcash_mainnet", mojom::CoinType::ZEC),
@@ -572,8 +568,9 @@ TEST_F(NetworkManagerUnitTest, GetChain) {
 
   // Cardano
   mojom::NetworkInfo cardano_mainnet(
-      mojom::kCardanoMainnet, "Cardano Mainnet", {""}, {}, 0, {GURL("")}, "ADA",
-      "Cardano", 6, mojom::CoinType::ADA, {mojom::KeyringId::kCardanoMainnet});
+      mojom::kCardanoMainnet, "Cardano Mainnet", {"https://cexplorer.io"}, {},
+      0, {GURL("https://cardano-mainnet.wallet.brave.com/")}, "ADA", "Cardano",
+      6, mojom::CoinType::ADA, {mojom::KeyringId::kCardanoMainnet});
   EXPECT_FALSE(network_manager()->GetChain("0x123", mojom::CoinType::ADA));
   EXPECT_EQ(
       network_manager()->GetChain("cardano_mainnet", mojom::CoinType::ADA),
@@ -603,7 +600,7 @@ TEST_F(NetworkManagerUnitTest, Eip1559Chain) {
       {mojom::kNeonEVMMainnetChainId, false},
       {mojom::kLocalhostChainId, false}};
   for (auto& [chain_id, value] : known_states) {
-    EXPECT_EQ(network_manager()->IsEip1559Chain(chain_id).value(), value);
+    EXPECT_EQ(network_manager()->IsEip1559Chain(chain_id), value);
   }
 
   // Custom chain.
@@ -611,24 +608,24 @@ TEST_F(NetworkManagerUnitTest, Eip1559Chain) {
   EXPECT_FALSE(network_manager()->IsEip1559Chain(custom_chain_id));
 
   network_manager()->SetEip1559ForCustomChain(custom_chain_id, true);
-  EXPECT_TRUE(*network_manager()->IsEip1559Chain(custom_chain_id));
+  EXPECT_TRUE(network_manager()->IsEip1559Chain(custom_chain_id));
   EXPECT_EQ(*dict().FindBool(custom_chain_id), true);
 
   network_manager()->SetEip1559ForCustomChain(
       base::ToUpperASCII(custom_chain_id), false);
   EXPECT_FALSE(
-      *network_manager()->IsEip1559Chain(base::ToUpperASCII(custom_chain_id)));
+      network_manager()->IsEip1559Chain(base::ToUpperASCII(custom_chain_id)));
   EXPECT_EQ(*dict().FindBool(custom_chain_id), false);
 
   network_manager()->SetEip1559ForCustomChain(custom_chain_id, std::nullopt);
-  EXPECT_FALSE(network_manager()->IsEip1559Chain(custom_chain_id).has_value());
+  EXPECT_FALSE(network_manager()->IsEip1559Chain(custom_chain_id));
   EXPECT_EQ(dict().FindBool(custom_chain_id), std::nullopt);
 
   // Custom chain overriding known one.
   network_manager()->SetEip1559ForCustomChain(mojom::kPolygonMainnetChainId,
                                               false);
   EXPECT_FALSE(
-      *network_manager()->IsEip1559Chain(mojom::kPolygonMainnetChainId));
+      network_manager()->IsEip1559Chain(mojom::kPolygonMainnetChainId));
   EXPECT_EQ(*dict().FindBool(mojom::kPolygonMainnetChainId), false);
 
   network_manager()->SetEip1559ForCustomChain(mojom::kPolygonMainnetChainId,
@@ -764,12 +761,12 @@ TEST_F(NetworkManagerUnitTest, RemoveCustomNetworkRemovesEip1559) {
 
   network_manager()->AddCustomNetwork(chain);
 
-  EXPECT_FALSE(network_manager()->IsEip1559Chain(chain.chain_id).has_value());
+  EXPECT_FALSE(network_manager()->IsEip1559Chain(chain.chain_id));
   network_manager()->SetEip1559ForCustomChain(chain.chain_id, true);
-  EXPECT_TRUE(*network_manager()->IsEip1559Chain(chain.chain_id));
+  EXPECT_TRUE(network_manager()->IsEip1559Chain(chain.chain_id));
 
   network_manager()->RemoveCustomNetwork(chain.chain_id, mojom::CoinType::ETH);
-  EXPECT_FALSE(network_manager()->IsEip1559Chain(chain.chain_id).has_value());
+  EXPECT_FALSE(network_manager()->IsEip1559Chain(chain.chain_id));
 }
 
 TEST_F(NetworkManagerUnitTest, HiddenNetworks) {

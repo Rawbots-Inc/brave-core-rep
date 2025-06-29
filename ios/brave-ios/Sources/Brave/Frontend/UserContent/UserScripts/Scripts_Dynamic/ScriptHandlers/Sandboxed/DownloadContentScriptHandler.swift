@@ -7,6 +7,7 @@ import Foundation
 import MobileCoreServices
 import Shared
 import UniformTypeIdentifiers
+import Web
 import WebKit
 import os.log
 
@@ -31,13 +32,13 @@ class DownloadContentScriptHandler: TabContentScript {
   static let scriptSandbox: WKContentWorld = .defaultClient
   static let userScript: WKUserScript? = nil
 
-  static func downloadBlob(url: URL, tab: Tab) -> Bool {
+  static func downloadBlob(url: URL, tab: some TabState) -> Bool {
     let safeUrl = url.absoluteString.replacingOccurrences(of: "'", with: "%27")
     guard url.scheme == "blob" else {
       return false
     }
 
-    tab.webView?.evaluateSafeJavaScript(
+    tab.evaluateJavaScript(
       functionName: "window.__firefox__.download",
       args: [safeUrl],
       contentWorld: scriptSandbox
@@ -46,7 +47,7 @@ class DownloadContentScriptHandler: TabContentScript {
   }
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {

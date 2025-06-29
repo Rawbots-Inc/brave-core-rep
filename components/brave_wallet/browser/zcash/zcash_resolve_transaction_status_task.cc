@@ -6,7 +6,9 @@
 #include "brave/components/brave_wallet/browser/zcash/zcash_resolve_transaction_status_task.h"
 
 #include <utility>
+#include <variant>
 
+#include "base/check.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_tx_meta.h"
 
 namespace brave_wallet {
@@ -21,24 +23,23 @@ using ResolveTransactionStatusResult =
 }  // namespace
 
 ZCashResolveTransactionStatusTask::ZCashResolveTransactionStatusTask(
-    absl::variant<base::PassKey<ZCashWalletService>,
-                  base::PassKey<class ZCashResolveTransactionStatusTaskTest>>
+    std::variant<base::PassKey<ZCashWalletService>,
+                 base::PassKey<class ZCashResolveTransactionStatusTaskTest>>
         pass_key,
     ZCashActionContext context,
     ZCashWalletService& zcash_wallet_service,
-    std::unique_ptr<ZCashTxMeta> tx_meta,
-    ZCashResolveTransactionStatusTaskCallback callback)
+    std::unique_ptr<ZCashTxMeta> tx_meta)
     : context_(std::move(context)),
       zcash_wallet_service_(zcash_wallet_service),
-      tx_meta_(std::move(tx_meta)),
-      callback_(std::move(callback)) {}
+      tx_meta_(std::move(tx_meta)) {}
 
 ZCashResolveTransactionStatusTask::~ZCashResolveTransactionStatusTask() =
     default;
 
-void ZCashResolveTransactionStatusTask::Start() {
-  DCHECK(!started_);
-  started_ = true;
+void ZCashResolveTransactionStatusTask::Start(
+    ZCashResolveTransactionStatusTaskCallback callback) {
+  DCHECK(!callback_);
+  callback_ = std::move(callback);
   ScheduleWorkOnTask();
 }
 
@@ -51,13 +52,11 @@ void ZCashResolveTransactionStatusTask::ScheduleWorkOnTask() {
 void ZCashResolveTransactionStatusTask::WorkOnTask() {
   if (error_) {
     std::move(callback_).Run(base::unexpected(error_.value()));
-    zcash_wallet_service_->ResolveTransactionStatusTaskDone(this);
     return;
   }
 
   if (!tx_meta_ || !tx_meta_->tx()) {
     std::move(callback_).Run(ResolveTransactionStatusResult::kExpired);
-    zcash_wallet_service_->ResolveTransactionStatusTaskDone(this);
     return;
   }
 
@@ -96,7 +95,6 @@ void ZCashResolveTransactionStatusTask::WorkOnTask() {
     std::move(callback_).Run(
         base::ok(expired ? ResolveTransactionStatusResult::kExpired
                          : ResolveTransactionStatusResult::kInProgress));
-    zcash_wallet_service_->ResolveTransactionStatusTaskDone(this);
     return;
   }
 
@@ -104,7 +102,6 @@ void ZCashResolveTransactionStatusTask::WorkOnTask() {
   if (chain_tip < tx_height) {
     std::move(callback_).Run(
         base::ok(ResolveTransactionStatusResult::kExpired));
-    zcash_wallet_service_->ResolveTransactionStatusTaskDone(this);
     return;
   }
 
@@ -113,7 +110,6 @@ void ZCashResolveTransactionStatusTask::WorkOnTask() {
   std::move(callback_).Run(
       base::ok(completed ? ResolveTransactionStatusResult::kCompleted
                          : ResolveTransactionStatusResult::kInProgress));
-  zcash_wallet_service_->ResolveTransactionStatusTaskDone(this);
 }
 
 void ZCashResolveTransactionStatusTask::GetChainTip() {

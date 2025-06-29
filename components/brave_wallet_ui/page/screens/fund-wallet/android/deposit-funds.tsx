@@ -25,7 +25,7 @@ import * as WalletActions from '../../../../common/actions/wallet_actions'
 // Components
 import {
   // eslint-disable-next-line import/no-named-default
-  default as BraveCoreThemeProvider
+  default as BraveCoreThemeProvider,
 } from '../../../../../common/BraveCoreThemeProvider'
 import { DepositFundsScreen } from '../deposit-funds'
 
@@ -40,7 +40,7 @@ export function AndroidDepositApp() {
           dark={walletDarkTheme}
           light={walletLightTheme}
         >
-          <DepositFundsScreen isAndroid={true} />
+          <DepositFundsScreen />
         </BraveCoreThemeProvider>
       </BrowserRouter>
     </Provider>

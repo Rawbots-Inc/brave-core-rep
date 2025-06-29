@@ -7,6 +7,7 @@ import BraveShared
 import Data
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -38,7 +39,7 @@ class PlaylistFolderSharingScriptHandler: NSObject, TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {

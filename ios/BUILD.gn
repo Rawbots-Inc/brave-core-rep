@@ -14,6 +14,7 @@ import("//brave/ios/browser/api/brave_rewards/headers.gni")
 import("//brave/ios/browser/api/brave_services_key/headers.gni")
 import("//brave/ios/browser/api/brave_shields/headers.gni")
 import("//brave/ios/browser/api/brave_stats/headers.gni")
+import("//brave/ios/browser/api/brave_user_agent/headers.gni")
 import("//brave/ios/browser/api/brave_wallet/headers.gni")
 import("//brave/ios/browser/api/certificate/headers.gni")
 import("//brave/ios/browser/api/content_settings/headers.gni")
@@ -78,6 +79,7 @@ group("brave_ios_tests") {
 brave_core_public_headers = [
   "//brave/build/ios/mojom/public/base/base_values.h",
   "//brave/ios/app/brave_core_main.h",
+  "//brave/ios/app/brave_profile_controller.h",
   "//brave/ios/app/brave_core_switches.h",
   "//brave/ios/browser/brave_wallet/brave_wallet_factory_wrappers.h",
   "//brave/ios/browser/skus/skus_sdk_factory_wrappers.h",
@@ -109,6 +111,8 @@ brave_core_public_headers += browser_api_de_amp_public_headers
 brave_core_public_headers += browser_api_debounce_public_headers
 brave_core_public_headers +=
     browser_api_https_upgrade_exceptions_service_public_headers
+brave_core_public_headers +=
+    browser_api_brave_user_agent_exceptions_ios_public_headers
 brave_core_public_headers += browser_api_https_upgrades_public_headers
 brave_core_public_headers += browser_debounce_public_headers
 brave_core_public_headers += brave_stats_public_headers

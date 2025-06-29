@@ -26,10 +26,7 @@ base::Value::Dict BuildStudiesUserData() {
     return {};
   }
 
-  base::Value::Dict user_data;
-
   base::Value::List list;
-
   if (const std::optional<base::FieldTrial::ActiveGroup>
           active_field_trial_group = GetActiveFieldTrialStudyGroup()) {
     list.Append(base::Value::Dict()
@@ -37,9 +34,7 @@ base::Value::Dict BuildStudiesUserData() {
                     .Set(kGroupNameKey, active_field_trial_group->group_name));
   }
 
-  user_data.Set(kStudiesKey, std::move(list));
-
-  return user_data;
+  return base::Value::Dict().Set(kStudiesKey, std::move(list));
 }
 
 }  // namespace brave_ads

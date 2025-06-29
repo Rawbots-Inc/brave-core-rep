@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+#include "base/check.h"
 #include "brave/app/vector_icons/vector_icons.h"
 #include "brave/browser/ui/brave_tooltips/bounds_util.h"
 #include "brave/browser/ui/views/brave_tooltips/brave_tooltip_popup.h"
@@ -220,8 +221,8 @@ views::View* BraveTooltipView::CreateHeaderView() {
 views::ImageView* BraveTooltipView::CreateIconView() {
   views::ImageView* view = new views::ImageView();
 
-  view->SetImage(
-      gfx::CreateVectorIcon(kBraveTooltipsStopwatchIcon, kIconColor));
+  view->SetImage(ui::ImageModel::FromImageSkia(
+      gfx::CreateVectorIcon(kBraveTooltipsStopwatchIcon, kIconColor)));
 
   return view;
 }

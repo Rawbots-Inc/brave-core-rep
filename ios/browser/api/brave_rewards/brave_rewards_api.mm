@@ -9,6 +9,7 @@
 
 #include <optional>
 
+#include "base/check.h"
 #include "base/containers/flat_map.h"
 #include "base/ios/ios_util.h"
 #include "base/json/json_reader.h"
@@ -503,7 +504,7 @@ NSNotificationName const BraveRewardsNotificationAdded =
       blob = base::SysNSStringToUTF8(publisherBlob);
     }
 
-    selfPtr->_rewardsEngine->GetPublisherActivityFromUrl(
+    selfPtr->_rewardsEngine->NotifyPublisherPageVisit(
         tabId, std::move(visitData), blob);
   }];
 }

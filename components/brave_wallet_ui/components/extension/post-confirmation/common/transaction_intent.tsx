@@ -8,11 +8,11 @@ import { skipToken } from '@reduxjs/toolkit/query/react'
 // Types
 import {
   BraveWallet,
-  SerializableTransactionInfo //
+  SerializableTransactionInfo, //
 } from '../../../../constants/types'
 
 // Utils
-import { getLocale, splitStringForTag } from '$web-common/locale'
+import { getLocale, formatLocale } from '$web-common/locale'
 import {
   findTransactionToken,
   getFormattedTransactionTransferredValue,
@@ -20,7 +20,8 @@ import {
   getTransactionApprovalTargetAddress,
   getTransactionToAddress,
   isBridgeTransaction,
-  isSwapTransaction
+  isSwapTransaction,
+  getIsSolanaAssociatedTokenAccountCreation,
 } from '../../../../utils/tx-utils'
 import { getCoinFromTxDataUnion } from '../../../../utils/network-utils'
 import { getAddressLabel } from '../../../../utils/account-utils'
@@ -29,23 +30,23 @@ import Amount from '../../../../utils/amount'
 // Queries
 import {
   useAccountQuery,
-  useGetCombinedTokensListQuery
+  useGetCombinedTokensListQuery,
 } from '../../../../common/slices/api.slice.extra'
 import {
   useGetAccountInfosRegistryQuery,
   useGetNetworkQuery,
-  useGetZCashTransactionTypeQuery
+  useGetZCashTransactionTypeQuery,
 } from '../../../../common/slices/api.slice'
 import {
-  accountInfoEntityAdaptorInitialState //
+  accountInfoEntityAdaptorInitialState, //
 } from '../../../../common/slices/entities/account-info.entity'
 
 // Hooks
 import {
-  useTransactionsNetwork //
+  useTransactionsNetwork, //
 } from '../../../../common/hooks/use-transactions-network'
 import {
-  useSwapTransactionParser //
+  useSwapTransactionParser, //
 } from '../../../../common/hooks/use-swap-tx-parser'
 import { useExplorer } from '../../../../common/hooks/explorer'
 
@@ -72,37 +73,38 @@ export const TransactionIntent = (props: Props) => {
   const txToAddress = getTransactionToAddress(transaction)
   const isSOLSwapOrBridge =
     txCoinType === BraveWallet.CoinType.SOL && isSwapOrBridge
+  const isSolanaATACreation =
+    getIsSolanaAssociatedTokenAccountCreation(transaction)
 
   const { account: txAccount } = useAccountQuery(transaction.fromAccountId)
   const { data: combinedTokensList } = useGetCombinedTokensListQuery()
 
   const transactionsToken = findTransactionToken(
     transaction,
-    combinedTokensList
+    combinedTokensList,
   )
 
   const transactionNetwork = useTransactionsNetwork(transaction)
 
   const {
-    data: getZCashTransactionTypeResult = { txType: null, error: null }
+    data: getZCashTransactionTypeResult = { txType: null, error: null },
   } = useGetZCashTransactionTypeQuery(
-    txCoinType === BraveWallet.CoinType.ZEC &&
-      transactionNetwork &&
-      transactionsToken &&
-      txAccount &&
-      txToAddress
+    txCoinType === BraveWallet.CoinType.ZEC
+      && transactionNetwork
+      && transactionsToken
+      && txAccount
+      && txToAddress
       ? {
+          chainId: transactionNetwork.chainId,
           accountId: txAccount.accountId,
-          testnet: transactionNetwork.chainId === BraveWallet.Z_CASH_TESTNET,
-          use_shielded_pool: transactionsToken.isShielded,
-          address: txToAddress
+          useShieldedPool: transactionsToken.isShielded,
+          address: txToAddress,
         }
-      : skipToken
+      : skipToken,
   )
 
   const isShieldingFunds =
-    getZCashTransactionTypeResult.txType ===
-    BraveWallet.ZCashTxType.kShielding
+    getZCashTransactionTypeResult.txType === BraveWallet.ZCashTxType.kShielding
 
   // Custom Hooks
   const onClickViewOnBlockExplorer = useExplorer(transactionNetwork)
@@ -112,23 +114,23 @@ export const TransactionIntent = (props: Props) => {
       tx: transaction,
       token: transactionsToken,
       txAccount,
-      txNetwork: transactionNetwork
+      txNetwork: transactionNetwork,
     })
 
   const { data: txNetwork } = useGetNetworkQuery({
     chainId: transaction.chainId,
-    coin: txCoinType
+    coin: txCoinType,
   })
 
   const { data: bridgeToNetwork } = useGetNetworkQuery(
-    isBridge &&
-      transaction.swapInfo?.toChainId &&
-      transaction.swapInfo.toCoin !== undefined
+    isBridge
+      && transaction.swapInfo?.toChainId
+      && transaction.swapInfo.toCoin !== undefined
       ? {
           chainId: transaction.swapInfo.toChainId,
-          coin: transaction.swapInfo.toCoin
+          coin: transaction.swapInfo.toCoin,
         }
-      : skipToken
+      : skipToken,
   )
 
   const { data: accountInfosRegistry = accountInfoEntityAdaptorInitialState } =
@@ -149,8 +151,8 @@ export const TransactionIntent = (props: Props) => {
     : ''
 
   const transactionFailed =
-    transaction.txStatus === BraveWallet.TransactionStatus.Dropped ||
-    transaction.txStatus === BraveWallet.TransactionStatus.Error
+    transaction.txStatus === BraveWallet.TransactionStatus.Dropped
+    || transaction.txStatus === BraveWallet.TransactionStatus.Error
 
   const transactionConfirmed =
     transaction.txStatus === BraveWallet.TransactionStatus.Confirmed
@@ -160,16 +162,16 @@ export const TransactionIntent = (props: Props) => {
   // for all other providers.
   const swapOrBridgeRecipient =
     transaction.swapInfo?.provider === 'lifi'
-      ? transaction.swapInfo?.receiver ?? ''
-      : txAccount?.address ?? ''
+      ? (transaction.swapInfo?.receiver ?? '')
+      : (txAccount?.address ?? '')
 
   const recipientLabel = getAddressLabel(
     isERC20Approval
       ? txApprovalTarget
       : isSwapOrBridge
-      ? swapOrBridgeRecipient
-      : txToAddress,
-    accountInfosRegistry
+        ? swapOrBridgeRecipient
+        : txToAddress,
+    accountInfosRegistry,
   )
 
   const formattedSendAmount = React.useMemo(() => {
@@ -177,15 +179,15 @@ export const TransactionIntent = (props: Props) => {
       return ''
     }
     if (
-      transactionsToken.isErc721 ||
-      transactionsToken.isErc1155 ||
-      transactionsToken.isNft
+      transactionsToken.isErc721
+      || transactionsToken.isErc1155
+      || transactionsToken.isNft
     ) {
       return `${transactionsToken.name} ${transactionsToken.symbol}`
     }
     return new Amount(normalizedTransferredValue).formatAsAsset(
       6,
-      transactionsToken.symbol
+      transactionsToken.symbol,
     )
   }, [transactionsToken, normalizedTransferredValue])
 
@@ -240,7 +242,7 @@ export const TransactionIntent = (props: Props) => {
     isSOLSwapOrBridge,
     sendSwapOrBridgeLocale,
     transactionFailed,
-    swappingOrBridgingLocale
+    swappingOrBridgingLocale,
   ])
 
   const secondDuringValue = React.useMemo(() => {
@@ -266,10 +268,19 @@ export const TransactionIntent = (props: Props) => {
     isSwap,
     formattedBuyAmount,
     isSOLSwapOrBridge,
-    txNetwork
+    txNetwork,
   ])
 
   const descriptionLocale = React.useMemo(() => {
+    if (isSolanaATACreation && transactionFailed) {
+      return 'braveWalletFailedToCreateAssociatedTokenAccount'
+    }
+    if (isSolanaATACreation && transactionConfirmed) {
+      return 'braveWalletAssociatedTokenAccountCreated'
+    }
+    if (isSolanaATACreation) {
+      return 'braveWalletCreatingAssociatedTokenAccount'
+    }
     if (transactionFailed && isSOLSwapOrBridge) {
       return 'braveWalletErrorAttemptingToTransactOnNetwork'
     }
@@ -309,61 +320,23 @@ export const TransactionIntent = (props: Props) => {
     isSwap,
     isERC20Approval,
     isSOLSwapOrBridge,
-    isShieldingFunds
+    isShieldingFunds,
+    isSolanaATACreation,
   ])
 
-  const descriptionString = getLocale(descriptionLocale)
-    .replace('$5', firstDuringValue)
-    .replace('$6', secondDuringValue)
-    .replace(
-      '$7',
-      transactionFailed ? sendSwapOrBridgeLocale : txNetwork?.chainName ?? ''
-    )
-
-  const {
-    beforeTag: firstBefore,
-    duringTag: firstDuring,
-    afterTag: firstAfter
-  } = splitStringForTag(descriptionString, 1)
-  const {
-    beforeTag: secondBefore,
-    duringTag: secondDuring,
-    afterTag: secondAfter
-  } = splitStringForTag(firstAfter ?? '', 3)
-
-  return (
-    <Row
-      gap='4px'
-      flexWrap='wrap'
-    >
-      {firstBefore && (
-        <Text
-          textColor='secondary'
-          textSize='14px'
-          isBold={false}
-        >
-          {firstBefore}
-        </Text>
-      )}
-      {firstDuring && (
+  const description = formatLocale(
+    descriptionLocale,
+    {
+      $1: (
         <Text
           textColor='primary'
           textSize='14px'
-          isBold={true}
+          isBold
         >
-          {firstDuring}
+          {firstDuringValue}
         </Text>
-      )}
-      {secondBefore && (
-        <Text
-          textColor='secondary'
-          textSize='14px'
-          isBold={false}
-        >
-          {secondBefore}
-        </Text>
-      )}
-      {secondDuring && (
+      ),
+      $2: (
         <Row
           width='unset'
           gap='4px'
@@ -371,31 +344,42 @@ export const TransactionIntent = (props: Props) => {
           <Text
             textColor='primary'
             textSize='14px'
-            isBold={true}
+            isBold
           >
-            {secondDuring}
+            {secondDuringValue}
           </Text>
           <Button
             onClick={onClickViewOnBlockExplorer(
               isSwapOrBridge && transaction.swapInfo?.provider === 'lifi'
                 ? 'lifi'
                 : 'tx',
-              transaction.txHash
+              transaction.txHash,
             )}
           >
             <ExplorerIcon />
           </Button>
         </Row>
-      )}
-      {secondAfter && (
-        <Text
-          textColor='secondary'
-          textSize='14px'
-          isBold={false}
-        >
-          {secondAfter}
-        </Text>
-      )}
+      ),
+      $3: transactionFailed
+        ? sendSwapOrBridgeLocale
+        : (txNetwork?.chainName ?? ''),
+    },
+    {
+      noErrorOnMissingReplacement: true,
+    },
+  )
+
+  return (
+    <Row
+      gap='4px'
+      flexWrap='wrap'
+    >
+      <Text
+        textColor='secondary'
+        textSize='14px'
+      >
+        {description}
+      </Text>
     </Row>
   )
 }

@@ -29,7 +29,8 @@ import {
   isEthereumTransaction,
   isZCashTransaction,
   isBitcoinTransaction,
-  isEIP1559Transaction
+  isEIP1559Transaction,
+  isCardanoTransaction,
 } from '../../utils/tx-utils'
 import { makeNetworkAsset } from '../../options/asset-options'
 
@@ -49,17 +50,17 @@ import {
   useGetTokenSpotPricesQuery,
   useGetZCashTransactionTypeQuery,
   useRejectTransactionsMutation,
-  walletApi
+  walletApi,
 } from '../slices/api.slice'
 import {
   usePendingTransactionsQuery,
   useGetCombinedTokensListQuery,
-  useAccountQuery
+  useAccountQuery,
 } from '../slices/api.slice.extra'
 import { useSwapTransactionParser } from './use-swap-tx-parser'
 import {
   defaultQuerySubscriptionOptions,
-  querySubscriptionOptions60s
+  querySubscriptionOptions60s,
 } from '../slices/constants'
 import { useIsAccountSyncing } from './use_is_account_syncing'
 
@@ -67,14 +68,14 @@ import { useIsAccountSyncing } from './use_is_account_syncing'
 import { BraveWallet, emptyProviderErrorCodeUnion } from '../../constants/types'
 import {
   UpdateUnapprovedTransactionGasFieldsType,
-  UpdateUnapprovedTransactionNonceType
+  UpdateUnapprovedTransactionNonceType,
 } from '../constants/action_types'
 import { MAX_UINT256 } from '../constants/magics'
 
 export const useSelectedPendingTransaction = () => {
   // redux
   const selectedPendingTransactionId = useSafeUISelector(
-    UISelectors.selectedPendingTransactionId
+    UISelectors.selectedPendingTransactionId,
   )
 
   // queries
@@ -82,15 +83,14 @@ export const useSelectedPendingTransaction = () => {
     usePendingTransactionsQuery({
       accountId: null,
       chainId: null,
-      coinType: null
+      coinType: null,
     })
 
   // computed
   const selectedPendingTransaction = !pendingTransactions.length
     ? undefined
-    : pendingTransactions.find(
-        (tx) => tx.id === selectedPendingTransactionId
-      ) ?? pendingTransactions[0]
+    : (pendingTransactions.find((tx) => tx.id === selectedPendingTransactionId)
+      ?? pendingTransactions[0])
 
   // render
   return { selectedPendingTransaction, isLoading: isLoadingPendingTransactions }
@@ -100,7 +100,7 @@ export const usePendingTransactions = () => {
   // redux
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>()
   const selectedPendingTransactionId = useSafeUISelector(
-    UISelectors.selectedPendingTransactionId
+    UISelectors.selectedPendingTransactionId,
   )
 
   // mutations
@@ -113,7 +113,7 @@ export const usePendingTransactions = () => {
   const { pendingTransactions } = usePendingTransactionsQuery({
     accountId: null,
     chainId: null,
-    coinType: null
+    coinType: null,
   })
   const { data: accounts } = useGetAccountInfosRegistryQuery()
 
@@ -122,9 +122,8 @@ export const usePendingTransactions = () => {
       return undefined
     }
     return (
-      pendingTransactions.find(
-        (tx) => tx.id === selectedPendingTransactionId
-      ) ?? pendingTransactions[0]
+      pendingTransactions.find((tx) => tx.id === selectedPendingTransactionId)
+      ?? pendingTransactions[0]
     )
   }, [pendingTransactions, selectedPendingTransactionId])
 
@@ -136,9 +135,9 @@ export const usePendingTransactions = () => {
     transactionInfo && txCoinType !== undefined
       ? {
           chainId: transactionInfo.chainId,
-          coin: txCoinType
+          coin: txCoinType,
         }
-      : skipToken
+      : skipToken,
   )
 
   const networkAsset = React.useMemo(() => {
@@ -152,31 +151,31 @@ export const usePendingTransactions = () => {
       [txToken, networkAsset]
         .filter((t): t is BraveWallet.BlockchainToken => Boolean(t))
         .map(getPriceIdForToken),
-    [txToken, networkAsset]
+    [txToken, networkAsset],
   )
 
   const { data: spotPriceRegistry } = useGetTokenSpotPricesQuery(
     tokenPriceIds.length > 0 && defaultFiat
       ? { ids: tokenPriceIds, toCurrency: defaultFiat }
       : skipToken,
-    querySubscriptionOptions60s
+    querySubscriptionOptions60s,
   )
 
   const {
     data: solFeeEstimate,
-    isLoading: isLoadingSolFeeEstimates = txCoinType ===
-      BraveWallet.CoinType.SOL,
-    isError: hasSolFeeEstimatesError
+    isLoading: isLoadingSolFeeEstimates = txCoinType
+      === BraveWallet.CoinType.SOL,
+    isError: hasSolFeeEstimatesError,
   } = useGetSolanaEstimatedFeeQuery(
-    txCoinType === BraveWallet.CoinType.SOL &&
-      transactionInfo?.chainId &&
-      transactionInfo?.id
+    txCoinType === BraveWallet.CoinType.SOL
+      && transactionInfo?.chainId
+      && transactionInfo?.id
       ? {
           chainId: transactionInfo.chainId,
-          txId: transactionInfo.id
+          txId: transactionInfo.id,
         }
       : skipToken,
-    defaultQuerySubscriptionOptions
+    defaultQuerySubscriptionOptions,
   )
 
   const { account: txAccount } = useAccountQuery(transactionInfo?.fromAccountId)
@@ -186,15 +185,15 @@ export const usePendingTransactions = () => {
   const {
     data: gasEstimates,
     isLoading: isLoadingGasEstimates,
-    isError: hasEvmFeeEstimatesError
+    isError: hasEvmFeeEstimatesError,
   } = useGetGasEstimation1559Query(
-    transactionsNetwork &&
-      transactionsNetwork.coin === BraveWallet.CoinType.ETH &&
-      transactionInfo &&
-      isEIP1559Transaction(transactionInfo)
+    transactionsNetwork
+      && transactionsNetwork.coin === BraveWallet.CoinType.ETH
+      && transactionInfo
+      && isEIP1559Transaction(transactionInfo)
       ? transactionsNetwork.chainId
       : skipToken,
-    defaultQuerySubscriptionOptions
+    defaultQuerySubscriptionOptions,
   )
 
   // tx detail & gas memos
@@ -204,17 +203,17 @@ export const usePendingTransactions = () => {
     }
 
     return txCoinType === BraveWallet.CoinType.SOL
-      ? solFeeEstimate ?? ''
+      ? (solFeeEstimate ?? '')
       : getTransactionGasFee(transactionInfo)
   }, [transactionInfo, txCoinType, solFeeEstimate])
 
   const transactionDetails = React.useMemo(() => {
     if (
-      !transactionInfo ||
-      !spotPriceRegistry ||
-      !txAccount ||
-      !transactionsNetwork ||
-      !accounts
+      !transactionInfo
+      || !spotPriceRegistry
+      || !txAccount
+      || !transactionsNetwork
+      || !accounts
     ) {
       return undefined
     }
@@ -226,7 +225,7 @@ export const usePendingTransactions = () => {
       spotPriceRegistry,
       tokensList: combinedTokensList,
       transactionAccount: txAccount,
-      transactionNetwork: transactionsNetwork
+      transactionNetwork: transactionsNetwork,
     })
   }, [
     transactionInfo,
@@ -235,7 +234,7 @@ export const usePendingTransactions = () => {
     txAccount,
     transactionsNetwork,
     gasFee,
-    combinedTokensList
+    combinedTokensList,
   ])
 
   // token approval queries
@@ -245,10 +244,10 @@ export const usePendingTransactions = () => {
           contractAddress: transactionDetails.recipient,
           ownerAddress: txAccount.address,
           spenderAddress: transactionDetails.approvalTarget,
-          chainId: transactionDetails.chainId
+          chainId: transactionDetails.chainId,
         }
       : skipToken,
-    defaultQuerySubscriptionOptions
+    defaultQuerySubscriptionOptions,
   )
 
   // balance queries
@@ -263,10 +262,10 @@ export const usePendingTransactions = () => {
             isErc721: false,
             isNft: false,
             tokenId: '',
-            isShielded: transactionDetails?.token?.isShielded || false
-          }
+            isShielded: transactionDetails?.token?.isShielded || false,
+          },
         }
-      : skipToken
+      : skipToken,
   )
 
   const { data: transferTokenBalance } = useGetAccountTokenCurrentBalanceQuery(
@@ -280,10 +279,10 @@ export const usePendingTransactions = () => {
             isErc721: transactionDetails.token.isErc721,
             isNft: transactionDetails.token.isNft,
             tokenId: transactionDetails.token.tokenId,
-            isShielded: transactionDetails.token.isShielded
-          }
+            isShielded: transactionDetails.token.isShielded,
+          },
         }
-      : skipToken
+      : skipToken,
   )
 
   const { sellToken, sellAmountWei } = useSwapTransactionParser(transactionInfo)
@@ -299,10 +298,10 @@ export const usePendingTransactions = () => {
             isErc721: sellToken.isErc721,
             isNft: sellToken.isNft,
             tokenId: sellToken.tokenId,
-            isShielded: sellToken.isShielded
-          }
+            isShielded: sellToken.isShielded,
+          },
         }
-      : skipToken
+      : skipToken,
   )
 
   const insufficientFundsError = React.useMemo(() => {
@@ -314,7 +313,7 @@ export const usePendingTransactions = () => {
           sellAmountWei,
           sellTokenBalance: sellTokenBalance || '',
           tx: transactionInfo,
-          txAccount
+          txAccount,
         })
       : false
   }, [
@@ -324,13 +323,13 @@ export const usePendingTransactions = () => {
     sellAmountWei,
     transactionInfo,
     txAccount,
-    transferTokenBalance
+    transferTokenBalance,
   ])
 
   const insufficientFundsForGasError = React.useMemo(() => {
     return accountHasInsufficientFundsForGas({
       accountNativeBalance: nativeBalance || '',
-      gasFee
+      gasFee,
     })
   }, [nativeBalance, gasFee])
 
@@ -339,11 +338,11 @@ export const usePendingTransactions = () => {
       suggestedMaxPriorityFeeChoices: [
         gasEstimates?.slowMaxPriorityFeePerGas || '0',
         gasEstimates?.avgMaxPriorityFeePerGas || '0',
-        gasEstimates?.fastMaxPriorityFeePerGas || '0'
+        gasEstimates?.fastMaxPriorityFeePerGas || '0',
       ],
-      baseFeePerGas: gasEstimates?.baseFeePerGas || '0'
+      baseFeePerGas: gasEstimates?.baseFeePerGas || '0',
     }),
-    [gasEstimates]
+    [gasEstimates],
   )
 
   const transactionQueueNumber =
@@ -353,15 +352,15 @@ export const usePendingTransactions = () => {
   const isERC20Approve =
     transactionInfo?.txType === BraveWallet.TransactionType.ERC20Approve
   const isERC721SafeTransferFrom =
-    transactionInfo?.txType ===
-    BraveWallet.TransactionType.ERC721SafeTransferFrom
+    transactionInfo?.txType
+    === BraveWallet.TransactionType.ERC721SafeTransferFrom
   const isERC721TransferFrom =
     transactionInfo?.txType === BraveWallet.TransactionType.ERC721TransferFrom
 
   const isSolanaDappTransaction = transactionInfo?.txType
     ? [
         BraveWallet.TransactionType.SolanaDappSignAndSendTransaction,
-        BraveWallet.TransactionType.SolanaDappSignTransaction
+        BraveWallet.TransactionType.SolanaDappSignTransaction,
       ].includes(transactionInfo.txType)
     : false
 
@@ -377,28 +376,28 @@ export const usePendingTransactions = () => {
               spenderAddress: transactionDetails.approvalTarget || '',
               allowance: new Amount(allowance)
                 .multiplyByDecimals(transactionDetails.decimals)
-                .toHex()
-            })
+                .toHex(),
+            }),
         )
       }
     },
-    [transactionInfo, transactionDetails, dispatch]
+    [transactionInfo, transactionDetails, dispatch],
   )
 
   const updateUnapprovedTransactionNonce = React.useCallback(
     (args: UpdateUnapprovedTransactionNonceType) => {
       dispatch(
-        walletApi.endpoints.updateUnapprovedTransactionNonce.initiate(args)
+        walletApi.endpoints.updateUnapprovedTransactionNonce.initiate(args),
       )
     },
-    [dispatch]
+    [dispatch],
   )
 
   const queueNextTransaction = React.useCallback(() => {
     // if id hasn't been set, start at beginning of tx list
     const currentIndex = selectedPendingTransactionId
       ? pendingTransactions.findIndex(
-          (tx) => tx.id === selectedPendingTransactionId
+          (tx) => tx.id === selectedPendingTransactionId,
         )
       : 0
 
@@ -417,8 +416,8 @@ export const usePendingTransactions = () => {
       pendingTransactions.map((tx) => ({
         id: tx.id,
         chainId: tx.chainId,
-        coinType: getCoinFromTxDataUnion(tx.txDataUnion)
-      }))
+        coinType: getCoinFromTxDataUnion(tx.txDataUnion),
+      })),
     ).unwrap()
   }, [pendingTransactions, rejectTransactions])
 
@@ -426,11 +425,11 @@ export const usePendingTransactions = () => {
     (payload: UpdateUnapprovedTransactionGasFieldsType) => {
       dispatch(
         walletApi.endpoints.updateUnapprovedTransactionGasFields.initiate(
-          payload
-        )
+          payload,
+        ),
       )
     },
-    [dispatch]
+    [dispatch],
   )
 
   const onReject = React.useCallback(() => {
@@ -442,8 +441,8 @@ export const usePendingTransactions = () => {
       {
         chainId: transactionInfo.chainId,
         coinType: getCoinFromTxDataUnion(transactionInfo.txDataUnion),
-        id: transactionInfo.id
-      }
+        id: transactionInfo.id,
+      },
     ])
   }, [transactionInfo, rejectTransactions])
 
@@ -459,8 +458,8 @@ export const usePendingTransactions = () => {
           fromAccountId: transactionInfo.fromAccountId,
           id: transactionInfo.id,
           txDataUnion: transactionInfo.txDataUnion,
-          txType: transactionInfo.txType
-        })
+          txType: transactionInfo.txType,
+        }),
       )
       return
     }
@@ -470,17 +469,17 @@ export const usePendingTransactions = () => {
         chainId: transactionInfo.chainId,
         id: transactionInfo.id,
         coinType: getCoinFromTxDataUnion(transactionInfo.txDataUnion),
-        txType: transactionInfo.txType
+        txType: transactionInfo.txType,
       }).unwrap()
       if (!result.success) {
         dispatch(
           UIActions.setTransactionProviderError({
             providerError: {
               code: result.errorUnion,
-              message: result.errorMessage
+              message: result.errorMessage,
             },
-            transactionId: transactionInfo.id
-          })
+            transactionId: transactionInfo.id,
+          }),
         )
       }
     } catch (error) {
@@ -489,58 +488,57 @@ export const usePendingTransactions = () => {
           providerError: {
             code: {
               ...emptyProviderErrorCodeUnion,
-              providerError: BraveWallet.ProviderError.kUnknown
+              providerError: BraveWallet.ProviderError.kUnknown,
             },
-            message: error.toString()
+            message: error.toString(),
           },
-          transactionId: transactionInfo.id
-        })
+          transactionId: transactionInfo.id,
+        }),
       )
     } finally {
       dispatch(
         PanelActions.setSelectedTransactionId({
           chainId: transactionInfo.chainId,
           coin: getCoinFromTxDataUnion(transactionInfo.txDataUnion),
-          id: transactionInfo.id
-        })
+          id: transactionInfo.id,
+        }),
       )
       dispatch(PanelActions.navigateTo('transactionStatus'))
     }
   }, [approveTransaction, dispatch, transactionInfo])
 
   const {
-    data: getZCashTransactionTypeResult = { txType: null, error: null }
+    data: getZCashTransactionTypeResult = { txType: null, error: null },
   } = useGetZCashTransactionTypeQuery(
-    transactionsNetwork?.coin === BraveWallet.CoinType.ZEC &&
-      txToken &&
-      txAccount &&
-      transactionDetails?.recipient
+    transactionsNetwork?.coin === BraveWallet.CoinType.ZEC
+      && txToken
+      && txAccount
+      && transactionDetails?.recipient
       ? {
+          chainId: transactionsNetwork.chainId,
           accountId: txAccount.accountId,
-          testnet: transactionsNetwork.chainId === BraveWallet.Z_CASH_TESTNET,
-          use_shielded_pool: txToken.isShielded,
-          address: transactionDetails.recipient
+          useShieldedPool: txToken.isShielded,
+          address: transactionDetails.recipient,
         }
-      : skipToken
+      : skipToken,
   )
 
   // memos
   const fromOrb = useAccountOrb(txAccount)
   const toOrb = useAddressOrb(transactionDetails?.recipient, { scale: 10 })
   const isShieldingFunds =
-    getZCashTransactionTypeResult.txType ===
-    BraveWallet.ZCashTxType.kShielding
+    getZCashTransactionTypeResult.txType === BraveWallet.ZCashTxType.kShielding
 
   const transactionTitle = React.useMemo(
     (): string =>
       isShieldingFunds
         ? getLocale('braveWalletShielding')
         : isSolanaDappTransaction
-        ? getLocale('braveWalletApproveTransaction')
-        : transactionDetails?.isSwap
-        ? getLocale('braveWalletSwap')
-        : getLocale('braveWalletSend'),
-    [isShieldingFunds, isSolanaDappTransaction, transactionDetails?.isSwap]
+          ? getLocale('braveWalletApproveTransaction')
+          : transactionDetails?.isSwap
+            ? getLocale('braveWalletSwap')
+            : getLocale('braveWalletSend'),
+    [isShieldingFunds, isSolanaDappTransaction, transactionDetails?.isSwap],
   )
 
   const isLoadingGasFee = React.useMemo(() => {
@@ -548,10 +546,11 @@ export const usePendingTransactions = () => {
       return false
     }
 
-    // BTC and ZEC provide fee by txDataUnion
+    // BTC, ZEC and ADA provide fee by txDataUnion
     if (
-      txCoinType === BraveWallet.CoinType.BTC ||
-      txCoinType === BraveWallet.CoinType.ZEC
+      txCoinType === BraveWallet.CoinType.BTC
+      || txCoinType === BraveWallet.CoinType.ZEC
+      || txCoinType === BraveWallet.CoinType.ADA
     ) {
       return false
     }
@@ -593,11 +592,11 @@ export const usePendingTransactions = () => {
     }
 
     return Boolean(
-      transactionDetails?.sameAddressError ||
-        transactionDetails?.contractAddressError ||
-        insufficientFundsForGasError ||
-        insufficientFundsError ||
-        transactionDetails?.missingGasLimitError
+      transactionDetails?.sameAddressError
+        || transactionDetails?.contractAddressError
+        || insufficientFundsForGasError
+        || insufficientFundsError
+        || transactionDetails?.missingGasLimitError,
     )
   }, [
     transactionDetails,
@@ -605,7 +604,7 @@ export const usePendingTransactions = () => {
     isLoadingGasFee,
     insufficientFundsError,
     insufficientFundsForGasError,
-    isAccountSyncing
+    isAccountSyncing,
   ])
 
   const { currentTokenAllowance, isCurrentAllowanceUnlimited } =
@@ -613,7 +612,7 @@ export const usePendingTransactions = () => {
       if (!transactionDetails || erc20AllowanceResult === undefined) {
         return {
           currentTokenAllowance: undefined,
-          isCurrentAllowanceUnlimited: false
+          isCurrentAllowanceUnlimited: false,
         }
       }
 
@@ -625,22 +624,22 @@ export const usePendingTransactions = () => {
 
       return {
         currentTokenAllowance,
-        isCurrentAllowanceUnlimited
+        isCurrentAllowanceUnlimited,
       }
     }, [erc20AllowanceResult, transactionDetails])
 
   const { tokenInfo: erc20ApproveTokenInfo } = useGetTokenInfo(
-    transactionDetails?.recipient &&
-      txCoinType &&
-      transactionInfo?.txType === BraveWallet.TransactionType.ERC20Approve
+    transactionDetails?.recipient
+      && txCoinType
+      && transactionInfo?.txType === BraveWallet.TransactionType.ERC20Approve
       ? {
           contractAddress: transactionDetails.recipient,
           network: {
             chainId: transactionDetails.chainId,
-            coin: txCoinType
-          }
+            coin: txCoinType,
+          },
         }
-      : skipToken
+      : skipToken,
   )
 
   return {
@@ -683,7 +682,8 @@ export const usePendingTransactions = () => {
     insufficientFundsForGasError,
     isZCashTransaction: isZCashTransaction(transactionInfo),
     isBitcoinTransaction: isBitcoinTransaction(transactionInfo),
+    isCardanoTransaction: isCardanoTransaction(transactionInfo),
     isAccountSyncing,
-    isShieldingFunds
+    isShieldingFunds,
   }
 }

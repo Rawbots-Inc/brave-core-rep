@@ -3,10 +3,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/brave_ads/core/public/serving/targeting/condition_matcher/condition_matcher_util.h"
+#include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/condition_matcher_util.h"
 
 #include "base/time/time.h"
-#include "brave/components/brave_ads/core/internal/ads_client/ads_client_pref_provider.h"
+#include "brave/components/brave_ads/core/internal/ads_client/ads_client_util.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/common/test/time_test_util.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
@@ -17,20 +17,18 @@ namespace brave_ads {
 
 class BraveAdsConditionMatcherUtilTest : public test::TestBase {
  public:
-  BraveAdsConditionMatcherUtilTest() : pref_provider_() {
+  BraveAdsConditionMatcherUtilTest() {
     // We need to set the clock to 00:00:00 UTC here to ensure the pref registry
     // in `common/test/pref_registry_test_util.cc` is initialized correctly with
     // deterministic default values.
     AdvanceClockTo(test::TimeFromUTCString("14 October 2024 00:00:00"));
   }
-
- protected:
-  const AdsClientPrefProvider pref_provider_;
 };
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchEmptyConditions) {
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, /*condition_matchers=*/{}));
+  EXPECT_TRUE(MatchConditions(GetAdsClient().GetVirtualPrefs(),
+                              /*condition_matchers=*/{}));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchMultipleConditions) {
@@ -40,7 +38,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, MatchMultipleConditions) {
       {prefs::kOptedInToNotificationAds, "1"}};
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchEpochEqualOperatorCondition) {
@@ -51,7 +50,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, MatchEpochEqualOperatorCondition) {
   AdvanceClockBy(base::Days(7));
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -61,7 +61,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
       {"unknown_pref_path", "[T=]:0"}};
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -71,7 +72,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
       {"unknown_pref_path", "[T=]:1"}};
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -83,7 +85,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
   AdvanceClockBy(base::Days(7) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchNumericalEqualOperatorCondition) {
@@ -93,7 +96,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, MatchNumericalEqualOperatorCondition) {
        "[R=]:-1"}};  // Value is "-1" in the pref.
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -103,7 +107,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
       {"unknown_pref_path", "[R=]:0"}};
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -113,7 +118,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
       {"unknown_pref_path", "[R=]:1"}};
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -124,7 +130,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
        "[R=]:1"}};  // Value is "-1" in the pref.
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchPatternCondition) {
@@ -134,7 +141,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, MatchPatternCondition) {
        "?UT*"}};  // Value is "AUTO" in the pref.
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, DoNotMatchPatternCondition) {
@@ -144,7 +152,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, DoNotMatchPatternCondition) {
        "?FOO*"}};  // Value is "AUTO" in the pref.
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, MatchRegexCondition) {
@@ -154,7 +163,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, MatchRegexCondition) {
        "^AU"}};  // Value is "AUTO" in the pref.
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest, DoNotMatchRegexCondition) {
@@ -164,7 +174,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest, DoNotMatchRegexCondition) {
        "^FOO"}};  // Value is "AUTO" in the pref.
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -173,7 +184,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
   const ConditionMatcherMap condition_matchers = {{"foo.bar", "baz"}};
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -182,7 +194,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
   const ConditionMatcherMap condition_matchers = {{"[!]:foo.bar", "baz"}};
 
   // Act & Assert
-  EXPECT_TRUE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_TRUE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 TEST_F(BraveAdsConditionMatcherUtilTest,
@@ -195,7 +208,8 @@ TEST_F(BraveAdsConditionMatcherUtilTest,
   AdvanceClockBy(base::Days(5));
 
   // Act & Assert
-  EXPECT_FALSE(MatchConditions(&pref_provider_, condition_matchers));
+  EXPECT_FALSE(
+      MatchConditions(GetAdsClient().GetVirtualPrefs(), condition_matchers));
 }
 
 }  // namespace brave_ads

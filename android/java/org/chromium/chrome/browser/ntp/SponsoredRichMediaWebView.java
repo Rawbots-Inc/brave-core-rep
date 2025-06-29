@@ -26,14 +26,17 @@ import org.chromium.ui.base.WindowAndroid;
 public class SponsoredRichMediaWebView {
     private static final String NEW_TAB_TAKEOVER_URL = "chrome://new-tab-takeover";
 
-    private WebContents mWebContents;
-    private ThinWebView mWebView;
+    private final WebContents mWebContents;
+    private final ThinWebView mWebView;
 
     public SponsoredRichMediaWebView(
             Activity activity, WindowAndroid windowAndroid, Profile profile) {
         mWebContents =
                 WebContentsFactory.createWebContentsWithWarmRenderer(
-                        profile, /* initiallyHidden= */ false, /* targetNetwork= */ NetId.INVALID);
+                        profile,
+                        /* initiallyHidden= */ false,
+                        /* usesPlatformAutofill= */ true,
+                        /* targetNetwork= */ NetId.INVALID);
 
         final ContentView webContentView = ContentView.createContentView(activity, mWebContents);
         mWebContents.setDelegates(

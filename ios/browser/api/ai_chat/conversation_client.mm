@@ -35,7 +35,8 @@ void ConversationClient::ChangeConversation(ConversationHandler* conversation) {
 
 // MARK: - mojom::ConversationUI
 
-void ConversationClient::OnConversationHistoryUpdate() {
+void ConversationClient::OnConversationHistoryUpdate(
+    mojom::ConversationTurnPtr entry) {
   [bridge_ onHistoryUpdate];
 }
 
@@ -69,11 +70,16 @@ void ConversationClient::OnSuggestedQuestionsChanged(
 }
 
 void ConversationClient::OnAssociatedContentInfoChanged(
-    const mojom::AssociatedContentPtr site_info,
+    std::vector<mojom::AssociatedContentPtr> site_info,
     bool should_send_content) {
-  [bridge_ onPageHasContent:[[AiChatAssociatedContent alloc]
-                                initWithAssociatedContentPtr:site_info->Clone()]
-          shouldSendContent:should_send_content];
+  NSMutableArray* infos =
+      [[NSMutableArray alloc] initWithCapacity:site_info.size()];
+
+  for (auto& info : site_info) {
+    [infos addObject:[[AiChatAssociatedContent alloc]
+                         initWithAssociatedContentPtr:info->Clone()]];
+  }
+  [bridge_ onPageHasContent:[infos copy] shouldSendContent:should_send_content];
 }
 
 void ConversationClient::OnConversationDeleted() {

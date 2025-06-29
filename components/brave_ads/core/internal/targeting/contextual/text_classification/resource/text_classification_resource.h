@@ -53,7 +53,6 @@ class TextClassificationResource final : public AdsClientNotifierObserver {
   void Unload();
 
   // AdsClientNotifierObserver:
-  void OnNotifyLocaleDidChange(const std::string& locale) override;
   void OnNotifyPrefDidChange(const std::string& path) override;
   void OnNotifyResourceComponentDidChange(const std::string& manifest_version,
                                           const std::string& id) override;
@@ -61,7 +60,7 @@ class TextClassificationResource final : public AdsClientNotifierObserver {
 
   std::optional<std::string> manifest_version_;
 
-  std::optional<const base::SequenceBound<ml::pipeline::TextProcessing>>
+  std::optional<base::SequenceBound<ml::pipeline::TextProcessing>>
       text_processing_pipeline_;
 
   base::WeakPtrFactory<TextClassificationResource> weak_factory_{this};

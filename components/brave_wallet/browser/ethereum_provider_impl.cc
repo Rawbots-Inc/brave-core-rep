@@ -12,10 +12,12 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/containers/contains.h"
 #include "base/containers/to_vector.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
+#include "base/notreached.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
@@ -294,9 +296,8 @@ void EthereumProviderImpl::SendOrSignTransactionInternal(
   if (!account_id) {
     return;
   }
-  const bool is_eip_1559_network = brave_wallet_service_->network_manager()
-                                       ->IsEip1559Chain(chain->chain_id)
-                                       .value_or(false);
+  const bool is_eip_1559_network =
+      brave_wallet_service_->network_manager()->IsEip1559Chain(chain->chain_id);
   if (is_eip_1559_network && ShouldCreate1559Tx(*tx_data_1559)) {
     // Set chain_id to current chain_id.
     tx_data_1559->chain_id = chain->chain_id;
@@ -463,6 +464,8 @@ void EthereumProviderImpl::RecoverAddress(const std::string& message,
                                           RequestCallback callback,
                                           base::Value id) {
   bool reject = false;
+  // TODO(apaymyshev): MM supports larger v. Not only one byte as we do.
+  // https://github.com/ethereumjs/ethereumjs-util/blob/f51bfcab9e5505dfed4819ef1336f9fc00a12c3d/src/signature.ts#L110
   // 65 * 2 hex chars per byte + 2 chars for  0x
   if (signature.length() != 132) {
     return RejectInvalidParams(std::move(id), std::move(callback));

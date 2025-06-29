@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/path_service.h"
 #include "base/task/thread_pool.h"
@@ -60,7 +61,6 @@
 #include "net/base/features.h"
 #include "services/network/public/cpp/resource_request.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
-#include "url/gurl.h"
 
 #if BUILDFLAG(ENABLE_TOR)
 #include "brave/components/tor/brave_tor_client_updater.h"
@@ -94,6 +94,10 @@
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
 #include "brave/browser/day_zero_browser_ui_expt/day_zero_browser_ui_expt_manager.h"
+#endif
+
+#if BUILDFLAG(IS_WIN)
+#include "brave/components/windows_recall/windows_recall.h"
 #endif
 
 using brave_component_updater::BraveComponent;
@@ -171,8 +175,12 @@ void BraveBrowserProcessImpl::Init() {
     local_state()->ClearPref(prefs::kSuppressUnsupportedOSWarning);
   }
 
-  brave::PrepareSearchSuggestionsConfig(local_state(),
+  brave::PrepareSearchSuggestionsConfig(*local_state(),
                                         first_run::IsChromeFirstRun());
+#endif
+#if BUILDFLAG(IS_WIN)
+  // Initializes the internal static data on start up.
+  windows_recall::IsWindowsRecallDisabled(local_state());
 #endif
 }
 
@@ -191,6 +199,9 @@ void BraveBrowserProcessImpl::StartTearDown() {
   brave_stats_helper_.reset();
   brave_stats_updater_.reset();
   brave_referrals_service_.reset();
+  if (ntp_background_images_service_) {
+    ntp_background_images_service_->StartTearDown();
+  }
 #if BUILDFLAG(BRAVE_P3A_ENABLED)
   if (p3a_service_) {
     p3a_service_->StartTeardown();
@@ -279,8 +290,8 @@ NTPBackgroundImagesService*
 BraveBrowserProcessImpl::ntp_background_images_service() {
   if (!ntp_background_images_service_) {
     ntp_background_images_service_ =
-        std::make_unique<NTPBackgroundImagesService>(component_updater(),
-                                                     local_state());
+        std::make_unique<NTPBackgroundImagesService>(
+            variations_service(), component_updater(), local_state());
     ntp_background_images_service_->Init();
   }
 

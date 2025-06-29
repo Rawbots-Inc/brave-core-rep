@@ -3,12 +3,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+import '../../common/strings'
+
 import * as React from 'react'
 import { useArgs } from '@storybook/preview-api'
 import { Meta, StoryObj } from '@storybook/react'
 import '@brave/leo/tokens/css/variables.css'
 import '$web-components/app.global.scss'
 import { getKeysForMojomEnum } from '$web-common/mojomUtils'
+import { Url } from 'gen/url/mojom/url.mojom.m.js'
 import { InferControlsFromArgs } from '../../../../../.storybook/utils'
 import * as Mojom from '../../common/mojom'
 import { ActiveChatContext, SelectedChatDetails } from '../state/active_chat_context'
@@ -18,7 +21,6 @@ import FeedbackForm from '../components/feedback_form'
 import FullPage from '../components/full_page'
 import Loading from '../components/loading'
 import Main from '../components/main'
-import './story_utils/locale'
 import ACTIONS_LIST from './story_utils/actions'
 import styles from './style.module.scss'
 import StorybookConversationEntries from './story_utils/ConversationEntries'
@@ -35,12 +37,13 @@ import Attachments from '../components/attachments'
 
 const eventTemplate: Mojom.ConversationEntryEvent = {
   completionEvent: undefined,
-  pageContentRefineEvent: undefined,
   searchQueriesEvent: undefined,
   searchStatusEvent: undefined,
   selectedLanguageEvent: undefined,
   conversationTitleEvent: undefined,
-  sourcesEvent: undefined
+  sourcesEvent: undefined,
+  contentReceiptEvent: undefined,
+  toolUseEvent: undefined,
 }
 
 function getCompletionEvent(text: string): Mojom.ConversationEntryEvent {
@@ -71,37 +74,39 @@ function getWebSourcesEvent(sources: Mojom.WebSource[]): Mojom.ConversationEntry
   }
 }
 
-function getPageContentRefineEvent(): Mojom.ConversationEntryEvent {
-  return {
-    ...eventTemplate,
-    pageContentRefineEvent: { isRefining: true }
-  }
-}
-
 const CONVERSATIONS: Mojom.Conversation[] = [
   {
     title: 'Star Trek Poem',
     uuid: '1',
     hasContent: true,
     updatedTime: { internalValue: BigInt('13278618001000000') },
-    associatedContent: undefined,
+    associatedContent: [],
     modelKey: undefined,
+    totalTokens: BigInt(0),
+    trimmedTokens: BigInt(0),
+    temporary: false
   },
   {
     title: 'Sorting C++ vectors is hard especially when you have to have a very long title for your conversation to test text clipping or wrapping',
     uuid: '2',
     hasContent: true,
     updatedTime: { internalValue: BigInt('13278618001000001') },
-    associatedContent: undefined,
+    associatedContent: [],
     modelKey: undefined,
+    totalTokens: BigInt(0),
+    trimmedTokens: BigInt(0),
+    temporary: false
   },
   {
     title: '',
     uuid: '3',
     hasContent: true,
     updatedTime: { internalValue: BigInt('13278618001000002') },
-    associatedContent: undefined,
+    associatedContent: [],
     modelKey: undefined,
+    totalTokens: BigInt(0),
+    trimmedTokens: BigInt(0),
+    temporary: false
   }
 ]
 
@@ -116,8 +121,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -129,8 +135,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getCompletionEvent('The ways that animals move are just about as myriad as the animal kingdom itself. They walk, run, swim, crawl, fly and slither — and within each of those categories lies a tremendous number of subtly different movement types. A seagull and a *hummingbird* both have wings, but otherwise their flight techniques and abilities are poles apart. Orcas and **piranhas** both have tails, but they accomplish very different types of swimming. Even a human walking or running is moving their body in fundamentally different ways.')],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -142,8 +149,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -154,22 +162,10 @@ const HISTORY: Mojom.ConversationTurn[] = [
     selectedText: undefined,
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
-    events: [getCompletionEvent(`## How We Created an Accessible, Scalable Color Palette\n\nDuring the latter part of 2021, I reflected on the challenges we were facing at Modern Health. One recurring problem that stood out was our struggle to create new products with an unstructured color palette. This resulted in poor [communication](https://www.google.com) between designers and developers, an inconsistent product brand, and increasing accessibility problems.\n\n1. Inclusivity: our palette provides easy ways to ensure our product uses accessible contrasts.\n 2. Efficiency: our palette is diverse enough for our current and future product design, yet values are still predictable and constrained.\n 3. Reusability: our palette is on-brand but versatile. There are very few one-offs that fall outside the palette.\n\n This article shares the process I followed to apply these principles to develop a more adaptable color palette that prioritizes accessibility and is built to scale into all of our future product **design** needs.`)],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
-  },
-  {
-    uuid: undefined,
-    text: '',
-    characterType: Mojom.CharacterType.ASSISTANT,
-    actionType: Mojom.ActionType.UNSPECIFIED,
-    prompt: undefined,
-    selectedText: undefined,
-    edits: [],
-    createdTime: { internalValue: BigInt('13278618001000000') },
-    events: [getPageContentRefineEvent()],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    events: [getCompletionEvent(`# Title 1\n ## Title 2\n ## **Title 2** using bold that doesn't look different\n### Title 3\n#### Title 4\n \nDuring the latter part of 2021, I reflected on the challenges we were facing at Modern Health. One recurring problem that stood out was our struggle to create new products with an unstructured color palette. This resulted in poor [communication](https://www.google.com) between designers and developers, an inconsistent product brand, and increasing accessibility problems.\n\n1. Inclusivity: our palette provides easy ways to ensure our product uses accessible contrasts.\n 2. Efficiency: our palette is diverse enough for our current and future product design, yet values are still predictable and constrained.\n 3. Reusability: our palette is on-brand but versatile. There are very few one-offs that fall outside the palette.\n\n This article shares the process I followed to apply these principles to develop a more adaptable color palette that prioritizes accessibility and is built to scale into all of our future product **design** needs.`)],
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -181,8 +177,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -194,8 +191,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getCompletionEvent('The partial sum formed by the first n + 1 terms of a Taylor series is a polynomial of degree n that is called the nth Taylor polynomial of the function. Taylor polynomials are approximations of a function, which become generally better as n increases.')],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -207,8 +205,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -220,8 +219,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getCompletionEvent("Hello! As a helpful and respectful AI assistant, I'd be happy to assist you with your question. However, I'm a text-based AI and cannot provide code in a specific programming language like C++. Instead, I can offer a brief explanation of how to write a \"hello world\" program in C++.\n\nTo write a \"hello world\" program in C++, you can use the following code:\n\n```c++\n#include <iostream>\n\nint main() {\n    std::cout << \"Hello, world!\" << std::endl;\n    return 0;\n}\n```\nThis code will print \"Hello, world!\" and uses `iostream` std library. If you have any further questions or need more information, please don't hesitate to ask!")],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -233,8 +233,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -246,8 +247,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getCompletionEvent('Pointer compression is a memory optimization technique where pointers are stored in a compressed format to save memory.')],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -259,8 +261,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -274,15 +277,16 @@ const HISTORY: Mojom.ConversationTurn[] = [
     events: [
       getSearchStatusEvent(),
       getSearchEvent(['pointer compression', 'c++ language specification']),
-      getCompletionEvent('Pointer compression is a memory optimization technique.'),
+      getCompletionEvent('[1]:https://www.example.com\n[2]:https://lttstore.com\n[3]:https://www.tesla.com/modely\n[Pointer compression](https://www.example.com) is a [memory](https://brave.com/wont-show-as-link) optimization technique.[1][3]'),
       getWebSourcesEvent([
         { url: { url: 'https://www.example.com' }, title: 'Pointer Compression', faviconUrl: { url: 'https://www.example.com/favicon.ico' } },
         { title: 'LTT Store', faviconUrl: { url: 'https://lttstore.com/favicon.ico' }, url: { url: 'https://lttstore.com' } },
         { title: 'Tesla Model Y', faviconUrl: { url: 'https://www.tesla.com/favicon.ico' }, url: { url: 'https://www.tesla.com/modely' } }
       ])
     ],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -301,13 +305,15 @@ const HISTORY: Mojom.ConversationTurn[] = [
       createdTime: { internalValue: BigInt('13278618001000000') },
       edits: [],
       events: [],
-      uploadedImages : [],
-      fromBraveSearchSERP: false
+      uploadedFiles : [],
+      fromBraveSearchSERP: false,
+      modelKey: '1'
     }],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -319,8 +325,9 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getSearchStatusEvent(), getSearchEvent(['LTT store backpack dimensions', 'Tesla Model Y frunk dimensions'])],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -332,11 +339,14 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [],
-    uploadedImages : [
+    uploadedFiles : [
       { filename: 'lion.png', filesize: 128,
-        imageData: Array.from(new Uint8Array(128)) }
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kImage
+      }
     ],
-    fromBraveSearchSERP: false
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   },
   {
     uuid: undefined,
@@ -348,8 +358,93 @@ const HISTORY: Mojom.ConversationTurn[] = [
     edits: [],
     createdTime: { internalValue: BigInt('13278618001000000') },
     events: [getCompletionEvent('It is a lion!')],
-    uploadedImages : [],
-    fromBraveSearchSERP: false
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
+  },
+  {
+    uuid: undefined,
+    text: 'Summarize this page',
+    characterType: Mojom.CharacterType.HUMAN,
+    actionType: Mojom.ActionType.QUERY,
+    prompt: undefined,
+    selectedText: undefined,
+    edits: [],
+    createdTime: { internalValue: BigInt('13278618001000000') },
+    events: [],
+    uploadedFiles : [
+      { filename: 'full_screenshot_0.png', filesize: 128,
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kScreenshot
+      },
+      { filename: 'full_screenshot_1.png', filesize: 128,
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kScreenshot
+      },
+    ],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
+  },
+  {
+    uuid: undefined,
+    text: '',
+    characterType: Mojom.CharacterType.ASSISTANT,
+    actionType: Mojom.ActionType.UNSPECIFIED,
+    prompt: undefined,
+    selectedText: undefined,
+    edits: [],
+    createdTime: { internalValue: BigInt('13278618001000000') },
+    events: [
+      getCompletionEvent(
+        'This website compares differences between Juniper Model Y and legacy one.'
+      )],
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
+  },
+  {
+    uuid: undefined,
+    text: 'Summarize these',
+    characterType: Mojom.CharacterType.HUMAN,
+    actionType: Mojom.ActionType.QUERY,
+    prompt: undefined,
+    selectedText: undefined,
+    edits: [],
+    createdTime: { internalValue: BigInt('13278618001000000') },
+    events: [],
+    uploadedFiles : [
+      { filename: 'full_screenshot_0.png', filesize: 128,
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kScreenshot
+      },
+      { filename: 'full_screenshot_1.png', filesize: 128,
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kScreenshot
+      },
+      { filename: 'lion.png', filesize: 128,
+        data: Array.from(new Uint8Array(128)),
+        type: Mojom.UploadedFileType.kImage
+      }
+    ],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
+  },
+  {
+    uuid: undefined,
+    text: '',
+    characterType: Mojom.CharacterType.ASSISTANT,
+    actionType: Mojom.ActionType.UNSPECIFIED,
+    prompt: undefined,
+    selectedText: undefined,
+    edits: [],
+    createdTime: { internalValue: BigInt('13278618001000000') },
+    events: [
+      getCompletionEvent(
+        'According to screenshots, this website compares differences between Juniper Model Y and legacy one. And a lion image.'
+      )],
+    uploadedFiles : [],
+    fromBraveSearchSERP: false,
+    modelKey: '1'
   }
 ]
 
@@ -358,11 +453,11 @@ const MODELS: Mojom.Model[] = [
     key: '1',
     displayName: 'Model One',
     visionSupport: false,
+    supportsTools: false,
     options: {
       leoModelOptions: {
         name: 'model-one',
         displayMaker: 'Company',
-        engineType: Mojom.ModelEngineType.LLAMA_REMOTE,
         category: Mojom.ModelCategory.CHAT,
         access: Mojom.ModelAccess.BASIC,
         maxAssociatedContentLength: 10000,
@@ -375,11 +470,11 @@ const MODELS: Mojom.Model[] = [
     key: '2',
     displayName: 'Model Two',
     visionSupport: true,
+    supportsTools: false,
     options: {
       leoModelOptions: {
         name: 'model-two-premium',
         displayMaker: 'Company',
-        engineType: Mojom.ModelEngineType.LLAMA_REMOTE,
         category: Mojom.ModelCategory.CHAT,
         access: Mojom.ModelAccess.PREMIUM,
         maxAssociatedContentLength: 10000,
@@ -392,11 +487,11 @@ const MODELS: Mojom.Model[] = [
     key: '3',
     displayName: 'Model Three',
     visionSupport: false,
+    supportsTools: false,
     options: {
       leoModelOptions: {
         name: 'model-three-freemium',
         displayMaker: 'Company',
-        engineType: Mojom.ModelEngineType.LLAMA_REMOTE,
         category: Mojom.ModelCategory.CHAT,
         access: Mojom.ModelAccess.BASIC_AND_PREMIUM,
         maxAssociatedContentLength: 10000,
@@ -409,6 +504,7 @@ const MODELS: Mojom.Model[] = [
     key: '4',
     displayName: 'Microsoft Phi-3',
     visionSupport: false,
+    supportsTools: false,
     options: {
       leoModelOptions: undefined,
       customModelOptions: {
@@ -442,8 +538,7 @@ const ASSOCIATED_CONTENT: Mojom.AssociatedContent = {
   contentType: Mojom.ContentType.PageContent,
   title: 'Tiny Tweaks to Neurons Can Rewire Animal Motion',
   contentUsedPercentage: 40,
-  url: { url: 'https://www.example.com/a' },
-  isContentRefined: false,
+  url: { url: 'https://www.example.com/areallylongurlthatwillbetruncatedintheinputbox' },
   contentId: 1,
 }
 
@@ -455,7 +550,7 @@ type CustomArgs = {
   hasConversation: boolean
   editingConversationId: string | null
   deletingConversationId: string | null
-  visibleConversationListCount: number
+  conversationListCount: number
   hasSuggestedQuestions: boolean
   hasAssociatedContent: boolean
   isFeedbackFormVisible: boolean
@@ -473,17 +568,21 @@ type CustomArgs = {
   isDefaultConversation: boolean
   shouldShowLongConversationInfo: boolean
   shouldShowLongPageWarning: boolean
-  shouldShowRefinedWarning: boolean
+  totalTokens: number
+  trimmedTokens: number
   isGenerating: boolean
   showAttachments: boolean
   isNewConversation: boolean
+  generatedUrlToBeOpened: Url | undefined
+  ratingTurnUuid: { isLiked: boolean; turnUuid: string } | undefined
+  isTemporaryChat: boolean
 }
 
 const args: CustomArgs = {
   initialized: true,
   inputText: `Write a Star Trek poem about Data's life on board the Enterprise`,
   hasConversation: true,
-  visibleConversationListCount: CONVERSATIONS.length,
+  conversationListCount: CONVERSATIONS.length,
   hasSuggestedQuestions: true,
   hasAssociatedContent: true,
   editingConversationId: null,
@@ -505,10 +604,14 @@ const args: CustomArgs = {
   isDefaultConversation: true,
   shouldShowLongConversationInfo: false,
   shouldShowLongPageWarning: false,
-  shouldShowRefinedWarning: false,
+  totalTokens: 0,
+  trimmedTokens: 0,
   isGenerating: false,
   showAttachments: true,
   isNewConversation: false,
+  generatedUrlToBeOpened: undefined,
+  ratingTurnUuid: undefined,
+  isTemporaryChat: false
 }
 
 const meta: Meta<CustomArgs> = {
@@ -530,11 +633,19 @@ const meta: Meta<CustomArgs> = {
       options: MODELS.map(model => model.displayName),
       control: { type: 'select' }
     },
-    visibleConversationListCount: {
+    conversationListCount: {
       control: { type: 'number' }
     },
     deletingConversationId: {
       options: CONVERSATIONS.map(conversation => conversation.uuid),
+      control: { type: 'select' }
+    },
+    generatedUrlToBeOpened: {
+      options: [{ url: 'https://www.example.com' }],
+      control: { type: 'select' }
+    },
+    ratingTurnUuid: {
+      options: [{ isLiked: true, turnUuid: 'turn-uuid' }],
       control: { type: 'select' }
     }
   },
@@ -578,20 +689,23 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
   }
 
   const [showSidebar, setShowSidebar] = React.useState(isSmall)
+  const [isToolsMenuOpen, setIsToolsMenuOpen] = React.useState(false)
 
-  let visibleConversations: typeof CONVERSATIONS = []
-  for (let i = 0; i < Math.floor(options.args.visibleConversationListCount / CONVERSATIONS.length); i++) {
-    visibleConversations = visibleConversations.concat(CONVERSATIONS)
+  let conversations: typeof CONVERSATIONS = []
+
+  if (CONVERSATIONS.length <= options.args.conversationListCount) {
+    conversations = conversations.concat(CONVERSATIONS)
+  } else {
+    const remainingConversationsCount = options.args.conversationListCount - conversations.length
+    conversations = conversations.concat(CONVERSATIONS.slice(0, remainingConversationsCount))
   }
-  const remainingConversationsCount = options.args.visibleConversationListCount % CONVERSATIONS.length
-  visibleConversations = visibleConversations.concat(CONVERSATIONS.slice(0, remainingConversationsCount))
 
   const aiChatContext: AIChatContext = {
     conversationEntriesComponent: StorybookConversationEntries,
     initialized: options.args.initialized,
     editingConversationId: options.args.editingConversationId,
     deletingConversationId: options.args.deletingConversationId,
-    visibleConversations,
+    conversations,
     isStoragePrefEnabled: options.args.isStoragePrefEnabled,
     hasAcceptedAgreement: options.args.hasAcceptedAgreement,
     isPremiumStatusFetching: false,
@@ -602,7 +716,7 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
     isMobile: options.args.isMobile,
     isHistoryFeatureEnabled: options.args.isHistoryEnabled,
     isStandalone: options.args.isStandalone,
-    allActions: ACTIONS_LIST,
+    actionList: ACTIONS_LIST,
     tabs: [{
       id: 1,
       contentId: 1,
@@ -624,6 +738,7 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
       url: { url: 'https://search.brave.com' },
       title: 'Brave Search',
     }],
+    getPluralString: () => Promise.resolve(''),
     goPremium: () => { },
     managePremium: () => { },
     handleAgreeClick: () => { },
@@ -654,7 +769,7 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
       ? 'new-conversation'
       : CONVERSATIONS[1].uuid,
     conversationHistory: options.args.hasConversation ? HISTORY : [],
-    associatedContentInfo: associatedContent,
+    associatedContentInfo: [associatedContent],
     allModels: MODELS,
     currentModel,
     suggestedQuestions,
@@ -668,14 +783,17 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
     shouldShowLongConversationInfo: options.args.shouldShowLongConversationInfo,
     shouldSendPageContents: !!associatedContent,
     inputText,
-    actionList: ACTIONS_LIST,
     selectedActionType: undefined,
-    isToolsMenuOpen: false,
+    isToolsMenuOpen,
     isCurrentModelLeo: true,
     isCharLimitApproaching: inputText.length > 64,
     isCharLimitExceeded: inputText.length > 70,
     inputTextCharCountDisplay: `${inputText.length} / 70`,
-    pendingMessageImages: null,
+    pendingMessageImages: [],
+    generatedUrlToBeOpened: options.args.generatedUrlToBeOpened,
+    ratingTurnUuid: options.args.ratingTurnUuid,
+    isUploadingFiles: false,
+    isTemporaryChat: options.args.isTemporaryChat,
     setInputText,
     setCurrentModel: () => { },
     switchToBasicModel,
@@ -688,24 +806,39 @@ function StoryContext(props: React.PropsWithChildren<{ args: CustomArgs, setArgs
     submitInputTextToAPI: () => { },
     resetSelectedActionType: () => { },
     handleActionTypeClick: () => { },
-    setIsToolsMenuOpen: () => { },
+    setIsToolsMenuOpen,
     handleFeedbackFormCancel: () => { },
-    handleFeedbackFormSubmit: () => { },
+    handleFeedbackFormSubmit: () => Promise.resolve(),
     setShowAttachments: (show: boolean) => setArgs({ showAttachments: show }),
     showAttachments: options.args.showAttachments,
     removeImage: () => {},
-    uploadImage: () => {}
+    uploadImage: (useMediaCapture: boolean) => {},
+    getScreenshots: () => {},
+    setGeneratedUrlToBeOpened:
+      (url?: Url) => setArgs({ generatedUrlToBeOpened: url }),
+    setIgnoreExternalLinkWarning: () => { },
+    handleCloseRateMessagePrivacyModal:
+      () => setArgs({ ratingTurnUuid: undefined }),
+    handleRateMessage: () => Promise.resolve(),
+    setTemporary: (temporary: boolean) => {
+      setArgs({ isTemporaryChat: temporary })
+    },
+    disassociateContent: () => {}
   }
 
   const conversationEntriesContext: UntrustedConversationContext = {
     conversationHistory: conversationContext.conversationHistory,
     isGenerating: conversationContext.isGenerating,
     isLeoModel: conversationContext.isCurrentModelLeo,
-    contentUsedPercentage: (options.args.shouldShowLongPageWarning || options.args.shouldShowRefinedWarning)
+    contentUsedPercentage: options.args.shouldShowLongPageWarning
       ? 48 : 100,
-    isContentRefined: options.args.shouldShowRefinedWarning,
+    totalTokens: BigInt(options.args.totalTokens),
+    trimmedTokens: BigInt(options.args.trimmedTokens),
     canSubmitUserEntries: !conversationContext.shouldDisableUserInput,
-    isMobile: aiChatContext.isMobile
+    isMobile: aiChatContext.isMobile,
+    allModels: MODELS,
+    currentModelKey: currentModel?.key ?? '',
+    associatedContent: [associatedContent],
   }
 
   return (

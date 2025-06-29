@@ -8,11 +8,12 @@ module.exports = {
   'extends': ['standard-with-typescript', 'prettier'],
   'ignorePatterns': [
     '.storybook/*',
-    'build/*',
     'browser/*',
     'ui/webui/resources/*',
     '*.js',
     '*.d.ts',
+    'tools/chromium_src/lit_mangler/*.ts',
+    '!build/**/*.js', // check brave/build/ js files
     '!components/playlist/resources/media_detector/*.js' /* allow js scripts which will be bundled into playlist */
   ],
   'env': {
@@ -68,6 +69,8 @@ module.exports = {
     ],
     'object-shorthand': 0,
     'n/no-callback-literal': 0,
+    'no-template-curly-in-string': 0,
+    '@typescript-eslint/array-type': 0,
     '@typescript-eslint/await-thenable': 0,
     '@typescript-eslint/consistent-generic-constructors': 0,
     '@typescript-eslint/ban-ts-comment': 0,
@@ -129,30 +132,6 @@ module.exports = {
     '@typescript-eslint/return-await': 0
   },
   'overrides': [
-    // opt-in directories for line length warnings
-    {
-      'files': [
-        'components/brave_wallet/**/*.js',
-        'components/brave_wallet/**/*.ts',
-        'components/brave_wallet/**/*.tsx',
-        'components/brave_wallet_ui/**/*.js',
-        'components/brave_wallet_ui/**/*.ts',
-        'components/brave_wallet_ui/**/*.tsx'
-      ],
-      'rules': {
-        'max-len': [
-          1,
-          {
-            'code': 80,
-            'ignoreStrings': true, // to allow long import paths
-            'ignoreUrls': true, // allow URLs to be clickable
-            'ignoreRegExpLiterals': true
-          }
-        ],
-        'react-hooks/rules-of-hooks': 'error', // Checks rules of Hooks
-        'react-hooks/exhaustive-deps': 'warn' // Checks effect dependencies
-      }
-    },
     // opt-in directories react-hooks linting
     {
       'files': [

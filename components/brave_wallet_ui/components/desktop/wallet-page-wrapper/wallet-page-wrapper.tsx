@@ -11,16 +11,16 @@ import { WalletSelectors, UISelectors } from '../../../common/selectors'
 // Hooks
 import {
   useSafeWalletSelector,
-  useSafeUISelector
+  useSafeUISelector,
 } from '../../../common/hooks/use-safe-selector'
 
 // Components
 import { WalletNav } from '../wallet-nav/wallet-nav'
 import {
-  FeatureRequestButton //
+  FeatureRequestButton, //
 } from '../../shared/feature-request-button/feature-request-button'
 import {
-  TabHeader //
+  TabHeader, //
 } from '../../../page/screens/shared-screen-components/tab-header/tab-header'
 
 // Styles
@@ -38,10 +38,10 @@ import {
   CardHeader,
   CardHeaderShadow,
   CardHeaderContentWrapper,
-  PortfolioBackgroundWatermark
+  PortfolioBackgroundWatermark,
+  ConnectionBackgroundWatermark,
+  ConnectionBackgroundColor,
 } from './wallet-page-wrapper.style'
-
-import { loadTimeData } from '../../../../common/loadTimeData'
 
 export interface Props {
   wrapContentInBox?: boolean
@@ -57,6 +57,7 @@ export interface Props {
   useCardInPanel?: boolean
   useFullHeight?: boolean
   isPortfolio?: boolean
+  isConnection?: boolean
   children?: React.ReactNode
 }
 
@@ -75,15 +76,15 @@ export const WalletPageWrapper = (props: Props) => {
     useDarkBackground,
     useCardInPanel,
     useFullHeight,
-    isPortfolio
+    isPortfolio,
+    isConnection,
   } = props
-
-  const isAndroid = loadTimeData.getBoolean('isAndroid') || false
 
   // Wallet Selectors (safe)
   const isWalletCreated = useSafeWalletSelector(WalletSelectors.isWalletCreated)
   const isWalletLocked = useSafeWalletSelector(WalletSelectors.isWalletLocked)
   const isPanel = useSafeUISelector(UISelectors.isPanel)
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
 
   // State
   const [headerShadowOpacity, setHeaderShadowOpacity] =
@@ -159,12 +160,16 @@ export const WalletPageWrapper = (props: Props) => {
         noTopPosition={isPanel || isAndroid}
       >
         {isPanel && isPortfolio && <PortfolioBackgroundWatermark />}
+        {isPanel && isConnection && (
+          <>
+            <ConnectionBackgroundColor />
+            <ConnectionBackgroundWatermark />
+          </>
+        )}
         {isWalletCreated && !hideHeader && !isPanel && !isAndroid && (
           <TabHeader hideHeaderMenu={hideHeaderMenu} />
         )}
-        {isWalletCreated && !isWalletLocked && !hideNav && (
-          <WalletNav isAndroid={isAndroid} />
-        )}
+        {isWalletCreated && !isWalletLocked && !hideNav && <WalletNav />}
         {!isWalletLocked && (
           <FeatureRequestButtonWrapper>
             <FeatureRequestButton />
@@ -194,7 +199,7 @@ export const WalletPageWrapper = (props: Props) => {
               noBorderRadius={noBorderRadius}
               useDarkBackground={useDarkBackground}
               useFullHeight={useFullHeight}
-              noBackground={isPanel && isPortfolio}
+              noBackground={isPanel && (isPortfolio || isConnection)}
               usePanelCard={shouldUsePanelCard}
             >
               {children}

@@ -413,7 +413,7 @@ private class PlaylistHLSDownloadManager: NSObject, AVAssetDownloadDelegate {
   func urlSession(
     _ session: URLSession,
     assetDownloadTask: AVAssetDownloadTask,
-    didFinishDownloadingTo location: URL
+    willDownloadTo location: URL
   ) {
     pendingDownloadTasks[assetDownloadTask] = location
   }
@@ -531,7 +531,8 @@ private class PlaylistHLSDownloadManager: NSObject, AVAssetDownloadDelegate {
     // so we must synchonously move the file to a temporary directory first before processing it
     // on a different thread since the Task will execute after this method returns
     let assetUrl = FileManager.default.temporaryDirectory
-      .appending(component: "\(asset.id)-\(temporaryUrl.lastPathComponent)")
+      .appending(component: asset.id).appendingPathExtension(temporaryUrl.pathExtension)
+
     try? FileManager.default.moveItem(at: temporaryUrl, to: assetUrl)
 
     @Sendable func cleanupAndFailDownload(location: URL?, error: Error) async {
@@ -715,7 +716,7 @@ private class PlaylistFileDownloadManager: NSObject, URLSessionDownloadDelegate 
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
       request.addValue("bytes=0-", forHTTPHeaderField: "Range")
       request.addValue(UUID().uuidString, forHTTPHeaderField: "X-Playback-Session-Id")
-      request.addValue(UserAgent.userAgentForIdiom(), forHTTPHeaderField: "User-Agent")
+      request.addValue(UserAgent.mobile, forHTTPHeaderField: "User-Agent")
       return request
     }()
 
@@ -920,7 +921,7 @@ private class PlaylistFileDownloadManager: NSObject, URLSessionDownloadDelegate 
       // so we must synchonously move the file to a temporary directory first before processing it
       // on a different thread since the Task will execute after this method returns
       let temporaryLocation = FileManager.default.temporaryDirectory
-        .appending(component: location.lastPathComponent)
+        .appending(component: asset.id).appendingPathExtension(location.pathExtension)
       try? FileManager.default.moveItem(at: location, to: temporaryLocation)
       Task {
         // Couldn't determine file type so we assume mp4 which is the most widely used container.
@@ -1033,7 +1034,7 @@ private class PlaylistDataDownloadManager: NSObject, URLSessionDataDelegate {
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Range
       request.addValue("bytes=0-", forHTTPHeaderField: "Range")
       request.addValue(UUID().uuidString, forHTTPHeaderField: "X-Playback-Session-Id")
-      request.addValue(UserAgent.userAgentForIdiom(), forHTTPHeaderField: "User-Agent")
+      request.addValue(UserAgent.mobile, forHTTPHeaderField: "User-Agent")
       return request
     }()
 

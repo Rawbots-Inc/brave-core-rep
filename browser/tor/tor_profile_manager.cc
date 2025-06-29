@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <utility>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "brave/browser/tor/tor_profile_service_factory.h"
 #include "brave/components/constants/pref_names.h"
@@ -248,8 +249,6 @@ void TorProfileManager::InitTorProfileUserPrefs(Profile* profile) {
   if (base::FeatureList::IsEnabled(net::features::kBraveTorWindowsHttpsOnly)) {
     pref_service->SetBoolean(prefs::kHttpsOnlyModeEnabled, true);
   }
-  // https://blog.torproject.org/bittorrent-over-tor-isnt-good-idea
-  pref_service->SetBoolean(kWebTorrentEnabled, false);
 
   // Disable the automatic translate bubble in Tor because we currently don't
   // support extensions in Tor mode and users cannot disable this through

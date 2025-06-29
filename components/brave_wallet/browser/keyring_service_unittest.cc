@@ -6,14 +6,17 @@
 #include "brave/components/brave_wallet/browser/keyring_service.h"
 
 #include <algorithm>
+#include <array>
 #include <optional>
 #include <string_view>
 #include <utility>
 
 #include "base/base64.h"
+#include "base/check.h"
 #include "base/containers/span.h"
 #include "base/files/scoped_temp_dir.h"
 #include "base/functional/callback_helpers.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/test/bind.h"
 #include "base/test/mock_callback.h"
@@ -3844,6 +3847,82 @@ TEST_F(KeyringServiceUnitTest, SignMessageByBitcoinKeyring) {
       "02202E78E2CBA60B164FF25F5FE71A2649B5788CABE6364417AC1AE7733EB7FFA566",
       base::HexEncode(*service.SignMessageByBitcoinKeyring(
           btc_acc->account_id, mojom::BitcoinKeyId::New(1, 7), message)));
+}
+
+TEST_F(KeyringServiceUnitTest, SignMessageByCardanoKeyring) {
+  base::test::ScopedFeatureList feature_list{
+      features::kBraveWalletCardanoFeature};
+
+  KeyringService service(json_rpc_service(), GetPrefs(), GetLocalState());
+
+  ASSERT_TRUE(RestoreWallet(&service, kMnemonicAbandonAbandon, "brave", false));
+  auto cardano_acc = GetAccountUtils(&service).EnsureAdaAccount(0);
+  std::array<uint8_t, 32> message;
+  message.fill('1');
+
+  EXPECT_EQ(
+      "F339E3A7125516323A77477FBC3E36E2132CDC0743AFBC77D940C1BC065DBECFBFA0F3DC"
+      "0B052FF09FBFA1A4B5E7B23019F98735E3D21764A12C1105CB90CB228DE8418C23139F92"
+      "F6268E314A80B8FECF40C1B430AB218601CAB37B1EFF190B",
+      base::HexEncode(*service.SignMessageByCardanoKeyring(
+          cardano_acc->account_id,
+          mojom::CardanoKeyId::New(mojom::CardanoKeyRole::kExternal, 3),
+          message)));
+  EXPECT_EQ(
+      "BAA3656376527BCDD3292428A84E50CB9A18C638F234CA0E16BA265CC3C9528208A1D98E"
+      "9AC85EE0B3B6CF0388E81AE3C6177780232C36C20105C5DC15DE4CDBBA8E2B3310ADF7B6"
+      "48424305B437FF97AABD385508D9B2CAC9778A32641D2C0B",
+      base::HexEncode(*service.SignMessageByCardanoKeyring(
+          cardano_acc->account_id,
+          mojom::CardanoKeyId::New(mojom::CardanoKeyRole::kInternal, 7),
+          message)));
+}
+
+TEST_F(KeyringServiceUnitTest, UpdateNextUnusedAddressForZCashAccount) {
+  base::test::ScopedFeatureList feature_list{
+      features::kBraveWalletZCashFeature};
+
+  KeyringService service(json_rpc_service(), GetPrefs(), GetLocalState());
+
+  ASSERT_TRUE(RestoreWallet(&service, kMnemonicAbandonAbandon, "brave", false));
+  auto zec_acc = GetAccountUtils(&service).EnsureZecAccount(0);
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 0, 0),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_receive_address->key_id);
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 1, 0),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_change_address->key_id);
+
+  NiceMock<TestKeyringServiceObserver> observer(service, task_environment_);
+  EXPECT_CALL(observer, AccountsChanged());
+  service.UpdateNextUnusedAddressForZCashAccount(zec_acc->account_id, 7,
+                                                 std::nullopt);
+  observer.WaitAndVerify();
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 0, 7),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_receive_address->key_id);
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 1, 0),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_change_address->key_id);
+  EXPECT_CALL(observer, AccountsChanged());
+  service.UpdateNextUnusedAddressForZCashAccount(zec_acc->account_id,
+                                                 std::nullopt, 9);
+  observer.WaitAndVerify();
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 0, 7),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_receive_address->key_id);
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 1, 9),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_change_address->key_id);
+  EXPECT_CALL(observer, AccountsChanged()).Times(0);
+  service.UpdateNextUnusedAddressForZCashAccount(zec_acc->account_id, 7, 9);
+  observer.WaitAndVerify();
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 0, 7),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_receive_address->key_id);
+  EXPECT_EQ(mojom::ZCashKeyId::New(0, 1, 9),
+            service.GetZCashAccountInfo(zec_acc->account_id)
+                ->next_transparent_change_address->key_id);
 }
 
 #if BUILDFLAG(ENABLE_ORCHARD)

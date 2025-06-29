@@ -6,6 +6,7 @@
 #include "brave/components/omnibox/browser/brave_bookmark_provider.h"
 
 #include "base/containers/contains.h"
+#include "base/strings/string_util.h"
 #include "brave/components/omnibox/browser/brave_history_quick_provider.h"
 #include "brave/components/omnibox/browser/brave_omnibox_prefs.h"
 #include "components/omnibox/browser/autocomplete_match.h"
@@ -29,9 +30,7 @@ void BraveBookmarkProvider::Start(const AutocompleteInput& input,
 
   // We need to bump the relevance of the bookmark if we ever want it to rank
   // high enough to be the default match.
-  constexpr int kContainsQueryBump = 350;
-  // Note: This is in addition to the kContainsQueryBump.
-  constexpr int kExactTitleBump = 200;
+  constexpr int kExactTitleBump = 550;
 
   bool modified = false;
 
@@ -41,13 +40,10 @@ void BraveBookmarkProvider::Start(const AutocompleteInput& input,
       continue;
     }
 
-    // We only allow the bookmark to be the default match if the input is
-    // literally contained in the title or URL.
+    // We only allow the bookmark to be the default match if the input is an
+    // exact match for the bookmark title
     auto lower_description = base::ToLowerASCII(match.description);
-    auto bump_match =
-        base::Contains(base::ToLowerASCII(match.contents), lower_text) ||
-        base::Contains(lower_description, lower_text);
-    if (!bump_match) {
+    if (lower_description != lower_text) {
       continue;
     }
 
@@ -70,17 +66,10 @@ void BraveBookmarkProvider::Start(const AutocompleteInput& input,
           ACMatchClassification(0, ACMatchClassification::URL)};
     }
 
-    // Additional bump if the title is an exact match - this helps people with
-    // short bookmark titles for jumping to pages (like "sa" for
-    // "chrome://settings/appearance")
-    if (lower_description == lower_text) {
-      match.relevance += kExactTitleBump;
-    }
-
     match.SetAllowedToBeDefault(input);
 
     modified = true;
-    match.relevance += kContainsQueryBump;
+    match.relevance += kExactTitleBump;
   }
 
   // If we modified any matches, notify listeners so the UI updates.

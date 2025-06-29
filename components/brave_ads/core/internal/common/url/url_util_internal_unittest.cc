@@ -117,10 +117,26 @@ TEST(
 
 TEST(
     BraveAdsUrlUtilInternalTest,
+    ShouldSupportInternalUrlWithBraveSchemeAndSettingsHostNameAndSurveyPanelistPath) {
+  // Act & Assert
+  EXPECT_TRUE(
+      ShouldSupportInternalUrl(GURL("chrome://settings/surveyPanelist")));
+}
+
+TEST(
+    BraveAdsUrlUtilInternalTest,
     ShouldSupportInternalUrlWithBraveSchemeAndSettingsHostNameAndSearchEnginesPath) {
   // Act & Assert
   EXPECT_TRUE(
       ShouldSupportInternalUrl(GURL("chrome://settings/searchEngines")));
+}
+
+TEST(
+    BraveAdsUrlUtilInternalTest,
+    ShouldSupportInternalUrlWithBraveSchemeAndSettingsHostNameAndSearchEnginesDefaultSearchPath) {
+  // Act & Assert
+  EXPECT_TRUE(
+      ShouldSupportInternalUrl(GURL("chrome://settings/search/defaultSearch")));
 }
 
 TEST(

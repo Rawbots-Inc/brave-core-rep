@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "base/strings/stringprintf.h"
 #include "base/uuid.h"
@@ -546,9 +547,9 @@ void Publisher::SynopsisNormalizerCallback(
                                                  base::DoNothing());
 }
 
-void Publisher::GetPublisherActivityFromUrl(uint64_t windowId,
-                                            mojom::VisitDataPtr visit_data,
-                                            const std::string& publisher_blob) {
+void Publisher::NotifyPublisherPageVisit(uint64_t tab_id,
+                                         mojom::VisitDataPtr visit_data,
+                                         const std::string& publisher_blob) {
   if (!visit_data) {
     return;
   }
@@ -566,7 +567,7 @@ void Publisher::GetPublisherActivityFromUrl(uint64_t windowId,
 
     visit_data->url += visit_data->path;
 
-    engine_->media()->GetMediaActivityFromUrl(windowId, std::move(visit_data),
+    engine_->media()->GetMediaActivityFromUrl(tab_id, std::move(visit_data),
                                               type, publisher_blob);
     return;
   }
@@ -580,7 +581,7 @@ void Publisher::GetPublisherActivityFromUrl(uint64_t windowId,
   engine_->database()->GetPanelPublisherInfo(
       std::move(filter),
       base::BindOnce(&Publisher::OnPanelPublisherInfo,
-                     weak_factory_.GetWeakPtr(), windowId, *visit_data));
+                     weak_factory_.GetWeakPtr(), tab_id, *visit_data));
 }
 
 void Publisher::OnSaveVisitInternal(mojom::Result result,

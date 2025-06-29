@@ -537,7 +537,7 @@ void TopSitesProvider::Start(const AutocompleteInput& input,
                             bool minimal_changes) {
   matches_.clear();
   auto* prefs = client_->GetPrefs();
-  if (!prefs || !prefs->GetBoolean(omnibox::kTopSiteSuggestionsEnabled)) {
+  if (!prefs || !prefs->GetBoolean(omnibox::kTopSuggestionsEnabled)) {
     return;
   }
 
@@ -606,11 +606,10 @@ void TopSitesProvider::AddMatch(const std::u16string& match_string,
                                 const ACMatchClassifications& styles) {
   constexpr const std::u16string_view kScheme(u"https://");
   AutocompleteMatch match(this, kRelevance, false,
-                          AutocompleteMatchType::SEARCH_WHAT_YOU_TYPED);
+                          AutocompleteMatchType::NAVSUGGEST);
   match.fill_into_edit = match_string;
   match.destination_url = GURL(base::StrCat({kScheme, match_string}));
   match.contents = match_string;
   match.contents_class = styles;
-  match.keyword = u"brave";
   matches_.push_back(match);
 }

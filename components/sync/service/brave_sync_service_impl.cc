@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "base/auto_reset.h"
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/logging.h"
 #include "base/metrics/histogram_functions.h"
 #include "base/strings/string_util.h"
@@ -393,8 +395,8 @@ void BraveSyncServiceImpl::OnGetTypeEntitiesCount(
   }
 }
 
-void BraveSyncServiceImpl::OnSelectedTypesPrefChange() {
-  SyncServiceImpl::OnSelectedTypesPrefChange();
+void BraveSyncServiceImpl::OnSelectedTypesChanged() {
+  SyncServiceImpl::OnSelectedTypesChanged();
 
   brave_sync::p3a::RecordEnabledTypes(
       GetUserSettings()->IsSyncEverythingEnabled(),

@@ -15,7 +15,7 @@ import { getLocale } from '../../../../common/locale'
 
 // hooks
 import {
-  useGetDefaultFiatCurrencyQuery //
+  useGetDefaultFiatCurrencyQuery, //
 } from '../../../common/slices/api.slice'
 
 // style
@@ -26,7 +26,7 @@ import {
   Divider,
   SectionRow,
   SectionColumn,
-  EditButton
+  EditButton,
 } from './style'
 import { WarningBoxTitleRow } from '../shared-panel-styles'
 import { Skeleton } from '../../shared/loading-skeleton/styles'
@@ -67,12 +67,12 @@ export const TransactionInfo = ({
   isBitcoinTransaction,
   isERC20Approve,
   isCurrentAllowanceUnlimited,
-  currentTokenAllowance
+  currentTokenAllowance,
 }: TransactionInfoProps) => {
   // queries
   const {
     isLoading: isLoadingDefaultFiatCurrency,
-    data: defaultFiatCurrency = 'usd'
+    data: defaultFiatCurrency = 'usd',
   } = useGetDefaultFiatCurrencyQuery()
 
   // exit early if no details
@@ -82,15 +82,17 @@ export const TransactionInfo = ({
 
   const isLoadingGasFeeFiat = isLoadingDefaultFiatCurrency || isLoadingGasFee
 
-  const { isSolanaTransaction, isFilecoinTransaction } = transactionDetails
+  const { isSolanaTransaction, isFilecoinTransaction, isCardanoTransaction } =
+    transactionDetails
   const feeLocale =
-    isSolanaTransaction || isZCashTransaction || isBitcoinTransaction
+    isSolanaTransaction
+    || isZCashTransaction
+    || isBitcoinTransaction
+    || isCardanoTransaction
       ? 'braveWalletConfirmTransactionTransactionFee'
       : 'braveWalletConfirmTransactionGasFee'
 
-      const memoText = String.fromCharCode(
-        ...transactionDetails.zcashMemo ?? []
-      )
+  const memoText = String.fromCharCode(...(transactionDetails.zcashMemo ?? []))
 
   // render
   return (
@@ -103,8 +105,8 @@ export const TransactionInfo = ({
                 {getLocale('braveWalletTransactionGasPremium')}
               </TransactionTitle>
               <TransactionTypeText>
-                {transactionsNetwork &&
-                  new Amount(transactionDetails.gasPremium)
+                {transactionsNetwork
+                  && new Amount(transactionDetails.gasPremium)
                     .divideByDecimals(transactionsNetwork.decimals)
                     .formatAsAsset(6, transactionsNetwork.symbol)}
               </TransactionTypeText>
@@ -117,8 +119,8 @@ export const TransactionInfo = ({
                 {getLocale('braveWalletTransactionGasLimit')}
               </TransactionTitle>
               <TransactionTypeText>
-                {transactionsNetwork &&
-                  new Amount(transactionDetails.gasLimit)
+                {transactionsNetwork
+                  && new Amount(transactionDetails.gasLimit)
                     .divideByDecimals(transactionsNetwork.decimals)
                     .formatAsAsset(6, transactionsNetwork.symbol)}
               </TransactionTypeText>
@@ -131,8 +133,8 @@ export const TransactionInfo = ({
                 {getLocale('braveWalletTransactionGasFeeCap')}
               </TransactionTitle>
               <TransactionTypeText>
-                {transactionsNetwork &&
-                  new Amount(transactionDetails.gasFeeCap)
+                {transactionsNetwork
+                  && new Amount(transactionDetails.gasFeeCap)
                     .divideByDecimals(transactionsNetwork.decimals)
                     .formatAsAsset(6, transactionsNetwork.symbol)}
               </TransactionTypeText>
@@ -143,7 +145,9 @@ export const TransactionInfo = ({
         <SectionRow>
           <TransactionTitle>
             {getLocale(
-              isERC20Approve ? 'braveWalletAllowSpendTransactionFee' : feeLocale
+              isERC20Approve
+                ? 'braveWalletAllowSpendTransactionFee'
+                : feeLocale,
             )}
           </TransactionTitle>
 
@@ -163,11 +167,11 @@ export const TransactionInfo = ({
         <FeeSkeleton />
       ) : (
         <TransactionTypeText>
-          {(transactionsNetwork &&
-            new Amount(gasFee)
+          {(transactionsNetwork
+            && new Amount(gasFee)
               .divideByDecimals(transactionsNetwork.decimals)
-              .formatAsAsset(6, transactionsNetwork.symbol)) ||
-            ''}
+              .formatAsAsset(6, transactionsNetwork.symbol))
+            || ''}
         </TransactionTypeText>
       )}
 
@@ -176,7 +180,7 @@ export const TransactionInfo = ({
       ) : (
         <TransactionText>
           {new Amount(transactionDetails.gasFeeFiat).formatAsFiat(
-            defaultFiatCurrency
+            defaultFiatCurrency,
           )}
         </TransactionText>
       )}
@@ -208,8 +212,8 @@ export const TransactionInfo = ({
           ) : (
             <TransactionTypeText>
               +{' '}
-              {transactionsNetwork &&
-                new Amount(gasFee)
+              {transactionsNetwork
+                && new Amount(gasFee)
                   .divideByDecimals(transactionsNetwork.decimals)
                   .formatAsAsset(6, transactionsNetwork.symbol)}
             </TransactionTypeText>
@@ -220,7 +224,7 @@ export const TransactionInfo = ({
           ) : (
             <TransactionText>
               {new Amount(transactionDetails.fiatTotal).formatAsFiat(
-                defaultFiatCurrency
+                defaultFiatCurrency,
               )}
             </TransactionText>
           )}
@@ -262,7 +266,7 @@ export const TransactionInfo = ({
               ? getLocale('braveWalletTransactionApproveUnlimited')
               : new Amount(transactionDetails.valueExact).formatAsAsset(
                   undefined,
-                  transactionDetails.symbol
+                  transactionDetails.symbol,
                 )}
           </TransactionTypeText>
         </>
@@ -299,7 +303,7 @@ const FeeSkeleton = () => {
 const TransactionValue = ({
   isErc721Transfer,
   symbol,
-  valueExact
+  valueExact,
 }: {
   isErc721Transfer: boolean
   valueExact: string
@@ -325,7 +329,7 @@ const TransactionValue = ({
       {transactionValueParts.map((part, i, { length }) => [
         part,
         ...(i < length - 1 ? ['.'] : []),
-        <wbr key={part} />
+        <wbr key={part} />,
       ])}
     </span>
   )

@@ -17,7 +17,7 @@ const monthMap = [
   'Sep',
   'Oct',
   'Nov',
-  'Dec'
+  'Dec',
 ]
 
 export function formatDateAsRelative(
@@ -28,7 +28,7 @@ export function formatDateAsRelative(
    * (minutes:seconds) or (hours:minutes) instead of a
    * single rounded value of seconds, minutes or hours.
    */
-  usePrecision?: boolean
+  usePrecision?: boolean,
 ) {
   // the difference in milliseconds
   const diff = now.getTime() - date.getTime()
@@ -77,19 +77,19 @@ export function formatDateAsRelative(
  * @return {!Date}
  */
 export function serializedTimeDeltaToJSDate(
-  timeDelta: SerializableTimeDelta | TimeDelta
+  timeDelta: SerializableTimeDelta | TimeDelta,
 ): Date {
   return new Date(Number(timeDelta.microseconds) / 1000)
 }
 
-const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
-  month: 'numeric',
-  day: 'numeric',
-  year: 'numeric',
-  hour: 'numeric',
-  minute: 'numeric'
-})
+export const formatTimelineDate = (date: Date, locale = 'default') => {
+  const dateTimeFormatter = new Intl.DateTimeFormat(locale, {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  })
 
-export const formatTimelineDate = (date: Date) => {
   return dateTimeFormatter.format(new Date(date))
 }

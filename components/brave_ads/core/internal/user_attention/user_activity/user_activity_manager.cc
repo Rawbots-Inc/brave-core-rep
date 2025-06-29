@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_ads/core/internal/user_attention/user_activity/user_activity_manager.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <iterator>
 #include <optional>
@@ -118,7 +119,7 @@ void UserActivityManager::RecordEventForPageTransition(
     RecordEvent(UserActivityEventType::kOpenedLinkFromExternalApplication);
   }
 
-  const std::optional<UserActivityEventType> event_type =
+  std::optional<UserActivityEventType> event_type =
       ToUserActivityEventType(type);
   if (!event_type) {
     return;

@@ -10,7 +10,10 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/json/json_writer.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_sync/brave_sync_prefs.h"
@@ -119,14 +122,6 @@ void BraveSyncWorker::RequestSync(JNIEnv* env) {
   // notification. The same for scanning QR code and using the codewords.
   service->GetUserSettings()
       ->MarkPassphrasePromptMutedForCurrentProductVersion();
-
-  // Mark Sync as requested by the user. It might already be requested, but
-  // it's not if this is either the first time the user is setting up Sync, or
-  // Sync was set up but then was reset via the dashboard. This also pokes the
-  // SyncService to start up immediately, i.e. bypass deferred startup.
-  if (service) {
-    service->SetSyncFeatureRequested();
-  }
 }
 
 void BraveSyncWorker::MarkFirstSetupComplete() {
@@ -135,8 +130,6 @@ void BraveSyncWorker::MarkFirstSetupComplete() {
   // The sync service may be nullptr if it has been just disabled by policy.
   if (!service)
     return;
-
-  service->SetSyncFeatureRequested();
 
   // If the first-time setup is already complete, there's nothing else to do.
   if (service->GetUserSettings()->IsInitialSyncFeatureSetupComplete()) {

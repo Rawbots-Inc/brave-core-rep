@@ -6,6 +6,8 @@
 #include "brave/components/ai_chat/core/browser/model_service.h"
 
 #include <algorithm>
+#include <array>
+#include <cstdint>
 #include <ios>
 #include <iterator>
 #include <memory>
@@ -23,6 +25,7 @@
 #include "base/memory/scoped_refptr.h"
 #include "base/metrics/field_trial_params.h"
 #include "base/no_destructor.h"
+#include "base/numerics/checked_math.h"
 #include "base/numerics/safe_math.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_util.h"
@@ -30,17 +33,15 @@
 #include "base/values.h"
 #include "brave/components/ai_chat/core/browser/constants.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
-#include "brave/components/ai_chat/core/browser/engine/engine_consumer_claude.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer_conversation_api.h"
-#include "brave/components/ai_chat/core/browser/engine/engine_consumer_llama.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer_oai.h"
 #include "brave/components/ai_chat/core/browser/model_validator.h"
 #include "brave/components/ai_chat/core/browser/utils.h"
+#include "brave/components/ai_chat/core/common/constants.h"
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-shared.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "brave/components/ai_chat/core/common/pref_names.h"
-#include "cc/task/core/task_utils.h"
 #include "components/os_crypt/sync/os_crypt.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
@@ -93,69 +94,86 @@ const std::vector<mojom::ModelPtr>& GetLeoModels() {
         features::kFreemiumAvailable.Get()
             ? mojom::ModelAccess::BASIC_AND_PREMIUM
             : mojom::ModelAccess::PREMIUM;
-    const bool conversation_api = features::kConversationAPIEnabled.Get();
 
     std::vector<mojom::ModelPtr> models;
+
+#if !BUILDFLAG(IS_IOS)
+    // Not added in iOS as we do not have UI currently to show users what model
+    // is used for each response, this build flag should be removed once we
+    // have the UI, probably when we migrate to WebUI on iOS.
     {
       auto options = mojom::LeoModelOptions::New();
-      options->display_maker = "Mistral AI";
-      options->name = "mixtral-8x7b-instruct";
+      options->name = "automatic";
       options->category = mojom::ModelCategory::CHAT;
       options->access = kFreemiumAccess;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::LLAMA_REMOTE;
-      options->max_associated_content_length = 8000;
-      options->long_conversation_warning_character_limit = 9700;
-
-      auto model = mojom::Model::New();
-      model->key = "chat-leo-expanded";
-      model->display_name = "Mixtral";
-      model->vision_support = false;
-      model->options =
-          mojom::ModelOptions::NewLeoModelOptions(std::move(options));
-
-      models.push_back(std::move(model));
-    }
-
-    {
-      auto options = mojom::LeoModelOptions::New();
-      options->display_maker = "Anthropic";
-      options->name = "claude-3-haiku";
-      options->category = mojom::ModelCategory::CHAT;
-      options->access = kFreemiumAccess;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::CLAUDE_REMOTE;
       options->max_associated_content_length = 180000;
       options->long_conversation_warning_character_limit = 320000;
 
       auto model = mojom::Model::New();
-      model->key = "chat-claude-haiku";
-      model->display_name = "Claude Haiku";
-      model->vision_support = false;
+      model->key = "chat-automatic";
+      model->display_name = "Automatic";
+      model->vision_support = true;
+      model->supports_tools = false;
       model->options =
           mojom::ModelOptions::NewLeoModelOptions(std::move(options));
-
       models.push_back(std::move(model));
     }
+#endif
 
     {
       auto options = mojom::LeoModelOptions::New();
-      options->display_maker = "Anthropic";
-      options->name = "claude-3-sonnet";
+      options->display_maker = "DeepSeek";
+      options->name = "bedrock-us.deepseek-r1-v1:0";
       options->category = mojom::ModelCategory::CHAT;
       options->access = mojom::ModelAccess::PREMIUM;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::CLAUDE_REMOTE;
+      options->max_associated_content_length = 64000;
+      options->long_conversation_warning_character_limit = 64000;
+
+      auto model = mojom::Model::New();
+      model->key = "chat-deepseek-r1";
+      model->display_name = "DeepSeek R1";
+      model->vision_support = false;
+      model->supports_tools = false;
+      model->options =
+          mojom::ModelOptions::NewLeoModelOptions(std::move(options));
+
+      models.push_back(std::move(model));
+    }
+
+    {
+      auto options = mojom::LeoModelOptions::New();
+      options->display_maker = "Anthropic";
+      options->name = kClaudeHaikuModelName;
+      options->category = mojom::ModelCategory::CHAT;
+      options->access = kFreemiumAccess;
       options->max_associated_content_length = 180000;
       options->long_conversation_warning_character_limit = 320000;
 
       auto model = mojom::Model::New();
-      model->key = "chat-claude-sonnet";
+      model->key = kClaudeHaikuModelKey;
+      model->display_name = "Claude Haiku";
+      model->vision_support = true;
+      model->supports_tools = true;
+      model->options =
+          mojom::ModelOptions::NewLeoModelOptions(std::move(options));
+
+      models.push_back(std::move(model));
+    }
+
+    {
+      auto options = mojom::LeoModelOptions::New();
+      options->display_maker = "Anthropic";
+      options->name = kClaudeSonnetModelName;
+      options->category = mojom::ModelCategory::CHAT;
+      options->access = mojom::ModelAccess::PREMIUM;
+      options->max_associated_content_length = 180000;
+      options->long_conversation_warning_character_limit = 320000;
+
+      auto model = mojom::Model::New();
+      model->key = kClaudeSonnetModelKey;
       model->display_name = "Claude Sonnet";
       model->vision_support = true;
+      model->supports_tools = true;
       model->options =
           mojom::ModelOptions::NewLeoModelOptions(std::move(options));
 
@@ -170,16 +188,14 @@ const std::vector<mojom::ModelPtr>& GetLeoModels() {
       options->access = features::kFreemiumAvailable.Get()
                             ? mojom::ModelAccess::BASIC_AND_PREMIUM
                             : mojom::ModelAccess::BASIC;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::LLAMA_REMOTE;
-      options->max_associated_content_length = 8000;
+      options->max_associated_content_length = 64000;
       options->long_conversation_warning_character_limit = 9700;
 
       auto model = mojom::Model::New();
       model->key = "chat-basic";
       model->display_name = "Llama 3.1 8B";
       model->vision_support = false;
+      model->supports_tools = false;
       model->options =
           mojom::ModelOptions::NewLeoModelOptions(std::move(options));
 
@@ -194,15 +210,14 @@ const std::vector<mojom::ModelPtr>& GetLeoModels() {
       options->access = features::kFreemiumAvailable.Get()
                             ? mojom::ModelAccess::BASIC_AND_PREMIUM
                             : mojom::ModelAccess::BASIC;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::LLAMA_REMOTE;
-      options->max_associated_content_length = 8000;
+      options->max_associated_content_length = 64000;
       options->long_conversation_warning_character_limit = 9700;
 
       auto model = mojom::Model::New();
       model->key = "chat-qwen";
       model->display_name = "Qwen 14B";
+      model->vision_support = false;
+      model->supports_tools = false;
       model->options =
           mojom::ModelOptions::NewLeoModelOptions(std::move(options));
 
@@ -217,9 +232,6 @@ const std::vector<mojom::ModelPtr>& GetLeoModels() {
       options->access = features::kFreemiumAvailable.Get()
                             ? mojom::ModelAccess::BASIC_AND_PREMIUM
                             : mojom::ModelAccess::BASIC;
-      options->engine_type =
-          conversation_api ? mojom::ModelEngineType::BRAVE_CONVERSATION_API
-                           : mojom::ModelEngineType::LLAMA_REMOTE;
       options->max_associated_content_length = 8000;
       options->long_conversation_warning_character_limit = 9700;
 
@@ -227,6 +239,7 @@ const std::vector<mojom::ModelPtr>& GetLeoModels() {
       model->key = "chat-vision-basic";
       model->display_name = "Llama 3.2 11B Vision";
       model->vision_support = true;
+      model->supports_tools = false;
       model->options =
           mojom::ModelOptions::NewLeoModelOptions(std::move(options));
 
@@ -314,7 +327,7 @@ ModelService::ModelService(PrefService* prefs_service)
     // First set to an equivalent model that is available to all users. When
     // we are told about premium status, we can switch to the premium
     // equivalent.
-    SetDefaultModelKey("chat-claude-haiku");
+    SetDefaultModelKey(kClaudeHaikuModelKey);
     is_migrating_claude_instant_ = true;
   }
 }
@@ -333,14 +346,22 @@ void ModelService::MigrateProfilePrefs(PrefService* profile_prefs) {
   if (ai_chat::features::IsAIChatEnabled()) {
     profile_prefs->ClearPref(prefs::kObseleteBraveChatAutoGenerateQuestions);
 
-    // migrate model key from "chat-default" to "chat-basic"
-    static const std::string kDefaultModelBasicFrom = "chat-default";
-    static const std::string kDefaultModelBasicTo = "chat-basic";
+    // Migrate old model keys to "chat-automatic"
+    constexpr std::array<const char*, 2> kOldModelKeys = {
+        // Added: June 6, 2024. Checks can be removed eventually
+        "chat-default",
+        // Added: May 28, 2025. Checks can be removed eventually
+        "chat-leo-expanded",
+    };
+
     if (auto* default_model_value =
             profile_prefs->GetUserPrefValue(kDefaultModelKey)) {
-      if (base::EqualsCaseInsensitiveASCII(default_model_value->GetString(),
-                                           kDefaultModelBasicFrom)) {
-        profile_prefs->SetString(kDefaultModelKey, kDefaultModelBasicTo);
+      const std::string& current_value = default_model_value->GetString();
+      for (const char* old_key : kOldModelKeys) {
+        if (base::EqualsCaseInsensitiveASCII(current_value, old_key)) {
+          profile_prefs->ClearPref(kDefaultModelKey);
+          break;
+        }
       }
     }
   }
@@ -371,7 +392,7 @@ void ModelService::SetAssociatedContentLengthMetrics(mojom::Model& model) {
   model.options->get_custom_model_options()->max_associated_content_length =
       max_associated_content_length;
 
-  base::CheckedNumeric<uint32> warn_at = base::CheckMul<size_t>(
+  base::CheckedNumeric<uint32_t> warn_at = base::CheckMul<size_t>(
       max_associated_content_length, kMaxContentLengthThreshold);
 
   if (warn_at.IsValid()) {
@@ -409,7 +430,7 @@ const mojom::Model* ModelService::GetModelForTesting(std::string_view key) {
 
   auto match_iter = std::find_if(
       all_models.cbegin(), all_models.cend(),
-      [&key](const mojom::ModelPtr& model) { return model->key == key; });
+      [key](const mojom::ModelPtr& model) { return model->key == key; });
   if (match_iter != all_models.cend()) {
     return &*match_iter->get();
   }
@@ -479,12 +500,44 @@ const mojom::Model* ModelService::GetModel(std::string_view key) {
 
   auto match_iter = std::find_if(
       all_models.cbegin(), all_models.cend(),
-      [&key](const mojom::ModelPtr& model) { return model->key == key; });
+      [key](const mojom::ModelPtr& model) { return model->key == key; });
   if (match_iter != all_models.cend()) {
     return &*match_iter->get();
   }
 
   return nullptr;
+}
+
+std::optional<std::string> ModelService::GetLeoModelKeyByName(
+    std::string_view name) {
+  const std::vector<mojom::ModelPtr>& leo_models = GetLeoModels();
+
+  auto match_iter = std::find_if(
+      leo_models.cbegin(), leo_models.cend(),
+      [name](const mojom::ModelPtr& model) {
+        CHECK(model->options->is_leo_model_options());
+        return model->options->get_leo_model_options()->name == name;
+      });
+  if (match_iter != leo_models.cend()) {
+    return (*match_iter)->key;
+  }
+
+  return std::nullopt;
+}
+
+std::optional<std::string> ModelService::GetLeoModelNameByKey(
+    std::string_view key) {
+  const std::vector<mojom::ModelPtr>& leo_models = GetLeoModels();
+
+  auto match_iter = std::find_if(
+      leo_models.cbegin(), leo_models.cend(),
+      [key](const mojom::ModelPtr& model) { return model->key == key; });
+  if (match_iter != leo_models.cend()) {
+    CHECK((*match_iter)->options->is_leo_model_options());
+    return (*match_iter)->options->get_leo_model_options()->name;
+  }
+
+  return std::nullopt;
 }
 
 void ModelService::AddCustomModel(mojom::ModelPtr model) {
@@ -693,31 +746,16 @@ std::unique_ptr<EngineConsumer> ModelService::GetEngineForModel(
     AIChatCredentialManager* credential_manager) {
   const mojom::Model* model = GetModel(model_key);
   std::unique_ptr<EngineConsumer> engine;
-  // Only LeoModels are passed to the following engines.
   if (model->options->is_leo_model_options()) {
     auto& leo_model_opts = model->options->get_leo_model_options();
-
-    // Engine enum on model to decide which one
-    if (leo_model_opts->engine_type ==
-        mojom::ModelEngineType::BRAVE_CONVERSATION_API) {
-      DVLOG(1) << "Started AI engine: conversation api";
-      engine = std::make_unique<EngineConsumerConversationAPI>(
-          *leo_model_opts, url_loader_factory, credential_manager);
-    } else if (leo_model_opts->engine_type ==
-               mojom::ModelEngineType::LLAMA_REMOTE) {
-      DVLOG(1) << "Started AI engine: llama";
-      engine = std::make_unique<EngineConsumerLlamaRemote>(
-          *leo_model_opts, url_loader_factory, credential_manager);
-    } else {
-      DVLOG(1) << "Started AI engine: claude";
-      engine = std::make_unique<EngineConsumerClaudeRemote>(
-          *leo_model_opts, url_loader_factory, credential_manager);
-    }
+    DVLOG(1) << "Started AI engine: conversation api";
+    engine = std::make_unique<EngineConsumerConversationAPI>(
+        *leo_model_opts, url_loader_factory, credential_manager, this);
   } else if (model->options->is_custom_model_options()) {
     auto& custom_model_opts = model->options->get_custom_model_options();
     DVLOG(1) << "Started AI engine: custom";
-    engine = std::make_unique<EngineConsumerOAIRemote>(*custom_model_opts,
-                                                       url_loader_factory);
+    engine = std::make_unique<EngineConsumerOAIRemote>(
+        *custom_model_opts, url_loader_factory, this);
   }
 
   return engine;

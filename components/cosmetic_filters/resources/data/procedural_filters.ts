@@ -5,15 +5,6 @@
 
 /**
  *
- *  This file should be kept up to date with
- *  https://github.com/brave-experiments/procedural-filters-js
- *  until the full implementation can be shared with iOS inside
- *  the brave-core repo.
- *
- */
-
-/**
- *
  * src/declarations.d.ts
  *
  * note: `ProceduralOperator` and `ProceduralSelector`
@@ -123,6 +114,7 @@ const _extractKeyMatchRuleFromStr = (text: string): [TextMatchRule, number] => {
 }
 
 const _extractValueMatchRuleFromStr = (text: string,
+                                       uriEncode = false,
                                        needlePosition = 0): TextMatchRule => {
   const isQuotedCase = text[needlePosition] === '"'
   let endIndex
@@ -140,7 +132,10 @@ const _extractValueMatchRuleFromStr = (text: string,
     endIndex = text.length
   }
 
-  const testCaseStr = text.slice(needlePosition, endIndex)
+  let testCaseStr = text.slice(needlePosition, endIndex)
+  if (uriEncode) {
+    testCaseStr = testCaseStr.replace(/\P{ASCII}/gu, c => encodeURIComponent(c))
+  }
   const testCaseFunc = _testMatches.bind(undefined, testCaseStr)
   return testCaseFunc
 }
@@ -159,7 +154,7 @@ const _extractValueMatchRuleFromStr = (text: string,
 // }
 const _parseKeyValueMatchRules = (arg: string): KeyValueMatchRules => {
   const [keyMatchRule, needlePos] = _extractKeyMatchRuleFromStr(arg)
-  const valueMatchRule = _extractValueMatchRuleFromStr(arg, needlePos)
+  const valueMatchRule = _extractValueMatchRuleFromStr(arg, false, needlePos)
   return [keyMatchRule, valueMatchRule]
 }
 
@@ -205,13 +200,13 @@ const _nextSiblingElement = (element: HTMLElement): HTMLElement | null => {
 const _allChildren = (element: HTMLElement): HTMLElement[] => {
   return W.Array.from(element.children)
     .map(e => _asHTMLElement(e))
-    .filter(e => e !== null) as HTMLElement[]
+    .filter(e => e !== null)
 }
 
 const _allChildrenRecursive = (element: HTMLElement): HTMLElement[] => {
   return W.Array.from(element.querySelectorAll(':scope *'))
     .map(e => _asHTMLElement(e))
-    .filter(e => e !== null) as HTMLElement[]
+    .filter(e => e !== null)
 }
 
 const _stripCssOperator = (operator: string, selector: string) => {
@@ -387,7 +382,7 @@ const operatorMatchesMedia = (instruction: string,
 const operatorMatchesPath = (instruction: string,
                              element: HTMLElement): OperatorResult => {
   const pathAndQuery = W.location.pathname + W.location.search
-  const matchRule = _extractValueMatchRuleFromStr(instruction)
+  const matchRule = _extractValueMatchRuleFromStr(instruction, true)
   return matchRule(pathAndQuery) ? [element] : []
 }
 
@@ -580,7 +575,7 @@ const applyCompiledSelector = (selector: CompiledProceduralSelector,
       // Note that unless we've taken the if-true branch above, then
       // the nodesToConsider array will still have all the elements
       // it started with.
-      break
+      continue
     }
 
     let newNodesToConsider: HTMLElement[] = []

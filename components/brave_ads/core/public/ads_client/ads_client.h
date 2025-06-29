@@ -86,18 +86,11 @@ class AdsClient {
                                      int version,
                                      LoadFileCallback callback) = 0;
 
-  // Load a data resource for the specified `name`. Returns the resource if
-  // successful otherwise an empty string.
-  virtual std::string LoadDataResource(const std::string& name) = 0;
-
   // Show a notification indicating that a scheduled captcha with the given
   // `captcha_id` must be solved for the given `payment_id` before the user can
   // continue to be served ads.
   virtual void ShowScheduledCaptcha(const std::string& payment_id,
                                     const std::string& captcha_id) = 0;
-
-  // Record P2A (Private Advertising Analytics) `events`.
-  virtual void RecordP2AEvents(const std::vector<std::string>& events) = 0;
 
   // Returns `true` if the specified profile preference `path` exists.
   virtual bool FindProfilePref(const std::string& path) const = 0;

@@ -10,12 +10,14 @@
 #include <optional>
 #include <string>
 
+#include "base/gtest_prod_util.h"
 #include "base/memory/raw_ref.h"
 #include "base/scoped_observation.h"
 #include "brave/components/brave_wallet/browser/bitcoin/bitcoin_block_tracker.h"
 #include "brave/components/brave_wallet/browser/bitcoin/bitcoin_tx_meta.h"
 #include "brave/components/brave_wallet/browser/bitcoin/bitcoin_wallet_service.h"
 #include "brave/components/brave_wallet/browser/tx_manager.h"
+#include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 
 namespace brave_wallet {
 
@@ -28,6 +30,8 @@ class BitcoinTxStateManager;
 class BitcoinTxManager : public TxManager,
                          public BitcoinBlockTracker::Observer {
  public:
+  using AddUnapprovedBitcoinTransactionCallback =
+      mojom::TxService::AddUnapprovedBitcoinTransactionCallback;
   using GetBtcHardwareTransactionSignDataCallback =
       mojom::BtcTxManagerProxy::GetBtcHardwareTransactionSignDataCallback;
   using ProcessBtcHardwareSignatureCallback =
@@ -42,6 +46,10 @@ class BitcoinTxManager : public TxManager,
   BitcoinTxManager(const BitcoinTxManager&) = delete;
   BitcoinTxManager& operator=(const BitcoinTxManager&) = delete;
   std::unique_ptr<BitcoinTxMeta> GetTxForTesting(const std::string& tx_meta_id);
+
+  void AddUnapprovedBitcoinTransaction(
+      mojom::NewBitcoinTransactionParamsPtr params,
+      AddUnapprovedBitcoinTransactionCallback callback);
 
   void GetBtcHardwareTransactionSignData(
       const std::string& tx_meta_id,

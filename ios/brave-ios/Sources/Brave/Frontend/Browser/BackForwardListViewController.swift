@@ -7,6 +7,7 @@ import Shared
 import SnapKit
 import Storage
 import UIKit
+import Web
 import WebKit
 
 private struct BackForwardViewUX {
@@ -49,8 +50,8 @@ class BackForwardListViewController: UIViewController, UIGestureRecognizerDelega
 
   var tabManager: TabManager?
   weak var bvc: BrowserViewController?
-  private var currentItem: WKBackForwardListItem?
-  private var backForwardListData = [WKBackForwardListItem]()
+  private var currentItem: (any BackForwardListItemProxy)?
+  private var backForwardListData = [any BackForwardListItemProxy]()
 
   var tableHeight: CGFloat {
     assert(
@@ -75,7 +76,7 @@ class BackForwardListViewController: UIViewController, UIGestureRecognizerDelega
     return tabManager?.privateBrowsingManager.isPrivateBrowsing ?? false
   }
 
-  init(profile: Profile, backForwardList: WKBackForwardList) {
+  init(profile: Profile, backForwardList: BackForwardListProxy) {
     self.profile = profile
     super.init(nibName: nil, bundle: nil)
 
@@ -104,7 +105,7 @@ class BackForwardListViewController: UIViewController, UIGestureRecognizerDelega
     setupDismissTap()
   }
 
-  func homeAndNormalPagesOnly(_ bfList: WKBackForwardList) {
+  func homeAndNormalPagesOnly(_ bfList: BackForwardListProxy) {
     let items =
       bfList.forwardList.reversed() + [bfList.currentItem].compactMap({ $0 })
       + bfList.backList.reversed()
@@ -122,7 +123,7 @@ class BackForwardListViewController: UIViewController, UIGestureRecognizerDelega
     }
   }
 
-  func loadSites(_ bfList: WKBackForwardList) {
+  func loadSites(_ bfList: BackForwardListProxy) {
     currentItem = bfList.currentItem
     homeAndNormalPagesOnly(bfList)
   }
@@ -256,7 +257,7 @@ extension BackForwardListViewController: UITableViewDataSource {
     }()
 
     cell.isPrivateBrowsing = isPrivateBrowsing
-    cell.isCurrentTab = backForwardListData[indexPath.item] == self.currentItem
+    cell.isCurrentTab = backForwardListData[indexPath.item].url == self.currentItem?.url
     cell.connectingBackwards = indexPath.item != backForwardListData.count - 1
     cell.connectingForwards = indexPath.item != 0
 

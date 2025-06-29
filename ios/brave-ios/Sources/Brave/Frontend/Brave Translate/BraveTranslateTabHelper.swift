@@ -6,6 +6,7 @@
 import Foundation
 import Preferences
 import SwiftUI
+import Web
 import WebKit
 import os.log
 
@@ -21,7 +22,7 @@ enum BraveTranslateError: String, Error {
 }
 
 class BraveTranslateTabHelper: NSObject, TabObserver {
-  private weak var tab: Tab?
+  private weak var tab: (any TabState)?
   private weak var delegate: BraveTranslateScriptHandlerDelegate?
   private static var requestCache = [URL: (data: Data, response: HTTPURLResponse)]()
   private var tasks = [UUID: Task<Void, Error>]()
@@ -53,10 +54,10 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   // All TabHelpers in Chromium have a `WebState* web_state` parameter in their constructor
   // WebState in Brave, is the same as `Tab`.
-  init(tab: Tab, delegate: BraveTranslateScriptHandlerDelegate) {
+  init(tab: some TabState, delegate: BraveTranslateScriptHandlerDelegate) {
     self.tab = tab
     self.delegate = delegate
-    self.url = tab.url
+    self.url = tab.visibleURL
     super.init()
 
     translationController = UIHostingController(
@@ -104,14 +105,16 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
         throw BraveTranslateError.otherError
       }
 
-      guard let currentLanguage = currentLanguageInfo.currentLanguage.languageCode?.identifier,
-        let pageLanguage = currentLanguageInfo.pageLanguage?.languageCode?.identifier,
+      let currentLanguage = currentLanguageInfo.currentLanguage.braveTranslateLanguageIdentifier
+
+      guard
+        let pageLanguage = currentLanguageInfo.pageLanguage?.braveTranslateLanguageIdentifier,
         currentLanguage != pageLanguage
       else {
         throw BraveTranslateError.invalidLanguage
       }
 
-      let previousState = tab.translationState
+      let previousState = tab.translationState ?? .unavailable
       delegate.updateTranslateURLBar(tab: tab, state: .pending)
 
       // TranslateAgent::TranslateFrame
@@ -165,14 +168,9 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
       }
 
       // The library is ready, we can now begin translating the page
-
-      // Normalize Chinese if necessary to Chinese (Simplified). zh-TW = Traditional
-      // We don't current use the components/language/ios/browser/language_detection_java_script_feature.mm
-      // Supported List of Languages is from: components/translate/core/browser/translate_language_list.cc
-      // So we have to do this for now.
       let didStartTranslation = await translate(
-        from: pageLanguage == "zh" ? "zh-CN" : pageLanguage,
-        to: currentLanguage == "zh" ? "zh-CN" : currentLanguage
+        from: pageLanguage,
+        to: currentLanguage
       )
 
       try Task.checkCancellation()
@@ -278,20 +276,9 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
   func presentUI(on controller: UIViewController) {
     if translationController?.parent != controller {
       controller.addChild(translationController)
-      tab?.webView?.addSubview(translationController.view)
+      tab?.view.addSubview(translationController.view)
       translationController.didMove(toParent: controller)
-      tab?.webView?.sendSubviewToBack(translationController.view)
-    }
-  }
-
-  @MainActor
-  func setupOnboarding() async throws {
-    guard let tab = tab, let delegate = delegate else {
-      return
-    }
-
-    if delegate.canShowTranslateOnboarding(tab: tab) {
-      await detectLanguage()
+      tab?.view.sendSubviewToBack(translationController.view)
     }
   }
 
@@ -313,6 +300,13 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
     guard let pageLanguage = currentLanguageInfo.pageLanguage else {
       delegate.updateTranslateURLBar(tab: tab, state: .unavailable)
+      return
+    }
+
+    // Check if the page is already translated
+    let isTranslatedAlready = await isPageTranslated()
+    if isTranslatedAlready {
+      delegate.updateTranslateURLBar(tab: tab, state: .active)
       return
     }
 
@@ -339,11 +333,9 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
     // Check if the user can view the translation onboarding
     guard delegate.canShowTranslateOnboarding(tab: tab) else {
-      let translateEnabled = Preferences.Translate.translateEnabled.value == true
-
       delegate.updateTranslateURLBar(
         tab: tab,
-        state: translateEnabled ? .available : .unavailable
+        state: Preferences.Translate.translateEnabled.value ? .available : .unavailable
       )
 
       return
@@ -360,16 +352,13 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
     delegate.updateTranslateURLBar(
       tab: tab,
-      state: translateEnabled == true ? .available : .unavailable
+      state: translateEnabled ? .available : .unavailable
     )
 
     // User enabled translation via onboarding
-    if translateEnabled == true {
+    if translateEnabled {
       // Load the translate script manually
       try await loadTranslateScript()
-
-      // Automatically translate
-      startTranslation(canShowToast: true)
     }
   }
 
@@ -415,20 +404,31 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   // MARK: - TabObserver
 
-  func tabDidUpdateURL(_ tab: Tab) {
-    url = tab.url
-    canShowToast = false
-    currentLanguageInfo.currentLanguage = .init(identifier: Locale.current.identifier)
-    currentLanguageInfo.pageLanguage = nil
-    translationTask = nil
+  func tabDidUpdateURL(_ tab: some TabState) {
+    Task { @MainActor [weak self, weak tab] in
+      guard let self = self, let tab = tab else { return }
 
-    if let delegate = self.delegate {
-      delegate.updateTranslateURLBar(tab: tab, state: .unavailable)
-      BraveTranslateScriptHandler.checkTranslate(tab: tab)
+      url = tab.visibleURL
+      canShowToast = false
+      translationTask = nil
+
+      // Check if the page is already translated
+      let isTranslatedAlready = await isPageTranslated()
+      if isTranslatedAlready {
+        return
+      }
+
+      currentLanguageInfo.currentLanguage = .init(identifier: Locale.current.identifier)
+      currentLanguageInfo.pageLanguage = nil
+
+      if let delegate = self.delegate {
+        delegate.updateTranslateURLBar(tab: tab, state: .unavailable)
+        BraveTranslateScriptHandler.checkTranslate(tab: tab)
+      }
     }
   }
 
-  func tabWillBeDestroyed(_ tab: Tab) {
+  func tabWillBeDestroyed(_ tab: some TabState) {
     tab.removeObserver(self)
   }
 
@@ -436,17 +436,38 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   @MainActor
   private func loadTranslateScript() async throws {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       throw BraveTranslateError.otherError
     }
 
     // Lazy loading. Load the translate script if needed.
-    _ = try? await webView.callAsyncJavaScript(
+    _ = try? await tab.callAsyncJavaScript(
       """
       await window.__firefox__.\(BraveTranslateScriptHandler.namespace).loadTranslateScript();
       """,
       contentWorld: BraveTranslateScriptHandler.scriptSandbox
     )
+  }
+
+  @MainActor
+  private func isPageTranslated() async -> Bool {
+    guard let tab else { return false }
+
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: """
+          typeof cr != 'undefined' && typeof cr.googleTranslate != 'undefined' && 
+          typeof cr.googleTranslate.translate == 'function' &&
+          window.__firefox__.\(BraveTranslateScriptHandler.namespace).isPageTranslated()
+          """,
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? Bool == true
+    } catch {
+      Logger.module.error("isPageTranslated error: \(error)")
+      return false
+    }
   }
 
   @MainActor
@@ -471,7 +492,8 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
       if await hasTranslationFinished() {
         let actualSourceLanguage = await getPageSourceLanguage()
         if actualSourceLanguage.isEmpty
-          || actualSourceLanguage == currentLanguageInfo.currentLanguage.languageCode?.identifier
+          || actualSourceLanguage
+            == currentLanguageInfo.currentLanguage.braveTranslateLanguageIdentifier
         {
           delegate.updateTranslateURLBar(tab: tab, state: .available)
           delegate.presentTranslateError(tab: tab)
@@ -495,11 +517,8 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   @MainActor
   private func detectLanguage() async {
-    guard let webView = tab?.webView else {
-      return
-    }
-
-    _ = await webView.evaluateSafeJavaScript(
+    guard let tab else { return }
+    _ = try? await tab.evaluateJavaScript(
       functionName: "__gCrWeb.languageDetection.detectLanguage",
       contentWorld: BraveTranslateScriptHandler.scriptSandbox,
       asFunction: true
@@ -508,52 +527,47 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   @MainActor
   private func getPageSourceLanguage() async -> String {
-    guard let webView = tab?.webView else {
-      return ""
-    }
+    guard let tab else { return "" }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.sourceLang",
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.sourceLang",
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? String ?? ""
+    } catch {
       Logger.module.error("cr.googleTranslate.sourceLang error: \(error)")
       return ""
     }
-
-    return result as? String ?? ""
   }
 
   @MainActor
   private func translate(from pageLanguage: String, to currentLanguage: String) async -> Bool {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return false
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.translate",
-      args: [pageLanguage, currentLanguage],
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: true
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.translate",
+        args: [pageLanguage, currentLanguage],
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: true
+      )
+      return result as? Bool == true
+    } catch {
       Logger.module.error("cr.googleTranslate.translate error: \(error)")
       return false
     }
-
-    return result as? Bool == true
   }
 
-  @MainActor
-  private func undoTranslate() async {
-    guard let webView = tab?.webView else {
+  private func undoTranslate() {
+    guard let tab else {
       return
     }
 
-    _ = await webView.evaluateSafeJavaScript(
+    tab.evaluateJavaScript(
       functionName: "cr.googleTranslate.revert",
       contentWorld: BraveTranslateScriptHandler.scriptSandbox,
       asFunction: true
@@ -562,110 +576,104 @@ class BraveTranslateTabHelper: NSObject, TabObserver {
 
   @MainActor
   private func isTranslateLibAvailable() async -> Bool {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return false
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: """
-        typeof cr != 'undefined' && typeof cr.googleTranslate != 'undefined' && 
-        typeof cr.googleTranslate.translate == 'function' &&
-        window.__firefox__.\(BraveTranslateScriptHandler.namespace).translateScriptLoaded
-        """,
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: """
+          typeof cr != 'undefined' && typeof cr.googleTranslate != 'undefined' && 
+          typeof cr.googleTranslate.translate == 'function' &&
+          window.__firefox__.\(BraveTranslateScriptHandler.namespace).isTranslateScriptLoaded()
+          """,
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? Bool == true
+    } catch {
       Logger.module.error("cr.googleTranslate.translateLibAvailable error: \(error)")
       return false
     }
-
-    return result as? Bool == true
   }
 
   @MainActor
   private func isTranslateLibReady() async -> Bool {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return false
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.libReady",
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.libReady",
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? Bool == true
+    } catch {
       Logger.module.error("cr.googleTranslate.libReady error: \(error)")
       return false
     }
-
-    return result as? Bool == true
   }
 
   @MainActor
   private func hasTranslationFinished() async -> Bool {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return true
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.finished",
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.finished",
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? Bool ?? true
+    } catch {
       Logger.module.error("cr.googleTranslate.finished error: \(error)")
       return true
     }
-
-    return result as? Bool ?? true
   }
 
   @MainActor
   private func hasTranslationFailed() async -> Bool {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return true
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.error",
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.error",
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      return result as? Bool ?? true
+    } catch {
       Logger.module.error("cr.googleTranslate.error error: \(error)")
       return true
     }
-
-    return result as? Bool ?? true
   }
 
   @MainActor
   private func getTranslationErrorCode() async -> TranslateError {
-    guard let webView = tab?.webView else {
+    guard let tab else {
       return .errorMax
     }
 
-    let (result, error) = await webView.evaluateSafeJavaScript(
-      functionName: "cr.googleTranslate.errorCode",
-      contentWorld: BraveTranslateScriptHandler.scriptSandbox,
-      asFunction: false
-    )
-
-    if let error = error {
+    do {
+      let result = try await tab.evaluateJavaScript(
+        functionName: "cr.googleTranslate.errorCode",
+        contentWorld: BraveTranslateScriptHandler.scriptSandbox,
+        asFunction: false
+      )
+      if let result = result as? Int {
+        return .init(rawValue: result) ?? .errorMax
+      }
+      return .errorMax
+    } catch {
       Logger.module.error("cr.googleTranslate.errorCode error: \(error)")
       return .errorMax
     }
-
-    if let result = result as? Int {
-      return .init(rawValue: result) ?? .errorMax
-    }
-
-    return .errorMax
   }
 }
 

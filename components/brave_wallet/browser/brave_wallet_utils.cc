@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/span.h"
 #include "base/notreached.h"
 #include "base/strings/strcat.h"
@@ -423,7 +424,6 @@ void SetDefaultSolanaWallet(PrefService* prefs,
                             mojom::DefaultWallet default_wallet) {
   // We should not be using these values anymore
   DCHECK(default_wallet != mojom::DefaultWallet::AskDeprecated);
-  DCHECK(default_wallet != mojom::DefaultWallet::CryptoWallets);
   prefs->SetInteger(kDefaultSolanaWallet, static_cast<int>(default_wallet));
 }
 
@@ -473,13 +473,6 @@ std::vector<mojom::BlockchainTokenPtr> GetAllUserAssets(PrefService* prefs) {
       result.push_back(std::move(token_ptr));
     }
   }
-
-#if BUILDFLAG(ENABLE_ORCHARD)
-  if (IsZCashShieldedTransactionsEnabled()) {
-    result.push_back(GetZcashNativeShieldedToken(mojom::kZCashMainnet));
-    result.push_back(GetZcashNativeShieldedToken(mojom::kZCashTestnet));
-  }
-#endif
   return result;
 }
 
@@ -781,6 +774,10 @@ std::string WalletInternalErrorMessage() {
 
 std::string WalletParsingErrorMessage() {
   return l10n_util::GetStringUTF8(IDS_WALLET_PARSING_ERROR);
+}
+
+std::string WalletInsufficientBalanceErrorMessage() {
+  return l10n_util::GetStringUTF8(IDS_BRAVE_WALLET_INSUFFICIENT_BALANCE);
 }
 
 mojom::BlockchainTokenPtr GetBitcoinNativeToken(std::string_view chain_id) {

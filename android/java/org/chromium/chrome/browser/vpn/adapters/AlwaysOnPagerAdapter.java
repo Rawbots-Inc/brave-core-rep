@@ -7,7 +7,9 @@ package org.chromium.chrome.browser.vpn.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.Layout;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,25 +20,34 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
+import org.chromium.build.annotations.NullMarked;
 import org.chromium.chrome.R;
+import org.chromium.chrome.browser.customtabs.CustomTabActivity;
+import org.chromium.ui.text.ChromeClickableSpan;
 import org.chromium.ui.text.SpanApplier;
 import org.chromium.ui.text.SpanApplier.SpanInfo;
 
 import java.util.Arrays;
 import java.util.List;
 
+@NullMarked
 public class AlwaysOnPagerAdapter extends PagerAdapter {
-    private Context mContext;
-    private List<Integer> mImageResources =
+    private final Context mContext;
+
+    private static final String AUTO_RECONNECT_VPN_LINK =
+            "https://support.brave.com/hc/en-us/articles/29918727663373-How-do-I-connect-to-Brave-VPN-automatically#tab-2";
+
+    private final List<Integer> mImageResources =
             Arrays.asList(
                     R.drawable.ic_vpn_always_on_1,
                     R.drawable.ic_vpn_always_on_2,
                     R.drawable.ic_vpn_always_on_3);
-    private List<Integer> mTexts =
+    private final List<Integer> mTexts =
             Arrays.asList(
-                    R.string.kill_switch_tutorial_text_1,
-                    R.string.kill_switch_tutorial_text_2,
-                    R.string.kill_switch_tutorial_text_3);
+                    R.string.auto_reconnect_vpn_tutorial_text_1,
+                    R.string.auto_reconnect_vpn_tutorial_text_2,
+                    R.string.auto_reconnect_vpn_tutorial_text_3,
+                    R.string.auto_reconnect_vpn_tutorial_text_4);
 
     public AlwaysOnPagerAdapter(Context context) {
         this.mContext = context;
@@ -48,26 +59,59 @@ public class AlwaysOnPagerAdapter extends PagerAdapter {
         @SuppressLint("InflateParams")
         View view =
                 LayoutInflater.from(mContext)
-                        .inflate(R.layout.kill_switch_tutorial_item_layout, null);
-        TextView killSwitchTutorialText = view.findViewById(R.id.kill_switch_tutorial_text);
-        String killSwitchText = mContext.getResources().getString(mTexts.get(position));
+                        .inflate(R.layout.auto_reconnect_vpn_tutorial_item_layout, null);
+        TextView autoReconnectVpnTutorialText =
+                view.findViewById(R.id.auto_reconnect_vpn_tutorial_text);
+        String autoReconnectVpnText = mContext.getResources().getString(mTexts.get(position));
+        TextView autoReconnectVpnTutorialWarningText =
+                view.findViewById(R.id.auto_reconnect_vpn_tutorial_warning_text);
         if (position == 2) {
             SpannableString tutorialSpannableString =
                     SpanApplier.applySpans(
-                            killSwitchText,
+                            autoReconnectVpnText,
                             new SpanInfo(
-                                    "<always_on_tutorial>",
-                                    "</always_on_tutorial>",
-                                    null,
+                                    "<auto_reconnect_vpn_tutorial>",
+                                    "</auto_reconnect_vpn_tutorial>",
                                     new StyleSpan(android.graphics.Typeface.BOLD)));
-            killSwitchTutorialText.setText(tutorialSpannableString);
+            autoReconnectVpnTutorialText.setText(tutorialSpannableString);
+
+            String autoReconnectVpnWarningText =
+                    mContext.getResources().getString(mTexts.get(position + 1));
+            ChromeClickableSpan learnMoreClickableSpan =
+                    new ChromeClickableSpan(
+                            mContext.getColor(R.color.brave_blue_tint_color),
+                            (textView) -> {
+                                CustomTabActivity.showInfoPage(mContext, AUTO_RECONNECT_VPN_LINK);
+                            });
+            SpannableString learnMoreSpannableString =
+                    SpanApplier.applySpans(
+                            autoReconnectVpnWarningText,
+                            new SpanInfo("<learn_more>", "</learn_more>", learnMoreClickableSpan));
+
+            autoReconnectVpnTutorialWarningText.setMovementMethod(LinkMovementMethod.getInstance());
+            autoReconnectVpnTutorialWarningText.setText(learnMoreSpannableString);
+            autoReconnectVpnTutorialWarningText.post(
+                    () -> {
+                        Layout layout = autoReconnectVpnTutorialWarningText.getLayout();
+                        if (layout != null) {
+                            int desiredHeight =
+                                    layout.getLineTop(
+                                            autoReconnectVpnTutorialWarningText.getLineCount());
+                            ViewGroup.LayoutParams params =
+                                    autoReconnectVpnTutorialWarningText.getLayoutParams();
+                            params.height = desiredHeight;
+                            autoReconnectVpnTutorialWarningText.setLayoutParams(params);
+                            autoReconnectVpnTutorialWarningText.setVisibility(View.VISIBLE);
+                        }
+                    });
         } else {
-            killSwitchTutorialText.setText(killSwitchText);
+            autoReconnectVpnTutorialText.setText(autoReconnectVpnText);
         }
 
-        ImageView killSwitchTutorialImage = view.findViewById(R.id.kill_switch_tutorial_image);
-        int killSwitchImage = mImageResources.get(position);
-        killSwitchTutorialImage.setImageResource(killSwitchImage);
+        ImageView autoReconnectVpnTutorialImage =
+                view.findViewById(R.id.auto_reconnect_vpn_tutorial_image);
+        int autoReconnectVpnImage = mImageResources.get(position);
+        autoReconnectVpnTutorialImage.setImageResource(autoReconnectVpnImage);
 
         collection.addView(view);
         return view;

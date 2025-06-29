@@ -8,6 +8,8 @@
 #include <limits>
 #include <optional>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "brave/browser/ui/tabs/brave_tab_layout_constants.h"
 #include "brave/browser/ui/tabs/features.h"
 #include "brave/browser/ui/views/tabs/brave_tab_group_header.h"
@@ -26,7 +28,6 @@ namespace tabs {
 namespace {
 
 void CalculatePinnedTabsBoundsInGrid(
-    const TabLayoutConstants& layout_constants,
     const std::vector<TabWidthConstraints>& tabs,
     std::optional<int> width,
     bool is_floating_mode,
@@ -58,8 +59,10 @@ void CalculatePinnedTabsBoundsInGrid(
     }
 
     // Update rect for the next pinned tabs. If overflowed, break into new line
+    // Passed |true| as |is_split| but it doesn't have any meaning becuase we
+    // always use same width.
     if (rect.right() + kVerticalTabMinWidth + kVerticalTabsSpacing <
-        width.value_or(tab_style->GetStandardWidth())) {
+        width.value_or(tab_style->GetStandardWidth(/*is_split*/ true))) {
       rect.set_x(rect.right() + kVerticalTabsSpacing);
     } else {
       // New line
@@ -69,8 +72,7 @@ void CalculatePinnedTabsBoundsInGrid(
   }
 }
 
-void CalculateVerticalLayout(const TabLayoutConstants& layout_constants,
-                             const std::vector<TabWidthConstraints>& tabs,
+void CalculateVerticalLayout(const std::vector<TabWidthConstraints>& tabs,
                              std::optional<int> width,
                              std::vector<gfx::Rect>* result) {
   DCHECK(tabs.size());
@@ -120,26 +122,27 @@ int GetTabCornerRadius(const Tab& tab) {
   return brave_tabs::kTabBorderRadius;
 }
 
-std::vector<gfx::Rect> CalculateVerticalTabBounds(
-    const TabLayoutConstants& layout_constants,
+std::pair<std::vector<gfx::Rect>, LayoutDomain> CalculateVerticalTabBounds(
     const std::vector<TabWidthConstraints>& tabs,
     std::optional<int> width,
     bool is_floating_mode) {
+  // We can return LayoutDomain::kInactiveWidthEqualsActiveWidth always because
+  // vertical tab uses same width for active and inactive tabs.
   if (tabs.empty()) {
-    return std::vector<gfx::Rect>();
+    return {std::vector<gfx::Rect>(),
+            LayoutDomain::kInactiveWidthEqualsActiveWidth};
   }
 
   std::vector<gfx::Rect> bounds;
-  CalculatePinnedTabsBoundsInGrid(layout_constants, tabs, width,
-                                  is_floating_mode, &bounds);
-  CalculateVerticalLayout(layout_constants, tabs, width, &bounds);
+  CalculatePinnedTabsBoundsInGrid(tabs, width, is_floating_mode, &bounds);
+  CalculateVerticalLayout(tabs, width, &bounds);
 
   DCHECK_EQ(tabs.size(), bounds.size());
-  return bounds;
+  return {bounds, LayoutDomain::kInactiveWidthEqualsActiveWidth};
 }
 
 std::vector<gfx::Rect> CalculateBoundsForVerticalDraggedViews(
-    const std::vector<raw_ptr<TabSlotView, VectorExperimental>>& views,
+    const std::vector<TabSlotView*>& views,
     TabStrip* tab_strip) {
   const bool is_vertical_tabs_floating =
       static_cast<BraveTabStrip*>(tab_strip)->IsVerticalTabsFloating();
@@ -180,7 +183,7 @@ void UpdateInsertionIndexForVerticalTabs(
     const gfx::Rect& dragged_bounds,
     int first_dragged_tab_index,
     int num_dragged_tabs,
-    std::optional<tab_groups::TabGroupId> dragged_group,
+    bool dragged_group,
     int candidate_index,
     TabStripController* tab_strip_controller,
     TabContainer* tab_container,
@@ -188,7 +191,7 @@ void UpdateInsertionIndexForVerticalTabs(
     int& min_distance_index,
     TabStrip* tab_strip) {
   // We don't allow tab groups to be dragged over pinned tabs area.
-  if (dragged_group.has_value() && candidate_index != 0 &&
+  if (dragged_group && candidate_index != 0 &&
       tab_strip_controller->IsTabPinned(candidate_index - 1)) {
     return;
   }

@@ -114,7 +114,7 @@ export const AccountMenuButton = styled(WalletButton)`
 `
 
 export const AccountMenuIcon = styled(Icon).attrs({
-  name: 'more-vertical'
+  name: 'more-vertical',
 })`
   --leo-icon-size: 24px;
   color: ${leo.color.icon.default};
@@ -125,14 +125,6 @@ export const AccountBalanceText = styled(Text)`
   margin-right: 12px;
 `
 
-export const AccountDescription = styled.span`
-  font-family: Poppins;
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 400;
-  color: ${leo.color.text.secondary};
-`
-
 export const AccountNameWrapper = styled(Row)`
   @media screen and (max-width: ${layoutPanelWidth}px) {
     flex-direction: column;
@@ -141,7 +133,7 @@ export const AccountNameWrapper = styled(Row)`
 `
 
 export const WarningIcon = styled(Icon).attrs({
-  name: 'warning-triangle-filled'
+  name: 'warning-triangle-filled',
 })`
   --leo-icon-size: 20px;
   color: ${leo.color.systemfeedback.warningIcon};

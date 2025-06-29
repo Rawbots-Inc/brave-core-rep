@@ -56,15 +56,13 @@ void PurchaseIntentResource::Load() {
 }
 
 void PurchaseIntentResource::LoadCallback(
-    ResourceComponentParsingErrorOr<PurchaseIntentResourceInfo> result) {
-  if (!result.has_value()) {
+    std::optional<PurchaseIntentResourceInfo> resource) {
+  if (!resource) {
     return BLOG(0, "Failed to load and parse " << kPurchaseIntentResourceId
-                                               << " purchase intent resource ("
-                                               << result.error() << ")");
+                                               << " purchase intent resource");
   }
-  PurchaseIntentResourceInfo& resource = result.value();
 
-  if (!resource.version) {
+  if (!resource->version) {
     return BLOG(1, kPurchaseIntentResourceId
                        << " purchase intent resource is unavailable");
   }
@@ -88,11 +86,6 @@ void PurchaseIntentResource::Unload() {
        "Unloaded " << kPurchaseIntentResourceId << " purchase intent resource");
 
   resource_.reset();
-}
-
-void PurchaseIntentResource::OnNotifyLocaleDidChange(
-    const std::string& /*locale*/) {
-  MaybeLoad();
 }
 
 void PurchaseIntentResource::OnNotifyPrefDidChange(const std::string& path) {

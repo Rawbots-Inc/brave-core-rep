@@ -9,12 +9,12 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "base/functional/bind.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/notreached.h"
 #include "base/task/single_thread_task_runner.h"
-#include "brave/components/brave_shields/adblock/rs/src/lib.rs.h"
 #include "brave/components/brave_shields/content/browser/ad_block_service.h"
 #include "brave/components/brave_shields/content/browser/brave_shields_util.h"
 #include "brave/components/brave_shields/content/browser/domain_block_controller_client.h"
@@ -34,6 +34,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_user_data.h"
 #include "net/base/net_errors.h"
+#include "url/gurl.h"
 
 namespace brave_shields {
 
@@ -98,38 +99,37 @@ ShouldBlockDomainOnTaskRunner(brave_shields::AdBlockService* ad_block_service,
 namespace brave_shields {
 
 // static
-std::unique_ptr<DomainBlockNavigationThrottle>
-DomainBlockNavigationThrottle::MaybeCreateThrottleFor(
-    content::NavigationHandle* navigation_handle,
+void DomainBlockNavigationThrottle::MaybeCreateAndAdd(
+    content::NavigationThrottleRegistry& registry,
     AdBlockService* ad_block_service,
     AdBlockCustomFiltersProvider* ad_block_custom_filters_provider,
     ephemeral_storage::EphemeralStorageService* ephemeral_storage_service,
     HostContentSettingsMap* content_settings,
     const std::string& locale) {
   if (!ad_block_service || !ad_block_custom_filters_provider) {
-    return nullptr;
+    return;
   }
   if (!base::FeatureList::IsEnabled(
           brave_shields::features::kBraveDomainBlock)) {
-    return nullptr;
+    return;
   }
   // Don't block subframes.
-  if (!navigation_handle->IsInMainFrame()) {
-    return nullptr;
+  if (!registry.GetNavigationHandle().IsInMainFrame()) {
+    return;
   }
-  return std::make_unique<DomainBlockNavigationThrottle>(
-      navigation_handle, ad_block_service, ad_block_custom_filters_provider,
-      ephemeral_storage_service, content_settings, locale);
+  registry.AddThrottle(std::make_unique<DomainBlockNavigationThrottle>(
+      registry, ad_block_service, ad_block_custom_filters_provider,
+      ephemeral_storage_service, content_settings, locale));
 }
 
 DomainBlockNavigationThrottle::DomainBlockNavigationThrottle(
-    content::NavigationHandle* navigation_handle,
+    content::NavigationThrottleRegistry& registry,
     AdBlockService* ad_block_service,
     AdBlockCustomFiltersProvider* ad_block_custom_filters_provider,
     ephemeral_storage::EphemeralStorageService* ephemeral_storage_service,
     HostContentSettingsMap* content_settings,
     const std::string& locale)
-    : content::NavigationThrottle(navigation_handle),
+    : content::NavigationThrottle(registry),
       ad_block_service_(ad_block_service),
       ad_block_custom_filters_provider_(ad_block_custom_filters_provider),
       ephemeral_storage_service_(ephemeral_storage_service),

@@ -11,8 +11,10 @@ import NaturalLanguage
 import Preferences
 import Shared
 import SnapKit
+import SpeechRecognition
 import Strings
 import UIKit
+import Web
 
 protocol TabLocationViewDelegate {
   func tabLocationViewDidTapLocation(_ tabLocationView: TabLocationView)
@@ -41,8 +43,7 @@ private struct TabLocationViewUX {
 class TabLocationView: UIView {
   var delegate: TabLocationViewDelegate?
   let contentView = UIView()
-  private var tabObservers: TabObservers!
-  private var privateModeCancellable: AnyCancellable?
+  private var cancellables: Set<AnyCancellable> = []
 
   var url: URL? {
     didSet {
@@ -52,7 +53,7 @@ class TabLocationView: UIView {
     }
   }
 
-  var secureContentState: TabSecureContentState = .unknown {
+  var secureContentState: SecureContentState = .unknown {
     didSet {
       updateLeadingItem()
     }
@@ -94,7 +95,7 @@ class TabLocationView: UIView {
     switch secureContentState {
     case .localhost, .secure:
       break
-    case .invalidCert:
+    case .invalidCertificate:
       configuration.baseForegroundColor = UIColor(braveSystemName: .systemfeedbackErrorIcon)
       if isTitleVisible {
         configuration.attributedTitle = title
@@ -136,7 +137,6 @@ class TabLocationView: UIView {
 
   deinit {
     NotificationCenter.default.removeObserver(self)
-    unregister(tabObservers)
   }
 
   var readerModeState: ReaderModeState {
@@ -263,7 +263,6 @@ class TabLocationView: UIView {
     $0.accessibilityIdentifier = "TabToolbar.voiceSearchButton"
     $0.isAccessibilityElement = true
     $0.accessibilityLabel = Strings.tabToolbarVoiceSearchButtonAccessibilityLabel
-    $0.isHidden = !isVoiceSearchAvailable
     $0.setImage(UIImage(braveSystemNamed: "leo.microphone", compatibleWith: nil), for: .normal)
     $0.tintColor = .braveLabel
     $0.addTarget(self, action: #selector(didTapVoiceSearchButton), for: .touchUpInside)
@@ -274,7 +273,7 @@ class TabLocationView: UIView {
     $0.insetsLayoutMarginsFromSafeArea = false
   }
 
-  private var isVoiceSearchAvailable: Bool
+  private var speechRecognizer: SpeechRecognizer
   private let privateBrowsingManager: PrivateBrowsingManager
 
   private let placeholderLabel = UILabel().then {
@@ -325,13 +324,11 @@ class TabLocationView: UIView {
     $0.setGradientColors(startColor: .braveBlurpleTint, endColor: .braveBlurpleTint)
   }
 
-  init(voiceSearchSupported: Bool, privateBrowsingManager: PrivateBrowsingManager) {
+  init(speechRecognizer: SpeechRecognizer, privateBrowsingManager: PrivateBrowsingManager) {
+    self.speechRecognizer = speechRecognizer
     self.privateBrowsingManager = privateBrowsingManager
-    isVoiceSearchAvailable = voiceSearchSupported
 
     super.init(frame: .zero)
-
-    tabObservers = registerFor(.didChangeContentBlocking, .didGainFocus, queue: .main)
 
     addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapLocationBar)))
 
@@ -344,10 +341,8 @@ class TabLocationView: UIView {
       leadingItemStackView.addArrangedSubview($0)
     }
 
-    var trailingOptionSubviews: [UIView] = [walletButton, playlistButton]
-    if isVoiceSearchAvailable {
-      trailingOptionSubviews.append(voiceSearchButton)
-    }
+    var trailingOptionSubviews: [UIView] = [walletButton, playlistButton, voiceSearchButton]
+    voiceSearchButton.isHidden = !speechRecognizer.isVoiceSearchAvailable
     trailingOptionSubviews.append(contentsOf: [reloadButton])
 
     trailingOptionSubviews.forEach {
@@ -407,12 +402,20 @@ class TabLocationView: UIView {
       $0.leading.trailing.equalToSuperview()
     }
 
-    privateModeCancellable = privateBrowsingManager.$isPrivateBrowsing
+    privateBrowsingManager.$isPrivateBrowsing
       .removeDuplicates()
       .receive(on: RunLoop.main)
       .sink(receiveValue: { [weak self] _ in
         self?.updateColors()
       })
+      .store(in: &cancellables)
+
+    speechRecognizer.objectWillChange
+      .receive(on: RunLoop.main)
+      .sink { [weak self] in
+        self?.updateURLBarWithText()
+      }
+      .store(in: &cancellables)
 
     playlistButton.menuActionHandler = { [unowned self] action in
       self.delegate?.tabLocationViewDidTapPlaylistMenuAction(self, action: action)
@@ -575,7 +578,7 @@ class TabLocationView: UIView {
     }
 
     reloadButton.isHidden = url == nil
-    voiceSearchButton.isHidden = (url != nil) || !isVoiceSearchAvailable
+    voiceSearchButton.isHidden = (url != nil) || !speechRecognizer.isVoiceSearchAvailable
     placeholderLabel.isHidden = url != nil
     urlDisplayLabel.isHidden = url == nil
     leadingItemStackView.isHidden = url == nil
@@ -617,14 +620,6 @@ class TabLocationView: UIView {
 }
 
 // MARK: - TabEventHandler
-
-extension TabLocationView: TabEventHandler {
-  func tabDidGainFocus(_ tab: Tab) {
-  }
-
-  func tabDidChangeContentBlockerStatus(_ tab: Tab) {
-  }
-}
 
 private class DisplayURLLabel: UILabel {
   let pathPadding: CGFloat = 5.0

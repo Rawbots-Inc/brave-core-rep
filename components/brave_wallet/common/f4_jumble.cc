@@ -6,6 +6,7 @@
 #include "brave/components/brave_wallet/common/f4_jumble.h"
 
 #include <algorithm>
+#include <array>
 
 #include "base/containers/extend.h"
 #include "brave/components/brave_wallet/common/hash_utils.h"
@@ -61,7 +62,7 @@ std::vector<uint8_t> HRound(uint8_t iter,
                             base::span<const uint8_t> left,
                             base::span<const uint8_t> right) {
   std::vector<uint8_t> hash(left.size());
-  Blake2bHash(right, hash, GetHPersonalizer(iter));
+  Blake2bHash({right}, hash, GetHPersonalizer(iter));
 
   std::vector<uint8_t> result;
   result.reserve(left.size());
@@ -78,7 +79,7 @@ std::vector<uint8_t> GRound(uint8_t i,
   std::vector<uint8_t> result;
   result.reserve(right.size());
   for (size_t j = 0; j < blocks_count; j++) {
-    auto hash = Blake2bHash<kLeftSize>(left, GetGPersonalizer(i, j));
+    auto hash = Blake2bHash<kLeftSize>({left}, GetGPersonalizer(i, j));
     for (size_t k = 0; k < hash.size() && (j * kLeftSize + k < right.size());
          k++) {
       result.push_back(right[j * kLeftSize + k] ^ hash[k]);

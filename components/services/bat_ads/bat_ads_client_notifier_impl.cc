@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#include "base/check.h"
+
 namespace bat_ads {
 
 BatAdsClientNotifierImpl::BatAdsClientNotifierImpl(
@@ -40,11 +42,6 @@ void BatAdsClientNotifierImpl::NotifyPendingObservers() {
 
 void BatAdsClientNotifierImpl::NotifyDidInitializeAds() {
   ads_client_notifier_.NotifyDidInitializeAds();
-}
-
-void BatAdsClientNotifierImpl::NotifyLocaleDidChange(
-    const std::string& locale) {
-  ads_client_notifier_.NotifyLocaleDidChange(locale);
 }
 
 void BatAdsClientNotifierImpl::NotifyPrefDidChange(const std::string& path) {

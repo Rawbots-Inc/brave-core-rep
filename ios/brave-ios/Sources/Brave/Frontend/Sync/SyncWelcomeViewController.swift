@@ -6,9 +6,11 @@ import BraveCore
 import BraveShared
 import BraveUI
 import Data
+import DesignSystem
 import Preferences
 import Shared
 import UIKit
+import Web
 import os.log
 
 /// Sometimes during heavy operations we want to prevent user from navigating back, changing screen etc.
@@ -78,7 +80,6 @@ class SyncWelcomeViewController: SyncViewController {
 
   private var syncServiceObserver: AnyObject?
   private var syncDeviceInfoObserver: AnyObject?
-  private let tabManager: TabManager
 
   lazy var mainStackView: UIStackView = {
     let stackView = UIStackView()
@@ -163,20 +164,20 @@ class SyncWelcomeViewController: SyncViewController {
     return button
   }()
 
-  private let braveCore: BraveCoreMain
+  private let braveCore: BraveProfileController
   private let syncAPI: BraveSyncAPI
   private let syncProfileServices: BraveSyncProfileServiceIOS
+  private var isModallyPresented = false
 
   init(
-    braveCore: BraveCoreMain,
-    tabManager: TabManager,
+    braveCore: BraveProfileController,
     windowProtection: WindowProtection?,
     isModallyPresented: Bool = false
   ) {
     self.braveCore = braveCore
     self.syncAPI = braveCore.syncAPI
     self.syncProfileServices = braveCore.syncProfileService
-    self.tabManager = tabManager
+    self.isModallyPresented = isModallyPresented
 
     super.init(windowProtection: windowProtection, isModallyPresented: isModallyPresented)
   }
@@ -222,14 +223,26 @@ class SyncWelcomeViewController: SyncViewController {
     mainStackView.addArrangedSubview(buttonsStackView)
 
     navigationItem.rightBarButtonItem = UIBarButtonItem(
-      image: UIImage(systemName: "gearshape"),
+      image: UIImage(braveSystemNamed: "leo.settings"),
       style: .plain,
       target: self,
       action: #selector(onSyncInternalsAction)
     )
+
+    if isModallyPresented {
+      navigationItem.leftBarButtonItem = UIBarButtonItem(
+        barButtonSystemItem: .done,
+        target: self,
+        action: #selector(doneTapped)
+      )
+    }
   }
 
   // MARK: Actions
+
+  @objc private func doneTapped() {
+    dismiss(animated: true)
+  }
 
   @objc
   private func newToSyncAction() {
@@ -307,19 +320,15 @@ class SyncWelcomeViewController: SyncViewController {
 
   @objc
   private func onSyncInternalsAction() {
-    askForAuthentication(viewType: .sync) { [weak self] status, error in
-      guard let self = self, status else { return }
-
-      let syncInternalsController = ChromeWebUIController(
-        braveCore: braveCore,
-        isPrivateBrowsing: false
-      ).then {
-        $0.title = Strings.Sync.internalsTitle
-        $0.webView.load(URLRequest(url: URL(string: "brave://sync-internals")!))
-      }
-
-      navigationController?.pushViewController(syncInternalsController, animated: true)
+    let syncInternalsController = ChromeWebUIController(
+      braveCore: braveCore,
+      isPrivateBrowsing: false
+    ).then {
+      $0.title = Strings.Sync.internalsTitle
+      $0.webView.load(URLRequest(url: URL(string: "brave://sync-internals")!))
     }
+
+    navigationController?.pushViewController(syncInternalsController, animated: true)
   }
 
   // MARK: Internal
@@ -333,7 +342,6 @@ class SyncWelcomeViewController: SyncViewController {
     let syncSettingsVC = SyncSettingsTableViewController(
       isModallyPresented: true,
       braveCoreMain: braveCore,
-      tabManager: tabManager,
       windowProtection: windowProtection
     )
 

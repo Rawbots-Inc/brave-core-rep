@@ -6,22 +6,15 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_SHIELDS_CONTENT_BROWSER_DOMAIN_BLOCK_NAVIGATION_THROTTLE_H_
 #define BRAVE_COMPONENTS_BRAVE_SHIELDS_CONTENT_BROWSER_DOMAIN_BLOCK_NAVIGATION_THROTTLE_H_
 
-#include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "brave/components/brave_shields/content/browser/brave_shields_util.h"
 #include "content/public/browser/navigation_throttle.h"
-#include "url/gurl.h"
 
 class HostContentSettingsMap;
-
-namespace content {
-class NavigationHandle;
-}  // namespace content
+class GURL;
 
 namespace ephemeral_storage {
 class EphemeralStorageService;
@@ -36,7 +29,7 @@ class DomainBlockNavigationThrottle : public content::NavigationThrottle {
  public:
   struct BlockResult;
   explicit DomainBlockNavigationThrottle(
-      content::NavigationHandle* navigation_handle,
+      content::NavigationThrottleRegistry& registry,
       AdBlockService* ad_block_service,
       AdBlockCustomFiltersProvider* ad_block_custom_filters_provider,
       ephemeral_storage::EphemeralStorageService* ephemeral_storage_service,
@@ -48,8 +41,8 @@ class DomainBlockNavigationThrottle : public content::NavigationThrottle {
   DomainBlockNavigationThrottle& operator=(
       const DomainBlockNavigationThrottle&) = delete;
 
-  static std::unique_ptr<DomainBlockNavigationThrottle> MaybeCreateThrottleFor(
-      content::NavigationHandle* navigation_handle,
+  static void MaybeCreateAndAdd(
+      content::NavigationThrottleRegistry& registry,
       AdBlockService* ad_block_service,
       AdBlockCustomFiltersProvider* ad_block_custom_filters_provider,
       ephemeral_storage::EphemeralStorageService* ephemeral_storage_service,

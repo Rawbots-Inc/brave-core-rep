@@ -3,12 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#ifdef UNSAFE_BUFFERS_BUILD
-// TODO(https://github.com/brave/brave-browser/issues/41661): Remove this and
-// convert code to safer constructs.
-#pragma allow_unsafe_buffers
-#endif
-
 #include "brave/sandbox/win/src/module_file_name_interception.h"
 
 #include <string.h>
@@ -18,19 +12,20 @@
 #include <string>
 #include <string_view>
 
+#include "base/compiler_specific.h"
 #include "base/strings/string_util.h"
 #include "base/win/windows_types.h"
 
 namespace {
 
 void ReplaceAt(char* dest, size_t dest_size, std::string_view src) {
-  ::strncpy_s(dest, dest_size, src.data(),
-              std::min(dest_size - 1, src.length()));
+  UNSAFE_TODO(::strncpy_s(dest, dest_size, src.data(),
+                          std::min(dest_size - 1, src.length())));
 }
 
 void ReplaceAt(wchar_t* dest, size_t dest_size, std::wstring_view src) {
-  ::wcsncpy_s(dest, dest_size, src.data(),
-              std::min(dest_size - 1, src.length()));
+  UNSAFE_TODO(::wcsncpy_s(dest, dest_size, src.data(),
+                          std::min(dest_size - 1, src.length())));
 }
 
 template <typename CharT>
@@ -82,12 +77,13 @@ std::optional<DWORD> PatchFilenameImpl(CharT* filename,
   --size;  // space for null-terminator
 
   const size_t brave_pos = length - kBraveLen;
-  ReplaceAt(filename + brave_pos, size - brave_pos, FromTo<CharT>::kChrome);
+  ReplaceAt(UNSAFE_TODO(filename + brave_pos), size - brave_pos,
+            FromTo<CharT>::kChrome);
   if (size < length + kLenDiff) {
     ::SetLastError(ERROR_INSUFFICIENT_BUFFER);
   }
   length = std::min(size, length + kLenDiff);
-  filename[length] = 0;
+  UNSAFE_TODO(filename[length]) = 0;
   return length;
 }
 

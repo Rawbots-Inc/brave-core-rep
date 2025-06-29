@@ -6,6 +6,9 @@
 #ifndef BRAVE_BROWSER_UI_VIEWS_SPLIT_VIEW_SPLIT_VIEW_SEPARATOR_H_
 #define BRAVE_BROWSER_UI_VIEWS_SPLIT_VIEW_SPLIT_VIEW_SEPARATOR_H_
 
+#include <memory>
+
+#include "base/gtest_prod_util.h"
 #include "base/memory/raw_ptr.h"
 #include "base/scoped_observation.h"
 #include "brave/browser/ui/views/split_view/split_view_separator_delegate.h"
@@ -28,9 +31,15 @@ class SplitViewSeparator : public views::ResizeArea,
   explicit SplitViewSeparator(Browser* browser);
   ~SplitViewSeparator() override;
 
-  void set_delegate(SplitViewSeparatorDelegate* delegate) {
+  void set_resize_delegate(views::ResizeAreaDelegate* delegate) {
     resize_area_delegate_ = delegate;
   }
+
+  void set_separator_delegate(SplitViewSeparatorDelegate* delegate) {
+    separator_delegate_ = delegate;
+  }
+
+  void ShowMenuButtonWidget();
 
   // views::View:
   void AddedToWidget() override;
@@ -53,15 +62,26 @@ class SplitViewSeparator : public views::ResizeArea,
   void OnViewBoundsChanged(views::View* observed_view) override;
 
  private:
+  FRIEND_TEST_ALL_PREFIXES(SideBySideEnabledBrowserTest,
+                           BraveMultiContentsViewTest);
+  FRIEND_TEST_ALL_PREFIXES(SideBySideEnabledBrowserTest, SelectTabTest);
+  FRIEND_TEST_ALL_PREFIXES(SplitViewBrowserTest,
+                           TilingTwoTabsMakesSecondaryWebViewVisible);
+  FRIEND_TEST_ALL_PREFIXES(SplitViewBrowserTest,
+                           BreakingTileMakesSecondaryWebViewHidden);
+  FRIEND_TEST_ALL_PREFIXES(SplitViewBrowserTest,
+                           ActivateNonTiledTabShouldHideSecondaryWebView);
+
   void CreateMenuButton();
   void LayoutMenuButton();
 
   raw_ptr<Browser> browser_ = nullptr;
 
-  raw_ptr<SplitViewSeparatorDelegate, DanglingUntriaged> resize_area_delegate_ =
-      nullptr;
+  raw_ptr<views::ResizeAreaDelegate> resize_area_delegate_ = nullptr;
 
-  raw_ptr<views::Widget, DanglingUntriaged> menu_button_widget_ = nullptr;
+  raw_ptr<SplitViewSeparatorDelegate> separator_delegate_ = nullptr;
+
+  std::unique_ptr<views::Widget> menu_button_widget_;
 
   base::ScopedObservation<views::Widget, views::WidgetObserver>
       parent_widget_observation_{this};

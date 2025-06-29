@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <vector>
 
+#include "base/check.h"
 #include "base/environment.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
@@ -16,7 +17,7 @@
 #include "base/json/json_writer.h"
 #include "base/logging.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/strings/stringprintf.h"
+#include "base/strings/string_util.h"
 #include "base/task/thread_pool.h"
 #include "base/values.h"
 #include "brave/brave_domains/service_domains.h"
@@ -128,9 +129,9 @@ std::string ReadPromoCode(const base::FilePath& promo_code_file) {
 }
 
 std::string BuildReferralEndpoint(const std::string& path) {
-  std::unique_ptr<base::Environment> env(base::Environment::Create());
-  std::string referral_server;
-  env->GetVar("BRAVE_REFERRALS_SERVER", &referral_server);
+  auto env = base::Environment::Create();
+  std::string referral_server =
+      env->GetVar("BRAVE_REFERRALS_SERVER").value_or(std::string());
   if (referral_server.empty()) {
     auto referral_domain = brave_domains::GetServicesDomain("usage-ping");
     referral_server = base::StrCat(
@@ -316,15 +317,14 @@ void BraveReferralsService::OnReferralFinalizationCheckLoadComplete(
 void BraveReferralsService::OnReadPromoCodeComplete(
     const std::string& promo_code) {
   promo_code_ = promo_code;
-  if (!promo_code_.empty() && !IsDefaultReferralCode(promo_code_)) {
+  // store referral code if it's not empty (ex: it's the default code)
+  if (!promo_code_.empty()) {
     pref_service_->SetString(kReferralPromoCode, promo_code_);
+  }
+  if (!promo_code_.empty() && !IsDefaultReferralCode(promo_code_)) {
     DCHECK(!initialization_timer_);
     InitReferral();
   } else {
-    // store referral code if it's not empty (ex: it's the default code)
-    if (!promo_code_.empty()) {
-      pref_service_->SetString(kReferralPromoCode, promo_code_);
-    }
     // No referral code or it's the default, no point of reporting it.
     pref_service_->SetBoolean(kReferralInitialization, true);
     if (g_testing_referral_initialized_callback) {
@@ -401,9 +401,9 @@ void BraveReferralsService::MaybeCheckForReferralFinalization() {
   // Only check for referral finalization after 30 days have elapsed
   // since first run.
   uint64_t check_time = 30 * 24 * 60 * 60;
-  std::unique_ptr<base::Environment> env(base::Environment::Create());
-  std::string check_time_str;
-  env->GetVar("BRAVE_REFERRALS_CHECK_TIME", &check_time_str);
+  auto env = base::Environment::Create();
+  std::string check_time_str =
+      env->GetVar("BRAVE_REFERRALS_CHECK_TIME").value_or(std::string());
   if (!check_time_str.empty())
     base::StringToUint64(check_time_str, &check_time);
 
@@ -411,11 +411,13 @@ void BraveReferralsService::MaybeCheckForReferralFinalization() {
   if (now - first_run_timestamp_ < base::Seconds(check_time))
     return;
 
+  bool stats_reporting_enabled =
+      pref_service_->GetBoolean(kStatsReportingEnabled);
   // Only check for referral finalization 30 times, with a 24-hour
-  // wait between checks.
+  // wait between checks or if stats reporting is disabled.
   base::Time timestamp = pref_service_->GetTime(kReferralAttemptTimestamp);
   int count = pref_service_->GetInteger(kReferralAttemptCount);
-  if (count >= 30) {
+  if (count >= 30 || !stats_reporting_enabled) {
     pref_service_->ClearPref(kReferralAttemptTimestamp);
     pref_service_->ClearPref(kReferralAttemptCount);
     pref_service_->ClearPref(kReferralDownloadID);
@@ -435,9 +437,9 @@ void BraveReferralsService::MaybeDeletePromoCodePref() const {
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 
   uint64_t delete_time = 90 * 24 * 60 * 60;
-  std::unique_ptr<base::Environment> env(base::Environment::Create());
-  std::string delete_time_str;
-  env->GetVar("BRAVE_REFERRALS_DELETE_TIME", &delete_time_str);
+  auto env = base::Environment::Create();
+  std::string delete_time_str =
+      env->GetVar("BRAVE_REFERRALS_DELETE_TIME").value_or(std::string());
   if (!delete_time_str.empty())
     base::StringToUint64(delete_time_str, &delete_time);
 
@@ -471,6 +473,15 @@ std::string BraveReferralsService::BuildReferralFinalizationCheckPayload()
 }
 
 void BraveReferralsService::InitReferral() {
+  if (!pref_service_->GetBoolean(kStatsReportingEnabled)) {
+    pref_service_->SetBoolean(kReferralInitialization, true);
+    if (g_testing_referral_initialized_callback) {
+      g_testing_referral_initialized_callback->Run(std::string());
+    }
+    task_runner_->PostTask(FROM_HERE, base::BindOnce(&DeletePromoCodeFile,
+                                                     GetPromoCodeFileName()));
+    return;
+  }
   net::NetworkTrafficAnnotationTag traffic_annotation =
       net::DefineNetworkTrafficAnnotation("brave_referral_initializer", R"(
         semantics {

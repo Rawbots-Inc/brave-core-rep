@@ -5,6 +5,7 @@
 import BraveCore
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -22,7 +23,7 @@ class AdsMediaReportingScriptHandler: TabContentScript {
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -39,9 +40,9 @@ class AdsMediaReportingScriptHandler: TabContentScript {
 
     if let isPlaying = body["data"] as? Bool {
       if isPlaying {
-        rewards.reportMediaStarted(tabId: Int(tab.rewardsId))
+        rewards.reportMediaStarted(tabId: Int(tab.rewardsId ?? 0))
       } else {
-        rewards.reportMediaStopped(tabId: Int(tab.rewardsId))
+        rewards.reportMediaStopped(tabId: Int(tab.rewardsId ?? 0))
       }
     }
   }

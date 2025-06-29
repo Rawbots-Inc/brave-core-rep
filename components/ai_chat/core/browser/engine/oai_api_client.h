@@ -16,7 +16,6 @@
 #include "base/types/expected.h"
 #include "base/values.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
-#include "brave/components/ai_chat/core/browser/engine/remote_completion_client.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
 #include "brave/components/api_request_helper/api_request_helper.h"
 
@@ -36,11 +35,10 @@ class CustomModelOptions;
 // Performs remote request to the OAI format APIs.
 class OAIAPIClient {
  public:
-  using GenerationResult = base::expected<std::string, mojom::APIError>;
-  using GenerationDataCallback =
-      base::RepeatingCallback<void(mojom::ConversationEntryEventPtr)>;
+  using GenerationResult = EngineConsumer::GenerationResult;
+  using GenerationDataCallback = EngineConsumer::GenerationDataCallback;
   using GenerationCompletedCallback =
-      base::OnceCallback<void(GenerationResult)>;
+      EngineConsumer::GenerationCompletedCallback;
 
   explicit OAIAPIClient(
       scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory);
@@ -67,7 +65,7 @@ class OAIAPIClient {
 
  private:
   void OnQueryCompleted(GenerationCompletedCallback callback,
-                        APIRequestResult result);
+                        api_request_helper::APIRequestResult result);
   void OnQueryDataReceived(GenerationDataCallback callback,
                            base::expected<base::Value, std::string> result);
 

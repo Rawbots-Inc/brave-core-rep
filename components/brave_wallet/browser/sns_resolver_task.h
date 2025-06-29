@@ -6,12 +6,14 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_SNS_RESOLVER_TASK_H_
 #define BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_SNS_RESOLVER_TASK_H_
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/memory/weak_ptr.h"
 #include "base/notreached.h"
 #include "brave/components/api_request_helper/api_request_helper.h"

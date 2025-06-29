@@ -33,23 +33,29 @@ TEST_F(BraveAdsCreativeInstanceExclusionRuleTest, ShouldAlwaysInclude) {
   const CreativeInstanceExclusionRule exclusion_rule(/*ad_events=*/{});
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsCreativeInstanceExclusionRuleTest,
        ShouldIncludeIfThereAreNoAdEvents) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
 
   const CreativeInstanceExclusionRule exclusion_rule(/*ad_events=*/{});
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsCreativeInstanceExclusionRuleTest, ShouldIncludeAfter1Hour) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
 
@@ -65,12 +71,15 @@ TEST_F(BraveAdsCreativeInstanceExclusionRuleTest, ShouldIncludeAfter1Hour) {
   AdvanceClockBy(base::Hours(1));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsCreativeInstanceExclusionRuleTest,
        ShouldIncludeAfter1HourForMultipleAdTypes) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
 
@@ -105,12 +114,15 @@ TEST_F(BraveAdsCreativeInstanceExclusionRuleTest,
   AdvanceClockBy(base::Hours(1));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsCreativeInstanceExclusionRuleTest,
        ShouldExcludeTheSameAdWithin1Hour) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
 
@@ -126,7 +138,7 @@ TEST_F(BraveAdsCreativeInstanceExclusionRuleTest,
   AdvanceClockBy(base::Hours(1) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 }  // namespace brave_ads

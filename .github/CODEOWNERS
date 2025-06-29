@@ -7,15 +7,23 @@ script/uplift.py @bsclifton
 /README.md @bsclifton
 script/deps.py @brave/deps-reviewers
 package*.json @brave/js-deps-reviewers
+rewrite/ @bridiver @cdesouza-chromium
 
-# brave/browser/ui/BUILD.gn should not have new files added to it
+# Views
+# Do not add to BRAVE_VIEW_OWNED_BY_CLIENT_PASS_KEY
+chromium_src/ui/views/view.h @bridiver @cdesouza-chromium
+
+# brave/browser/ui/BUILD.gn should not have new source files added to it. see
+# https://github.com/brave/brave-core/blob/master/docs/gni_sources.md#circular-dependencies-circular-dependencies
 browser/ui/BUILD.gn @bridiver
 
 # BraveBrowserProcess public interface
-browser/brave_browser_process.h @bridiver
+# Global services should use GlobalDesktopFeatures
+# https://chromium.googlesource.com/chromium/src/+/main/docs/chrome_browser_design_principles.md#structure_modularity
+browser/brave_browser_process.h @bridiver @goodov
 
 # New WebUI should use RegisterChromeWebUIConfigs
-browser/ui/webui/brave_web_uicontroller_factory.cc @bridiver
+browser/ui/webui/brave_web_uicontroller_factory.cc @bridiver @petemill
 
 # BraveComponent is deprecated
 components/brave_component_updater/browser/brave_component.h @bridiver @antonok-edm
@@ -60,6 +68,10 @@ brave/components/brave_ads/core/internal/security/**/*.cc @brave/ads-client
 brave/components/brave_ads/core/internal/security/**/*.h @brave/ads-client
 brave/components/brave_ads/core/internal/security/**/*.mm @brave/ads-client
 
+# Brave l10n components are deprecated. Use Chromium's functionality
+# unless no equivalent is available.
+brave/components/l10n/ @tmancey @bridiver
+
 # Network
 browser/net/ @iefremov
 chromium_src/chrome/browser/net/profile_network_context_service.cc @brave/sec-team
@@ -72,9 +84,21 @@ browser/ui/webui/settings/brave_tor*.* @brave/tor-reviewers
 components/tor/ @brave/tor-reviewers
 net/proxy_resolution/ @brave/tor-reviewers
 
+# New tab page
+browser/resources/brave_new_tab_page_refresh @brave/brave-core-ntp
+browser/ui/webui/brave_new_tab_page_refresh @brave/brave-core-ntp
+
 # Chromium Extension API modifications
 chromium_src/**/extensions/**/*_features.json @brave/sec-team
 chromium_src/tools/json_schema_compiler/ @brave/sec-team
+common/extensions/api/ @brave/sec-team
+
+# chromium_src Typescript and CSS overrides
+chromium_src/**/*.css @brave/chromium-src-web-reviewers
+chromium_src/**/*.ts @brave/chromium-src-web-reviewers
+
+# Lit Mangling
+tools/chromium_src/lit_mangler/ @brave/chromium-src-web-reviewers
 
 # Brave theme
 browser/themes @simonhong
@@ -147,6 +171,11 @@ third_party/boost @brave/deps-reviewers
 
 # Network auditor
 browser/net/brave_network_audit_allowed_lists.h @brave/sec-team
+browser/net/brave_network_audit_rewards_browsertest.cc @brave/sec-team
+browser/net/brave_network_audit_search_ad_browsertest.cc @brave/sec-team
+
+# Canary
+tools/cr/ @brave/chromium-rebase-team
 
 # iOS
 /ios/ @brave/ios
@@ -156,7 +185,7 @@ build/ios/ @brave/ios
 android/android_browser_tests.gni @brave/android-tests-reviewers
 
 # Android res
-android/java/res @deeppandya
+android/java/res @brave/Android
 
 # BravePrefServiceBridge.java is going to be retired soon. We
 # have that owners record temporary to avoid people adding
@@ -164,13 +193,16 @@ android/java/res @deeppandya
 android/java/org/chromium/chrome/browser/preferences/BravePrefServiceBridge.java @AlexeyBarabash @samartnik @SergeyZhukovsky
 
 # GitHub configuration
-/.github/ @brave/devops-team
-/.github/CODEOWNERS @brave/devops-team @bsclifton
+/.github/ @bridiver @cdesouza-chromium
+/.github/CODEOWNERS @bridiver @bsclifton
 /.github/PULL_REQUEST_TEMPLATE.md @bsclifton
 
 
 # Semgrep configuration
 /.semgrepignore @thypon
+
+# Deprecated android util directory
+android/java/org/chromium/chrome/browser/util @bridiver
 
 # These rules are last to take precedence over directory rules.Do not add any
 # new rules below this line without checking with @bridiver
@@ -180,7 +212,7 @@ android/java/org/chromium/chrome/browser/preferences/BravePrefServiceBridge.java
 
 # Rust deps
 **/Cargo.* @brave/rust-deps-reviewers
-third_party/rust @bridiver
+third_party/rust @bridiver @cdesouza-chromium
 
 # include_rules
 DEPS @brave/deps-reviewers
@@ -188,21 +220,22 @@ DEPS @brave/deps-reviewers
 # sources.gni - see docs/gni_sources.md
 **/sources.gni @brave/sources-gni-reviewers
 **/*_sources.gni @brave/sources-gni-reviewers
+android/brave_java_sources.gni @brave/Android
 docs/gni_sources.md @brave/sources-gni-reviewers
 
 # Rust code
 **/*.rs @brave/rust-reviewers
 
 # Third-party binaries
-**/*.aar @bridiver
-**/*.jar @bridiver
-**/*.apk @bridiver
-**/*.dex @bridiver
-**/*.lib @bridiver
-**/*.so @bridiver
-**/*.o @bridiver
-**/*.dll @bridiver
-**/*.dylib @bridiver
+**/*.aar @brave/sec-team
+**/*.jar @brave/sec-team
+**/*.apk @brave/sec-team
+**/*.dex @brave/sec-team
+**/*.lib @brave/sec-team
+**/*.so @brave/sec-team
+**/*.o @brave/sec-team
+**/*.dll @brave/sec-team
+**/*.dylib @brave/sec-team
 
 # Strings
 **/*.grd @brave/string-reviewers-team
@@ -220,3 +253,8 @@ script/lib/l10n/requirements.txt @brave/sec-team
 
 # protected URLs (needs security review)
 components/skus/common/skus_utils.h @brave/sec-team
+
+# for brave_exec_script_allowlist
+build/dotfile_settings.gni @bridiver @goodov
+
+docs/gni_sources.md @bridiver

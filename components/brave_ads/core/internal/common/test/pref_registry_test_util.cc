@@ -12,15 +12,14 @@
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
 #include "brave/components/brave_news/common/pref_names.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
-#include "brave/components/l10n/common/locale_util.h"
-#include "brave/components/l10n/common/prefs.h"
 #include "brave/components/ntp_background_images/common/pref_names.h"
+#include "brave/components/p3a/pref_names.h"
 
 namespace brave_ads::test {
 
 void RegisterLocalStatePrefs() {
-  RegisterLocalStateStringPref(brave_l10n::prefs::kCountryCode,
-                               brave_l10n::GetDefaultISOCountryCodeString());
+  // P3A prefs.
+  RegisterLocalStateBooleanPref(p3a::kP3AEnabled, true);
 }
 
 void RegisterProfilePrefs() {
@@ -57,6 +56,7 @@ void RegisterProfilePrefs() {
   RegisterProfileListPref(prefs::kSaveAds);
   RegisterProfileListPref(prefs::kMarkedAsInappropriate);
 
+  RegisterProfileBooleanPref(prefs::kHasMigratedState, true);
   RegisterProfileBooleanPref(prefs::kHasMigratedClientState, true);
   RegisterProfileBooleanPref(prefs::kHasMigratedConfirmationState, true);
 
@@ -64,6 +64,8 @@ void RegisterProfilePrefs() {
 
   // Rewards prefs.
   RegisterProfileBooleanPref(brave_rewards::prefs::kEnabled, true);
+  RegisterProfileStringPref(brave_rewards::prefs::kExternalWalletType,
+                            "connected");
 
   // Brave News prefs.
   RegisterProfileBooleanPref(brave_news::prefs::kBraveNewsOptedIn, true);
@@ -75,6 +77,9 @@ void RegisterProfilePrefs() {
   RegisterProfileBooleanPref(ntp_background_images::prefs::
                                  kNewTabPageShowSponsoredImagesBackgroundImage,
                              true);
+  RegisterProfileBooleanPref(
+      ntp_background_images::prefs::kNewTabPageSponsoredImagesSurveyPanelist,
+      true);
 }
 
 }  // namespace brave_ads::test

@@ -15,7 +15,6 @@ import org.chromium.base.supplier.ObservableSupplierImpl;
 import org.chromium.brave_shields.mojom.FilterListAndroidHandler;
 import org.chromium.brave_shields.mojom.FilterListConstants;
 import org.chromium.chrome.R;
-import org.chromium.chrome.browser.BraveFeatureUtil;
 import org.chromium.chrome.browser.BraveLocalState;
 import org.chromium.chrome.browser.BraveRelaunchUtils;
 import org.chromium.chrome.browser.flags.ChromeFeatureList;
@@ -24,12 +23,11 @@ import org.chromium.chrome.browser.preferences.BravePrefServiceBridge;
 import org.chromium.chrome.browser.shields.FilterListServiceFactory;
 import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
 import org.chromium.components.browser_ui.settings.SettingsUtils;
-import org.chromium.mojo.bindings.ConnectionErrorHandler;
-import org.chromium.mojo.system.MojoException;
+import org.chromium.components.user_prefs.UserPrefs;
 
 /* Class for Media section of main preferences */
 public class MediaPreferences extends BravePreferenceFragment
-        implements ConnectionErrorHandler, Preference.OnPreferenceChangeListener {
+        implements Preference.OnPreferenceChangeListener {
     public static final String PREF_WIDEVINE_ENABLED = "widevine_enabled";
     public static final String PREF_BACKGROUND_VIDEO_PLAYBACK = "background_video_playback";
     public static final String PLAY_YT_VIDEO_IN_BROWSER_KEY = "play_yt_video_in_browser";
@@ -48,10 +46,14 @@ public class MediaPreferences extends BravePreferenceFragment
         super.onCreate(savedInstanceState);
         mPageTitle.set(getString(R.string.prefs_media));
         SettingsUtils.addPreferencesFromResource(this, R.xml.media_preferences);
-    }
 
-    @Override
-    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {}
+        ChromeSwitchPreference backgroundVideoPlaybackPref =
+                findPreference(PREF_BACKGROUND_VIDEO_PLAYBACK);
+        if (backgroundVideoPlaybackPref != null) {
+            backgroundVideoPlaybackPref.setVisible(
+                    ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_BACKGROUND_VIDEO_PLAYBACK));
+        }
+    }
 
     @Override
     public ObservableSupplier<String> getPageTitle() {
@@ -73,13 +75,13 @@ public class MediaPreferences extends BravePreferenceFragment
         }
 
         ChromeSwitchPreference backgroundVideoPlaybackPref =
-                (ChromeSwitchPreference) findPreference(PREF_BACKGROUND_VIDEO_PLAYBACK);
-        if (backgroundVideoPlaybackPref != null) {
+                findPreference(PREF_BACKGROUND_VIDEO_PLAYBACK);
+        if (backgroundVideoPlaybackPref != null
+                && ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_BACKGROUND_VIDEO_PLAYBACK)) {
             backgroundVideoPlaybackPref.setOnPreferenceChangeListener(this);
-            boolean enabled =
-                    ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_BACKGROUND_VIDEO_PLAYBACK)
-                    || BravePrefServiceBridge.getInstance().getBackgroundVideoPlaybackEnabled();
-            backgroundVideoPlaybackPref.setChecked(enabled);
+            backgroundVideoPlaybackPref.setChecked(
+                    UserPrefs.get(getProfile())
+                            .getBoolean(BravePref.BACKGROUND_VIDEO_PLAYBACK_ENABLED));
         }
 
         ChromeSwitchPreference openYoutubeLinksBravePref =
@@ -143,10 +145,8 @@ public class MediaPreferences extends BravePreferenceFragment
                             !BraveLocalState.get().getBoolean(BravePref.WIDEVINE_ENABLED));
             shouldRelaunch = true;
         } else if (PREF_BACKGROUND_VIDEO_PLAYBACK.equals(key)) {
-            BraveFeatureUtil.enableFeature(
-                    BraveFeatureList.BRAVE_BACKGROUND_VIDEO_PLAYBACK_INTERNAL,
-                    (boolean) newValue,
-                    false);
+            UserPrefs.get(getProfile())
+                    .setBoolean(BravePref.BACKGROUND_VIDEO_PLAYBACK_ENABLED, (boolean) newValue);
             shouldRelaunch = true;
         } else if (PLAY_YT_VIDEO_IN_BROWSER_KEY.equals(key)) {
             BravePrefServiceBridge.getInstance().setPlayYTVideoInBrowserEnabled((boolean) newValue);
@@ -177,25 +177,21 @@ public class MediaPreferences extends BravePreferenceFragment
         return true;
     }
 
-    @Override
-    public void onConnectionError(MojoException e) {
-        mFilterListAndroidHandler = null;
-        initFilterListAndroidHandler();
-    }
-
     private void initFilterListAndroidHandler() {
         if (mFilterListAndroidHandler != null) {
             return;
         }
 
         mFilterListAndroidHandler =
-                FilterListServiceFactory.getInstance().getFilterListAndroidHandler(this);
+                FilterListServiceFactory.getInstance()
+                        .getFilterListAndroidHandler(getProfile(), null);
     }
 
     @Override
     public void onDestroy() {
         if (mFilterListAndroidHandler != null) {
             mFilterListAndroidHandler.close();
+            mFilterListAndroidHandler = null;
         }
         super.onDestroy();
     }

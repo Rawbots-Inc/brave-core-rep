@@ -24,7 +24,7 @@ import Amount from '../../../utils/amount'
 import {
   getIsRewardsAccount,
   getIsRewardsToken,
-  getRewardsTokenDescription
+  getRewardsTokenDescription,
 } from '../../../utils/rewards_utils'
 import { getLocale } from '../../../../common/locale'
 import { getEntitiesListFromEntityState } from '../../../utils/entities.utils'
@@ -36,19 +36,19 @@ import { useOnClickOutside } from '../../../common/hooks/useOnClickOutside'
 import { UISelectors, WalletSelectors } from '../../../common/selectors'
 import {
   useSafeUISelector,
-  useSafeWalletSelector
+  useSafeWalletSelector,
 } from '../../../common/hooks/use-safe-selector'
 
 // Queries
 import {
-  TokenBalancesRegistry //
+  TokenBalancesRegistry, //
 } from '../../../common/slices/entities/token-balance.entity'
 import {
   useGetChainTipStatusQuery,
   useGetDefaultFiatCurrencyQuery,
   useGetRewardsInfoQuery,
   useGetUserTokensRegistryQuery,
-  useGetZCashAccountInfoQuery
+  useGetZCashAccountInfoQuery,
 } from '../../../common/slices/api.slice'
 
 // types
@@ -57,7 +57,7 @@ import {
   AccountButtonOptionsObjectType,
   AccountModalTypes,
   SpotPriceRegistry,
-  WalletStatus
+  WalletStatus,
 } from '../../../constants/types'
 
 // options
@@ -65,17 +65,17 @@ import { AccountButtonOptions } from '../../../options/account-list-button-optio
 
 // components
 import {
-  AccountActionsMenu //
+  AccountActionsMenu, //
 } from '../wallet-menus/account-actions-menu'
 import { RewardsMenu } from '../wallet-menus/rewards_menu'
 import {
-  CreateAccountIcon //
+  CreateAccountIcon, //
 } from '../../shared/create-account-icon/create-account-icon'
 import { TokenIconsStack } from '../../shared/icon-stacks/token-icons-stack'
 import LoadingSkeleton from '../../shared/loading-skeleton'
 import { RewardsLogin } from '../rewards_login/rewards_login'
 import {
-  ShieldZCashAccountModal //
+  ShieldZCashAccountModal, //
 } from '../popup-modals/shield_zcash_account/shield_zcash_account'
 import { ShieldedLabel } from '../../shared/shielded_label/shielded_label'
 
@@ -87,10 +87,9 @@ import {
   AccountMenuButton,
   AccountMenuIcon,
   AccountBalanceText,
-  AccountDescription,
   AccountNameWrapper,
   AccountButton,
-  WarningIcon
+  WarningIcon,
 } from './style'
 
 import {
@@ -99,7 +98,7 @@ import {
   BraveRewardsIndicator,
   VerticalSpacer,
   Text,
-  Column
+  Column,
 } from '../../shared/style'
 
 interface Props {
@@ -120,26 +119,28 @@ export const AccountListItem = ({
   spotPriceRegistry,
   isLoadingBalances,
   isLoadingSpotPrices,
-  isShieldingAvailable
+  isShieldingAvailable,
 }: Props) => {
   // redux
   const dispatch = useDispatch()
 
   // selectors
   const isPanel = useSafeUISelector(UISelectors.isPanel)
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
+
   // redux
   const isZCashShieldedTransactionsEnabled = useSafeWalletSelector(
-    WalletSelectors.isZCashShieldedTransactionsEnabled
+    WalletSelectors.isZCashShieldedTransactionsEnabled,
   )
 
   // queries
   const { data: defaultFiatCurrency = 'usd' } = useGetDefaultFiatCurrencyQuery()
   const { data: userTokensRegistry } = useGetUserTokensRegistryQuery()
   const { data: zcashAccountInfo } = useGetZCashAccountInfoQuery(
-    isZCashShieldedTransactionsEnabled &&
-      account.accountId.coin === BraveWallet.CoinType.ZEC
+    isZCashShieldedTransactionsEnabled
+      && account.accountId.coin === BraveWallet.CoinType.ZEC
       ? account.accountId
-      : skipToken
+      : skipToken,
   )
 
   const {
@@ -147,8 +148,8 @@ export const AccountListItem = ({
       balance: rewardsBalance,
       provider,
       status: rewardsStatus,
-      rewardsToken
-    } = emptyRewardsInfo
+      rewardsToken,
+    } = emptyRewardsInfo,
   } = useGetRewardsInfoQuery()
 
   // state
@@ -163,7 +164,7 @@ export const AccountListItem = ({
   useOnClickOutside(
     accountMenuRef,
     () => setShowAccountMenu(false),
-    showAccountMenu
+    showAccountMenu,
   )
 
   // methods
@@ -175,8 +176,8 @@ export const AccountListItem = ({
     dispatch(
       AccountsTabActions.setAccountToRemove({
         accountId: account.accountId,
-        name: account.name
-      })
+        name: account.name,
+      }),
     )
   }, [account, dispatch])
 
@@ -186,7 +187,7 @@ export const AccountListItem = ({
       dispatch(AccountsTabActions.setAccountModalType(modalType))
       dispatch(AccountsTabActions.setSelectedAccount(account))
     },
-    [account, dispatch]
+    [account, dispatch],
   )
 
   const onClickButtonOption = React.useCallback(
@@ -205,7 +206,7 @@ export const AccountListItem = ({
       }
       onShowAccountsModal(id)
     },
-    [onSelectAccount, onRemoveAccount, onShowAccountsModal]
+    [onSelectAccount, onRemoveAccount, onShowAccountsModal],
   )
 
   // memos & computed
@@ -217,12 +218,12 @@ export const AccountListItem = ({
   const externalProvider = isRewardsAccount ? provider : undefined
 
   const isShieldedAccount =
-    isZCashShieldedTransactionsEnabled &&
-    !!zcashAccountInfo &&
-    !!zcashAccountInfo.accountShieldBirthday
+    isZCashShieldedTransactionsEnabled
+    && !!zcashAccountInfo
+    && !!zcashAccountInfo.accountShieldBirthday
 
   const { data: chainTipStatus } = useGetChainTipStatusQuery(
-    isShieldedAccount ? account.accountId : skipToken
+    isShieldedAccount ? account.accountId : skipToken,
   )
 
   const blocksBehind = chainTipStatus
@@ -242,7 +243,7 @@ export const AccountListItem = ({
       userTokensRegistry,
       userTokensRegistry.fungibleVisibleTokenIdsByCoinType[
         account.accountId.coin
-      ]
+      ],
     )
   }, [userTokensRegistry, account, isRewardsAccount, rewardsToken])
 
@@ -252,8 +253,8 @@ export const AccountListItem = ({
     }
     return accountsFungibleTokens.filter((token) =>
       new Amount(
-        getBalance(account.accountId, token, tokenBalancesRegistry)
-      ).gt(0)
+        getBalance(account.accountId, token, tokenBalancesRegistry),
+      ).gt(0),
     )
   }, [
     accountsFungibleTokens,
@@ -261,7 +262,7 @@ export const AccountListItem = ({
     account,
     isRewardsAccount,
     rewardsToken,
-    rewardsBalance
+    rewardsBalance,
   ])
 
   const accountsFiatValue = React.useMemo(() => {
@@ -274,9 +275,9 @@ export const AccountListItem = ({
     // Return a 0 balance if the account has no
     // assets to display.
     if (
-      accountsFungibleTokens.length === 0 &&
-      !isLoadingBalances &&
-      !isLoadingSpotPrices
+      accountsFungibleTokens.length === 0
+      && !isLoadingBalances
+      && !isLoadingSpotPrices
     ) {
       return new Amount(0)
     }
@@ -297,7 +298,7 @@ export const AccountListItem = ({
       return computeFiatAmount({
         spotPriceRegistry,
         value: balance,
-        token: asset
+        token: asset,
       })
     })
 
@@ -314,7 +315,7 @@ export const AccountListItem = ({
     spotPriceRegistry,
     rewardsBalance,
     isLoadingBalances,
-    isLoadingSpotPrices
+    isLoadingSpotPrices,
   ])
 
   const buttonOptions = React.useMemo((): AccountButtonOptionsObjectType[] => {
@@ -329,16 +330,16 @@ export const AccountListItem = ({
         // TODO(apaymyshev): support BTC and ZEC
         BraveWallet.CoinType.ETH,
         BraveWallet.CoinType.SOL,
-        BraveWallet.CoinType.FIL
-      ].includes(account.accountId.coin) &&
-      account.accountId.kind !== BraveWallet.AccountKind.kHardware
+        BraveWallet.CoinType.FIL,
+      ].includes(account.accountId.coin)
+      && account.accountId.kind !== BraveWallet.AccountKind.kHardware
 
     const canShieldAccount =
-      isZCashShieldedTransactionsEnabled &&
-      account.accountId.coin === BraveWallet.CoinType.ZEC &&
-      isShieldingAvailable &&
-      zcashAccountInfo &&
-      !zcashAccountInfo.accountShieldBirthday
+      isZCashShieldedTransactionsEnabled
+      && account.accountId.coin === BraveWallet.CoinType.ZEC
+      && isShieldingAvailable
+      && zcashAccountInfo
+      && !zcashAccountInfo.accountShieldBirthday
 
     let options = [...AccountButtonOptions]
 
@@ -356,7 +357,7 @@ export const AccountListItem = ({
     account,
     isZCashShieldedTransactionsEnabled,
     isShieldingAvailable,
-    zcashAccountInfo
+    zcashAccountInfo,
   ])
 
   const showSyncWarning =
@@ -416,11 +417,16 @@ export const AccountListItem = ({
                     {reduceAddress(account.address)}
                   </Text>
                 )}
-                <AccountDescription>
+                <Text
+                  textSize='12px'
+                  isBold={false}
+                  textColor='secondary'
+                  textAlign='left'
+                >
                   {isRewardsAccount
                     ? getRewardsTokenDescription(externalProvider ?? null)
                     : getAccountTypeDescription(account.accountId)}
-                </AccountDescription>
+                </Text>
                 {showSyncWarning && (
                   <Row
                     justifyContent='flex-start'
@@ -441,7 +447,7 @@ export const AccountListItem = ({
 
             {!isDisconnectedRewardsAccount && (
               <Row width='unset'>
-                {!isPanel && !accountsFiatValue.isZero() ? (
+                {!isAndroid && !isPanel && !accountsFiatValue.isZero() ? (
                   tokensWithBalances.length ? (
                     <TokenIconsStack tokens={tokensWithBalances} />
                   ) : (

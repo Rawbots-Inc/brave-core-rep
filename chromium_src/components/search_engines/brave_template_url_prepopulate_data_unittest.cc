@@ -19,6 +19,7 @@
 #include "components/regional_capabilities/regional_capabilities_test_utils.h"
 #include "components/search_engines/search_engine_choice/search_engine_choice_service.h"
 #include "components/search_engines/search_engines_pref_names.h"
+#include "components/search_engines/search_engines_test_environment.h"
 #include "components/search_engines/search_terms_data.h"
 #include "components/search_engines/template_url.h"
 #include "components/search_engines/template_url_data_util.h"
@@ -38,29 +39,20 @@ std::string GetHostFromTemplateURLData(const TemplateURLData& data) {
 
 using namespace TemplateURLPrepopulateData;  // NOLINT
 
-const PrepopulatedEngine* const kBraveAddedEngines[] = {
-    &startpage,
-};
+const PrepopulatedEngine* const kBraveAddedEngines[] = {};
 
 const std::unordered_set<std::u16string_view> kOverriddenEnginesNames = {
-    u"DuckDuckGo", u"Qwant"};
+    u"DuckDuckGo", u"Qwant", u"Startpage"};
+
 }  // namespace
 
 class BraveTemplateURLPrepopulateDataTest : public testing::Test {
  public:
-  BraveTemplateURLPrepopulateDataTest()
-      : regional_capabilities_service_(
-            regional_capabilities::CreateServiceWithFakeClient(prefs_)),
-        search_engine_choice_service_(
-            prefs_,
-            &local_state_,
-            *regional_capabilities_service_,
-            /*is_profile_eligible_for_dse_guest_propagation=*/false) {}
+  BraveTemplateURLPrepopulateDataTest() = default;
   void SetUp() override {
-    TemplateURLPrepopulateData::RegisterProfilePrefs(prefs_.registry());
     // Real registration happens in `brave/browser/brave_profile_prefs.cc`
     // Calling brave::RegisterProfilePrefs() causes some problems though
-    auto* registry = prefs_.registry();
+    auto* registry = search_engines_test_environment_.pref_service().registry();
     registry->RegisterIntegerPref(
         prefs::kBraveDefaultSearchVersion,
         TemplateURLPrepopulateData::kBraveCurrentDataVersion);
@@ -69,18 +61,24 @@ class BraveTemplateURLPrepopulateDataTest : public testing::Test {
         TemplateURLPrepopulateData::GetAllPrepopulatedEngines();
     brave_prepopulated_engines_.insert(brave_prepopulated_engines_.end(),
                                        engines.begin(), engines.end());
-    brave_prepopulated_engines_.insert(brave_prepopulated_engines_.end(),
-                                       std::begin(kBraveAddedEngines),
-                                       std::end(kBraveAddedEngines));
+    for (auto* engine : kBraveAddedEngines) {
+      brave_prepopulated_engines_.push_back(engine);
+    }
   }
 
   void CheckForCountry(char digit1, char digit2, int prepopulate_id) {
-    prefs_.SetInteger(kCountryIDAtInstall, digit1 << 8 | digit2);
-    prefs_.SetInteger(prefs::kBraveDefaultSearchVersion,
-                      TemplateURLPrepopulateData::kBraveCurrentDataVersion);
+    search_engines_test_environment_.pref_service().SetInteger(
+        kCountryIDAtInstall, digit1 << 8 | digit2);
+    search_engines_test_environment_.pref_service().SetInteger(
+        prefs::kBraveDefaultSearchVersion,
+        TemplateURLPrepopulateData::kBraveCurrentDataVersion);
     std::unique_ptr<TemplateURLData> fallback_t_url_data =
         TemplateURLPrepopulateData::GetPrepopulatedFallbackSearch(
-            &prefs_, &search_engine_choice_service_);
+            search_engines_test_environment_.regional_capabilities_service()
+                .GetRegionalDefaultEngine(),
+            search_engines_test_environment_.pref_service(),
+            search_engines_test_environment_.regional_capabilities_service()
+                .GetRegionalPrepopulatedEngines());
     EXPECT_EQ(fallback_t_url_data->prepopulate_id, prepopulate_id);
   }
 
@@ -90,11 +88,7 @@ class BraveTemplateURLPrepopulateDataTest : public testing::Test {
   }
 
  protected:
-  sync_preferences::TestingPrefServiceSyncable prefs_;
-  TestingPrefServiceSimple local_state_;
-  std::unique_ptr<regional_capabilities::RegionalCapabilitiesService>
-      regional_capabilities_service_;
-  search_engines::SearchEngineChoiceService search_engine_choice_service_;
+  search_engines::SearchEnginesTestEnvironment search_engines_test_environment_;
   std::vector<const PrepopulatedEngine*> brave_prepopulated_engines_;
 };
 
@@ -127,13 +121,19 @@ TEST_F(BraveTemplateURLPrepopulateDataTest, OverriddenEngines) {
 // Verifies that the set of prepopulate data for each locale
 // doesn't contain entries with duplicate ids.
 TEST_F(BraveTemplateURLPrepopulateDataTest, UniqueIDs) {
-  static constexpr int kCountryIds[] = {'D' << 8 | 'E', 'F' << 8 | 'R',
-                                        'U' << 8 | 'S', -1};
+  static constexpr country_codes::CountryId kCountryIds[] = {
+      country_codes::CountryId("DE"),
+      country_codes::CountryId("FR"),
+      country_codes::CountryId("US"),
+  };
 
-  for (int country_id : kCountryIds) {
-    prefs_.SetInteger(kCountryIDAtInstall, country_id);
-    std::vector<std::unique_ptr<TemplateURLData>> urls =
-        GetPrepopulatedEngines(&prefs_, &search_engine_choice_service_);
+  for (country_codes::CountryId country_id : kCountryIds) {
+    search_engines_test_environment_.pref_service().SetInteger(
+        kCountryIDAtInstall, country_id.Serialize());
+    std::vector<std::unique_ptr<TemplateURLData>> urls = GetPrepopulatedEngines(
+        search_engines_test_environment_.pref_service(),
+        search_engines_test_environment_.regional_capabilities_service()
+            .GetRegionalPrepopulatedEngines());
     std::set<int> unique_ids;
     for (auto& url : urls) {
       ASSERT_TRUE(unique_ids.find(url->prepopulate_id) == unique_ids.end());
@@ -146,7 +146,9 @@ TEST_F(BraveTemplateURLPrepopulateDataTest, UniqueIDs) {
 TEST_F(BraveTemplateURLPrepopulateDataTest, ProvidersFromPrepopulated) {
   std::vector<std::unique_ptr<TemplateURLData>> t_urls =
       TemplateURLPrepopulateData::GetPrepopulatedEngines(
-          &prefs_, &search_engine_choice_service_);
+          search_engines_test_environment_.pref_service(),
+          search_engines_test_environment_.regional_capabilities_service()
+              .GetRegionalPrepopulatedEngines());
 
   // Ensure all the URLs have the required fields populated.
   ASSERT_FALSE(t_urls.empty());

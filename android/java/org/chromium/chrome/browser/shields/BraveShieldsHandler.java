@@ -17,12 +17,12 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.StyleSpan;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Surface;
 import android.view.View;
@@ -43,7 +43,6 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import org.chromium.base.BraveFeatureList;
 import org.chromium.base.Log;
-import org.chromium.base.SysUtils;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.BraveRewardsHelper;
 import org.chromium.chrome.browser.BraveRewardsNativeWorker;
@@ -57,12 +56,11 @@ import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettin
 import org.chromium.chrome.browser.profiles.Profile;
 import org.chromium.chrome.browser.tab.Tab;
 import org.chromium.chrome.browser.toolbar.bottom.BottomToolbarConfiguration;
+import org.chromium.chrome.browser.ui.edge_to_edge.EdgeToEdgeUtils;
 import org.chromium.chrome.browser.util.ConfigurationUtils;
 import org.chromium.chrome.browser.webcompat_reporter.WebcompatReporterServiceFactory;
 import org.chromium.components.browser_ui.widget.ChromeDialog;
 import org.chromium.components.version_info.BraveVersionConstants;
-import org.chromium.mojo.bindings.ConnectionErrorHandler;
-import org.chromium.mojo.system.MojoException;
 import org.chromium.ui.widget.ChromeImageButton;
 import org.chromium.webcompat_reporter.mojom.ReportInfo;
 import org.chromium.webcompat_reporter.mojom.WebcompatReporterHandler;
@@ -73,8 +71,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /** Object responsible for handling the creation, showing, hiding of the BraveShields menu. */
-public class BraveShieldsHandler
-        implements BraveRewardsHelper.LargeIconReadyCallback, ConnectionErrorHandler {
+public class BraveShieldsHandler implements BraveRewardsHelper.LargeIconReadyCallback {
     private static final String TAG = "BraveShieldsHandler";
     private static final String CHROME_ERROR = "chrome-error://";
 
@@ -91,7 +88,7 @@ public class BraveShieldsHandler
         public int mTrackersBlocked;
         public int mScriptsBlocked;
         public int mFingerprintsBlocked;
-        public ArrayList<String> mBlockerNames;
+        public final ArrayList<String> mBlockerNames;
     }
 
     private Context mContext;
@@ -291,72 +288,63 @@ public class BraveShieldsHandler
         }
         int height = LinearLayout.LayoutParams.WRAP_CONTENT;
 
-        //Make Inactive Items Outside Of PopupWindow
+        // Make Inactive Items Outside Of PopupWindow
         boolean focusable = true;
 
-        //Create a window with our parameters
+        // Create a window with our parameters
         PopupWindow popupWindow = new PopupWindow(mPopupView, width, height, focusable);
         popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            popupWindow.setElevation(20);
-        }
-        // mPopup.setBackgroundDrawable(mContext.getResources().getDrawable(android.R.drawable.picture_frame));
+        popupWindow.setElevation(20);
+        Rect bgPadding = new Rect();
+        int popupWidth =
+                wrapper.getResources().getDimensionPixelSize(R.dimen.menu_width)
+                        + bgPadding.left
+                        + bgPadding.right;
+        popupWindow.setWidth(popupWidth);
         // Set the location of the window on the screen
         mAnchorView = anchorView;
-        int mesuredHeight = 0;
         if (BottomToolbarConfiguration.isToolbarBottomAnchored()) {
-            mPopupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            mesuredHeight = mPopupView.getMeasuredHeight() + mAnchorView.getHeight();
+            // The problem is that we have dynamic content height,
+            // so we need to pretend show it to get real height before actually showing it.
+            // This needs to be addressed when we re-design shields popup.
+            popupWindow.setAnimationStyle(0);
+            mPopupView.setVisibility(View.INVISIBLE);
+            popupWindow.setBackgroundDrawable(null);
+            popupWindow.showAtLocation(mAnchorView, Gravity.BOTTOM, 0, 0);
             mPopupView
                     .getViewTreeObserver()
                     .addOnGlobalLayoutListener(
                             new ViewTreeObserver.OnGlobalLayoutListener() {
                                 @Override
                                 public void onGlobalLayout() {
-                                    // Get the new height of the popup view.
-                                    int newHeight =
-                                            mPopupView.getHeight() + mAnchorView.getHeight();
+                                    mPopupView
+                                            .getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
 
-                                    // Update the popup window's height.
-                                    popupWindow.update(mAnchorView, 0, -newHeight, width, height);
+                                    int actualHeight = mPopupView.getHeight();
+
+                                    // Dismiss and show in correct position.
+                                    popupWindow.dismiss();
+
+                                    // Calculate proper position with actual height.
+                                    int[] location = new int[2];
+                                    mAnchorView.getLocationOnScreen(location);
+                                    int xOffset = location[0];
+                                    int yOffset = location[1] - actualHeight;
+
+                                    // Show with proper animation and location.
+                                    mPopupView.setVisibility(View.VISIBLE);
+                                    popupWindow.setAnimationStyle(
+                                            R.style.AnchoredPopupAnimEndBottom);
+                                    popupWindow.showAtLocation(mAnchorView, 0, xOffset, yOffset);
                                 }
                             });
+        } else {
+            popupWindow.setAnimationStyle(R.style.AnchoredPopupAnimEndTop);
+            popupWindow.showAsDropDown(mAnchorView);
         }
-        popupWindow.showAsDropDown(mAnchorView, 0, -1 * mesuredHeight);
-        popupWindow.setAnimationStyle(
-                BottomToolbarConfiguration.isToolbarTopAnchored()
-                        ? R.style.AnchoredPopupAnimEndTop
-                        : R.style.AnchoredPopupAnimEndBottom);
-
-        // Turn off window animations for low end devices, and on Android M, which has built-in menu
-        // animations.
-        if (SysUtils.isLowEndDevice() || Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            popupWindow.setAnimationStyle(0);
-        }
-
-        Rect bgPadding = new Rect();
-        int popupWidth = wrapper.getResources().getDimensionPixelSize(R.dimen.menu_width)
-                         + bgPadding.left + bgPadding.right;
-        popupWindow.setWidth(popupWidth);
 
         return popupWindow;
-    }
-
-    @Override
-    public void onConnectionError(MojoException e) {
-        initWebcompatReporterService();
-    }
-
-    private void initWebcompatReporterService() {
-        if (mWebcompatReporterHandler != null) {
-            mWebcompatReporterHandler.close();
-        }
-        Tab currentActiveTab = mIconFetcher.getTab();
-        final boolean isPrivateWindow =
-                currentActiveTab != null ? currentActiveTab.isIncognito() : false;
-        mWebcompatReporterHandler =
-                WebcompatReporterServiceFactory.getInstance()
-                        .getWebcompatReporterHandler(this, isPrivateWindow);
     }
 
     public void updateUrlSpec(String urlSpec) {
@@ -442,8 +430,9 @@ public class BraveShieldsHandler
         if (isShowing()) {
             mPopupWindow.dismiss();
         }
-        if (null != mWebcompatReporterHandler) {
+        if (mWebcompatReporterHandler != null) {
             mWebcompatReporterHandler.close();
+            mWebcompatReporterHandler = null;
         }
     }
 
@@ -547,7 +536,9 @@ public class BraveShieldsHandler
 
         setupMainSwitchClick(mShieldMainSwitch);
 
-        initWebcompatReporterService();
+        mWebcompatReporterHandler =
+                WebcompatReporterServiceFactory.getInstance()
+                        .getWebcompatReporterHandler(mProfile, null);
     }
 
     private void setToggleView(boolean shouldShow) {
@@ -905,21 +896,23 @@ public class BraveShieldsHandler
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Profile.getLastUsedRegularProfile requires to run in UI thread,
-                        // so get api key here and pass it to IO worker task
-                        mWebcompatReporterHandler.submitWebcompatReport(getReportInfo(siteUrl));
+                        if (mWebcompatReporterHandler != null) {
+                            mWebcompatReporterHandler.submitWebcompatReport(getReportInfo(siteUrl));
+                        }
                         mReportBrokenSiteLayout.setVisibility(View.GONE);
                         mThankYouLayout.setVisibility(View.VISIBLE);
                     }
                 });
-        mWebcompatReporterHandler.getContactInfo(
-                (contactInfo, contactInfoSaveFlag) -> {
-                    if (contactInfo != null && !contactInfo.isEmpty()) {
-                        mEditTextContact.setText(contactInfo);
-                    }
-                    mTextContactInfoApopup.setVisibility(
-                            contactInfoSaveFlag ? View.VISIBLE : View.GONE);
-                });
+        if (mWebcompatReporterHandler != null) {
+            mWebcompatReporterHandler.getContactInfo(
+                    (contactInfo, contactInfoSaveFlag) -> {
+                        if (contactInfo != null && !contactInfo.isEmpty()) {
+                            mEditTextContact.setText(contactInfo);
+                        }
+                        mTextContactInfoApopup.setVisibility(
+                                contactInfoSaveFlag ? View.VISIBLE : View.GONE);
+                    });
+        }
     }
 
     private ReportInfo getReportInfo(String siteUrl) {
@@ -963,7 +956,11 @@ public class BraveShieldsHandler
                     }
                 });
 
-        mDialog = new ChromeDialog((Activity) mContext, R.style.ThemeOverlay_BrowserUI_Fullscreen);
+        mDialog =
+                new ChromeDialog(
+                        (Activity) mContext,
+                        R.style.ThemeOverlay_BrowserUI_Fullscreen,
+                        EdgeToEdgeUtils.isEdgeToEdgeEverywhereEnabled());
         mDialog.addContentView(
                 mDialogView,
                 new LinearLayout.LayoutParams(
@@ -1287,10 +1284,11 @@ public class BraveShieldsHandler
         }
     }
 
-    private View.OnClickListener mDoneClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            hideBraveShieldsMenu();
-        }
-    };
+    private final View.OnClickListener mDoneClickListener =
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    hideBraveShieldsMenu();
+                }
+            };
 }

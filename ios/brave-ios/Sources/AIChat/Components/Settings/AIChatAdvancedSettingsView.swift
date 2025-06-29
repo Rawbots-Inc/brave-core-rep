@@ -181,9 +181,9 @@ public struct AIChatAdvancedSettingsView: View {
     Form {
       Section {
         OptionToggleView(
-          title: Strings.AIChat.advancedSettingsAutocompleteTitle,
-          subtitle: Strings.AIChat.advancedSettingsAutocompleteDescription,
-          option: Preferences.AIChat.autocompleteSuggestionsEnabled
+          title: Strings.AIChat.advancedSettingsShowInQSEBarTitle,
+          subtitle: Strings.AIChat.advancedSettingsShowInQSEBarDescription,
+          option: Preferences.AIChat.leoInQuickSearchBarEnabled
         )
 
         NavigationLink {
@@ -323,6 +323,10 @@ public struct AIChatAdvancedSettingsView: View {
               },
               refreshCredentials: {
                 openURL(.brave.braveLeoRefreshCredentials)
+                dismiss()
+              },
+              openDirectCheckout: {
+                openURL(.brave.braveLeoCheckoutURL)
                 dismiss()
               }
             )

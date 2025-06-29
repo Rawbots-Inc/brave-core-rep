@@ -6,6 +6,7 @@
 #include "brave/components/brave_ads/browser/ads_service_impl.h"
 
 #include <algorithm>
+#include <memory>
 #include <optional>
 #include <utility>
 
@@ -21,7 +22,6 @@
 #include "base/functional/callback_helpers.h"
 #include "base/logging.h"
 #include "base/metrics/histogram_macros.h"
-#include "base/notreached.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/sequenced_task_runner.h"
@@ -31,7 +31,6 @@
 #include "base/trace_event/trace_event.h"
 #include "brave/components/brave_adaptive_captcha/pref_names.h"
 #include "brave/components/brave_ads/browser/ad_units/notification_ad/custom_notification_ad_feature.h"
-#include "brave/components/brave_ads/browser/analytics/p2a/p2a.h"
 #include "brave/components/brave_ads/browser/analytics/p3a/notification_ad.h"
 #include "brave/components/brave_ads/browser/bat_ads_service_factory.h"
 #include "brave/components/brave_ads/browser/component_updater/resource_component.h"
@@ -39,25 +38,22 @@
 #include "brave/components/brave_ads/browser/reminder/reminder_util.h"
 #include "brave/components/brave_ads/browser/tooltips/ads_tooltips_delegate.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service_observer.h"
+#include "brave/components/brave_ads/core/browser/service/new_tab_page_ad_prefetcher.h"
+#include "brave/components/brave_ads/core/browser/service/virtual_pref_provider.h"
 #include "brave/components/brave_ads/core/public/ad_units/inline_content_ad/inline_content_ad_value_util.h"
 #include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_value_util.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_feature.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_info.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_value_util.h"
-#include "brave/components/brave_ads/core/public/ads_constants.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
+#include "brave/components/brave_ads/core/public/common/locale/locale_util.h"
 #include "brave/components/brave_ads/core/public/flags/flags_util.h"
 #include "brave/components/brave_ads/core/public/history/site_history.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
 #include "brave/components/brave_ads/core/public/user_attention/user_idle_detection/user_idle_detection_feature.h"
-#include "brave/components/brave_ads/resources/grit/bat_ads_resources.h"
 #include "brave/components/brave_news/common/pref_names.h"
 #include "brave/components/brave_rewards/content/rewards_service.h"
 #include "brave/components/brave_rewards/core/mojom/rewards.mojom-forward.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
-#include "brave/components/l10n/common/country_code_util.h"
-#include "brave/components/l10n/common/locale_util.h"
-#include "brave/components/l10n/common/prefs.h"
 #include "brave/components/ntp_background_images/common/pref_names.h"
 #include "brave/components/services/bat_ads/public/interfaces/bat_ads.mojom.h"
 #include "build/build_config.h"
@@ -65,6 +61,7 @@
 #include "components/content_settings/core/common/content_settings.h"
 #include "components/content_settings/core/common/content_settings_pattern.h"
 #include "components/prefs/pref_service.h"
+#include "components/variations/pref_names.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_thread.h"
 #include "mojo/public/cpp/bindings/callback_helpers.h"
@@ -83,14 +80,6 @@ namespace {
 constexpr int kMaximumNumberOfTimesToRetryNetworkRequests = 1;
 
 constexpr char kClearDataHistogramName[] = "Brave.Ads.ClearData";
-
-int ResourceBundleId(const std::string& name) {
-  if (name == kCatalogJsonSchemaDataResourceName) {
-    return IDR_ADS_CATALOG_SCHEMA;
-  }
-
-  NOTREACHED();
-}
 
 std::string URLMethodToRequestType(
     mojom::UrlRequestMethodType mojom_url_request_method) {
@@ -189,28 +178,36 @@ AdsServiceImpl::AdsServiceImpl(
     std::unique_ptr<Delegate> delegate,
     PrefService* prefs,
     PrefService* local_state,
+    std::unique_ptr<VirtualPrefProvider::Delegate>
+        virtual_pref_provider_delegate,
     scoped_refptr<network::SharedURLLoaderFactory> url_loader,
     std::string_view channel_name,
     const base::FilePath& profile_path,
     std::unique_ptr<AdsTooltipsDelegate> ads_tooltips_delegate,
     std::unique_ptr<DeviceId> device_id,
     std::unique_ptr<BatAdsServiceFactory> bat_ads_service_factory,
-    brave_ads::ResourceComponent* resource_component,
+    ResourceComponent* resource_component,
     history::HistoryService* history_service,
     brave_rewards::RewardsService* rewards_service,
     HostContentSettingsMap* host_content_settings_map)
     : AdsService(std::move(delegate)),
       prefs_(prefs),
       local_state_(local_state),
+      virtual_pref_provider_(std::make_unique<VirtualPrefProvider>(
+          prefs_,
+          local_state_,
+          std::move(virtual_pref_provider_delegate))),
       url_loader_(std::move(url_loader)),
       channel_name_(channel_name),
       history_service_(history_service),
       host_content_settings_map_(host_content_settings_map),
       ads_tooltips_delegate_(std::move(ads_tooltips_delegate)),
       device_id_(std::move(device_id)),
+      new_tab_page_ad_prefetcher_(
+          std::make_unique<NewTabPageAdPrefetcher>(/*ads_service=*/*this)),
       bat_ads_service_factory_(std::move(bat_ads_service_factory)),
       file_task_runner_(base::ThreadPool::CreateSequencedTaskRunner(
-          {base::MayBlock(), base::TaskPriority::BEST_EFFORT,
+          {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
            base::TaskShutdownBehavior::BLOCK_SHUTDOWN})),
       ads_service_path_(profile_path.AppendASCII("ads_service")),
       bat_ads_client_associated_receiver_(this) {
@@ -222,7 +219,7 @@ AdsServiceImpl::AdsServiceImpl(
     CHECK_IS_TEST();
   }
 
-  host_content_settings_map_->AddObserver(this);
+  host_content_settings_map_observation_.Observe(host_content_settings_map);
 
   rewards_service_observation_.Observe(rewards_service);
 
@@ -244,9 +241,7 @@ AdsServiceImpl::AdsServiceImpl(
   }
 }
 
-AdsServiceImpl::~AdsServiceImpl() {
-  host_content_settings_map_->RemoveObserver(this);
-}
+AdsServiceImpl::~AdsServiceImpl() = default;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -277,15 +272,14 @@ void AdsServiceImpl::RegisterResourceComponentsForCurrentCountryCode() {
   if (resource_component_observation_.IsObserving()) {
     resource_component_observation_.GetSource()
         ->RegisterComponentForCountryCode(
-            brave_l10n::GetCountryCode(local_state_));
+            delegate_->GetVariationsCountryCode());
   }
 }
 
 void AdsServiceImpl::RegisterResourceComponentsForDefaultLanguageCode() {
   if (resource_component_observation_.IsObserving()) {
     resource_component_observation_.GetSource()
-        ->RegisterComponentForLanguageCode(brave_l10n::GetISOLanguageCode(
-            brave_l10n::GetDefaultLocaleString()));
+        ->RegisterComponentForLanguageCode(CurrentLanguageCode());
   }
 }
 
@@ -315,8 +309,12 @@ bool AdsServiceImpl::UserHasOptedInToSearchResultAds() const {
 }
 
 void AdsServiceImpl::InitializeNotificationsForCurrentProfile() {
-  delegate_->InitNotificationHelper();
+  delegate_->MaybeInitNotificationHelper(base::BindOnce(
+      &AdsServiceImpl::InitializeNotificationsForCurrentProfileCallback,
+      weak_ptr_factory_.GetWeakPtr()));
+}
 
+void AdsServiceImpl::InitializeNotificationsForCurrentProfileCallback() {
   // Postpone recording P3A to make browser startup smoother.
   content::GetUIThreadTaskRunner({base::TaskPriority::BEST_EFFORT})
       ->PostDelayedTask(
@@ -343,10 +341,17 @@ void AdsServiceImpl::GetDeviceIdAndMaybeStartBatAdsServiceCallback(
 }
 
 bool AdsServiceImpl::CanStartBatAdsService() const {
-  return ShouldAlwaysRunService() || UserHasOptedInToBraveNewsAds() ||
-         (UserHasJoinedBraveRewards() && (UserHasOptedInToNotificationAds() ||
-                                          UserHasOptedInToNewTabPageAds() ||
-                                          UserHasOptedInToSearchResultAds()));
+  if (UserHasJoinedBraveRewards()) {
+    // Always start the service to update brave://ads-internals,
+    // brave://rewards, and brave://rewards-internals if the user has joined
+    // Brave Rewards, even if all ad units are opted out.
+    return true;
+  }
+
+  // The user has not joined Brave Rewards, so we only start the service if the
+  // user has opted in to Brave News, new tab takeover, or search result ads.
+  return UserHasOptedInToBraveNewsAds() || UserHasOptedInToNewTabPageAds() ||
+         UserHasOptedInToSearchResultAds();
 }
 
 void AdsServiceImpl::MaybeStartBatAdsService() {
@@ -422,7 +427,7 @@ void AdsServiceImpl::InitializeBasePathDirectoryCallback(
     size_t current_start_number,
     bool success) {
   if (!success) {
-    VLOG(1) << "Failed to initialize " << ads_service_path_ << " directory";
+    VLOG(0) << "Failed to initialize " << ads_service_path_ << " directory";
     return ShutdownAdsService();
   }
 
@@ -455,7 +460,7 @@ void AdsServiceImpl::InitializeRewardsWalletCallback(
   }
 
   if (!mojom_rewards_wallet && UserHasJoinedBraveRewards()) {
-    VLOG(1) << "Failed to initialize Brave Rewards wallet";
+    VLOG(0) << "Failed to initialize Brave Rewards wallet";
     return ShutdownAdsService();
   }
 
@@ -486,7 +491,7 @@ void AdsServiceImpl::InitializeBatAds(
 void AdsServiceImpl::InitializeBatAdsCallback(bool success) {
   TRACE_EVENT1("brave.ads", "InitializeBatAdsCallback", "success", success);
   if (!success) {
-    VLOG(1) << "Failed to initialize Bat Ads";
+    VLOG(0) << "Failed to initialize Bat Ads";
     return ShutdownAdsService();
   }
 
@@ -502,16 +507,28 @@ void AdsServiceImpl::InitializeBatAdsCallback(bool success) {
 
   CheckIdleStateAfterDelay();
 
+  NotifyDidInitializeAdsService();
+}
+
+void AdsServiceImpl::NotifyDidInitializeAdsService() const {
   if (bat_ads_client_notifier_remote_.is_bound()) {
     bat_ads_client_notifier_remote_->NotifyDidInitializeAds();
   }
 
-  NotifyAdsServiceInitialized();
+  for (AdsServiceObserver& observer : observers_) {
+    observer.OnDidInitializeAdsService();
+  }
 }
 
-void AdsServiceImpl::NotifyAdsServiceInitialized() const {
+void AdsServiceImpl::NotifyDidShutdownAdsService() const {
   for (AdsServiceObserver& observer : observers_) {
-    observer.OnAdsServiceInitialized();
+    observer.OnDidShutdownAdsService();
+  }
+}
+
+void AdsServiceImpl::NotifyDidClearAdsServiceData() const {
+  for (AdsServiceObserver& observer : observers_) {
+    observer.OnDidClearAdsServiceData();
   }
 }
 
@@ -554,7 +571,6 @@ void AdsServiceImpl::ClearAllPrefsAndAdsServiceDataAndMaybeRestart(
 
   // Clear all ads preferences.
   prefs_->ClearPrefsWithPrefixSilently("brave.brave_ads");
-  local_state_->ClearPref(brave_l10n::prefs::kCountryCode);
 
   ClearAdsServiceDataAndMaybeRestart(std::move(callback));
 }
@@ -575,6 +591,8 @@ void AdsServiceImpl::ClearAdsServiceDataAndMaybeRestartCallback(
     VLOG(0) << "Failed to clear ads data";
   } else {
     VLOG(6) << "Cleared ads data";
+
+    NotifyDidClearAdsServiceData();
   }
 
   std::move(callback).Run(success);
@@ -676,10 +694,9 @@ void AdsServiceImpl::InitializeLocalStatePrefChangeRegistrar() {
   local_state_pref_change_registrar_.Init(local_state_);
 
   local_state_pref_change_registrar_.Add(
-      brave_l10n::prefs::kCountryCode,
-      base::BindRepeating(&AdsServiceImpl::OnCountryCodePrefChanged,
-                          base::Unretained(this),
-                          brave_l10n::prefs::kCountryCode));
+      variations::prefs::kVariationsCountry,
+      base::BindRepeating(&AdsServiceImpl::OnVariationsCountryPrefChanged,
+                          base::Unretained(this)));
 }
 
 void AdsServiceImpl::InitializePrefChangeRegistrar() {
@@ -781,6 +798,8 @@ void AdsServiceImpl::OnOptedInToAdsPrefChanged(const std::string& path) {
     // Rewards, opted into notification ads, and the Bat Ads Service has
     // already started.
     RegisterResourceComponentsForDefaultLanguageCode();
+
+    InitializeNotificationsForCurrentProfile();
   }
 
   MaybeStartBatAdsService();
@@ -788,10 +807,8 @@ void AdsServiceImpl::OnOptedInToAdsPrefChanged(const std::string& path) {
   NotifyPrefChanged(path);
 }
 
-void AdsServiceImpl::OnCountryCodePrefChanged(const std::string& path) {
+void AdsServiceImpl::OnVariationsCountryPrefChanged() {
   RegisterResourceComponentsForCurrentCountryCode();
-
-  NotifyPrefChanged(path);
 }
 
 void AdsServiceImpl::NotifyPrefChanged(const std::string& path) const {
@@ -816,8 +833,7 @@ void AdsServiceImpl::NotifyRewardsWalletDidUpdate(
 }
 
 void AdsServiceImpl::RefetchNewTabPageAd() {
-  is_prefetching_new_tab_page_ad_ = false;
-  prefetched_new_tab_page_ad_.reset();
+  ResetNewTabPageAd();
 
   PurgeOrphanedAdEventsForType(
       mojom::AdType::kNewTabPageAd,
@@ -827,8 +843,22 @@ void AdsServiceImpl::RefetchNewTabPageAd() {
 
 void AdsServiceImpl::RefetchNewTabPageAdCallback(bool success) {
   if (success) {
-    PrefetchNewTabPageAd();
+    new_tab_page_ad_prefetcher_->Prefetch();
   }
+}
+
+void AdsServiceImpl::ResetNewTabPageAd() {
+  new_tab_page_ad_prefetcher_ = std::make_unique<NewTabPageAdPrefetcher>(*this);
+}
+
+void AdsServiceImpl::OnParseAndSaveNewTabPageAdsCallback(
+    ParseAndSaveNewTabPageAdsCallback callback,
+    bool success) {
+  if (success) {
+    RefetchNewTabPageAd();
+  }
+
+  std::move(callback).Run(success);
 }
 
 void AdsServiceImpl::CheckIdleStateAfterDelay() {
@@ -977,10 +1007,6 @@ void AdsServiceImpl::NotificationAdTimedOut(const std::string& placement_id) {
 }
 
 void AdsServiceImpl::CloseAllNotificationAds() {
-  // TODO(https://github.com/brave/brave-browser/issues/25410): Temporary
-  // solution until we refactor the shutdown business logic and investigate
-  // calling `NotificationAdManager` to cleanup notification ads.
-
 #if BUILDFLAG(IS_ANDROID)
   if (!ShouldShowCustomNotificationAds()) {
     return;
@@ -999,26 +1025,14 @@ void AdsServiceImpl::CloseAllNotificationAds() {
   prefs_->SetList(prefs::kNotificationAds, {});
 }
 
-void AdsServiceImpl::PrefetchNewTabPageAdCallback(
-    std::optional<base::Value::Dict> dict) {
-  CHECK(!prefetched_new_tab_page_ad_);
-  CHECK(is_prefetching_new_tab_page_ad_);
-
-  is_prefetching_new_tab_page_ad_ = false;
-
-  if (dict) {
-    prefetched_new_tab_page_ad_ = NewTabPageAdFromValue(*dict);
-  }
-}
-
 void AdsServiceImpl::MaybeOpenNewTabWithAd() {
-  if (retry_opening_new_tab_for_ad_with_placement_id_.empty()) {
+  if (!retry_opening_new_tab_for_ad_with_placement_id_) {
     return;
   }
 
-  OpenNewTabWithAd(retry_opening_new_tab_for_ad_with_placement_id_);
+  OpenNewTabWithAd(*retry_opening_new_tab_for_ad_with_placement_id_);
 
-  retry_opening_new_tab_for_ad_with_placement_id_ = "";
+  retry_opening_new_tab_for_ad_with_placement_id_.reset();
 }
 
 void AdsServiceImpl::OpenNewTabWithAd(const std::string& placement_id) {
@@ -1045,7 +1059,7 @@ void AdsServiceImpl::OpenNewTabWithAd(const std::string& placement_id) {
 void AdsServiceImpl::OpenNewTabWithAdCallback(
     std::optional<base::Value::Dict> dict) {
   if (!dict) {
-    return VLOG(1) << "Failed to get notification ad";
+    return VLOG(0) << "Failed to get notification ad";
   }
 
   const NotificationAdInfo notification_ad = NotificationAdFromValue(*dict);
@@ -1059,7 +1073,8 @@ void AdsServiceImpl::OpenNewTabWithUrl(const GURL& url) {
   }
 
   if (!url.is_valid()) {
-    return VLOG(1) << "Failed to open new tab due to invalid URL: " << url;
+    VLOG(0) << "Failed to open new tab due to invalid URL: " << url;
+    return;
   }
 
   delegate_->OpenNewTabWithUrl(url);
@@ -1147,8 +1162,6 @@ void AdsServiceImpl::ShutdownAdsCallback(ShutdownCallback callback,
 void AdsServiceImpl::ShutdownAdsService() {
   TRACE_EVENT("brave.ads", "AdsServiceImpl::ShutdownAdsService");
   if (is_bat_ads_initialized_) {
-    SuspendP2AHistograms();
-
     VLOG(2) << "Shutting down Bat Ads Service";
   }
 
@@ -1164,13 +1177,10 @@ void AdsServiceImpl::ShutdownAdsService() {
 
   notification_ad_timers_.clear();
 
-  prefetched_new_tab_page_ad_.reset();
-  is_prefetching_new_tab_page_ad_ = false;
+  ResetNewTabPageAd();
 
   if (is_bat_ads_initialized_) {
     BackgroundHelper::GetInstance()->RemoveObserver(this);
-
-    host_content_settings_map_->RemoveObserver(this);
   }
 
   CloseAllNotificationAds();
@@ -1179,6 +1189,8 @@ void AdsServiceImpl::ShutdownAdsService() {
 
   if (is_bat_ads_initialized_) {
     VLOG(2) << "Shutdown Bat Ads Service";
+
+    NotifyDidShutdownAdsService();
   }
 
   is_bat_ads_initialized_ = false;
@@ -1260,12 +1272,12 @@ void AdsServiceImpl::ClearData(ClearDataCallback callback) {
 
 void AdsServiceImpl::GetInternals(GetInternalsCallback callback) {
   if (!bat_ads_associated_remote_.is_bound()) {
-    return std::move(callback).Run(/*internals*/ std::nullopt);
+    return std::move(callback).Run(/*internals=*/std::nullopt);
   }
 
   bat_ads_associated_remote_->GetInternals(
       mojo::WrapCallbackWithDefaultInvokeIfNotRun(std::move(callback),
-                                                  /*internals*/ std::nullopt));
+                                                  /*internals=*/std::nullopt));
 }
 
 void AdsServiceImpl::GetDiagnostics(GetDiagnosticsCallback callback) {
@@ -1331,60 +1343,62 @@ void AdsServiceImpl::TriggerInlineContentAdEvent(
 }
 
 void AdsServiceImpl::PrefetchNewTabPageAd() {
-  if (!bat_ads_associated_remote_.is_bound()) {
-    return;
-  }
-
-  if (!prefetched_new_tab_page_ad_ && !is_prefetching_new_tab_page_ad_) {
-    is_prefetching_new_tab_page_ad_ = true;
-
-    bat_ads_associated_remote_->MaybeServeNewTabPageAd(
-        base::BindOnce(&AdsServiceImpl::PrefetchNewTabPageAdCallback,
-                       weak_ptr_factory_.GetWeakPtr()));
-  }
+  new_tab_page_ad_prefetcher_->Prefetch();
 }
 
 std::optional<NewTabPageAdInfo>
 AdsServiceImpl::MaybeGetPrefetchedNewTabPageAd() {
-  if (!bat_ads_associated_remote_.is_bound()) {
-    return std::nullopt;
-  }
-
-  std::optional<NewTabPageAdInfo> ad;
-  if (prefetched_new_tab_page_ad_ && prefetched_new_tab_page_ad_->IsValid()) {
-    ad = prefetched_new_tab_page_ad_;
-    prefetched_new_tab_page_ad_.reset();
-  }
-
-  return ad;
+  return new_tab_page_ad_prefetcher_->MaybeGetPrefetchedAd();
 }
 
 void AdsServiceImpl::OnFailedToPrefetchNewTabPageAd(
     const std::string& /*placement_id*/,
     const std::string& /*creative_instance_id*/) {
-  prefetched_new_tab_page_ad_.reset();
-  is_prefetching_new_tab_page_ad_ = false;
+  ResetNewTabPageAd();
 
   PurgeOrphanedAdEventsForType(mojom::AdType::kNewTabPageAd,
                                /*intentional*/ base::DoNothing());
 }
 
-void AdsServiceImpl::ParseAndSaveCreativeNewTabPageAds(
-    const base::Value::Dict& dict,
-    ParseAndSaveCreativeNewTabPageAdsCallback callback) {
+void AdsServiceImpl::ParseAndSaveNewTabPageAds(
+    base::Value::Dict dict,
+    ParseAndSaveNewTabPageAdsCallback callback) {
   if (!bat_ads_associated_remote_.is_bound()) {
     return std::move(callback).Run(/*success*/ false);
   }
 
-  // Since `data` contains small JSON from a CRX component, cloning it has
-  // no performance impact.
-  bat_ads_associated_remote_->ParseAndSaveCreativeNewTabPageAds(
-      dict.Clone(), std::move(callback));
+  bat_ads_associated_remote_->ParseAndSaveNewTabPageAds(
+      std::move(dict),
+      base::BindOnce(&AdsServiceImpl::OnParseAndSaveNewTabPageAdsCallback,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
+}
+
+void AdsServiceImpl::MaybeServeNewTabPageAd(
+    MaybeServeNewTabPageAdCallback callback) {
+  if (!bat_ads_associated_remote_.is_bound()) {
+    return std::move(callback).Run(/*ad=*/std::nullopt);
+  }
+
+  auto callback_wrapper = base::BindOnce(
+      [](MaybeServeNewTabPageAdCallback callback,
+         std::optional<base::Value::Dict> dict) {
+        if (!dict) {
+          return std::move(callback).Run(
+              /*ad=*/std::nullopt);
+        }
+
+        std::move(callback).Run(NewTabPageAdFromValue(*dict));
+      },
+      std::move(callback));
+
+  bat_ads_associated_remote_->MaybeServeNewTabPageAd(
+      std::move(callback_wrapper));
 }
 
 void AdsServiceImpl::TriggerNewTabPageAdEvent(
     const std::string& placement_id,
     const std::string& creative_instance_id,
+    bool should_metrics_fallback_to_p3a,
     mojom::NewTabPageAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
   CHECK(mojom::IsKnownEnumValue(mojom_ad_event_type));
@@ -1394,8 +1408,8 @@ void AdsServiceImpl::TriggerNewTabPageAdEvent(
   }
 
   bat_ads_associated_remote_->TriggerNewTabPageAdEvent(
-      placement_id, creative_instance_id, mojom_ad_event_type,
-      std::move(callback));
+      placement_id, creative_instance_id, should_metrics_fallback_to_p3a,
+      mojom_ad_event_type, std::move(callback));
 }
 
 void AdsServiceImpl::TriggerPromotedContentAdEvent(
@@ -1785,23 +1799,6 @@ void AdsServiceImpl::LoadResourceComponent(
           std::move(callback)));
 }
 
-void AdsServiceImpl::LoadDataResource(const std::string& name,
-                                      LoadDataResourceCallback callback) {
-  const int resource_bundle_id = ResourceBundleId(name);
-
-  std::string data_resource;
-
-  const auto& resource_bundle = ui::ResourceBundle::GetSharedInstance();
-  if (resource_bundle.IsGzipped(resource_bundle_id)) {
-    data_resource = resource_bundle.LoadDataResourceString(resource_bundle_id);
-  } else {
-    data_resource = static_cast<std::string>(
-        resource_bundle.GetRawDataResource(resource_bundle_id));
-  }
-
-  std::move(callback).Run(data_resource);
-}
-
 void AdsServiceImpl::ShowScheduledCaptcha(const std::string& payment_id,
                                           const std::string& captcha_id) {
 #if BUILDFLAG(IS_ANDROID)
@@ -1821,13 +1818,6 @@ void AdsServiceImpl::ShowScheduledCaptcha(const std::string& payment_id,
       base::BindOnce(&AdsServiceImpl::SnoozeScheduledCaptchaCallback,
                      weak_ptr_factory_.GetWeakPtr()));
 #endif  // !BUILDFLAG(IS_ANDROID)
-}
-
-void AdsServiceImpl::RecordP2AEvents(const std::vector<std::string>& events) {
-  for (const auto& event : events) {
-    RecordAndEmitP2AHistogramName(prefs_,
-                                  /*name*/ event);
-  }
 }
 
 void AdsServiceImpl::FindProfilePref(const std::string& path,
@@ -1884,7 +1874,7 @@ void AdsServiceImpl::HasLocalStatePrefPath(
 }
 
 void AdsServiceImpl::GetVirtualPrefs(GetVirtualPrefsCallback callback) {
-  std::move(callback).Run(delegate_->GetVirtualPrefs());
+  std::move(callback).Run(virtual_pref_provider_->GetPrefs());
 }
 
 void AdsServiceImpl::Log(const std::string& file,
@@ -1906,8 +1896,7 @@ void AdsServiceImpl::OnBrowserUpgradeRequiredToServeAds() {
   browser_upgrade_required_to_serve_ads_ = true;
 }
 
-void AdsServiceImpl::OnRemindUser(
-    brave_ads::mojom::ReminderType mojom_reminder_type) {
+void AdsServiceImpl::OnRemindUser(mojom::ReminderType mojom_reminder_type) {
   CHECK(mojom::IsKnownEnumValue(mojom_reminder_type));
 
   ShowReminder(mojom_reminder_type);
@@ -1938,8 +1927,6 @@ void AdsServiceImpl::OnResourceComponentDidChange(
     bat_ads_client_notifier_remote_->NotifyResourceComponentDidChange(
         manifest_version, id);
   }
-
-  PrefetchNewTabPageAd();
 }
 
 void AdsServiceImpl::OnDidUnregisterResourceComponent(const std::string& id) {

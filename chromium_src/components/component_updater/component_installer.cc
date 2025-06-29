@@ -5,6 +5,8 @@
 
 #include "components/component_updater/component_installer.h"
 
+#include "base/check.h"
+#include "base/logging.h"
 #include "build/build_config.h"
 
 #define Register Register_ChromiumImpl
@@ -43,6 +45,7 @@ void ComponentInstaller::Register(
           "llkgjffcdpffmhiakmfcdcblohccpfmo",  // Origin Trials
           "gonpemdgkjcecdgbnaabipppbmgfggbe",  // First Party Sets
           "dhlpobdgcjafebgbbhjdnapejmpkgiie",  // Desktop Sharing Hub
+          "ldfkbgjbencjpgjfleiooeldhjdapggh",  // Probabilistic Reveal Tokens
 #if BUILDFLAG(IS_ANDROID)
           "lmelglejhemejginpboagddgdfbepgmp",  // Optimization Hints
           "obedbbhbpmojnkanicioggnmelmoomoc"   // OnDeviceHeadSuggest
@@ -54,8 +57,8 @@ void ComponentInstaller::Register(
     installer_policy_->GetHash(&hash);
     const std::string id = update_client::GetCrxIdFromPublicKeyHash(hash);
     if (kDisallowedComponents.contains(id)) {
-      VLOG(1) << "Skipping registration of Brave-unsupported component "
-              << id << ".";
+      VLOG(1) << "Skipping registration of Brave-unsupported component " << id
+              << ".";
       return;
     }
   }

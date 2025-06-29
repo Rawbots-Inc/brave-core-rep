@@ -80,25 +80,22 @@
 "Block3rdPartyCookies" = "Blockera cookies från 3:e part";
 
 /* Title for setting to block all website cookies. */
-"BlockAllCookies" = "Blockera alla kakor";
+"BlockAllCookies" = "Blockera alla cookies";
 
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "Blockera alla";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "Om du blockerar alla cookies kanske vissa webbplatser inte fungerar korrekt.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "Blockera alla cookies?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "Vill du blockera alla cookies?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "Sköldar blockerar redan tredjepartscookies. Den här inställningen för att blockera ALLA cookies kommer att ta bort befintliga cookies och webbplatsdata och kan bryta webbplatser.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "Det gick inte att spara inställningen. Försök igen.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "Blockera meddelanden om godkännande av cookies";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "Förhindrar webbplatser från att lagra information om dina tidigare besök.\nAlternativet \"Blockera alla cookies\" har utgått. För att lära dig hur du tvingar fram aktivering av detta alternativ, besök [vår hjälpsida](https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "Blockeringsvisare";
@@ -490,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "Bekräfta";
 
-/* Cookie settings option title */
-"CookieControl" = "Cookie-kontroll";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "Cookies och webbplatsdata";
 
@@ -523,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "Sökmotorer som används för närvarande";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "Lägg till anpassad sökmotor";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "Skriv sökadressen och ersätt frågan med %1$s.\nExempelvis: https://youtube.com/search?q=%2$s \n(Om webbplatsen stöder OpenSearch kommer ett alternativ att läggas till automatiskt när du redigerar detta fält.)";
 
@@ -540,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "Det finns redan en sökmotor med samma namn.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "Ange sökmotorns namn";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "Osäker anpassad sökmall för";
@@ -661,9 +661,6 @@
 /* No comment provided by engineer. */
 "Done" = "Klar";
 
-/* cookie settings option */
-"DontBlockCookies" = "Blockera inte cookies";
-
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "Skicka inte";
 
@@ -702,6 +699,9 @@
 
 /* Title for editing a folder */
 "EditFolderTitle" = "Redigera mapp";
+
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "Redigera snabbsökmotorer";
 
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "Aktivera Dra för att uppdatera";
@@ -787,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "Klar";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "Sök på ”%@”";
+/* Find `search query` */
+"FindInPageFormat" = "Hitta ";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "Nästa resultat på sidan";
@@ -879,6 +879,9 @@
 
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "HTTPS-uppgraderingar";
+
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "Importera surfningsdata";
 
 /* title for per-site shield toggles */
 "IndividualControls" = "Inviduella kontroller";
@@ -1052,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "Dölj sponsrade bilder";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "\"Sponsrade\" är ytterligare varumärkesbakgrunder som du kan tjäna på med Brave Rewards aktiverat.";
+"ntp.imageTypeSelectionDescription" = "Sponsrade bilder är varumärkesbakgrunder som visas i nyöppnade flikar i webbläsaren. Genom att aktivera dessa sponsrade bilder stöder du Braves uppdrag.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "Läs mer";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "Lär dig mer om Brave Rewards";
@@ -2131,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "Dölj";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "Klistra in & öppna";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "på";
 
@@ -2150,10 +2153,13 @@
 "RecentSearchScannerTitle" = "Skanna QR kod";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "Med de senaste sökningarna kan du privat komma åt tidigare sökningar. Vill du aktivera Senaste sökningar?";
+"RecentSearchSectionDescription" = "Vill du aktivera senaste sökningar?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "Senaste sökningar";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "Senaste sökningar";
+"RecentSearchSectionTitle" = "Senaste sökningar ger dig privat tillgång till tidigare sökningar.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "Visa";
@@ -2498,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "Söker efter förslag";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "Öppna flikar & Bokmärken & Historik";
+"SearchHistorySectionHeader" = "På din enhet";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "Rensa sökningar";
@@ -2511,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "Sök";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "Sök \"%@\"";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "Lägg till anpassad sökmotor";
@@ -2547,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "Sökförslag";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "Vill du aktivera sökförslag?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "Sök med Brave";
@@ -2625,9 +2637,6 @@
 
 /* Header for the YouTube settings section */
 "settings.youtube" = "YouTube";
-
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "Kunde inte ladda sidan.";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "Licenser";
@@ -3211,9 +3220,6 @@
 /* Word count title */
 "sync.wordCount" = "Antal ord: %i";
 
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "Importerade bokmärken";
-
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "Stäng";
 
@@ -3271,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "Inte säker";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "Klistra in och öppna";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "Playlist";
 
@@ -3292,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "Stoppa";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "Röstsökning";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3539,7 +3548,7 @@
 "ToggleReaderMode" = "Växla läsläge";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "Översätt";
+"TranslatePage" = "Översätt sida";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "Sätt på sökförslag?";

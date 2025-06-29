@@ -16,6 +16,14 @@ function delay(ms: number) {
   })
 }
 
+function repeat<T>(array: T[], times: number) {
+  const result = []
+  for (let i = 0; i < times; ++i) {
+    result.push(...array)
+  }
+  return result
+}
+
 export function createModel(): AppModel {
   const locale = createLocaleContextForTesting(localeStrings)
   const stateManager = createStateManager<AppState>({
@@ -35,15 +43,12 @@ export function createModel(): AppModel {
       adsEnabled: {
         'new-tab-page': true,
         'notification': false,
-        'search-result': true,
-        'inline-content': false
+        'search-result': true
       },
-      adsReceivedThisMonth: 97,
       adTypesReceivedThisMonth: {
         'new-tab-page': 92,
         'notification': 4,
-        'search-result': 1,
-        'inline-content': 0
+        'search-result': 1
       },
       minEarningsPreviousMonth: 1.244,
       nextPaymentDate: Date.now() + (4 * 24 * 60 * 60 * 1000),
@@ -125,6 +130,9 @@ export function createModel(): AppModel {
       {
         name: 'community-card',
         title: '',
+        order: 0,
+        section: '',
+        banner: null,
         items: [
           {
             title: 'Brave meetup in Toronto!',
@@ -137,6 +145,9 @@ export function createModel(): AppModel {
       {
         name: 'merch-store-card',
         title: '',
+        order: 0,
+        section: '',
+        banner: null,
         items: [
           {
             title: 'Brave Embroidered Crop Top',
@@ -149,6 +160,9 @@ export function createModel(): AppModel {
       {
         name: 'partner-promo-card',
         title: 'Ledger Hardware Wallet',
+        order: 0,
+        section: '',
+        banner: null,
         items: [
           {
             title: 'Secure Your Crypto with Ledger Nano',
@@ -157,6 +171,17 @@ export function createModel(): AppModel {
             thumbnail: ''
           }
         ]
+      },
+      {
+        name: 'top-banner-card',
+        title: 'Top Banner',
+        section: 'top',
+        order: 0,
+        banner: {
+          image: '',
+          url: ''
+        },
+        items: []
       }
     ]
   })
@@ -219,9 +244,10 @@ export function createModel(): AppModel {
     },
 
     async getAdsHistory() {
-      return [
+      return repeat([
         {
           createdAt: Date.now(),
+          type: 'notification',
           id: '123',
           name: 'Brave',
           text: 'Data Regulation & GDPR...',
@@ -233,6 +259,7 @@ export function createModel(): AppModel {
         {
           createdAt: Date.now(),
           id: '124',
+          type: 'search-result',
           name: 'Brave',
           text: 'Data Regulation & GDPR...',
           domain: 'kite.lnk',
@@ -240,7 +267,7 @@ export function createModel(): AppModel {
           likeStatus: 'liked',
           inappropriate: false
         }
-      ]
+      ], 500)
     },
 
     async removeRecurringContribution(id) {

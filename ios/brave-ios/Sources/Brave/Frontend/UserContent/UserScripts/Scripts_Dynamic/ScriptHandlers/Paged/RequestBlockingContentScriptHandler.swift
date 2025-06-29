@@ -9,6 +9,7 @@ import Data
 import Foundation
 import Preferences
 import Shared
+import Web
 import WebKit
 
 class RequestBlockingContentScriptHandler: TabContentScript {
@@ -45,11 +46,11 @@ class RequestBlockingContentScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
-    guard let currentTabURL = tab.webView?.url else {
+    guard let currentTabURL = tab.visibleURL else {
       assertionFailure("Should have a tab set")
       return
     }
@@ -86,7 +87,7 @@ class RequestBlockingContentScriptHandler: TabContentScript {
         // For subframes which may use different etld+1 than the main frame (example `reddit.com` and `redditmedia.com`)
         // We simply check the known subframeURLs on this page.
         guard
-          tab.url?.baseDomain == windowOriginURL.baseDomain
+          tab.visibleURL?.baseDomain == windowOriginURL.baseDomain
             || tab.currentPageData?.allSubframeURLs.contains(windowOriginURL) == true
         else {
           replyHandler(shouldBlock, nil)
@@ -103,13 +104,16 @@ class RequestBlockingContentScriptHandler: TabContentScript {
           )
         }
 
-        if shouldBlock
-          && !tab.contentBlocker.blockedRequests.contains(where: { $0.requestURL == requestURL })
+        if let tabData = tab.browserData,
+          shouldBlock
+            && !tabData.contentBlocker.blockedRequests.contains(where: {
+              $0.requestURL == requestURL
+            })
         {
           BraveGlobalShieldStats.shared.adblock += 1
-          let stats = tab.contentBlocker.stats
-          tab.contentBlocker.stats = stats.adding(adCount: 1)
-          tab.contentBlocker.blockedRequests.append(
+          let stats = tabData.contentBlocker.stats
+          tab.contentBlocker?.stats = stats.adding(adCount: 1)
+          tab.contentBlocker?.blockedRequests.append(
             .init(
               requestURL: requestURL,
               sourceURL: windowOriginURL,

@@ -5,6 +5,7 @@
 
 #include "brave/browser/ui/webui/ai_chat/ai_chat_ui_page_handler.h"
 
+#include "base/check.h"
 #include "base/path_service.h"
 #include "base/run_loop.h"
 #include "base/strings/strcat.h"
@@ -84,8 +85,14 @@ class AIChatUIPageHandlerBrowserTest : public PlatformBrowserTest,
   }
 
   mojom::TabDataPtr GetTabDataForFirstMatchingURL(const GURL& url) {
-    auto it = std::find_if(tabs_.begin(), tabs_.end(),
-                           [url](const auto& tab) { return tab->url == url; });
+    auto find_tab = [&]() {
+      return std::find_if(tabs_.begin(), tabs_.end(),
+                          [url](const auto& tab) { return tab->url == url; });
+    };
+
+    CHECK(base::test::RunUntil([&]() { return find_tab() != tabs_.end(); }));
+
+    auto it = find_tab();
     if (it == tabs_.end()) {
       return nullptr;
     }

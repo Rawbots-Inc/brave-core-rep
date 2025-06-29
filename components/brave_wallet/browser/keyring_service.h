@@ -6,6 +6,7 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_KEYRING_SERVICE_H_
 #define BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_KEYRING_SERVICE_H_
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
@@ -151,7 +152,7 @@ class KeyringService : public mojom::KeyringService {
       base::span<const uint8_t> message);
   std::optional<std::string> RecoverAddressByDefaultKeyring(
       base::span<const uint8_t> message,
-      base::span<const uint8_t> signature);
+      base::span<const uint8_t> eth_signature);
   bool GetPublicKeyFromX25519_XSalsa20_Poly1305ByDefaultKeyring(
       const mojom::AccountIdPtr& account_id,
       std::string* key);
@@ -259,6 +260,10 @@ class KeyringService : public mojom::KeyringService {
   mojom::CardanoAddressPtr GetCardanoAddress(
       const mojom::AccountIdPtr& account_id,
       const mojom::CardanoKeyIdPtr& payment_key_id);
+  std::optional<std::array<uint8_t, kCardanoSignatureSize>>
+  SignMessageByCardanoKeyring(const mojom::AccountIdPtr& account_id,
+                              const mojom::CardanoKeyIdPtr& key_id,
+                              base::span<const uint8_t> message);
 
   const std::vector<mojom::AccountInfoPtr>& GetAllAccountInfos();
   mojom::AccountInfoPtr FindAccount(const mojom::AccountIdPtr& account_id);

@@ -8,15 +8,14 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/memory/raw_ptr.h"
-#include "base/notreached.h"
 #include "brave/app/brave_command_ids.h"
 #include "brave/app/vector_icons/vector_icons.h"
 #include "brave/browser/brave_vpn/brave_vpn_service_factory.h"
 #include "brave/browser/ui/brave_icon_with_badge_image_source.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/components/brave_vpn/browser/brave_vpn_service.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/vector_icons/vector_icons.h"
 #include "brave/grit/brave_generated_resources.h"
 #include "chrome/browser/ui/browser.h"
@@ -52,9 +51,7 @@ constexpr int kBadgeSize = 10;
 // For error icon's inner color.
 class ConnectErrorIconBackground : public views::Background {
  public:
-  explicit ConnectErrorIconBackground(SkColor color) {
-    SetNativeControlColor(color);
-  }
+  explicit ConnectErrorIconBackground(SkColor color) { SetColor(color); }
 
   ConnectErrorIconBackground(const ConnectErrorIconBackground&) = delete;
   ConnectErrorIconBackground& operator=(const ConnectErrorIconBackground&) =
@@ -63,7 +60,8 @@ class ConnectErrorIconBackground : public views::Background {
   void Paint(gfx::Canvas* canvas, views::View* view) const override {
     auto bounds = view->GetLocalBounds();
     bounds.Inset(gfx::Insets::TLBR(2, 4, 2, 4));
-    canvas->FillRect(bounds, get_color());
+    canvas->FillRect(bounds,
+                     color().ResolveToSkColor(view->GetColorProvider()));
   }
 };
 
@@ -192,8 +190,8 @@ BraveVPNButton::BraveVPNButton(Browser* browser)
       std::make_unique<views::Button::DefaultButtonControllerDelegate>(this));
   menu_button_controller_ = menu_button_controller.get();
   SetButtonController(std::move(menu_button_controller));
-  SetAccessibleName(brave_l10n::GetLocalizedResourceUTF16String(
-      IDS_BRAVE_VPN_TOOLBAR_BUTTON_TEXT));
+  SetAccessibleName(
+      l10n_util::GetStringUTF16(IDS_BRAVE_VPN_TOOLBAR_BUTTON_TEXT));
 }
 
 BraveVPNButton::~BraveVPNButton() = default;

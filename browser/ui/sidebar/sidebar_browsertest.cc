@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <optional>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/memory/weak_ptr.h"
 #include "base/run_loop.h"
@@ -16,7 +17,6 @@
 #include "base/test/run_until.h"
 #include "base/test/scoped_feature_list.h"
 #include "brave/app/brave_command_ids.h"
-#include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/browser_commands.h"
 #include "brave/browser/ui/sidebar/sidebar_controller.h"
 #include "brave/browser/ui/sidebar/sidebar_model.h"
@@ -87,15 +87,11 @@ class SidebarBrowserTest : public InProcessBrowserTest {
         SidebarService::ShowSidebarOption::kShowAlways);
   }
 
-  BraveBrowser* brave_browser() const {
-    return static_cast<BraveBrowser*>(browser());
-  }
-
   SidebarModel* model() const { return controller()->model(); }
   TabStripModel* tab_model() const { return browser()->tab_strip_model(); }
 
   SidebarController* controller() const {
-    return brave_browser()->sidebar_controller();
+    return browser()->GetFeatures().sidebar_controller();
   }
 
   SidePanelButton* GetSidePanelToolbarButton() const {
@@ -246,8 +242,8 @@ class SidebarBrowserTest : public InProcessBrowserTest {
   }
 
   void VerifyTargetDragIndicatorIndexCalc(const gfx::Point& screen_position) {
-    auto sidebar_items_contents_view = GetSidebarItemsContentsView(
-        static_cast<BraveBrowser*>(browser())->sidebar_controller());
+    auto sidebar_items_contents_view =
+        GetSidebarItemsContentsView(controller());
     EXPECT_NE(std::nullopt,
               sidebar_items_contents_view->CalculateTargetDragIndicatorIndex(
                   screen_position));
@@ -475,7 +471,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, IterateBuiltInWebTypeTest) {
 
   // |browser2| doesn't have any wallet tab. So, clicking wallet sidebar item
   // activates other browser's first wallet tab.
-  static_cast<BraveBrowser*>(browser2)->sidebar_controller()->ActivateItemAt(
+  browser2->GetFeatures().sidebar_controller()->ActivateItemAt(
       wallet_item_index);
 
   // Wait till browser() is activated.
@@ -484,6 +480,27 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, IterateBuiltInWebTypeTest) {
 
   EXPECT_EQ(0, tab_model()->active_index());
 #endif
+}
+
+IN_PROC_BROWSER_TEST_F(SidebarBrowserTest,
+                       BookmarksPanelShownAfterReadingListTest) {
+  auto* panel_ui = browser()->GetFeatures().side_panel_ui();
+  panel_ui->Show(SidePanelEntryId::kReadingList);
+
+  // Check reading list panel is activated.
+  auto reading_list_item_index =
+      model()->GetIndexOf(SidebarItem::BuiltInItemType::kReadingList);
+  ASSERT_TRUE(reading_list_item_index.has_value());
+  ASSERT_TRUE(base::test::RunUntil(
+      [&]() { return controller()->IsActiveIndex(reading_list_item_index); }));
+
+  // Check bookmarks panel is activated.
+  panel_ui->Show(SidePanelEntryId::kBookmarks);
+  auto bookmarks_item_index =
+      model()->GetIndexOf(SidebarItem::BuiltInItemType::kBookmarks);
+  ASSERT_TRUE(bookmarks_item_index.has_value());
+  ASSERT_TRUE(base::test::RunUntil(
+      [&]() { return controller()->IsActiveIndex(bookmarks_item_index); }));
 }
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, PRE_LastlyUsedSidePanelItemTest) {
@@ -564,8 +581,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, InitialHorizontalOptionTest) {
 }
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, ItemDragIndicatorCalcTest) {
-  auto sidebar_items_contents_view = GetSidebarItemsContentsView(
-      static_cast<BraveBrowser*>(browser())->sidebar_controller());
+  auto sidebar_items_contents_view = GetSidebarItemsContentsView(controller());
   gfx::Rect contents_view_rect = sidebar_items_contents_view->GetLocalBounds();
   views::View::ConvertRectToScreen(sidebar_items_contents_view,
                                    &contents_view_rect);
@@ -607,7 +623,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, EventDetectWidgetTest) {
 
   auto* tab_strip_model = browser()->tab_strip_model();
   brave::NewSplitViewForTab(browser());
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser());
+  auto* split_view_data = browser()->GetFeatures().split_view_browser_data();
   ASSERT_TRUE(split_view_data);
   ASSERT_TRUE(split_view_data->IsTabTiled(
       tab_strip_model->GetTabAtIndex(0)->GetHandle()));
@@ -652,8 +668,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, HideSidebarUITest) {
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, ItemAddedBubbleAnchorViewTest) {
   auto* sidebar_service =
       SidebarServiceFactory::GetForProfile(browser()->profile());
-  auto sidebar_items_contents_view = GetSidebarItemsContentsView(
-      static_cast<BraveBrowser*>(browser())->sidebar_controller());
+  auto sidebar_items_contents_view = GetSidebarItemsContentsView(controller());
   SetItemAddedBubbleLaunchedCallback(sidebar_items_contents_view);
   size_t lastly_added_item_index = 0;
 
@@ -699,8 +714,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, ItemActivatedScrollTest) {
 
   auto* sidebar_service =
       SidebarServiceFactory::GetForProfile(browser()->profile());
-  auto* scroll_view = GetSidebarItemsScrollView(
-      static_cast<BraveBrowser*>(browser())->sidebar_controller());
+  auto* scroll_view = GetSidebarItemsScrollView(controller());
 
   // Move bookmark item at zero index to make it hidden.
   sidebar_service->MoveItem(*bookmark_item_index, 0);
@@ -727,10 +741,8 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, ItemAddedScrollTest) {
 
   auto* sidebar_service =
       SidebarServiceFactory::GetForProfile(browser()->profile());
-  auto* scroll_view = GetSidebarItemsScrollView(
-      static_cast<BraveBrowser*>(browser())->sidebar_controller());
-  auto sidebar_items_contents_view = GetSidebarItemsContentsView(
-      static_cast<BraveBrowser*>(browser())->sidebar_controller());
+  auto* scroll_view = GetSidebarItemsScrollView(controller());
+  auto sidebar_items_contents_view = GetSidebarItemsContentsView(controller());
 
   AddItemsTillScrollable(scroll_view, sidebar_service);
 
@@ -915,7 +927,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, TabSpecificAndGlobalPanelsTest) {
   tab_model()->ActivateTabAt(1);
   EXPECT_FALSE(panel_ui->IsSidePanelShowing());
 
-  // Open global panel when active tab indext is 1.
+  // Open global panel when active tab index is 1.
   panel_ui->Show(SidePanelEntryId::kBookmarks);
   WaitUntil(base::BindLambdaForTesting([&]() {
     return panel_ui->GetCurrentEntryId() == SidePanelEntryId::kBookmarks;
@@ -935,25 +947,24 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, TabSpecificAndGlobalPanelsTest) {
 }
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTest, DisabledItemsTest) {
-  auto* guest_browser = static_cast<BraveBrowser*>(CreateGuestBrowser());
-  auto* controller = guest_browser->sidebar_controller();
+  auto* guest_browser = CreateGuestBrowser();
+  auto* controller = guest_browser->GetFeatures().sidebar_controller();
   auto* model = controller->model();
   for (const auto& item : model->GetAllSidebarItems()) {
     // Check disabled builtin items are not included in guest browser's items
     // list.
-    if (IsBuiltInType(item)) {
+    if (item.is_built_in_type()) {
       EXPECT_FALSE(IsDisabledItemForGuest(item.built_in_item_type));
     }
   }
 
-  auto* private_browser =
-      static_cast<BraveBrowser*>(CreateIncognitoBrowser(browser()->profile()));
-  controller = private_browser->sidebar_controller();
+  auto* private_browser = CreateIncognitoBrowser(browser()->profile());
+  controller = private_browser->GetFeatures().sidebar_controller();
   model = controller->model();
   for (const auto& item : model->GetAllSidebarItems()) {
     // Check disabled builtin items are not included in private browser's items
     // list.
-    if (IsBuiltInType(item)) {
+    if (item.is_built_in_type()) {
       EXPECT_FALSE(IsDisabledItemForPrivate(item.built_in_item_type));
     }
   }
@@ -1102,8 +1113,7 @@ class SidebarBrowserTestWithPlaylist : public SidebarBrowserTest {
 
 IN_PROC_BROWSER_TEST_F(SidebarBrowserTestWithPlaylist, Incognito) {
   // There should be no crash with incognito.
-  auto* private_browser =
-      static_cast<BraveBrowser*>(CreateIncognitoBrowser(browser()->profile()));
+  auto* private_browser = CreateIncognitoBrowser(browser()->profile());
   ASSERT_TRUE(private_browser);
 
   auto* sidebar_service =
@@ -1258,8 +1268,7 @@ IN_PROC_BROWSER_TEST_F(SidebarBrowserTestWithAIChat,
   EXPECT_EQ(model()->active_index(), tab_specific_item_index);
 
   auto* browser2 = CreateBrowser(browser()->profile());
-  auto* browser2_model =
-      static_cast<BraveBrowser*>(browser2)->sidebar_controller()->model();
+  auto* browser2_model = browser2->GetFeatures().sidebar_controller()->model();
   auto* browser2_tab_model = browser2->tab_strip_model();
 
   auto detached_tab = tab_model()->DetachTabAtForInsertion(1);

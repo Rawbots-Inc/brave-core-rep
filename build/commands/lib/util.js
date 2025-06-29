@@ -18,11 +18,7 @@ const updateUnsafeBuffersPaths = require('./updateUnsafeBuffersPaths.js')
 const ActionGuard = require('./actionGuard')
 
 // Do not limit the number of listeners to avoid warnings from EventEmitter.
-process.setMaxListeners(0);
-
-const mergeWithDefault = (options) => {
-  return Object.assign({}, config.defaultOptions, options)
-}
+process.setMaxListeners(0)
 
 async function applyPatches(printPatchFailuresInJson) {
   const GitPatcher = require('./gitPatcher')
@@ -33,54 +29,83 @@ async function applyPatches(printPatchFailuresInJson) {
   const patchesPath = path.join(coreRepoPath, 'patches')
   const v8PatchesPath = path.join(patchesPath, 'v8')
   const catapultPatchesPath = path.join(patchesPath, 'third_party', 'catapult')
-  const devtoolsFrontendPatchesPath = path.join(patchesPath, 'third_party', 'devtools-frontend', 'src')
-  const tflitePatchesPath = path.join(patchesPath, 'third_party', 'tflite', 'src')
-  const searchEngineDataPatchesPath =
-      path.join(patchesPath, 'third_party', 'search_engines_data', 'resources')
+  const devtoolsFrontendPatchesPath = path.join(
+    patchesPath,
+    'third_party',
+    'devtools-frontend',
+    'src',
+  )
+  const searchEngineDataPatchesPath = path.join(
+    patchesPath,
+    'third_party',
+    'search_engines_data',
+    'resources',
+  )
 
   const chromiumRepoPath = config.srcDir
   const v8RepoPath = path.join(chromiumRepoPath, 'v8')
-  const catapultRepoPath = path.join(chromiumRepoPath, 'third_party', 'catapult')
-  const devtoolsFrontendRepoPath = path.join(chromiumRepoPath, 'third_party', 'devtools-frontend', 'src')
-  const tfliteRepoPath = path.join(chromiumRepoPath, 'third_party', 'tflite', 'src')
+  const catapultRepoPath = path.join(
+    chromiumRepoPath,
+    'third_party',
+    'catapult',
+  )
+  const devtoolsFrontendRepoPath = path.join(
+    chromiumRepoPath,
+    'third_party',
+    'devtools-frontend',
+    'src',
+  )
   const searchEngineDataRepoPath = path.join(
-      chromiumRepoPath, 'third_party', 'search_engines_data', 'resources')
+    chromiumRepoPath,
+    'third_party',
+    'search_engines_data',
+    'resources',
+  )
 
   const chromiumPatcher = new GitPatcher(patchesPath, chromiumRepoPath)
   const v8Patcher = new GitPatcher(v8PatchesPath, v8RepoPath)
   const catapultPatcher = new GitPatcher(catapultPatchesPath, catapultRepoPath)
-  const devtoolsFrontendPatcher = new GitPatcher(devtoolsFrontendPatchesPath, devtoolsFrontendRepoPath)
-  const tflitePatcher = new GitPatcher(tflitePatchesPath, tfliteRepoPath)
-  const searchEngineDataPatcher =
-      new GitPatcher(searchEngineDataPatchesPath, searchEngineDataRepoPath)
+  const devtoolsFrontendPatcher = new GitPatcher(
+    devtoolsFrontendPatchesPath,
+    devtoolsFrontendRepoPath,
+  )
+  const searchEngineDataPatcher = new GitPatcher(
+    searchEngineDataPatchesPath,
+    searchEngineDataRepoPath,
+  )
 
   const chromiumPatchStatus = await chromiumPatcher.applyPatches()
   const v8PatchStatus = await v8Patcher.applyPatches()
   const catapultPatchStatus = await catapultPatcher.applyPatches()
-  const devtoolsFrontendPatchStatus = await devtoolsFrontendPatcher.applyPatches()
-  const tflitePatchStatus = await tflitePatcher.applyPatches()
+  const devtoolsFrontendPatchStatus =
+    await devtoolsFrontendPatcher.applyPatches()
   const searchEngineDataPatchStatus =
-      await searchEngineDataPatcher.applyPatches()
+    await searchEngineDataPatcher.applyPatches()
 
   // Log status for all patches
   // Differentiate entries for logging
-  v8PatchStatus.forEach(s => s.path = path.join('v8', s.path))
+  v8PatchStatus.forEach((s) => (s.path = path.join('v8', s.path)))
   catapultPatchStatus.forEach(
-    s => s.path = path.join('third_party', 'catapult', s.path))
+    (s) => (s.path = path.join('third_party', 'catapult', s.path)),
+  )
   devtoolsFrontendPatchStatus.forEach(
-    s => s.path = path.join('third_party', 'devtools-frontend', 'src', s.path))
+    (s) =>
+      (s.path = path.join('third_party', 'devtools-frontend', 'src', s.path)),
+  )
   const allPatchStatus = [
-    ...chromiumPatchStatus, ...v8PatchStatus, ...catapultPatchStatus,
-    ...devtoolsFrontendPatchStatus, ...tflitePatchStatus,
-    ...searchEngineDataPatchStatus
-  ];
+    ...chromiumPatchStatus,
+    ...v8PatchStatus,
+    ...catapultPatchStatus,
+    ...devtoolsFrontendPatchStatus,
+    ...searchEngineDataPatchStatus,
+  ]
   if (printPatchFailuresInJson) {
     Log.printFailedPatchesInJsonFormat(allPatchStatus, config.braveCoreDir)
   } else {
     Log.allPatchStatus(allPatchStatus, 'Chromium')
   }
 
-  const hasPatchError = allPatchStatus.some(p => p.error)
+  const hasPatchError = allPatchStatus.some((p) => p.error)
   // Exit on error in any patch
   if (hasPatchError) {
     Log.error('Exiting as not all patches were successful!')
@@ -94,7 +119,7 @@ async function applyPatches(printPatchFailuresInJson) {
 }
 
 const isOverrideNewer = (original, override) => {
-  return (fs.statSync(override).mtimeMs - fs.statSync(original).mtimeMs > 0)
+  return fs.statSync(override).mtimeMs - fs.statSync(original).mtimeMs > 0
 }
 
 const updateFileUTimesIfOverrideIsNewer = (original, override) => {
@@ -128,24 +153,32 @@ const getAdditionalGenLocation = () => {
     } else if (config.targetArch === 'x64') {
       return 'android_clang_x86'
     }
-  } else if ((process.platform === 'darwin' || process.platform === 'linux') && config.targetArch === 'arm64') {
+  } else if (
+    (process.platform === 'darwin' || process.platform === 'linux') &&
+    config.targetArch === 'arm64'
+  ) {
     return 'clang_x64_v8_arm64'
   }
   return ''
 }
 
 const util = {
-
-  runProcess: (cmd, args = [], options = {}) => {
-    Log.command(options.cwd, cmd, args)
+  runProcess: (cmd, args = [], options = {}, skipLogging = false) => {
+    if (!skipLogging) {
+      Log.command(options.cwd, cmd, args)
+    }
     return spawnSync(cmd, args, options)
   },
 
   run: (cmd, args = [], options = {}) => {
-    const { continueOnFail, ...cmdOptions } = options
-    const prog = util.runProcess(cmd, args, cmdOptions)
+    const { continueOnFail, skipLogging, ...cmdOptions } = options
+    const prog = util.runProcess(cmd, args, cmdOptions, skipLogging)
     if (prog.status !== 0) {
       if (!continueOnFail) {
+        if (skipLogging) {
+          console.log(cmd, args, 'exited with status', prog.status, cmdOptions)
+        }
+
         console.log(prog.stdout && prog.stdout.toString())
         console.error(prog.stderr && prog.stderr.toString())
         process.exit(1)
@@ -165,7 +198,8 @@ const util = {
   },
 
   runAsync: (cmd, args = [], options = {}) => {
-    let { continueOnFail, verbose, onStdErrLine, onStdOutLine, ...cmdOptions } = options
+    let { continueOnFail, verbose, onStdErrLine, onStdOutLine, ...cmdOptions } =
+      options
     if (verbose !== false) {
       Log.command(cmdOptions.cwd, cmd, args)
     }
@@ -182,10 +216,12 @@ const util = {
       let stdout = ''
       if (prog.stderr) {
         if (onStdErrLine) {
-          readline.createInterface({
-            input: prog.stderr,
-            terminal: false
-          }).on('line', onStdErrLine)
+          readline
+            .createInterface({
+              input: prog.stderr,
+              terminal: false,
+            })
+            .on('line', onStdErrLine)
         } else {
           prog.stderr.on('data', (data) => {
             stderr += data
@@ -194,10 +230,12 @@ const util = {
       }
       if (prog.stdout) {
         if (onStdOutLine) {
-          readline.createInterface({
-            input: prog.stdout,
-            terminal: false
-          }).on('line', onStdOutLine)
+          readline
+            .createInterface({
+              input: prog.stdout,
+              terminal: false,
+            })
+            .on('line', onStdOutLine)
         } else {
           prog.stdout.on('data', (data) => {
             stdout += data
@@ -218,7 +256,9 @@ const util = {
           }
         }
         if (hasFailed) {
-          const err = new Error(`Program ${cmd} exited with error code ${statusCode}.`)
+          const err = new Error(
+            `Program ${cmd} exited with error code ${statusCode}.`,
+          )
           err.stderr = stderr
           err.stdout = stdout
           reject(err)
@@ -238,10 +278,14 @@ const util = {
     })
   },
 
-
   runGitAsync: function (repoPath, gitArgs, verbose = false, logError = false) {
-    return util.runAsync('git', gitArgs, { cwd: repoPath, verbose, continueOnFail: true })
-      .catch(err => {
+    return util
+      .runAsync('git', gitArgs, {
+        cwd: repoPath,
+        verbose,
+        continueOnFail: true,
+      })
+      .catch((err) => {
         if (logError) {
           console.error(err.message)
           console.error(`Git arguments were: ${gitArgs.join(' ')}`)
@@ -253,7 +297,11 @@ const util = {
   },
 
   getGitReadableLocalRef: (repoDir) => {
-    return util.runGit(repoDir, ['log', '-n', '1', '--pretty=format:%h%d'], true)
+    return util.runGit(
+      repoDir,
+      ['log', '-n', '1', '--pretty=format:%h%d'],
+      true,
+    )
   },
 
   calculateFileChecksum: (filename) => {
@@ -282,22 +330,74 @@ const util = {
     const braveComponentsDir = path.join(config.braveCoreDir, 'components')
     const chromeAppDir = path.join(config.srcDir, 'chrome', 'app')
     const braveAppDir = path.join(config.braveCoreDir, 'app')
-    const chromeBrowserResourcesDir = path.join(config.srcDir, 'chrome', 'browser', 'resources')
-    const braveBrowserResourcesDir = path.join(config.braveCoreDir, 'browser', 'resources')
+    const chromeBrowserResourcesDir = path.join(
+      config.srcDir,
+      'chrome',
+      'browser',
+      'resources',
+    )
+    const braveBrowserResourcesDir = path.join(
+      config.braveCoreDir,
+      'browser',
+      'resources',
+    )
     const braveAppVectorIconsDir = path.join(config.braveCoreDir, 'components')
-    const chromeAndroidJavaStringsTranslationsDir = path.join(config.srcDir, 'chrome', 'browser', 'ui', 'android', 'strings', 'translations')
-    const braveAndroidJavaStringsTranslationsDir = path.join(config.braveCoreDir, 'browser', 'ui', 'android', 'strings', 'translations')
-    const chromeAndroidTabUiJavaStringsTranslationsDir = path.join(config.srcDir, 'chrome', 'android', 'features', 'tab_ui', 'java', 'strings', 'translations')
-    const braveAndroidTabUiJavaStringsTranslationsDir = path.join(config.braveCoreDir, 'android', 'features', 'tab_ui', 'java', 'strings', 'translations')
+    const chromeAndroidJavaStringsTranslationsDir = path.join(
+      config.srcDir,
+      'chrome',
+      'browser',
+      'ui',
+      'android',
+      'strings',
+      'translations',
+    )
+    const braveAndroidJavaStringsTranslationsDir = path.join(
+      config.braveCoreDir,
+      'browser',
+      'ui',
+      'android',
+      'strings',
+      'translations',
+    )
+    const chromeAndroidTabUiJavaStringsTranslationsDir = path.join(
+      config.srcDir,
+      'chrome',
+      'android',
+      'features',
+      'tab_ui',
+      'java',
+      'strings',
+      'translations',
+    )
+    const braveAndroidTabUiJavaStringsTranslationsDir = path.join(
+      config.braveCoreDir,
+      'android',
+      'features',
+      'tab_ui',
+      'java',
+      'strings',
+      'translations',
+    )
 
-    let fileMap = new Set();
-    const autoGeneratedBraveToChromiumMapping = Object.assign({}, l10nUtil.getAutoGeneratedBraveToChromiumMapping())
+    let fileMap = new Set()
+    const autoGeneratedBraveToChromiumMapping = Object.assign(
+      {},
+      l10nUtil.getAutoGeneratedBraveToChromiumMapping(),
+    )
     // The following 3 entries we map to the same name, not the chromium equivalent name for copying back
-    autoGeneratedBraveToChromiumMapping[path.join(braveAppDir, 'brave_strings.grd')] = path.join(chromeAppDir, 'brave_strings.grd')
-    autoGeneratedBraveToChromiumMapping[path.join(braveAppDir, 'settings_brave_strings.grdp')] = path.join(chromeAppDir, 'settings_brave_strings.grdp')
-    autoGeneratedBraveToChromiumMapping[path.join(braveComponentsDir, 'components_brave_strings.grd')] = path.join(chromeComponentsDir, 'components_brave_strings.grd')
+    autoGeneratedBraveToChromiumMapping[
+      path.join(braveAppDir, 'brave_strings.grd')
+    ] = path.join(chromeAppDir, 'brave_strings.grd')
+    autoGeneratedBraveToChromiumMapping[
+      path.join(braveAppDir, 'settings_brave_strings.grdp')
+    ] = path.join(chromeAppDir, 'settings_brave_strings.grdp')
+    autoGeneratedBraveToChromiumMapping[
+      path.join(braveComponentsDir, 'components_brave_strings.grd')
+    ] = path.join(chromeComponentsDir, 'components_brave_strings.grd')
 
-    Object.entries(autoGeneratedBraveToChromiumMapping).forEach(mapping => fileMap.add(mapping))
+    Object.entries(autoGeneratedBraveToChromiumMapping).forEach((mapping) =>
+      fileMap.add(mapping),
+    )
 
     // Copy xtb files for:
     // brave/app/resources/chromium_strings*.xtb
@@ -305,81 +405,277 @@ const util = {
     // brave/components/strings/components_chromium_strings*.xtb
     // brave/browser/ui/android/strings/translations/android_chrome_strings*.xtb
     // brave/android/features/tab_ui/java/strings/translations/android_chrome_tab_ui_strings*.xtb
-    fileMap.add([path.join(braveAppDir, 'resources'), path.join(chromeAppDir, 'resources')])
-    fileMap.add([path.join(braveComponentsDir, 'strings'), path.join(chromeComponentsDir, 'strings')])
-    fileMap.add([braveAndroidJavaStringsTranslationsDir, chromeAndroidJavaStringsTranslationsDir])
-    fileMap.add([braveAndroidTabUiJavaStringsTranslationsDir, chromeAndroidTabUiJavaStringsTranslationsDir])
+    fileMap.add([
+      path.join(braveAppDir, 'resources'),
+      path.join(chromeAppDir, 'resources'),
+    ])
+    fileMap.add([
+      path.join(braveComponentsDir, 'strings'),
+      path.join(chromeComponentsDir, 'strings'),
+    ])
+    fileMap.add([
+      braveAndroidJavaStringsTranslationsDir,
+      chromeAndroidJavaStringsTranslationsDir,
+    ])
+    fileMap.add([
+      braveAndroidTabUiJavaStringsTranslationsDir,
+      chromeAndroidTabUiJavaStringsTranslationsDir,
+    ])
     // By overwriting, we don't need to modify some grd files.
-    fileMap.add([path.join(braveAppDir, 'theme', 'brave'), path.join(chromeAppDir, 'theme', 'brave')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'brave'), path.join(chromeAppDir, 'theme', 'chromium')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_100_percent', 'brave'), path.join(chromeAppDir, 'theme', 'default_100_percent', 'brave')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_200_percent', 'brave'), path.join(chromeAppDir, 'theme', 'default_200_percent', 'brave')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_100_percent', 'brave'), path.join(chromeAppDir, 'theme', 'default_100_percent', 'chromium')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_200_percent', 'brave'), path.join(chromeAppDir, 'theme', 'default_200_percent', 'chromium')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_100_percent', 'common'), path.join(chromeAppDir, 'theme', 'default_100_percent', 'common')])
-    fileMap.add([path.join(braveAppDir, 'theme', 'default_200_percent', 'common'), path.join(chromeAppDir, 'theme', 'default_200_percent', 'common')])
-    fileMap.add([path.join(braveComponentsDir, 'resources', 'default_100_percent'), path.join(chromeComponentsDir, 'resources', 'default_100_percent')])
-    fileMap.add([path.join(braveComponentsDir, 'resources', 'default_100_percent', 'brave'), path.join(chromeComponentsDir, 'resources', 'default_100_percent', 'chromium')])
-    fileMap.add([path.join(braveComponentsDir, 'resources', 'default_200_percent'), path.join(chromeComponentsDir, 'resources', 'default_200_percent')])
-    fileMap.add([path.join(braveComponentsDir, 'resources', 'default_200_percent', 'brave'), path.join(chromeComponentsDir, 'resources', 'default_200_percent', 'chromium')])
-    fileMap.add([path.join(braveAppVectorIconsDir, 'vector_icons', 'brave'), path.join(chromeComponentsDir, 'vector_icons', 'brave')])
-    // Copy chrome-logo-faded.png for replacing chrome logo of welcome page with brave's on Win8.
-    fileMap.add([path.join(braveBrowserResourcesDir, 'chrome-logo-faded.png'), path.join(chromeBrowserResourcesDir, 'chrome-logo-faded.png')])
-    fileMap.add([path.join(braveBrowserResourcesDir, 'downloads', 'images', 'incognito_marker.svg'), path.join(chromeBrowserResourcesDir, 'downloads', 'images', 'incognito_marker.svg')])
-    fileMap.add([path.join(braveBrowserResourcesDir, 'settings', 'images'), path.join(chromeBrowserResourcesDir, 'settings', 'images')])
-    fileMap.add([path.join(braveBrowserResourcesDir, 'signin', 'images'), path.join(chromeBrowserResourcesDir, 'signin', 'images')])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'brave'),
+      path.join(chromeAppDir, 'theme', 'brave'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'brave'),
+      path.join(chromeAppDir, 'theme', 'chromium'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_100_percent', 'brave'),
+      path.join(chromeAppDir, 'theme', 'default_100_percent', 'brave'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_200_percent', 'brave'),
+      path.join(chromeAppDir, 'theme', 'default_200_percent', 'brave'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_100_percent', 'brave'),
+      path.join(chromeAppDir, 'theme', 'default_100_percent', 'chromium'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_200_percent', 'brave'),
+      path.join(chromeAppDir, 'theme', 'default_200_percent', 'chromium'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_100_percent', 'common'),
+      path.join(chromeAppDir, 'theme', 'default_100_percent', 'common'),
+    ])
+    fileMap.add([
+      path.join(braveAppDir, 'theme', 'default_200_percent', 'common'),
+      path.join(chromeAppDir, 'theme', 'default_200_percent', 'common'),
+    ])
+    fileMap.add([
+      path.join(braveComponentsDir, 'resources', 'default_100_percent'),
+      path.join(chromeComponentsDir, 'resources', 'default_100_percent'),
+    ])
     fileMap.add([
       path.join(
-          braveBrowserResourcesDir, 'signin', 'profile_customization',
-          'images'),
+        braveComponentsDir,
+        'resources',
+        'default_100_percent',
+        'brave',
+      ),
       path.join(
-          chromeBrowserResourcesDir, 'signin', 'profile_customization',
-          'images')
+        chromeComponentsDir,
+        'resources',
+        'default_100_percent',
+        'chromium',
+      ),
     ])
-    fileMap.add([path.join(braveBrowserResourcesDir, 'signin', 'profile_picker', 'images'), path.join(chromeBrowserResourcesDir, 'signin', 'profile_picker', 'images')])
-    fileMap.add([path.join(braveBrowserResourcesDir, 'side_panel', 'reading_list', 'images'), path.join(chromeBrowserResourcesDir, 'side_panel', 'reading_list', 'images')])
+    fileMap.add([
+      path.join(braveComponentsDir, 'resources', 'default_200_percent'),
+      path.join(chromeComponentsDir, 'resources', 'default_200_percent'),
+    ])
+    fileMap.add([
+      path.join(
+        braveComponentsDir,
+        'resources',
+        'default_200_percent',
+        'brave',
+      ),
+      path.join(
+        chromeComponentsDir,
+        'resources',
+        'default_200_percent',
+        'chromium',
+      ),
+    ])
+    fileMap.add([
+      path.join(braveAppVectorIconsDir, 'vector_icons', 'brave'),
+      path.join(chromeComponentsDir, 'vector_icons', 'brave'),
+    ])
+    // Copy chrome-logo-faded.png for replacing chrome logo of welcome page with brave's on Win8.
+    fileMap.add([
+      path.join(braveBrowserResourcesDir, 'chrome-logo-faded.png'),
+      path.join(chromeBrowserResourcesDir, 'chrome-logo-faded.png'),
+    ])
+    fileMap.add([
+      path.join(
+        braveBrowserResourcesDir,
+        'downloads',
+        'images',
+        'incognito_marker.svg',
+      ),
+      path.join(
+        chromeBrowserResourcesDir,
+        'downloads',
+        'images',
+        'incognito_marker.svg',
+      ),
+    ])
+    fileMap.add([
+      path.join(braveBrowserResourcesDir, 'settings', 'images'),
+      path.join(chromeBrowserResourcesDir, 'settings', 'images'),
+    ])
+    fileMap.add([
+      path.join(braveBrowserResourcesDir, 'signin', 'images'),
+      path.join(chromeBrowserResourcesDir, 'signin', 'images'),
+    ])
+    fileMap.add([
+      path.join(
+        braveBrowserResourcesDir,
+        'signin',
+        'profile_customization',
+        'images',
+      ),
+      path.join(
+        chromeBrowserResourcesDir,
+        'signin',
+        'profile_customization',
+        'images',
+      ),
+    ])
+    fileMap.add([
+      path.join(braveBrowserResourcesDir, 'signin', 'profile_picker', 'images'),
+      path.join(
+        chromeBrowserResourcesDir,
+        'signin',
+        'profile_picker',
+        'images',
+      ),
+    ])
+    fileMap.add([
+      path.join(
+        braveBrowserResourcesDir,
+        'side_panel',
+        'reading_list',
+        'images',
+      ),
+      path.join(
+        chromeBrowserResourcesDir,
+        'side_panel',
+        'reading_list',
+        'images',
+      ),
+    ])
 
     // Copy to make our ${branding_path_product}_behaviors.cc
-    fileMap.add([path.join(config.braveCoreDir, 'chromium_src', 'chrome', 'installer', 'setup', 'brave_behaviors.cc'),
-                 path.join(config.srcDir, 'chrome', 'installer', 'setup',
-                           'brave_behaviors.cc')])
+    fileMap.add([
+      path.join(
+        config.braveCoreDir,
+        'chromium_src',
+        'chrome',
+        'installer',
+        'setup',
+        'brave_behaviors.cc',
+      ),
+      path.join(
+        config.srcDir,
+        'chrome',
+        'installer',
+        'setup',
+        'brave_behaviors.cc',
+      ),
+    ])
     // Replace webui CSS to use our fonts.
-    fileMap.add([path.join(config.braveCoreDir, 'ui', 'webui', 'resources', 'css', 'text_defaults_md.css'),
-                 path.join(config.srcDir, 'ui', 'webui', 'resources', 'css', 'text_defaults_md.css')])
+    fileMap.add([
+      path.join(
+        config.braveCoreDir,
+        'ui',
+        'webui',
+        'resources',
+        'css',
+        'text_defaults_md.css',
+      ),
+      path.join(
+        config.srcDir,
+        'ui',
+        'webui',
+        'resources',
+        'css',
+        'text_defaults_md.css',
+      ),
+    ])
     // Replace chrome dark logo with channel specific brave logo.
     fileMap.add([
-      path.join(config.braveCoreDir, 'node_modules', '@brave', 'leo', 'icons',
-          config.getBraveLogoIconName()),
-      path.join(config.srcDir, 'ui', 'webui', 'resources', 'images',
-          'chrome_logo_dark.svg')])
+      path.join(
+        config.braveCoreDir,
+        'node_modules',
+        '@brave',
+        'leo',
+        'icons',
+        config.getBraveLogoIconName(),
+      ),
+      path.join(
+        config.srcDir,
+        'ui',
+        'webui',
+        'resources',
+        'images',
+        'chrome_logo_dark.svg',
+      ),
+    ])
     // Replace webui bookmark svg icon.
     fileMap.add([
-      path.join(config.braveCoreDir, 'node_modules', '@brave', 'leo', 'icons',
-          'browser-bookmark-normal.svg'),
-      path.join(config.srcDir, 'ui', 'webui', 'resources', 'images',
-          'icon_bookmark.svg')])
+      path.join(
+        config.braveCoreDir,
+        'node_modules',
+        '@brave',
+        'leo',
+        'icons',
+        'browser-bookmark-normal.svg',
+      ),
+      path.join(
+        config.srcDir,
+        'ui',
+        'webui',
+        'resources',
+        'images',
+        'icon_bookmark.svg',
+      ),
+    ])
 
     let explicitSourceFiles = new Set()
     if (config.getTargetOS() === 'mac') {
       // Set proper mac app icon for channel to chrome/app/theme/mac/app.icns.
       // Each channel's app icons are stored in brave/app/theme/$channel/app.icns.
       // With this copying, we don't need to modify chrome/BUILD.gn for this.
-      const iconSource = path.join(braveAppDir, 'theme', 'brave', 'mac', config.channel, 'app.icns')
-      const iconDest = path.join(chromeAppDir, 'theme', 'brave', 'mac', 'app.icns')
+      const iconSource = path.join(
+        braveAppDir,
+        'theme',
+        'brave',
+        'mac',
+        config.channel,
+        'app.icns',
+      )
+      const iconDest = path.join(
+        chromeAppDir,
+        'theme',
+        'brave',
+        'mac',
+        'app.icns',
+      )
       explicitSourceFiles[iconDest] = iconSource
 
       // Set proper branding file.
-      let branding_file_name = 'BRANDING'
+      let brandingFileName = 'BRANDING'
       if (config.channel)
-        branding_file_name = branding_file_name + '.' + config.channel
-      const brandingSource = path.join(braveAppDir, 'theme', 'brave', branding_file_name)
+        brandingFileName = brandingFileName + '.' + config.channel
+      const brandingSource = path.join(
+        braveAppDir,
+        'theme',
+        'brave',
+        brandingFileName,
+      )
       const brandingDest = path.join(chromeAppDir, 'theme', 'brave', 'BRANDING')
       explicitSourceFiles[brandingDest] = brandingSource
     }
 
     for (const [source, output] of fileMap) {
       if (!fs.existsSync(source)) {
-        console.warn(`Warning: The following file-system entry was not found for copying contents to a chromium destination: ${source}. Consider removing the entry from the file-map, or investigating whether the correct source code reference is checked out.`)
+        console.warn(
+          `Warning: The following file-system entry was not found for copying contents to a chromium destination: ${source}. Consider removing the entry from the file-map, or investigating whether the correct source code reference is checked out.`,
+        )
         continue
       }
 
@@ -393,10 +689,16 @@ const util = {
       }
 
       for (let sourceFile of sourceFiles) {
-        const destinationFile = path.join(output, path.relative(source, sourceFile))
+        const destinationFile = path.join(
+          output,
+          path.relative(source, sourceFile),
+        )
         sourceFile = explicitSourceFiles[destinationFile] || sourceFile
-        if (!fs.existsSync(destinationFile) ||
-            util.calculateFileChecksum(sourceFile) != util.calculateFileChecksum(destinationFile)) {
+        if (
+          !fs.existsSync(destinationFile) ||
+          util.calculateFileChecksum(sourceFile) !==
+            util.calculateFileChecksum(destinationFile)
+        ) {
           fs.copySync(sourceFile, destinationFile)
           console.log(sourceFile + ' copied to ' + destinationFile)
         }
@@ -404,30 +706,46 @@ const util = {
     }
 
     if (config.targetOS === 'android') {
-
-      let braveOverwrittenFiles = new Set();
+      let braveOverwrittenFiles = new Set()
       const removeUnlistedAndroidResources = (braveOverwrittenFiles) => {
-        const suspectedDir = path.join(config.srcDir, 'chrome', 'android', 'java', 'res')
+        const suspectedDir = path.join(
+          config.srcDir,
+          'chrome',
+          'android',
+          'java',
+          'res',
+        )
 
-        let untrackedChromiumFiles = util.runGit(suspectedDir, ['ls-files', '--others', '--exclude-standard'], true).split('\n')
-        let untrackedChromiumPaths = [];
+        let untrackedChromiumFiles = util
+          .runGit(
+            suspectedDir,
+            ['ls-files', '--others', '--exclude-standard'],
+            true,
+          )
+          .split('\n')
+        let untrackedChromiumPaths = []
         for (const untrackedChromiumFile of untrackedChromiumFiles) {
           untrackedChromiumPath = path.join(suspectedDir, untrackedChromiumFile)
 
           if (!fs.statSync(untrackedChromiumPath).isDirectory()) {
-            untrackedChromiumPaths.push(untrackedChromiumPath);
+            untrackedChromiumPaths.push(untrackedChromiumPath)
           }
         }
 
         const isChildOf = (child, parent) => {
-          const relative = path.relative(parent, child);
-          return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
+          const relative = path.relative(parent, child)
+          return (
+            relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+          )
         }
 
         for (const untrackedChromiumPath of untrackedChromiumPaths) {
-          if (isChildOf(untrackedChromiumPath, suspectedDir) && !braveOverwrittenFiles.has(untrackedChromiumPath)) {
-            fs.removeSync(untrackedChromiumPath);
-            console.log(`Deleted not listed file: ${untrackedChromiumPath}`);
+          if (
+            isChildOf(untrackedChromiumPath, suspectedDir) &&
+            !braveOverwrittenFiles.has(untrackedChromiumPath)
+          ) {
+            fs.removeSync(untrackedChromiumPath)
+            console.log(`Deleted not listed file: ${untrackedChromiumPath}`)
           }
         }
       }
@@ -435,8 +753,7 @@ const util = {
       let androidIconSet = ''
       if (config.channel === 'development') {
         androidIconSet = 'res_brave_default'
-      }
-      else if (config.channel === '') {
+      } else if (config.channel === '') {
         androidIconSet = 'res_brave'
       } else if (config.channel === 'beta') {
         androidIconSet = 'res_brave_beta'
@@ -446,40 +763,299 @@ const util = {
         androidIconSet = 'res_brave_nightly'
       }
 
-      const androidTranslateResSource = path.join(config.braveCoreDir, 'components', 'translate','content' , 'android', 'java', 'res')
-      const androidTranslateResDest = path.join(config.srcDir, 'components', 'translate','content' , 'android', 'java', 'res')
-      const androidIconSource = path.join(braveAppDir, 'theme', 'brave', 'android', androidIconSet)
-      const androidIconDest = path.join(config.srcDir, 'chrome', 'android', 'java', 'res_chromium')
-      const androidIconBaseSource = path.join(braveAppDir, 'theme', 'brave', 'android', androidIconSet + '_base')
-      const androidIconBaseDest = path.join(config.srcDir, 'chrome', 'android', 'java', 'res_chromium_base')
-      const androidResSource = path.join(config.braveCoreDir, 'android', 'java', 'res')
-      const androidResDest = path.join(config.srcDir, 'chrome', 'android', 'java', 'res')
-      const androidResTemplateSource = path.join(config.braveCoreDir, 'android', 'java', 'res_template')
-      const androidResTemplateDest = path.join(config.srcDir, 'chrome', 'android', 'java', 'res_template')
-      const androidContentPublicResSource = path.join(config.braveCoreDir, 'content', 'public', 'android', 'java', 'res')
-      const androidContentPublicResDest = path.join(config.srcDir, 'content', 'public', 'android', 'java', 'res')
-      const androidTouchtoFillResSource = path.join(config.braveCoreDir, 'browser', 'touch_to_fill', 'password_manager', 'android', 'internal', 'java', 'res')
-      const androidTouchtoFillResDest = path.join(config.srcDir, 'chrome', 'browser', 'touch_to_fill', 'password_manager', 'android', 'internal', 'java', 'res')
-      const androidToolbarResSource = path.join(config.braveCoreDir, 'browser', 'ui', 'android', 'toolbar', 'java', 'res')
-      const androidToolbarResDest = path.join(config.srcDir, 'chrome', 'browser', 'ui', 'android', 'toolbar', 'java', 'res')
-      const androidComponentsWidgetResSource = path.join(config.braveCoreDir, 'components', 'browser_ui', 'widget', 'android', 'java', 'res')
-      const androidComponentsWidgetResDest = path.join(config.srcDir, 'components', 'browser_ui', 'widget', 'android', 'java', 'res')
-      const androidComponentsStylesResSource = path.join(config.braveCoreDir, 'components', 'browser_ui', 'styles', 'android', 'java', 'res')
-      const androidComponentsStylesResDest = path.join(config.srcDir, 'components', 'browser_ui', 'styles', 'android', 'java', 'res')
-      const androidSafeBrowsingResSource = path.join(config.braveCoreDir, 'browser', 'safe_browsing', 'android', 'java', 'res')
-      const androidSafeBrowsingResDest = path.join(config.srcDir, 'chrome', 'browser', 'safe_browsing', 'android', 'java', 'res')
-      const androidDownloadInternalResSource = path.join(config.braveCoreDir, 'browser', 'download', 'internal', 'android', 'java', 'res')
-      const androidDownloadInternalResDest = path.join(config.srcDir, 'chrome', 'browser', 'download', 'internal', 'android', 'java', 'res')
-      const androidFeaturesTabUiResSource = path.join(config.braveCoreDir, 'android', 'features', 'tab_ui', 'java', 'res')
-      const androidFeaturesTabUiDest = path.join(config.srcDir, 'chrome', 'android', 'features', 'tab_ui', 'java', 'res')
-      const androidComponentsOmniboxResSource = path.join(config.braveCoreDir, 'components', 'omnibox', 'browser', 'android', 'java', 'res')
-      const androidComponentsOmniboxResDest = path.join(config.srcDir, 'components', 'omnibox', 'browser', 'android', 'java', 'res')
-      const androidBrowserUiOmniboxResSource = path.join(config.braveCoreDir, 'browser', 'ui', 'android', 'omnibox', 'java', 'brave_res')
-      const androidBrowserUiOmniboxResDest = path.join(config.srcDir, 'chrome', 'browser', 'ui', 'android', 'omnibox', 'java', 'res')
-      const androidBrowserPrivateResSource = path.join(config.braveCoreDir, 'browser', 'incognito', 'android', 'java', 'res')
-      const androidBrowserPrivateResDest = path.join(config.srcDir, 'chrome', 'browser', 'incognito', 'android', 'java', 'res')
-      const androidBrowserHubInternalResSource = path.join(config.braveCoreDir, 'browser', 'hub', 'internal', 'android', 'res')
-      const androidBrowserHubInternalResDest = path.join(config.srcDir, 'chrome', 'browser', 'hub', 'internal', 'android', 'res')
+      const androidTranslateResSource = path.join(
+        config.braveCoreDir,
+        'components',
+        'translate',
+        'content',
+        'android',
+        'java',
+        'res',
+      )
+      const androidTranslateResDest = path.join(
+        config.srcDir,
+        'components',
+        'translate',
+        'content',
+        'android',
+        'java',
+        'res',
+      )
+      const androidIconSource = path.join(
+        braveAppDir,
+        'theme',
+        'brave',
+        'android',
+        androidIconSet,
+      )
+      const androidIconDest = path.join(
+        config.srcDir,
+        'chrome',
+        'android',
+        'java',
+        'res_chromium',
+      )
+      const androidIconBaseSource = path.join(
+        braveAppDir,
+        'theme',
+        'brave',
+        'android',
+        androidIconSet + '_base',
+      )
+      const androidIconBaseDest = path.join(
+        config.srcDir,
+        'chrome',
+        'android',
+        'java',
+        'res_chromium_base',
+      )
+      const androidResSource = path.join(
+        config.braveCoreDir,
+        'android',
+        'java',
+        'res',
+      )
+      const androidResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'android',
+        'java',
+        'res',
+      )
+      const androidResTemplateSource = path.join(
+        config.braveCoreDir,
+        'android',
+        'java',
+        'res_template',
+      )
+      const androidResTemplateDest = path.join(
+        config.srcDir,
+        'chrome',
+        'android',
+        'java',
+        'res_template',
+      )
+      const androidContentPublicResSource = path.join(
+        config.braveCoreDir,
+        'content',
+        'public',
+        'android',
+        'java',
+        'res',
+      )
+      const androidContentPublicResDest = path.join(
+        config.srcDir,
+        'content',
+        'public',
+        'android',
+        'java',
+        'res',
+      )
+      const androidTouchtoFillResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'touch_to_fill',
+        'password_manager',
+        'android',
+        'internal',
+        'java',
+        'res',
+      )
+      const androidTouchtoFillResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'touch_to_fill',
+        'password_manager',
+        'android',
+        'internal',
+        'java',
+        'res',
+      )
+      const androidToolbarResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'ui',
+        'android',
+        'toolbar',
+        'java',
+        'res',
+      )
+      const androidToolbarResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'ui',
+        'android',
+        'toolbar',
+        'java',
+        'res',
+      )
+      const androidComponentsWidgetResSource = path.join(
+        config.braveCoreDir,
+        'components',
+        'browser_ui',
+        'widget',
+        'android',
+        'java',
+        'res',
+      )
+      const androidComponentsWidgetResDest = path.join(
+        config.srcDir,
+        'components',
+        'browser_ui',
+        'widget',
+        'android',
+        'java',
+        'res',
+      )
+      const androidComponentsStylesResSource = path.join(
+        config.braveCoreDir,
+        'components',
+        'browser_ui',
+        'styles',
+        'android',
+        'java',
+        'res',
+      )
+      const androidComponentsStylesResDest = path.join(
+        config.srcDir,
+        'components',
+        'browser_ui',
+        'styles',
+        'android',
+        'java',
+        'res',
+      )
+      const androidSafeBrowsingResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'safe_browsing',
+        'android',
+        'java',
+        'res',
+      )
+      const androidSafeBrowsingResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'safe_browsing',
+        'android',
+        'java',
+        'res',
+      )
+      const androidDownloadInternalResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'download',
+        'internal',
+        'android',
+        'java',
+        'res',
+      )
+      const androidDownloadInternalResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'download',
+        'internal',
+        'android',
+        'java',
+        'res',
+      )
+      const androidFeaturesTabUiResSource = path.join(
+        config.braveCoreDir,
+        'android',
+        'features',
+        'tab_ui',
+        'java',
+        'res',
+      )
+      const androidFeaturesTabUiDest = path.join(
+        config.srcDir,
+        'chrome',
+        'android',
+        'features',
+        'tab_ui',
+        'java',
+        'res',
+      )
+      const androidComponentsOmniboxResSource = path.join(
+        config.braveCoreDir,
+        'components',
+        'omnibox',
+        'browser',
+        'android',
+        'java',
+        'res',
+      )
+      const androidComponentsOmniboxResDest = path.join(
+        config.srcDir,
+        'components',
+        'omnibox',
+        'browser',
+        'android',
+        'java',
+        'res',
+      )
+      const androidBrowserUiOmniboxResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'ui',
+        'android',
+        'omnibox',
+        'java',
+        'brave_res',
+      )
+      const androidBrowserUiOmniboxResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'ui',
+        'android',
+        'omnibox',
+        'java',
+        'res',
+      )
+      const androidBrowserPrivateResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'incognito',
+        'android',
+        'java',
+        'res',
+      )
+      const androidBrowserPrivateResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'incognito',
+        'android',
+        'java',
+        'res',
+      )
+      const androidBrowserHubInternalResSource = path.join(
+        config.braveCoreDir,
+        'browser',
+        'hub',
+        'internal',
+        'android',
+        'res',
+      )
+      const androidBrowserHubInternalResDest = path.join(
+        config.srcDir,
+        'chrome',
+        'browser',
+        'hub',
+        'internal',
+        'android',
+        'res',
+      )
+
+      const uiAndroidResSource =
+          path.join(config.braveCoreDir, "ui", "android", "java", "res")
+      const uiAndroidResDest =
+          path.join(config.srcDir, "ui", "android", "java", "res")
 
       // Mapping for copying Brave's Android resource into chromium folder.
       const copyAndroidResourceMapping = {
@@ -499,28 +1075,40 @@ const util = {
         [androidComponentsOmniboxResSource]: [androidComponentsOmniboxResDest],
         [androidBrowserUiOmniboxResSource]: [androidBrowserUiOmniboxResDest],
         [androidBrowserPrivateResSource]: [androidBrowserPrivateResDest],
-        [androidBrowserHubInternalResSource]: [androidBrowserHubInternalResDest]
+        [androidBrowserHubInternalResSource]: [
+          androidBrowserHubInternalResDest,
+        ],
+        [uiAndroidResSource]: [uiAndroidResDest],
       }
 
       console.log('copy Android app icons and app resources')
-      Object.entries(copyAndroidResourceMapping).map(([sourcePath, destPaths]) => {
-        let androidSourceFiles = []
-        if (fs.statSync(sourcePath).isDirectory()) {
-          androidSourceFiles = util.walkSync(sourcePath)
-        } else {
-          androidSourceFiles = [sourcePath]
-        }
-
-        for (const destPath of destPaths) {
-          for (const androidSourceFile of androidSourceFiles) {
-            let destinationFile = path.join(destPath, path.relative(sourcePath, androidSourceFile))
-            if (!fs.existsSync(destinationFile) || util.calculateFileChecksum(androidSourceFile) != util.calculateFileChecksum(destinationFile)) {
-              fs.copySync(androidSourceFile, destinationFile)
-            }
-            braveOverwrittenFiles.add(destinationFile);
+      Object.entries(copyAndroidResourceMapping).map(
+        ([sourcePath, destPaths]) => {
+          let androidSourceFiles = []
+          if (fs.statSync(sourcePath).isDirectory()) {
+            androidSourceFiles = util.walkSync(sourcePath)
+          } else {
+            androidSourceFiles = [sourcePath]
           }
-        }
-      })
+
+          for (const destPath of destPaths) {
+            for (const androidSourceFile of androidSourceFiles) {
+              let destinationFile = path.join(
+                destPath,
+                path.relative(sourcePath, androidSourceFile),
+              )
+              if (
+                !fs.existsSync(destinationFile) ||
+                util.calculateFileChecksum(androidSourceFile) !==
+                  util.calculateFileChecksum(destinationFile)
+              ) {
+                fs.copySync(androidSourceFile, destinationFile)
+              }
+              braveOverwrittenFiles.add(destinationFile)
+            }
+          }
+        },
+      )
       removeUnlistedAndroidResources(braveOverwrittenFiles)
     }
     Log.progressFinish('update branding')
@@ -532,32 +1120,76 @@ const util = {
     // Return true when original file of |file| should be touched.
     const applyFileFilter = (file) => {
       // Only include overridable files.
-      const supportedExts = ['.cc', '.css', '.h', '.html', '.icon', '.json',
-                             '.mm', '.mojom', '.pdl', '.py', '.ts', '.xml'];
+      const supportedExts = [
+        '.cc',
+        '.css',
+        '.h',
+        '.html',
+        '.icon',
+        '.json',
+        '.mm',
+        '.mojom',
+        '.pdl',
+        '.py',
+        '.ts',
+        '.xml',
+      ]
       return supportedExts.includes(path.extname(file))
     }
 
     const chromiumSrcDir = path.join(config.srcDir, 'brave', 'chromium_src')
-    var sourceFiles = util.walkSync(chromiumSrcDir, applyFileFilter)
+    const sourceFiles = util.walkSync(chromiumSrcDir, applyFileFilter)
     const additionalGen = getAdditionalGenLocation()
 
     // Touch original files by updating mtime.
     let isDirty = false
     const chromiumSrcDirLen = chromiumSrcDir.length
-    sourceFiles.forEach(chromiumSrcFile => {
+    sourceFiles.forEach((chromiumSrcFile) => {
       const relativeChromiumSrcFile = chromiumSrcFile.slice(chromiumSrcDirLen)
       let overriddenFile = path.join(config.srcDir, relativeChromiumSrcFile)
+
+      const additionalExtensions = [
+        // .lit_mangler.ts files are used to modify the upstream .html.ts file at
+        // build time.
+        '.lit_mangler.ts',
+      ]
+
+      const additionalExtension = additionalExtensions.find((key) =>
+        overriddenFile.endsWith(key),
+      )
+      if (additionalExtension) {
+        overriddenFile = overriddenFile.substring(
+          0,
+          overriddenFile.length - additionalExtension.length,
+        )
+      }
+
       if (fs.existsSync(overriddenFile)) {
         // If overriddenFile is older than file in chromium_src, touch it to trigger rebuild.
-        isDirty |= updateFileUTimesIfOverrideIsNewer(overriddenFile, chromiumSrcFile)
+        isDirty |= updateFileUTimesIfOverrideIsNewer(
+          overriddenFile,
+          chromiumSrcFile,
+        )
       } else {
         // If the original file doesn't exist, assume that it's in the gen dir.
-        overriddenFile = path.join(config.outputDir, 'gen', relativeChromiumSrcFile)
+        overriddenFile = path.join(
+          config.outputDir,
+          'gen',
+          relativeChromiumSrcFile,
+        )
         isDirty |= deleteFileIfOverrideIsNewer(overriddenFile, chromiumSrcFile)
         // Also check the secondary gen dir, if exists
-        if (!!additionalGen) {
-          overriddenFile = path.join(config.outputDir, additionalGen, 'gen', relativeChromiumSrcFile)
-          isDirty |= deleteFileIfOverrideIsNewer(overriddenFile, chromiumSrcFile)
+        if (additionalGen) {
+          overriddenFile = path.join(
+            config.outputDir,
+            additionalGen,
+            'gen',
+            relativeChromiumSrcFile,
+          )
+          isDirty |= deleteFileIfOverrideIsNewer(
+            overriddenFile,
+            chromiumSrcFile,
+          )
         }
       }
     })
@@ -587,21 +1219,44 @@ const util = {
     console.log('touch gsutil ChangeLog file...')
 
     const changeLogFile = path.join(
-        config.srcDir, 'third_party', 'catapult', 'third_party', 'gsutil',
-        'third_party', 'mock', 'ChangeLog')
+      config.srcDir,
+      'third_party',
+      'catapult',
+      'third_party',
+      'gsutil',
+      'third_party',
+      'mock',
+      'ChangeLog',
+    )
     if (!fs.existsSync(changeLogFile)) {
       fs.writeFileSync(changeLogFile, '')
     }
   },
 
+  mergeWithDefault: (options) => {
+    return Object.assign({}, config.defaultOptions, options)
+  },
+
   buildNativeRedirectCC: async () => {
     // Expected path to redirect_cc.
-    const redirectCC = path.join(config.nativeRedirectCCDir, util.appendExeIfWin32('redirect_cc'))
+    const redirectCC = path.join(
+      config.nativeRedirectCCDir,
+      util.appendExeIfWin32('redirect_cc'),
+    )
 
     // Only build if the source has changed.
-    if (fs.existsSync(redirectCC) &&
-        fs.statSync(redirectCC).mtime >=
-        fs.statSync(path.join(config.braveCoreDir, 'tools', 'redirect_cc', 'redirect_cc.cc')).mtime) {
+    if (
+      fs.existsSync(redirectCC) &&
+      fs.statSync(redirectCC).mtime >=
+        fs.statSync(
+          path.join(
+            config.braveCoreDir,
+            'tools',
+            'redirect_cc',
+            'redirect_cc.cc',
+          ),
+        ).mtime
+    ) {
       return
     }
 
@@ -609,17 +1264,29 @@ const util = {
     const buildArgs = {
       'import("//brave/tools/redirect_cc/args.gni")': null,
       use_remoteexec: config.useRemoteExec,
+      use_reclient: config.useRemoteExec,
+      use_siso: false,
       rbe_exec_root: config.rbeExecRoot,
       reclient_bin_dir: config.realRewrapperDir,
       real_rewrapper: path.join(config.realRewrapperDir, 'rewrapper'),
     }
 
-    util.runGnGen(config.nativeRedirectCCDir, buildArgs)
-    await util.buildTargets(['brave/tools/redirect_cc'], mergeWithDefault({outputDir: config.nativeRedirectCCDir}))
+    util.runGnGen(config.nativeRedirectCCDir, buildArgs, [
+      '--root-target=//brave/tools/redirect_cc',
+    ])
+    await util.buildTargets(
+      ['brave/tools/redirect_cc'],
+      util.mergeWithDefault({ outputDir: config.nativeRedirectCCDir }),
+    )
     Log.progressFinish('build redirect_cc')
   },
 
-  runGnGen: (outputDir, buildArgs, extraGnGenOpts = [], options = config.defaultOptions) => {
+  runGnGen: (
+    outputDir,
+    buildArgs,
+    extraGnGenOpts = [],
+    options = config.defaultOptions,
+  ) => {
     // Store extraGnGenOpts in buildArgs as a comment to rerun gn gen on change.
     assert(Array.isArray(extraGnGenOpts))
     if (extraGnGenOpts.length) {
@@ -630,7 +1297,9 @@ const util = {
     const gnGenGuard = new ActionGuard(path.join(outputDir, 'gn_gen.guard'))
 
     gnGenGuard.run((wasInterrupted) => {
-      const doesBuildNinjaExist = fs.existsSync(path.join(outputDir, 'build.ninja'))
+      const doesBuildNinjaExist = fs.existsSync(
+        path.join(outputDir, 'build.ninja'),
+      )
       const hasBuildArgsUpdated = util.writeGnBuildArgs(outputDir, buildArgs)
       const shouldCheck = config.isCI
       const internalOpts = shouldCheck ? ['--check'] : []
@@ -643,7 +1312,11 @@ const util = {
         wasInterrupted
 
       if (shouldRunGnGen) {
-        util.run('gn', ['gen', outputDir, ...extraGnGenOpts, ...internalOpts], options)
+        util.run(
+          'gn',
+          ['gen', outputDir, ...extraGnGenOpts, ...internalOpts],
+          options,
+        )
       }
     })
   },
@@ -663,22 +1336,25 @@ const util = {
           return arg
         }
         return `${arg}=${JSON.stringify(val)}`
-      })
+      }),
     ].join('\n')
 
     // Write the generated arguments to the args_generated.gni file. The file
     // name is intentionally chosen to be close to args.gn.
     const generatedArgsFilePath = path.join(outputDir, 'args_generated.gni')
-    const hasGeneratedArgsUpdated =
-      util.writeFileIfModified(generatedArgsFilePath, generatedArgsContent + '\n')
+    const hasGeneratedArgsUpdated = util.writeFileIfModified(
+      generatedArgsFilePath,
+      generatedArgsContent + '\n',
+    )
     if (hasGeneratedArgsUpdated) {
       Log.status(`${generatedArgsFilePath} has been updated`)
     }
 
     // Import args_generated.gni into args.gn.
     const argsGnFilePath = path.join(outputDir, 'args.gn')
-    const generatedArgsImportLine =
-      `import("//${path.relative(config.srcDir, generatedArgsFilePath).replace(/\\/g, '/')}")`
+    const generatedArgsImportLine = `import("//${path
+      .relative(config.srcDir, generatedArgsFilePath)
+      .replace(/\\/g, '/')}")`
 
     // Check if the import statement from args_generated.gni is present in
     // args.gn, even if the user has made modifications. This import statement
@@ -691,7 +1367,7 @@ const util = {
 
     if (!isArgsGnValid) {
       const argsGnContent = [
-        '# This file is user-editable. It won\'t be overwritten as long as it imports',
+        "# This file is user-editable. It won't be overwritten as long as it imports",
         '# args_generated.gni, even if the import statement is commented out.\n',
         generatedArgsImportLine,
         '',
@@ -708,26 +1384,40 @@ const util = {
     await Log.progressScopeAsync('generate ninja files', async () => {
       await util.buildNativeRedirectCC()
 
-      const extraGnGenOpts = config.extraGnGenOpts ? [config.extraGnGenOpts] : []
-      util.runGnGen(config.outputDir, config.buildArgs(), extraGnGenOpts, options)
+      const extraGnGenOpts = config.extraGnGenOpts
+        ? [config.extraGnGenOpts]
+        : []
+      util.runGnGen(
+        config.outputDir,
+        config.buildArgs(),
+        extraGnGenOpts,
+        options,
+      )
     })
   },
 
-  buildTargets: async (targets = config.buildTargets, options = config.defaultOptions) => {
+  buildTargets: async (
+    targets = config.buildTargets,
+    options = config.defaultOptions,
+  ) => {
     assert(Array.isArray(targets))
     const buildId = crypto.randomUUID()
     const outputDir = options.outputDir || config.outputDir
-    const progressMessage = `build ${targets} (${path.basename(outputDir)}, id=${buildId})`
+    const progressMessage = `build ${targets} (${path.basename(
+      outputDir,
+    )}, id=${buildId})`
     Log.progressStart(progressMessage)
 
-    let num_compile_failure = 1
-    if (config.ignore_compile_failure)
-      num_compile_failure = 0
+    let numCompileFailure = 1
+    if (config.ignore_compile_failure) numCompileFailure = 0
 
     let ninjaOpts = [
-      '-C', outputDir, targets.join(' '),
-      '-k', num_compile_failure,
-      ...config.extraNinjaOpts
+      '-C',
+      outputDir,
+      ...targets,
+      '-k',
+      numCompileFailure,
+      ...config.extraNinjaOpts,
     ]
 
     // Setting `AUTONINJA_BUILD_ID` allows tracing remote execution which helps
@@ -754,7 +1444,7 @@ const util = {
           console.log(line)
           if (Date.now() - lastStatusTime > 5000) {
             // Extract the status message from the ninja output.
-            const match = line.match(/^\[\d+ processes, (.+?) : .+?\s\]/);
+            const match = line.match(/^\[\d+ processes, (.+?) : .+?\s\]/)
             if (match) {
               lastStatusTime = Date.now()
               Log.status(`build ${targets} ${match[1]}`)
@@ -778,17 +1468,41 @@ const util = {
   },
 
   generateXcodeWorkspace: () => {
-    console.log('generating Xcode workspace for "' + config.xcode_gen_target + '"...')
+    console.log(
+      'generating Xcode workspace for "' + config.xcode_gen_target + '"...',
+    )
 
-    const genScript = path.join(config.braveCoreDir, 'vendor', 'gn-project-generators', 'xcode.py')
+    const genScript = path.join(
+      config.braveCoreDir,
+      'vendor',
+      'gn-project-generators',
+      'xcode.py',
+    )
 
     const genArgs = [
       '--ide=json',
       '--json-ide-script="' + genScript + '"',
-      '--filters="' + config.xcode_gen_target + '"'
+      '--filters="' + config.xcode_gen_target + '"',
     ]
 
-    util.runGnGen(config.outputDir + "_Xcode", config.buildArgs(), genArgs)
+    util.runGnGen(config.outputDir + '_Xcode', config.buildArgs(), genArgs)
+  },
+
+  // Get the files that have been changed in the current diff with base branch.
+  getChangedFiles: (repoDir, base, skipLogging = false) => {
+    const upstreamCommit = util
+      .run('git', ['merge-base', 'HEAD', base], { cwd: repoDir, skipLogging })
+      .stdout.toString()
+      .trim()
+
+    return util
+      .run('git', ['diff', '--name-only', '--diff-filter=d', upstreamCommit], {
+        cwd: repoDir,
+        skipLogging,
+      })
+      .stdout.toString()
+      .trim()
+      .split('\n')
   },
 
   presubmit: (options = {}) => {
@@ -798,53 +1512,41 @@ const util = {
     // Temporary cleanup call, should be removed when everyone will remove
     // 'gerrit.host' from their brave checkout.
     util.runGit(
-        config.braveCoreDir, ['config', '--unset-all', 'gerrit.host'], true)
-    let cmd_options = config.defaultOptions
-    cmd_options.cwd = config.braveCoreDir
-    cmd_options = mergeWithDefault(cmd_options)
+      config.braveCoreDir,
+      ['config', '--unset-all', 'gerrit.host'],
+      true,
+    )
+    let cmdOptions = config.defaultOptions
+    cmdOptions.cwd = config.braveCoreDir
+    cmdOptions = util.mergeWithDefault(cmdOptions)
     cmd = 'git'
     // --upload mode is similar to `git cl upload`. Non-upload mode covers less
     // checks.
     args = ['cl', 'presubmit', options.base, '--force', '--upload']
-    if (options.all)
-      args.push('--all')
-    if (options.files)
-      args.push('--files', `"${options.files}"`)
+    if (options.all) args.push('--all')
+    if (options.files) args.push('--files', `"${options.files}"`)
     if (options.verbose) {
       args.push(...Array(options.verbose).fill('--verbose'))
     }
+    if (options.json) {
+      args.push('-j')
+      args.push(options.json)
+    }
+
     if (options.fix) {
-      cmd_options.env.PRESUBMIT_FIX = '1'
+      cmdOptions.env.PRESUBMIT_FIX = '1'
     }
-    util.run(cmd, args, cmd_options)
-  },
-
-  format: (options = {}) => {
-    if (!options.base) {
-      options.base = 'origin/master'
-    }
-    let cmd_options = config.defaultOptions
-    cmd_options.cwd = config.braveCoreDir
-    cmd_options = mergeWithDefault(cmd_options)
-    cmd = 'git'
-    args = ['cl', 'format', '--upstream=' + options.base]
-
-    // Keep in sync with CheckPatchFormatted presubmit check.
-    args.push('--python')
-    args.push('--no-rust-fmt')
-
-    if (options.full)
-      args.push('--full')
-    if (options.diff)
-      args.push('--diff')
-
-    util.run(cmd, args, cmd_options)
+    util.run(cmd, args, cmdOptions)
   },
 
   massRename: (options = {}) => {
-    let cmd_options = config.defaultOptions
-    cmd_options.cwd = config.braveCoreDir
-    util.run('python3', [path.join(config.srcDir, 'tools', 'git', 'mass-rename.py')], cmd_options)
+    let cmdOptions = config.defaultOptions
+    cmdOptions.cwd = config.braveCoreDir
+    util.run(
+      'python3',
+      [path.join(config.srcDir, 'tools', 'git', 'mass-rename.py')],
+      cmdOptions,
+    )
   },
 
   runGClient: (args, options = {}, gClientFile = config.gClientFile) => {
@@ -852,7 +1554,7 @@ const util = {
       args.push('--verbose')
     }
     options.cwd = options.cwd || config.rootDir
-    options = mergeWithDefault(options)
+    options = util.mergeWithDefault(options)
     options.env.GCLIENT_FILE = gClientFile
     util.run('gclient', args, options)
   },
@@ -862,7 +1564,7 @@ const util = {
   },
 
   walkSync: (dir, filter = null, filelist = []) => {
-    fs.readdirSync(dir).forEach(file => {
+    fs.readdirSync(dir).forEach((file) => {
       if (fs.statSync(path.join(dir, file)).isDirectory()) {
         filelist = util.walkSync(path.join(dir, file), filter, filelist)
       } else if (!filter || filter.call(null, file)) {
@@ -873,24 +1575,23 @@ const util = {
   },
 
   appendExeIfWin32: (input) => {
-    if (process.platform === 'win32')
-      input += '.exe'
+    if (process.platform === 'win32') input += '.exe'
     return input
   },
 
-  readJSON: (file, default_value = undefined) => {
+  readJSON: (file, defaultValue = undefined) => {
     if (!fs.existsSync(file)) {
-      return default_value
+      return defaultValue
     }
     try {
       return fs.readJSONSync(file)
     } catch {
-      return default_value
+      return defaultValue
     }
   },
 
   writeJSON: (file, value) => {
-    return fs.writeJSONSync(file, value, {spaces: 2})
+    return fs.writeJSONSync(file, value, { spaces: 2 })
   },
 
   getGitDir: (repoDir) => {
@@ -954,7 +1655,11 @@ const util = {
   fetchAndCheckoutRef: (repoDir, ref) => {
     const options = { cwd: repoDir, stdio: 'inherit' }
     util.run('git', ['fetch', 'origin', ref.replace(/^origin\//, '')], options)
-    util.run('git', ['-c', 'advice.detachedHead=false', 'checkout', 'FETCH_HEAD'], options)
+    util.run(
+      'git',
+      ['-c', 'advice.detachedHead=false', 'checkout', 'FETCH_HEAD'],
+      options,
+    )
   },
 
   writeFileIfModified: (filePath, content) => {
@@ -964,6 +1669,17 @@ const util = {
       return true
     }
     return false
+  },
+
+  launchDocs: () => {
+    util.run(
+      'vpython3',
+      [
+        path.join(config.srcDir, 'tools', 'md_browser', 'md_browser.py'),
+        'brave/docs',
+      ],
+      config.defaultOptions,
+    )
   },
 }
 

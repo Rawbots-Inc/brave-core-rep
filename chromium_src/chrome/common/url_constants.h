@@ -212,6 +212,10 @@ inline constexpr char16_t kFamilyGroupCreateURL[] =
 // Link for viewing family group with Google Families.
 inline constexpr char16_t kFamilyGroupViewURL[] = u"https://support.brave.com/";
 
+// "Learn more" URL for Incognito tracking protections.
+inline constexpr char kIncognitoTrackingProtectionsLearnMoreUrl[] =
+    "https://support.brave.com/";
+
 // Url to a blogpost about Flash deprecation.
 inline constexpr char kFlashDeprecationLearnMoreURL[] =
     "https://blog.chromium.org/2017/07/so-long-and-thanks-for-all-flash.html";
@@ -237,6 +241,14 @@ inline constexpr char kGoogleAccountChooserURL[] = "https://support.brave.com/";
 
 // URL of the Google Account page showing the known user devices.
 inline constexpr char kGoogleAccountDeviceActivityURL[] =
+    "https://support.brave.com/";
+
+// URL of the Google Account home address page.
+inline constexpr char kGoogleAccountHomeAddressURL[] =
+    "https://support.brave.com/";
+
+// URL of the Google Account work address page.
+inline constexpr char kGoogleAccountWorkAddressURL[] =
     "https://support.brave.com/";
 
 // URL of the two factor authentication setup required intersitial.
@@ -277,7 +289,7 @@ inline constexpr char kTabGroupsLearnMoreURL[] = "https://support.brave.com/";
 
 // The URL for the Learn More page about policies and enterprise enrollment.
 inline constexpr char16_t kManagedUiLearnMoreUrl[] =
-    u"https://support.brave.com/";
+    u"https://support.brave.com/hc/en-us/articles/360039248271-Group-Policy";
 
 // The URL for the "Learn more" page for insecure download blocking.
 inline constexpr char kInsecureDownloadBlockingLearnMoreUrl[] =
@@ -332,8 +344,16 @@ inline constexpr char16_t kPaymentMethodsURLForGPayWeb[] =
 inline constexpr char kAddressesAndPaymentMethodsLearnMoreURL[] =
     "https://support.brave.com";
 
+// The URL for the "Pay over time" support page.
+inline constexpr char16_t kPayOverTimeLearnMoreUrl[] =
+    u"https://support.brave.com";
+
 // Help URL for Autofill Prediction Improvements.
 inline constexpr char16_t kAutofillAiLearnMoreURL[] =
+    u"https://support.brave.com";
+
+// "Learn more" URL for the autofill show card benefits setting.
+inline constexpr char16_t kCardBenefitsLearnMoreURL[] =
     u"https://support.brave.com";
 
 // "Learn more" URL for the performance intervention notification setting.
@@ -418,6 +438,10 @@ inline constexpr char16_t kSyncLearnMoreURL[] = u"https://support.brave.com/";
 inline constexpr char kSigninOnDesktopLearnMoreURL[] =
     "https://support.brave.com/";
 
+// The URL for the "Learn more" page for adding a new profile to Chrome.
+inline constexpr char kAddNewProfileOnDesktopLearnMoreURL[] =
+    "https://support.brave.com/";
+
 // The URL for the "Learn more" page for AI settings for managed users.
 inline constexpr char16_t kAiSettingsLearnMorePageManagedUrl[] =
     u"https://support.brave.com/";
@@ -432,6 +456,14 @@ inline constexpr char kComposeLearnMorePageManagedURL[] =
 // The URL for the "Learn more" links for pages related to History search.
 // TODO(crbug.com/328300718): Update help article URL.
 inline constexpr char kHistorySearchLearnMorePageURL[] =
+    "https://support.brave.com/";
+
+// The URL for the "Learn more about shortcuts" page for Glic.
+inline constexpr char kGlicKeyboardShortcutLearnMoreURL[] =
+    "https://support.brave.com/";
+
+// The URL for the "Learn more about shortcuts" page for Glic for managed users.
+inline constexpr char kGlicKeyboardShortcutLearnMoreManagedURL[] =
     "https://support.brave.com/";
 
 // The URL for the "Learn more" links for pages related to History search for
@@ -458,7 +490,8 @@ inline constexpr char kWallpaperSearchLearnMorePageManagedURL[] =
 
 // The URL for the "Learn more" page for Tab Organization.
 inline constexpr char kTabOrganizationLearnMorePageURL[] =
-    "https://support.brave.com/";
+    "https://support.brave.com/hc/en-us/articles/"
+    "35200007195917-How-to-use-Tab-Focus-Mode";
 
 // The URL for the "Learn more" page for Tab Organization for managed users.
 inline constexpr char kTabOrganizationLearnMorePageManagedURL[] =

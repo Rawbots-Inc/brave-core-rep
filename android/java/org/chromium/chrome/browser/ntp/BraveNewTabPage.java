@@ -12,6 +12,7 @@ import org.chromium.base.jank_tracker.JankTracker;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.OneshotSupplier;
 import org.chromium.base.supplier.Supplier;
+import org.chromium.build.annotations.NullUnmarked;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.browser_controls.BrowserControlsStateProvider;
 import org.chromium.chrome.browser.feed.BraveFeedSurfaceCoordinator;
@@ -21,6 +22,7 @@ import org.chromium.chrome.browser.feed.FeedSurfaceProvider;
 import org.chromium.chrome.browser.feed.FeedSwipeRefreshLayout;
 import org.chromium.chrome.browser.lifecycle.ActivityLifecycleDispatcher;
 import org.chromium.chrome.browser.magic_stack.ModuleRegistry;
+import org.chromium.chrome.browser.metrics.StartupMetricsTracker;
 import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
 import org.chromium.chrome.browser.profiles.Profile;
 import org.chromium.chrome.browser.search_engines.TemplateUrlServiceFactory;
@@ -38,8 +40,9 @@ import org.chromium.components.browser_ui.bottomsheet.BottomSheetController;
 import org.chromium.components.search_engines.TemplateUrlService;
 import org.chromium.ui.base.WindowAndroid;
 
+@NullUnmarked // Waiting for upstream parent class to be NullMarked
 public class BraveNewTabPage extends NewTabPage {
-    private JankTracker mJankTracker;
+    private final JankTracker mJankTracker;
 
     // To delete in bytecode, members from parent class will be used instead.
     private BrowserControlsStateProvider mBrowserControlsStateProvider;
@@ -60,7 +63,7 @@ public class BraveNewTabPage extends NewTabPage {
             ActivityLifecycleDispatcher lifecycleDispatcher,
             TabModelSelector tabModelSelector,
             boolean isTablet,
-            NewTabPageUma uma,
+            NewTabPageCreationTracker mNewTabPageCreationTracker,
             boolean isInNightMode,
             NativePageHost nativePageHost,
             Tab tab,
@@ -74,7 +77,8 @@ public class BraveNewTabPage extends NewTabPage {
             ObservableSupplier<TabContentManager> tabContentManagerSupplier,
             ObservableSupplier<Integer> tabStripHeightSupplier,
             OneshotSupplier<ModuleRegistry> moduleRegistrySupplier,
-            ObservableSupplier<EdgeToEdgeController> edgeToEdgeControllerSupplier) {
+            ObservableSupplier<EdgeToEdgeController> edgeToEdgeControllerSupplier,
+            StartupMetricsTracker startupMetricsTracker) {
         super(
                 activity,
                 browserControlsStateProvider,
@@ -83,7 +87,7 @@ public class BraveNewTabPage extends NewTabPage {
                 lifecycleDispatcher,
                 tabModelSelector,
                 isTablet,
-                uma,
+                mNewTabPageCreationTracker,
                 isInNightMode,
                 nativePageHost,
                 tab,
@@ -97,7 +101,8 @@ public class BraveNewTabPage extends NewTabPage {
                 tabContentManagerSupplier,
                 tabStripHeightSupplier,
                 moduleRegistrySupplier,
-                edgeToEdgeControllerSupplier);
+                edgeToEdgeControllerSupplier,
+                startupMetricsTracker);
 
         mJankTracker = jankTracker;
 
@@ -134,7 +139,8 @@ public class BraveNewTabPage extends NewTabPage {
             boolean isInNightMode,
             Supplier<ShareDelegate> shareDelegateSupplier,
             String url,
-            ObservableSupplier<EdgeToEdgeController> edgeToEdgeControllerSupplier) {
+            ObservableSupplier<EdgeToEdgeController> edgeToEdgeControllerSupplier,
+            StartupMetricsTracker startupMetricsTracker) {
         // Override surface provider
         Profile profile = Profile.fromWebContents(mTab.getWebContents());
 

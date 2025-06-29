@@ -8,6 +8,7 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/location.h"
 #include "base/time/time.h"
 #include "brave/components/brave_ads/core/internal/ads_client/ads_client_util.h"
@@ -83,7 +84,7 @@ void SubdivisionUrlRequest::FetchCallback(
   }
 
   BLOG(1, "Parsing subdivision");
-  const std::optional<std::string> subdivision =
+  std::optional<std::string> subdivision =
       json::reader::ParseSubdivision(mojom_url_response.body);
   if (!subdivision) {
     BLOG(0, "Failed to parse subdivision");
@@ -119,7 +120,7 @@ void SubdivisionUrlRequest::SuccessfullyFetchedSubdivision(
 }
 
 void SubdivisionUrlRequest::FailedToFetchSubdivision() {
-  BLOG(1, "Failed to fetch subdivision");
+  BLOG(0, "Failed to fetch subdivision");
 
   NotifyFailedToFetchSubdivision();
 

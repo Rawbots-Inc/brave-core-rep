@@ -11,7 +11,7 @@ import { reduceAddress } from '../../../utils/reduce-address'
 import Amount from '../../../utils/amount'
 import { getLocale } from '../../../../common/locale'
 import {
-  openAssociatedTokenAccountSupportArticleTab //
+  openAssociatedTokenAccountSupportArticleTab, //
 } from '../../../utils/routes-utils'
 
 // Hooks
@@ -20,7 +20,7 @@ import { useExplorer } from '../../../common/hooks/explorer'
 import {
   useGetActiveOriginQuery,
   useGetAddressByteCodeQuery,
-  useGetDefaultFiatCurrencyQuery
+  useGetDefaultFiatCurrencyQuery,
 } from '../../../common/slices/api.slice'
 
 // Components
@@ -31,15 +31,15 @@ import { PanelTab } from '../panel-tab/index'
 import { TransactionDetailBox } from '../transaction-box/index'
 import { EditAllowance } from '../edit-allowance/index'
 import {
-  AdvancedTransactionSettingsButton //
+  AdvancedTransactionSettingsButton, //
 } from '../advanced-transaction-settings/button/index'
 import {
-  AdvancedTransactionSettings //
+  AdvancedTransactionSettings, //
 } from '../advanced-transaction-settings/index'
 import { TransactionInfo } from './transaction-info'
 import { NftIcon } from '../../shared/nft-icon/nft-icon'
 import {
-  PendingTransactionActionsFooter //
+  PendingTransactionActionsFooter, //
 } from './common/pending_tx_actions_footer'
 import { TransactionQueueSteps } from './common/queue'
 import { Origin } from './common/origin'
@@ -47,10 +47,10 @@ import { EditPendingTransactionGas } from './common/gas'
 import { TxWarningBanner } from './common/tx_warnings'
 import { LoadingPanel } from '../loading_panel/loading_panel'
 import {
-  PendingTransactionNetworkFeeAndSettings //
+  PendingTransactionNetworkFeeAndSettings, //
 } from '../pending-transaction-network-fee/pending-transaction-network-fee'
 import {
-  TransactionSimulationNotSupportedSheet //
+  TransactionSimulationNotSupportedSheet, //
 } from '../transaction_simulation_not_supported_sheet/transaction_simulation_not_supported_sheet'
 
 // Styled Components
@@ -71,7 +71,7 @@ import {
   WarningIcon,
   ContractButton,
   ExplorerIcon,
-  WarningInfoCircleIcon
+  WarningInfoCircleIcon,
 } from './style'
 
 import {
@@ -85,7 +85,7 @@ import {
   WarningText,
   LearnMoreButton,
   WarningBoxTitleRow,
-  URLText
+  URLText,
 } from '../shared-panel-styles'
 import { Column, Row } from '../../shared/style'
 import { NetworkFeeRow } from './common/style'
@@ -98,7 +98,7 @@ const NftAssetIconWithPlaceholder = withPlaceholderIcon(NftIcon, ICON_CONFIG)
 
 export const ConfirmTransactionPanel = ({
   retrySimulation,
-  showSimulationNotSupportedMessage
+  showSimulationNotSupportedMessage,
 }: {
   readonly retrySimulation?: () => void
   showSimulationNotSupportedMessage?: boolean
@@ -138,13 +138,14 @@ export const ConfirmTransactionPanel = ({
     isSolanaTransaction,
     isBitcoinTransaction,
     isZCashTransaction,
+    isFilecoinTransaction,
     hasFeeEstimatesError,
     isLoadingGasFee,
     rejectAllTransactions,
     isConfirmButtonDisabled,
     isSolanaDappTransaction,
     isAccountSyncing,
-    isShieldingFunds
+    isShieldingFunds,
   } = usePendingTransactions()
 
   // queries
@@ -153,9 +154,9 @@ export const ConfirmTransactionPanel = ({
       ? {
           address: transactionDetails.recipient ?? '',
           coin: transactionDetails.coinType ?? -1,
-          chainId: transactionDetails.chainId ?? ''
+          chainId: transactionDetails.chainId ?? '',
         }
-      : skipToken
+      : skipToken,
   )
 
   // computed
@@ -189,12 +190,14 @@ export const ConfirmTransactionPanel = ({
     setShowAdvancedTransactionSettings((prev) => !prev)
   }
 
+  const canEditGas = isEthereumTransaction || isFilecoinTransaction
+
   // render
   if (
-    !transactionDetails ||
-    !selectedPendingTransaction ||
-    !fromAccount ||
-    !transactionsQueueLength
+    !transactionDetails
+    || !selectedPendingTransaction
+    || !fromAccount
+    || !transactionsQueueLength
   ) {
     return <LoadingPanel />
   }
@@ -246,7 +249,7 @@ export const ConfirmTransactionPanel = ({
           <PanelTitle>
             {getLocale('braveWalletAllowSpendTitle').replace(
               '$1',
-              erc20ApproveTokenInfo?.symbol ?? ''
+              erc20ApproveTokenInfo?.symbol ?? '',
             )}
           </PanelTitle>
           <AddressAndOrb>
@@ -263,7 +266,7 @@ export const ConfirmTransactionPanel = ({
           <Description>
             {getLocale('braveWalletAllowSpendDescription').replace(
               '$1',
-              erc20ApproveTokenInfo?.symbol ?? ''
+              erc20ApproveTokenInfo?.symbol ?? '',
             )}
           </Description>
 
@@ -311,8 +314,8 @@ export const ConfirmTransactionPanel = ({
               <AccountNameText>{fromAccount.name}</AccountNameText>
             </Tooltip>
 
-            {transactionDetails.recipient &&
-              transactionDetails.recipient !== fromAccount.address && (
+            {transactionDetails.recipient
+              && transactionDetails.recipient !== fromAccount.address && (
                 <>
                   <ArrowIcon />
                   {isContract ? (
@@ -326,7 +329,7 @@ export const ConfirmTransactionPanel = ({
                       <ContractButton
                         onClick={onClickViewOnBlockExplorer(
                           'contract',
-                          `${transactionDetails.recipient}`
+                          `${transactionDetails.recipient}`,
                         )}
                       >
                         {reduceAddress(transactionDetails.recipient)}{' '}
@@ -370,12 +373,12 @@ export const ConfirmTransactionPanel = ({
               >
                 <TransactionAmountBig>
                   {isERC721TransferFrom || isERC721SafeTransferFrom
-                    ? transactionDetails.erc721BlockchainToken?.name +
-                      ' ' +
-                      transactionDetails.erc721TokenId
+                    ? transactionDetails.erc721BlockchainToken?.name
+                      + ' '
+                      + transactionDetails.erc721TokenId
                     : new Amount(transactionDetails.valueExact).formatAsAsset(
                         undefined,
-                        transactionDetails.symbol
+                        transactionDetails.symbol,
                       )}
                 </TransactionAmountBig>
 
@@ -386,13 +389,13 @@ export const ConfirmTransactionPanel = ({
                     text={
                       <>
                         {getLocale(
-                          'braveWalletConfirmTransactionAccountCreationFee'
+                          'braveWalletConfirmTransactionAccountCreationFee',
                         )}{' '}
                         <LearnMoreButton
                           onClick={openAssociatedTokenAccountSupportArticleTab}
                         >
                           {getLocale(
-                            'braveWalletAllowAddNetworkLearnMoreButton'
+                            'braveWalletAllowAddNetworkLearnMoreButton',
                           )}
                         </LearnMoreButton>
                       </>
@@ -406,7 +409,7 @@ export const ConfirmTransactionPanel = ({
               {!isERC721TransferFrom && !isERC721SafeTransferFrom && (
                 <TransactionFiatAmountBig>
                   {new Amount(transactionDetails.fiatValue).formatAsFiat(
-                    defaultFiatCurrency
+                    defaultFiatCurrency,
                   )}
                 </TransactionFiatAmountBig>
               )}
@@ -422,7 +425,7 @@ export const ConfirmTransactionPanel = ({
                 </WarningTitle>
                 <WarningText>
                   {getLocale(
-                    'braveWalletSystemProgramAssignWarningDescription'
+                    'braveWalletSystemProgramAssignWarningDescription',
                   )}
                 </WarningText>
               </WarningBoxTitleRow>
@@ -452,11 +455,7 @@ export const ConfirmTransactionPanel = ({
       <MessageBox isDetails={selectedTab === 'details'}>
         {selectedTab === 'transaction' ? (
           <TransactionInfo
-            onToggleEditGas={
-              isSolanaTransaction || isBitcoinTransaction
-                ? undefined
-                : onToggleEditGas
-            }
+            onToggleEditGas={canEditGas ? onToggleEditGas : undefined}
             isZCashTransaction={isZCashTransaction}
             isBitcoinTransaction={isBitcoinTransaction}
             transactionDetails={transactionDetails}
@@ -482,6 +481,11 @@ export const ConfirmTransactionPanel = ({
 
       <NetworkFeeRow>
         <PendingTransactionNetworkFeeAndSettings
+          showEditGas={
+            isEthereumTransaction
+            || isSolanaTransaction
+            || isFilecoinTransaction
+          }
           onToggleEditGas={onToggleEditGas}
           feeDisplayMode='fiat'
         />
@@ -489,9 +493,9 @@ export const ConfirmTransactionPanel = ({
 
       <Column fullWidth>
         <FooterContainer>
-          {retrySimulation &&
-            !isSimulationWarningDismissed &&
-            !showSimulationNotSupportedMessage && (
+          {retrySimulation
+            && !isSimulationWarningDismissed
+            && !showSimulationNotSupportedMessage && (
               <TxWarningBanner
                 retrySimulation={retrySimulation}
                 onDismiss={() => setIsSimulationWarningDismissed(true)}

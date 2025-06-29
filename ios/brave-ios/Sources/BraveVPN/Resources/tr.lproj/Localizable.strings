@@ -278,7 +278,7 @@
 "vpn.settingsViewReceipt" = "App Store Makbuzunu Görüntüle";
 
 /* The title of the toggle in settings that disconnects the internet connection, when not connected to the VPN. Emergency Shutoff, Kill Switch, Safety Switch, etc. */
-"vpn.settingsVPNKillSwitchDescription" = "Etkinleştirildiğinde, VPN bağlantınız beklenmedik bir şekilde kesilirse, IP Adresi ve Veri sızıntılarını önlemek için cihazınızın internet bağlantısı otomatik olarak kesilir. [Daha Fazla Bilgi](%@)";
+"vpn.settingsVPNKillSwitchDescription" = "Etkinleştirildiğinde, VPN bağlantınız beklenmedik bir şekilde kesilirse, IP adresi ve veri sızıntılarını önlemek için cihazınızın internet bağlantısı otomatik olarak kesilir. [Daha Fazla Bilgi](%@)";
 
 /* The title of the toggle in settings that disconnects the internet connection, when not connected to the VPN. Emergency Shutoff, Kill Switch, Safety Switch, etc. */
 "vpn.settingsVPNKillSwitchTitle" = "Kesme Anahtarını Etkinleştir";
@@ -361,6 +361,6 @@
 /* It's like when there's few subscription plans, and one plan has the best value to price ratio, so this label says next to that plan: '(plan) - BEST VALUE' */
 "vpn.yearlySubDisclaimer" = "EN İYİ FİYAT";
 
-/* One year lenght vpn subcription */
+/* One year length vpn subcription */
 "vpn.yearlySubTitle" = "Bir Yıl";
 

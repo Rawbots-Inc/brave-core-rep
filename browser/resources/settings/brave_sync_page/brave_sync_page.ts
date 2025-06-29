@@ -60,9 +60,9 @@ export class SettingsBraveSyncPageElement extends SettingsBraveSyncPageElementBa
     };
   }
 
-  private syncStatus_: BraveSyncStatus;
-  private isEncryptionSet_: boolean;
-  private syncLabel_: string;
+  private declare syncStatus_: BraveSyncStatus;
+  private declare isEncryptionSet_: boolean;
+  private declare syncLabel_: string;
 
   browserProxy_: SyncBrowserProxy = SyncBrowserProxyImpl.getInstance();
   braveBrowserProxy_: BraveSyncBrowserProxy = BraveSyncBrowserProxy.getInstance();
@@ -98,7 +98,7 @@ export class SettingsBraveSyncPageElement extends SettingsBraveSyncPageElementBa
   /**
    * Handler for when the sync state is pushed from the browser.
    */
-  async handleSyncStatus_(syncStatus: BraveSyncStatus) {
+  handleSyncStatus_(syncStatus: BraveSyncStatus) {
     this.syncStatus_ = syncStatus;
   }
 

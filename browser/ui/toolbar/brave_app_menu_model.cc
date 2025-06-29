@@ -9,13 +9,13 @@
 #include <optional>
 #include <string>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/memory/raw_ptr.h"
 #include "base/notreached.h"
-#include "base/strings/utf_string_conversions.h"
 #include "brave/app/brave_command_ids.h"
 #include "brave/browser/ui/toolbar/app_menu_icons.h"
 #include "brave/components/commander/common/buildflags/buildflags.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
@@ -24,6 +24,7 @@
 #include "chrome/grit/branded_strings.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/grit/brave_components_strings.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/models/button_menu_item_model.h"
 #include "ui/base/models/menu_separator_types.h"
 #include "ui/base/ui_base_features.h"
@@ -372,6 +373,13 @@ void BraveAppMenuModel::RemoveUpstreamMenus() {
     CHECK_EQ(ui::MenuModel::TYPE_SEPARATOR,
              more_tools_model->GetTypeAt(*index + 1));
     more_tools_model->RemoveItemAt(*index + 1);
+    more_tools_model->RemoveItemAt(*index);
+  }
+
+  // Remove upstream's "Customize Chrome" menu item, as we plan to enhance this
+  // feature before exposing it to users
+  if (const auto index = more_tools_model->GetIndexOfCommandId(
+          IDC_SHOW_CUSTOMIZE_CHROME_SIDE_PANEL)) {
     more_tools_model->RemoveItemAt(*index);
   }
 

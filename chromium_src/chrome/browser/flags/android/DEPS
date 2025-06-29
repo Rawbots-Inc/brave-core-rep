@@ -1,5 +1,6 @@
 include_rules = [
   "+brave/components/ai_chat/core/common/features.h",
+  "+brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_feature.h",
   "+brave/components/brave_news/common/features.h",
   "+brave/components/brave_rewards/core/features.h",
   "+brave/components/brave_search_conversion/features.h",
@@ -8,6 +9,7 @@ include_rules = [
   "+brave/components/brave_wallet/common/features.h",
   "+brave/components/debounce/core/common/features.h",
   "+brave/components/google_sign_in_permission/features.h",
+  "+brave/components/ntp_background_images/browser/features.h",
   "+brave/components/playlist/common/features.h",
   "+brave/components/request_otr/common/features.h",
   "+brave/components/speedreader/common/features.h",

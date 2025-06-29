@@ -44,11 +44,14 @@ TEST_F(BraveAdsPageLandExclusionRuleTest, ShouldAlwaysInclude) {
   const PageLandExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest, ShouldIncludeIfThereAreNoAdEvents) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
   creative_ad.campaign_id = test::kCampaignId;
@@ -56,7 +59,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest, ShouldIncludeIfThereAreNoAdEvents) {
   const PageLandExclusionRule exclusion_rule(/*ad_events=*/{});
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
@@ -86,7 +89,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
@@ -136,14 +139,13 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
        ShouldExcludeWithSameCampaignIdWithin2Days) {
   // Arrange
   base::test::ScopedFeatureList scoped_feature_list;
-
   std::vector<base::test::FeatureRefAndParams> enabled_features;
   enabled_features.emplace_back(
       kExclusionRulesFeature,
@@ -170,7 +172,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
@@ -197,7 +199,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2) - base::Milliseconds(1));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
@@ -224,7 +226,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsPageLandExclusionRuleTest,
@@ -255,7 +257,7 @@ TEST_F(BraveAdsPageLandExclusionRuleTest,
   AdvanceClockBy(base::Days(2));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1));
 }
 
 }  // namespace brave_ads

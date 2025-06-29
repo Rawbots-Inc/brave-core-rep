@@ -6,9 +6,10 @@
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
 
 #include <memory>
-#include <optional>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/command_line.h"
 #include "base/feature_list.h"
 #include "base/files/file_path.h"
@@ -16,11 +17,11 @@
 #include "base/functional/bind.h"
 #include "base/i18n/time_formatting.h"
 #include "base/json/json_reader.h"
+#include "base/logging.h"
 #include "base/path_service.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "base/task/thread_pool.h"
-#include "brave/components/l10n/common/country_code_util.h"
-#include "brave/components/l10n/common/prefs.h"
 #include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_component_installer.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
@@ -33,6 +34,9 @@
 #include "components/component_updater/component_updater_service.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
+#include "components/variations/pref_names.h"
+#include "components/variations/service/variations_service.h"
+#include "components/variations/service/variations_service_utils.h"
 
 #if !BUILDFLAG(IS_IOS)
 #include "brave/components/brave_referrals/browser/brave_referrals_service.h"
@@ -79,6 +83,26 @@ std::string HandleComponentData(const base::FilePath& installed_dir,
   return contents;
 }
 
+// The variations service derives the country code from the client's IP address.
+std::string GetVariationsCountryCode(
+    variations::VariationsService* variations_service) {
+  std::string country_code;
+
+  if (variations_service) {
+    country_code = variations_service->GetLatestCountry();
+  }
+
+  if (country_code.empty()) {
+    // May be empty on first run after a fresh install, so fall back to the
+    // permanently stored variations or device country code on first run.
+    country_code = variations::GetCurrentCountryCode(variations_service);
+  }
+
+  // Convert the country code to an ISO 3166-1 alpha-2 format. This ensures the
+  // country code is in uppercase, as required by the standard.
+  return base::ToUpperASCII(country_code);
+}
+
 }  // namespace
 
 // static
@@ -95,9 +119,11 @@ void NTPBackgroundImagesService::RegisterLocalStatePrefs(
 }
 
 NTPBackgroundImagesService::NTPBackgroundImagesService(
+    variations::VariationsService* variations_service,
     component_updater::ComponentUpdateService* component_update_service,
     PrefService* pref_service)
-    : component_update_service_(component_update_service),
+    : variations_service_(variations_service),
+      component_update_service_(component_update_service),
       pref_service_(pref_service) {}
 
 NTPBackgroundImagesService::~NTPBackgroundImagesService() = default;
@@ -106,55 +132,66 @@ void NTPBackgroundImagesService::Init() {
   pref_change_registrar_.Init(pref_service_);
 
   // Flag override for testing or demo purposes
-  base::FilePath forced_local_path(
-      base::CommandLine::ForCurrentProcess()->GetSwitchValueNative(
-          switches::kNTPSponsoredImagesDataPathForTesting));
-  if (!forced_local_path.empty()) {
-    test_data_used_ = true;
+  base::FilePath override_sponsored_images_component_path(
+      base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+          switches::kOverrideSponsoredImagesComponentPath));
+  if (!override_sponsored_images_component_path.empty()) {
     DVLOG(6)
         << "NTP Sponsored Images test data will be loaded from local path at: "
-        << forced_local_path.LossyDisplayName();
-    OnSponsoredComponentReady(/*is_super_referral=*/false, forced_local_path);
+        << override_sponsored_images_component_path.LossyDisplayName();
+    OnSponsoredComponentReady(/*is_super_referral=*/false,
+                              override_sponsored_images_component_path);
   } else {
     RegisterBackgroundImagesComponent();
     RegisterSponsoredImagesComponent();
 
     pref_change_registrar_.Add(
-        brave_l10n::prefs::kCountryCode,
+        variations::prefs::kVariationsCountry,
         base::BindRepeating(
-            &NTPBackgroundImagesService::OnCountryCodePrefChanged,
-            base::Unretained(this)));
+            &NTPBackgroundImagesService::OnVariationsCountryPrefChanged,
+            weak_factory_.GetWeakPtr()));
   }
 
   if (base::FeatureList::IsEnabled(features::kBraveNTPSuperReferralWallpaper)) {
     // Flag override for testing or demo purposes
-    base::FilePath forced_local_path_super_referral(
-        base::CommandLine::ForCurrentProcess()->GetSwitchValueNative(
-            switches::kNTPSuperReferralDataPathForTesting));
-    if (!forced_local_path_super_referral.empty()) {
-      test_data_used_ = true;
+    base::FilePath override_super_referrals_component_path(
+        base::CommandLine::ForCurrentProcess()->GetSwitchValuePath(
+            switches::kOverrideSuperReferralsComponentPath));
+    if (!override_super_referrals_component_path.empty()) {
       DVLOG(6)
           << "NTP Super Referral test data will be loaded from local path at: "
-          << forced_local_path_super_referral.LossyDisplayName();
+          << override_super_referrals_component_path.LossyDisplayName();
       OnSponsoredComponentReady(/*is_super_referral=*/false,
-                                forced_local_path_super_referral);
+                                override_super_referrals_component_path);
     } else {
       CheckSuperReferralComponent();
     }
   }
 }
 
+void NTPBackgroundImagesService::StartTearDown() {
+  variations_service_ = nullptr;
+  component_update_service_ = nullptr;
+  pref_service_ = nullptr;
+  pref_change_registrar_.RemoveAll();
+}
+
 void NTPBackgroundImagesService::MaybeCheckForSponsoredComponentUpdate() {
   // It means component is not ready.
-  if (last_update_check_at_.is_null()) {
+  if (!last_updated_at_) {
     return;
   }
 
   // If previous update check is missed, do update check now.
-  if (base::Time::Now() - last_update_check_at_ >
+  if (base::Time::Now() - *last_updated_at_ >
       features::kSponsoredImagesUpdateCheckAfter.Get()) {
     sponsored_images_update_check_callback_.Run();
   }
+}
+
+void NTPBackgroundImagesService::ForceSponsoredComponentUpdate() {
+  sponsored_images_component_id_.reset();
+  RegisterSponsoredImagesComponent();
 }
 
 void NTPBackgroundImagesService::ScheduleNextSponsoredImagesComponentUpdate() {
@@ -172,7 +209,7 @@ void NTPBackgroundImagesService::ScheduleNextSponsoredImagesComponentUpdate() {
 
 void NTPBackgroundImagesService::CheckSponsoredImagesComponentUpdate(
     const std::string& component_id) {
-  last_update_check_at_ = base::Time::Now();
+  last_updated_at_ = base::Time::Now();
 
   CheckAndUpdateSponsoredImagesComponent(component_id);
 
@@ -188,8 +225,8 @@ void NTPBackgroundImagesService::RegisterBackgroundImagesComponent() {
 }
 
 void NTPBackgroundImagesService::RegisterSponsoredImagesComponent() {
-  const std::string country_code = brave_l10n::GetCountryCode(pref_service_);
-
+  const std::string country_code =
+      GetVariationsCountryCode(variations_service_);
   const std::optional<SponsoredImagesComponentData> data =
       GetSponsoredImagesComponentData(country_code);
   if (!data) {
@@ -208,7 +245,8 @@ void NTPBackgroundImagesService::RegisterSponsoredImagesComponent() {
   }
   sponsored_images_component_id_ = data->component_id.data();
 
-  VLOG(6) << "Registering NTP Sponsored Images component";
+  VLOG(0) << "Registering NTP Sponsored Images component for " << country_code
+          << " with ID " << data->component_id;
   RegisterNTPSponsoredImagesComponent(
       component_update_service_, std::string(data->component_base64_public_key),
       std::string(data->component_id),
@@ -223,7 +261,7 @@ void NTPBackgroundImagesService::RegisterSponsoredImagesComponent() {
       &NTPBackgroundImagesService::CheckSponsoredImagesComponentUpdate,
       base::Unretained(this), data->component_id.data());
 
-  last_update_check_at_ = base::Time::Now();
+  last_updated_at_ = base::Time::Now();
 
   ScheduleNextSponsoredImagesComponentUpdate();
 }
@@ -288,9 +326,9 @@ void NTPBackgroundImagesService::CheckSuperReferralComponent() {
     }
 
     // If referral code is empty here, this is fresh launch.
-    // If browser is crashed before fetching this install's promo code at fiirst
-    // launch, it can be handled here also because code would be empty at this
-    // time.
+    // If browser is crashed before fetching this install's promo code at
+    // fiirst launch, it can be handled here also because code would be empty
+    // at this time.
     const std::string code = GetReferralPromoCode();
     if (code.empty()) {
       pref_service_->SetBoolean(
@@ -330,6 +368,11 @@ void NTPBackgroundImagesService::MonitorReferralPromoCodeChange() {
 void NTPBackgroundImagesService::OnPreferenceChanged(
   const std::string& pref_name) {
 #if !BUILDFLAG(IS_IOS)
+  if (!base::FeatureList::IsEnabled(
+          features::kBraveNTPSuperReferralWallpaper)) {
+    return MarkThisInstallIsNotSuperReferralForever();
+  }
+
   DCHECK_EQ(kReferralPromoCode, pref_name);
   const std::string new_referral_code = GetReferralPromoCode();
   DVLOG(6) << "Got referral promo code: " << new_referral_code;
@@ -346,7 +389,7 @@ void NTPBackgroundImagesService::OnPreferenceChanged(
 #endif
 }
 
-void NTPBackgroundImagesService::OnCountryCodePrefChanged() {
+void NTPBackgroundImagesService::OnVariationsCountryPrefChanged() {
   RegisterSponsoredImagesComponent();
 }
 

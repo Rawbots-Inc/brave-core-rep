@@ -278,7 +278,7 @@
 "vpn.settingsViewReceipt" = "Xem biên lai App Store";
 
 /* The title of the toggle in settings that disconnects the internet connection, when not connected to the VPN. Emergency Shutoff, Kill Switch, Safety Switch, etc. */
-"vpn.settingsVPNKillSwitchDescription" = "Khi bật, nếu kết nối VPN ngừng đột ngột, thiết bị của bạn sẽ tự động được ngắt kết nối internet để ngăn việc rò rỉ dữ liệu địa chỉ IP. [Tìm hiểu thêm](%@)";
+"vpn.settingsVPNKillSwitchDescription" = "Khi bật, nếu kết nối VPN ngừng đột ngột, thiết bị của bạn sẽ tự động được ngắt kết nối internet để ngăn việc rò rỉ địa chỉ IP và dữ liệu. [Tìm hiểu thêm](%@)";
 
 /* The title of the toggle in settings that disconnects the internet connection, when not connected to the VPN. Emergency Shutoff, Kill Switch, Safety Switch, etc. */
 "vpn.settingsVPNKillSwitchTitle" = "Bật Kill Switch";
@@ -361,6 +361,6 @@
 /* It's like when there's few subscription plans, and one plan has the best value to price ratio, so this label says next to that plan: '(plan) - BEST VALUE' */
 "vpn.yearlySubDisclaimer" = "GIÁ TỐT NHẤT";
 
-/* One year lenght vpn subcription */
+/* One year length vpn subcription */
 "vpn.yearlySubTitle" = "Một năm";
 

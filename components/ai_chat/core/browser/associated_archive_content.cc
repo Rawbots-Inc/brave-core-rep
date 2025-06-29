@@ -5,30 +5,27 @@
 
 #include "brave/components/ai_chat/core/browser/associated_archive_content.h"
 
-#include <ios>
-#include <ostream>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 
-#include "base/functional/callback.h"
 #include "base/logging.h"
-#include "base/memory/weak_ptr.h"
 #include "base/strings/utf_ostream_operators.h"
-#include "brave/components/ai_chat/core/browser/conversation_handler.h"
+#include "brave/components/ai_chat/core/browser/associated_content_delegate.h"
 
 namespace ai_chat {
 
 AssociatedArchiveContent::AssociatedArchiveContent(GURL url,
                                                    std::string text_content,
                                                    std::u16string title,
-                                                   bool is_video)
+                                                   bool is_video,
+                                                   std::string uuid)
     : url_(url),
       text_content_(text_content),
       title_(title),
       is_video_(is_video) {
   DVLOG(1) << "Made archive for content at: " << url.spec() << "\n"
            << "title: " << title << "text: " << text_content;
+  set_uuid(std::move(uuid));
 }
 
 AssociatedArchiveContent::~AssociatedArchiveContent() = default;
@@ -57,22 +54,16 @@ std::u16string AssociatedArchiveContent::GetTitle() const {
   return title_;
 }
 
-void AssociatedArchiveContent::GetContent(
-    ConversationHandler::GetPageContentCallback callback) {
+void AssociatedArchiveContent::GetContent(GetPageContentCallback callback) {
   std::move(callback).Run(text_content_, is_video_, "");
 }
 
-std::string_view AssociatedArchiveContent::GetCachedTextContent() {
+std::string_view AssociatedArchiveContent::GetCachedTextContent() const {
   return text_content_;
 }
 
-bool AssociatedArchiveContent::GetCachedIsVideo() {
+bool AssociatedArchiveContent::GetCachedIsVideo() const {
   return is_video_;
-}
-
-base::WeakPtr<ConversationHandler::AssociatedContentDelegate>
-AssociatedArchiveContent::GetWeakPtr() {
-  return weak_ptr_factory_.GetWeakPtr();
 }
 
 }  // namespace ai_chat

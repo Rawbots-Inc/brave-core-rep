@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "base/gtest_prod_util.h"
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "components/prefs/pref_member.h"
@@ -25,7 +26,6 @@ class Label;
 class ImageView;
 }  // namespace views
 
-class SplitView;
 class SplitViewLocationBarModelDelegate;
 class PrefService;
 class LocationBarModel;
@@ -39,13 +39,14 @@ class SplitViewLocationBar : public views::WidgetDelegateView,
   METADATA_HEADER(SplitViewLocationBar, views::WidgetDelegateView)
 
  public:
-  SplitViewLocationBar(PrefService* prefs, SplitView* split_view);
+  explicit SplitViewLocationBar(PrefService* prefs);
   ~SplitViewLocationBar() override;
 
   static views::Widget::InitParams GetWidgetInitParams(
       gfx::NativeView parent_native_view,
       views::WidgetDelegateView* delegate);
 
+  void SetParentWebView(views::View* parent_web_view);
   void SetWebContents(content::WebContents* web_contents);
 
   // views::WidgetDelegateView:
@@ -92,7 +93,6 @@ class SplitViewLocationBar : public views::WidgetDelegateView,
   SkPath GetBorderPath(bool close);
 
   raw_ptr<PrefService> prefs_ = nullptr;
-  raw_ptr<SplitView> split_view_ = nullptr;
 
   std::unique_ptr<SplitViewLocationBarModelDelegate>
       location_bar_model_delegate_;

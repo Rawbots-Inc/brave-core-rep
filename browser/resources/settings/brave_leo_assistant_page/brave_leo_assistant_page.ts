@@ -36,10 +36,6 @@ class BraveLeoAssistantPageElement extends BraveLeoAssistantPageBase {
 
     static get properties() {
       return {
-        prefs: {
-          type: Object,
-          notify: true,
-        },
         leoAssistantShowOnToolbarPref_: {
           type: Boolean,
           value: false,
@@ -53,18 +49,26 @@ class BraveLeoAssistantPageElement extends BraveLeoAssistantPageBase {
           type: Boolean,
           value: false,
           computed: 'computeIsPremiumUser_(premiumStatus_)'
-        }
+        },
+        defaultModelKeyPrefValue_: String,
+        models_: {
+          readOnly: true,
+          type: Array,
+        },
+        isHistoryFeatureEnabled_: {
+          type: Boolean,
+          value: () => loadTimeData.getBoolean('isLeoAssistantHistoryAllowed')
+        },
       }
     }
 
-    private isPremiumUser_: boolean
+    private declare isPremiumUser_: boolean
 
-    isHistoryFeatureEnabled_: boolean =
-      loadTimeData.getBoolean('isLeoAssistantHistoryAllowed')
-
-    leoAssistantShowOnToolbarPref_: boolean
-    defaultModelKeyPrefValue_: string
-    models_: ModelWithSubtitle[]
+    declare isHistoryFeatureEnabled_: boolean
+    declare leoAssistantShowOnToolbarPref_: boolean
+    declare selectedModelDisplayName_: string
+    declare defaultModelKeyPrefValue_: string
+    declare models_: ModelWithSubtitle[]
     premiumStatus_: PremiumStatus = PremiumStatus.Unknown
     browserProxy_: BraveLeoAssistantBrowserProxy =
       BraveLeoAssistantBrowserProxyImpl.getInstance()
@@ -190,6 +194,10 @@ class BraveLeoAssistantPageElement extends BraveLeoAssistantPageBase {
 
     openManageAccountPage_() {
       window.open(this.manageUrl_, "_self", "noopener noreferrer")
+    }
+
+    openTabOrganizationLearnMore_() {
+      window.open(loadTimeData.getString('braveLeoAssistantTabOrganizationLearnMoreURL'), "_blank", "noopener noreferrer")
     }
 
     private onStorageEnabledChange_(event: Event) {

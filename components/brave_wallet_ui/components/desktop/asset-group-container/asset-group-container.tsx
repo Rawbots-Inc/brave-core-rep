@@ -10,7 +10,7 @@ import Button from '@brave/leo/react/button'
 // Selectors
 import {
   useSafeUISelector,
-  useSafeWalletSelector
+  useSafeWalletSelector,
 } from '../../../common/hooks/use-safe-selector'
 import { UISelectors, WalletSelectors } from '../../../common/selectors'
 
@@ -19,17 +19,17 @@ import {
   useGetChainTipStatusQuery,
   useGetZCashAccountInfoQuery,
   useStartShieldSyncMutation,
-  useStopShieldSyncMutation
+  useStopShieldSyncMutation,
 } from '../../../common/slices/api.slice'
 
 // Constants
 import {
-  LOCAL_STORAGE_KEYS //
+  LOCAL_STORAGE_KEYS, //
 } from '../../../common/constants/local-storage-keys'
 
 // Slices
 import {
-  networkEntityAdapter //
+  networkEntityAdapter, //
 } from '../../../common/slices/entities/network.entity'
 
 // Utils
@@ -37,44 +37,53 @@ import { reduceAddress } from '../../../utils/reduce-address'
 import { getLocale } from '../../../../common/locale'
 import {
   useLocalStorage,
-  useSyncedLocalStorage
+  useSyncedLocalStorage,
 } from '../../../common/hooks/use_local_storage'
 import { makeAccountRoute, openTab } from '../../../utils/routes-utils'
 
 // Types
 import { AccountPageTabs, BraveWallet } from '../../../constants/types'
 import {
-  ExternalWalletProvider //
+  ExternalWalletProvider, //
 } from '../../../../brave_rewards/resources/shared/lib/external_wallet'
 
 // Components
 import { CreateNetworkIcon } from '../../shared/create-network-icon/index'
 import { LoadingSkeleton } from '../../shared/loading-skeleton/index'
 import {
-  CreateAccountIcon //
+  CreateAccountIcon, //
 } from '../../shared/create-account-icon/create-account-icon'
 import {
-  ZCashSyncModal //
+  ZCashSyncModal, //
 } from '../popup-modals/zcash_sync_modal/zcash_sync_modal'
+import {
+  AddressActionsMenu, //
+} from '../wallet-menus/address_actions_menu'
 
 // Styled Components
 import {
   StyledWrapper,
-  CollapseButton,
+  CollapsedWrapper,
   CollapseIcon,
   AccountDescriptionWrapper,
   RewardsProviderContainer,
   RewardsText,
   InfoBar,
   InfoText,
-  WarningIcon
+  WarningIcon,
+  BalanceClickArea,
+  AccountIconClickArea,
+  AccountNameClickArea,
+  AddressArea,
+  NetworkAndExternalProviderClickArea,
+  EmptyClickArea,
 } from './asset-group-container.style'
 import {
   Row,
   Column,
   Text,
   HorizontalSpace,
-  BraveRewardsIndicator
+  BraveRewardsIndicator,
 } from '../../shared/style'
 
 interface Props {
@@ -97,13 +106,13 @@ export const AssetGroupContainer = (props: Props) => {
     isDisabled,
     network,
     children,
-    externalProvider
+    externalProvider,
   } = props
 
   // Local-Storage
   const [hidePortfolioBalances] = useSyncedLocalStorage(
     LOCAL_STORAGE_KEYS.HIDE_PORTFOLIO_BALANCES,
-    false
+    false,
   )
   const [collapsedAccounts, setCollapsedPortfolioAccountIds] = useLocalStorage<
     string[]
@@ -118,7 +127,7 @@ export const AssetGroupContainer = (props: Props) => {
 
   // Selectors
   const isZCashShieldedTransactionsEnabled = useSafeWalletSelector(
-    WalletSelectors.isZCashShieldedTransactionsEnabled
+    WalletSelectors.isZCashShieldedTransactionsEnabled,
   )
   const isPanel = useSafeUISelector(UISelectors.isPanel)
 
@@ -128,20 +137,20 @@ export const AssetGroupContainer = (props: Props) => {
 
   // Queries & Computed
   const { data: zcashAccountInfo } = useGetZCashAccountInfoQuery(
-    isZCashShieldedTransactionsEnabled &&
-      account &&
-      account.accountId.coin === BraveWallet.CoinType.ZEC
+    isZCashShieldedTransactionsEnabled
+      && account
+      && account.accountId.coin === BraveWallet.CoinType.ZEC
       ? account.accountId
-      : skipToken
+      : skipToken,
   )
 
   const isShieldedAccount =
-    isZCashShieldedTransactionsEnabled &&
-    !!zcashAccountInfo &&
-    !!zcashAccountInfo.accountShieldBirthday
+    isZCashShieldedTransactionsEnabled
+    && !!zcashAccountInfo
+    && !!zcashAccountInfo.accountShieldBirthday
 
   const { data: chainTipStatus } = useGetChainTipStatusQuery(
-    account && isShieldedAccount ? account.accountId : skipToken
+    account && isShieldedAccount ? account.accountId : skipToken,
   )
 
   const blocksBehind = chainTipStatus
@@ -155,13 +164,13 @@ export const AssetGroupContainer = (props: Props) => {
   const externalRewardsDescription = network
     ? network.chainName
     : account
-    ? account.name
-    : ''
+      ? account.name
+      : ''
 
   const isCollapsed = React.useMemo(() => {
     if (network) {
       return collapsedNetworks.includes(
-        networkEntityAdapter.selectId(network).toString()
+        networkEntityAdapter.selectId(network).toString(),
       )
     }
     if (account) {
@@ -175,7 +184,7 @@ export const AssetGroupContainer = (props: Props) => {
       // Construct new list
       const newCollapsedAccounts = isCollapsed
         ? collapsedAccounts.filter(
-            (addressKey) => addressKey !== account.accountId.uniqueKey
+            (addressKey) => addressKey !== account.accountId.uniqueKey,
           )
         : [...collapsedAccounts, account.accountId.uniqueKey]
 
@@ -199,14 +208,14 @@ export const AssetGroupContainer = (props: Props) => {
     collapsedAccounts,
     setCollapsedPortfolioAccountIds,
     collapsedNetworks,
-    setCollapsedPortfolioNetworkKeys
+    setCollapsedPortfolioNetworkKeys,
   ])
 
   const onStartShieldSync = React.useCallback(async () => {
     if (isPanel && account) {
       openTab(
-        'brave://wallet' +
-          makeAccountRoute(account, AccountPageTabs.AccountAssetsSub)
+        'brave://wallet'
+          + makeAccountRoute(account, AccountPageTabs.AccountAssetsSub),
       )
       return
     }
@@ -228,12 +237,12 @@ export const AssetGroupContainer = (props: Props) => {
       fullWidth={true}
       isCollapsed={isSkeleton || isCollapsed}
     >
-      <CollapseButton
-        onClick={onToggleCollapsed}
-        disabled={isDisabled}
-      >
+      <CollapsedWrapper isCollapsed={isSkeleton || isCollapsed}>
         {isSkeleton && (
-          <Row width='unset'>
+          <Row
+            width='unset'
+            padding='12px'
+          >
             <LoadingSkeleton
               width={24}
               height={24}
@@ -247,111 +256,150 @@ export const AssetGroupContainer = (props: Props) => {
           </Row>
         )}
         {externalProvider && !isSkeleton && (
-          <Row width='unset'>
-            {network && (
+          <NetworkAndExternalProviderClickArea
+            onClick={onToggleCollapsed}
+            disabled={isDisabled}
+          >
+            <Row width='unset'>
+              {network && (
+                <CreateNetworkIcon
+                  network={network}
+                  marginRight={16}
+                  size='huge'
+                />
+              )}
+              {account && (
+                <CreateAccountIcon
+                  size='medium'
+                  externalProvider={externalProvider}
+                  marginRight={16}
+                />
+              )}
+              <RewardsProviderContainer>
+                <RewardsText
+                  textSize='14px'
+                  isBold={true}
+                  textColor='primary'
+                  textAlign='left'
+                >
+                  {externalRewardsDescription}
+                </RewardsText>
+                <BraveRewardsIndicator>
+                  {getLocale('braveWalletBraveRewardsTitle')}
+                </BraveRewardsIndicator>
+              </RewardsProviderContainer>
+            </Row>
+          </NetworkAndExternalProviderClickArea>
+        )}
+
+        {network && !externalProvider && !isSkeleton && (
+          <NetworkAndExternalProviderClickArea
+            onClick={onToggleCollapsed}
+            disabled={isDisabled}
+          >
+            <Row width='unset'>
               <CreateNetworkIcon
                 network={network}
                 marginRight={16}
                 size='huge'
               />
-            )}
-            {account && (
-              <CreateAccountIcon
-                size='medium'
-                externalProvider={externalProvider}
-                marginRight={16}
-              />
-            )}
-            <RewardsProviderContainer>
-              <RewardsText
+              <Text
                 textSize='14px'
                 isBold={true}
                 textColor='primary'
                 textAlign='left'
               >
-                {externalRewardsDescription}
-              </RewardsText>
-              <BraveRewardsIndicator>
-                {getLocale('braveWalletBraveRewardsTitle')}
-              </BraveRewardsIndicator>
-            </RewardsProviderContainer>
-          </Row>
-        )}
-
-        {network && !externalProvider && !isSkeleton && (
-          <Row width='unset'>
-            <CreateNetworkIcon
-              network={network}
-              marginRight={16}
-              size='huge'
-            />
-            <Text
-              textSize='14px'
-              isBold={true}
-              textColor='primary'
-              textAlign='left'
-            >
-              {network.chainName}
-            </Text>
-          </Row>
+                {network.chainName}
+              </Text>
+            </Row>
+          </NetworkAndExternalProviderClickArea>
         )}
 
         {account && !externalProvider && !isSkeleton && (
-          <Row width='unset'>
-            <CreateAccountIcon
-              size='medium'
-              account={account}
-              marginRight={16}
-            />
+          <Row
+            width='unset'
+            height='100%'
+          >
+            <AccountIconClickArea
+              onClick={onToggleCollapsed}
+              disabled={isDisabled}
+            >
+              <CreateAccountIcon
+                size='medium'
+                account={account}
+                marginRight={16}
+              />
+            </AccountIconClickArea>
             <AccountDescriptionWrapper width='unset'>
-              <Text
-                textSize='14px'
-                isBold={true}
-                textColor='primary'
-                textAlign='left'
+              <AccountNameClickArea
+                onClick={onToggleCollapsed}
+                disabled={isDisabled}
+                hasAddress={account.address !== ''}
               >
-                {account.name}
-              </Text>
-              <HorizontalSpace space='8px' />
-              <Text
-                textSize='12px'
-                isBold={false}
-                textColor='secondary'
-              >
-                {reduceAddress(account.address)}
-              </Text>
+                <Text
+                  textSize='14px'
+                  isBold={true}
+                  textColor='primary'
+                  textAlign='left'
+                >
+                  {account.name}
+                </Text>
+                <HorizontalSpace space='8px' />
+              </AccountNameClickArea>
+              {account.address !== '' && (
+                <AddressArea width='unset'>
+                  <AddressActionsMenu account={account}>
+                    <Text
+                      textSize='12px'
+                      isBold={false}
+                      textColor='secondary'
+                    >
+                      {reduceAddress(account.address)}
+                    </Text>
+                  </AddressActionsMenu>
+                  <EmptyClickArea
+                    onClick={onToggleCollapsed}
+                    disabled={isDisabled}
+                  />
+                </AddressArea>
+              )}
             </AccountDescriptionWrapper>
           </Row>
         )}
 
-        <Row width='unset'>
-          {balance !== '' && !hideBalance ? (
-            <Text
-              textSize='14px'
-              isBold={true}
-              textColor='primary'
-            >
-              {hidePortfolioBalances ? '******' : balance}
-            </Text>
-          ) : (
-            <>
-              {!hideBalance && (
-                <LoadingSkeleton
-                  width={60}
-                  height={14}
-                />
-              )}
-            </>
-          )}
+        <BalanceClickArea
+          onClick={onToggleCollapsed}
+          disabled={isDisabled}
+        >
+          <Row width='unset'>
+            {balance !== '' && !hideBalance ? (
+              <Text
+                textSize='14px'
+                isBold={true}
+                textColor='primary'
+              >
+                {hidePortfolioBalances ? '******' : balance}
+              </Text>
+            ) : (
+              <>
+                {!hideBalance && (
+                  <LoadingSkeleton
+                    width={60}
+                    height={14}
+                  />
+                )}
+              </>
+            )}
 
-          {!isDisabled && (
-            <CollapseIcon
-              isCollapsed={isCollapsed}
-              name='carat-down'
-            />
-          )}
-        </Row>
-      </CollapseButton>
+            {!isDisabled && (
+              <CollapseIcon
+                isCollapsed={isCollapsed}
+                name='carat-down'
+              />
+            )}
+          </Row>
+        </BalanceClickArea>
+      </CollapsedWrapper>
 
       {!isCollapsed && !isDisabled && (
         <Column fullWidth={true}>
@@ -372,7 +420,7 @@ export const AssetGroupContainer = (props: Props) => {
                     {!chainTipStatus
                       ? getLocale('braveWalletOutOfSyncTitle')
                       : getLocale(
-                          'braveWalletOutOfSyncBlocksBehindTitle'
+                          'braveWalletOutOfSyncBlocksBehindTitle',
                         ).replace('$1', blocksBehind.toLocaleString())}
                   </InfoText>
                 </Row>

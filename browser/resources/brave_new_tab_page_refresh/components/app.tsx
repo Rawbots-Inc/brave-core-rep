@@ -6,20 +6,47 @@
 import * as React from 'react'
 import Icon from '@brave/leo/react/icon'
 
+import { SearchBox } from './search/search_box'
 import { Background } from './background/background'
 import { BackgroundCaption } from './background/background_caption'
 import { SettingsModal, SettingsView } from './settings/settings_modal'
+import { TopSites } from './top_sites/top_sites'
+import { Clock } from './common/clock'
+import { WidgetStack } from './widgets/widget_stack'
+import { NewsFeed } from './news/news_feed'
+import useMediaQuery from '$web-common/useMediaQuery'
 
-import { style } from './app.style'
+import { style, threeColumnBreakpoint } from './app.style'
+
+const threeColumnQuery = `(width > ${threeColumnBreakpoint})`
 
 export function App() {
   const [settingsView, setSettingsView] =
     React.useState<SettingsView | null>(null)
 
+  const threeColumnWidth = useMediaQuery(threeColumnQuery)
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const settingsArg = params.get('openSettings')
+    if (settingsArg === null) {
+      return
+    }
+    setSettingsView(settingsArg === 'BraveNews' ? 'news' : 'background')
+    history.pushState(null, '', '/')
+  }, [])
+
   return (
     <div data-css-scope={style.scope}>
       <Background />
+      <div className='background-filter allow-background-pointer-events' />
       <div className='top-controls'>
+        <button
+          className='clock'
+          onClick={() => setSettingsView('clock')}
+        >
+          <Clock />
+        </button>
         <button
           className='settings'
           onClick={() => setSettingsView('background')}
@@ -28,11 +55,33 @@ export function App() {
         </button>
       </div>
       <main className='allow-background-pointer-events'>
+        <div className='topsites-container'>
+          <TopSites />
+        </div>
+        <div className='searchbox-container'>
+          <SearchBox
+            onCustomizeSearchEngineList={() => setSettingsView('search')}
+          />
+        </div>
         <div className='spacer allow-background-pointer-events' />
-        <div className='background-caption-container'>
+        <div className='caption-container'>
           <BackgroundCaption />
         </div>
+        <div className='widget-container'>
+          {
+            threeColumnWidth ?
+              <>
+                <WidgetStack name='left' tabs={['stats']} />
+                <WidgetStack name='center' tabs={['news']} />
+              </> :
+              <WidgetStack name='left' tabs={['stats', 'news']} />
+          }
+          <WidgetStack name='right' tabs={['vpn', 'rewards', 'talk']} />
+        </div>
       </main>
+      <div className='news-container'>
+        <NewsFeed />
+      </div>
       <SettingsModal
         isOpen={settingsView !== null}
         initialView={settingsView}

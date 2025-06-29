@@ -12,11 +12,14 @@
 #include <vector>
 
 #include "base/base64.h"
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/span.h"
 #include "base/memory/raw_span.h"
 #include "base/no_destructor.h"
 #include "base/notreached.h"
 #include "base/numerics/byte_conversions.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "base/values.h"
@@ -312,9 +315,11 @@ std::optional<std::string> ParseAndVerifyTextRecordData(
   if (record_item.version == SnsRecordsVersion::kRecordsV1) {
     // https://bonfida.github.io/solana-name-service-guide/registry.html
     // Parse NameRegistry data as a string trimming possible zeros at the end.
-    return std::string(
-        std::string(sol_record_payload.begin(), sol_record_payload.end())
-            .c_str());
+    auto result = base::as_string_view(sol_record_payload);
+    if (auto zero_pos = result.find('\0'); zero_pos != std::string::npos) {
+      result = result.substr(0, zero_pos);
+    }
+    return std::string(result);
   } else if (record_item.version == SnsRecordsVersion::kRecordsV2) {
     auto sns_record_v2 = ParseSnsRecordV2(sol_record_payload);
     if (!sns_record_v2) {
@@ -325,8 +330,11 @@ std::optional<std::string> ParseAndVerifyTextRecordData(
     if (sns_record_v2->staleness_validation_type ==
             SnsRecordV2ValidationType::kSolana &&
         sns_record_v2->staleness_validation_id == domain_owner) {
-      return std::string(sns_record_v2->content.begin(),
-                         sns_record_v2->content.end());
+      auto result = base::as_string_view(sns_record_v2->content);
+      if (auto zero_pos = result.find('\0'); zero_pos != std::string::npos) {
+        result = result.substr(0, zero_pos);
+      }
+      return std::string(result);
     }
     return std::nullopt;
   }

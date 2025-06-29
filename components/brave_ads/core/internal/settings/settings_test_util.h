@@ -9,6 +9,7 @@
 namespace brave_ads::test {
 
 void DisableBraveRewards();
+void DisconnectExternalBraveRewardsWallet();
 
 void OptOutOfBraveNewsAds();
 
@@ -20,6 +21,8 @@ void SetMaximumNotificationAdsPerHour(int max_ads_per_hour);
 void OptOutOfSearchResultAds();
 
 void OptOutOfAllAds();
+
+void OptOutOfSurveyPanelist();
 
 }  // namespace brave_ads::test
 

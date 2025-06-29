@@ -7,7 +7,7 @@
     Follow your favorite sources, in a single feed. Just open a tab in Brave, scroll down, and… voila!
   </message>
   <message name="IDS_BRAVE_NEWS_INTRO_DESCRIPTION_TWO" desc="Description second paragraph for introduction to Brave News news feed section. Do not translate the title Brave News.">
-    Brave News is ad-supported with private, anonymized ads. <ph name="LINK_START">$1<ex>{</ex></ph>Learn more.<ph name="LINK_END">$2<ex>}</ex></ph>.
+    Brave News is ad-supported with private, anonymized ads. <ph name="LINK_START">$1</ph>Learn more.<ph name="LINK_END">$1</ph>.
   </message>
   <message name="IDS_BRAVE_NEWS_OPT_IN_ACTION_LABEL" desc="Button text for opting in to Brave News">
     Turn on Brave News
@@ -15,11 +15,17 @@
   <message name="IDS_BRAVE_NEWS_OPT_OUT_ACTION_LABEL" desc="Button text for opting out of Brave News">
     No thanks
   </message>
+  <message name="IDS_BRAVE_NEWS_SETTINGS_TITLE" desc="Title for the News settings dialog">
+    Brave News
+  </message>
   <message name="IDS_BRAVE_NEWS_BACK_TO_DASHBOARD" desc="Label for the back to dashboard button">
     Back to <ph name="BEGIN_BOLD">$1</ph>Dashboard<ph name="END_BOLD">$2</ph>
   </message>
   <message name="IDS_BRAVE_NEWS_BACK_BUTTON" desc="Label for the back button">
     Back
+  </message>
+  <message name="IDS_BRAVE_NEWS_DISCOVER_TITLE" desc="Title for the discover section in News settings">
+    Discover
   </message>
   <message name="IDS_BRAVE_NEWS_SEARCH_PLACEHOLDER_LABEL" desc="Label that displays in the searchbox when the user hasn't entered anything">
     Search for site, topic, or RSS feed

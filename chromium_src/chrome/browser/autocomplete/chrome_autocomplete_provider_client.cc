@@ -5,6 +5,8 @@
 
 #include "src/chrome/browser/autocomplete/chrome_autocomplete_provider_client.cc"
 
+#include "base/check.h"
+#include "base/strings/utf_string_conversions.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ai_chat/ai_chat_urls.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
@@ -16,13 +18,14 @@
 #include "brave/components/commander/common/buildflags/buildflags.h"
 #include "build/build_config.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/base/page_transition_types.h"
 #include "ui/base/window_open_disposition.h"
 
 #if !BUILDFLAG(IS_ANDROID)
-#include "brave/browser/brave_browser_process.h"
-#include "brave/browser/misc_metrics/process_misc_metrics.h"
+#include "brave/browser/misc_metrics/profile_misc_metrics_service.h"
+#include "brave/browser/misc_metrics/profile_misc_metrics_service_factory.h"
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/sidebar/sidebar_controller.h"
 #include "chrome/browser/ui/omnibox/clipboard_utils.h"
@@ -90,8 +93,7 @@ void ChromeAutocompleteProviderClient::OpenLeo(const std::u16string& query) {
     conversation_handler->MaybeUnlinkAssociatedContent();
 
     // Activate the panel.
-    auto* sidebar_controller =
-        static_cast<BraveBrowser*>(browser)->sidebar_controller();
+    auto* sidebar_controller = browser->GetFeatures().sidebar_controller();
     sidebar_controller->ActivatePanelItem(
         sidebar::SidebarItem::BuiltInItemType::kChatUI);
   }
@@ -109,12 +111,16 @@ void ChromeAutocompleteProviderClient::OpenLeo(const std::u16string& query) {
           std::nullopt /* selected_text */, std::nullopt /* events */,
           base::Time::Now(), std::nullopt /* edits */,
           std::nullopt /* uploaded images */,
-          false /* from_brave_search_SERP */);
+          false /* from_brave_search_SERP */, std::nullopt /* model_key */);
 
-  ai_chat::AIChatMetrics* metrics =
-      g_brave_browser_process->process_misc_metrics()->ai_chat_metrics();
-  CHECK(metrics);
-  metrics->RecordOmniboxOpen();
+  auto* profile_metrics =
+      misc_metrics::ProfileMiscMetricsServiceFactory::GetServiceForContext(
+          profile_);
+  if (profile_metrics) {
+    auto* ai_chat_metrics = profile_metrics->GetAIChatMetrics();
+    CHECK(ai_chat_metrics);
+    ai_chat_metrics->RecordOmniboxOpen();
+  }
 
   conversation_handler->SubmitHumanConversationEntry(std::move(turn));
 #endif

@@ -26,7 +26,7 @@ struct NotificationAdInfo;
 
 namespace bat_ads {
 
-class BatAdsClientMojoBridge : public brave_ads::AdsClient {
+class BatAdsClientMojoBridge final : public brave_ads::AdsClient {
  public:
   explicit BatAdsClientMojoBridge(
       mojo::PendingAssociatedRemote<mojom::BatAdsClient>
@@ -36,10 +36,6 @@ class BatAdsClientMojoBridge : public brave_ads::AdsClient {
 
   BatAdsClientMojoBridge(const BatAdsClientMojoBridge&) = delete;
   BatAdsClientMojoBridge& operator=(const BatAdsClientMojoBridge&) = delete;
-
-  BatAdsClientMojoBridge(BatAdsClientMojoBridge&& other) noexcept = delete;
-  BatAdsClientMojoBridge& operator=(BatAdsClientMojoBridge&& other) noexcept =
-      delete;
 
   ~BatAdsClientMojoBridge() override;
 
@@ -74,12 +70,8 @@ class BatAdsClientMojoBridge : public brave_ads::AdsClient {
                              int version,
                              brave_ads::LoadFileCallback callback) override;
 
-  std::string LoadDataResource(const std::string& name) override;
-
   void ShowScheduledCaptcha(const std::string& payment_id,
                             const std::string& captcha_id) override;
-
-  void RecordP2AEvents(const std::vector<std::string>& events) override;
 
   bool FindProfilePref(const std::string& path) const override;
   std::optional<base::Value> GetProfilePref(const std::string& path) override;

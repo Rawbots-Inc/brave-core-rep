@@ -6,6 +6,7 @@
 #include "brave/components/brave_wallet/common/zcash_utils.h"
 
 #include <algorithm>
+#include <array>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -15,6 +16,7 @@
 #include "base/containers/extend.h"
 #include "base/containers/span.h"
 #include "base/numerics/byte_conversions.h"
+#include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_wallet/common/bech32.h"
 #include "brave/components/brave_wallet/common/btc_like_serializer_stream.h"
 #include "brave/components/brave_wallet/common/encoding_utils.h"
@@ -51,13 +53,13 @@ std::optional<uint64_t> ReadCompactSize(base::span<const uint8_t>& data) {
     value = type;
     data = data.subspan(1u);
   } else if (type == 253 && data.size() >= 3) {
-    value = base::numerics::U16FromBigEndian(data.subspan<1, 2u>());
+    value = base::U16FromBigEndian(data.subspan<1, 2u>());
     data = data.subspan(1u + 2);
   } else if (type <= 254 && data.size() >= 5) {
-    value = base::numerics::U32FromBigEndian(data.subspan<1, 4u>());
+    value = base::U32FromBigEndian(data.subspan<1, 4u>());
     data = data.subspan(1u + 4);
   } else if (data.size() >= 9) {
-    value = base::numerics::U64FromBigEndian(data.subspan<1, 8u>());
+    value = base::U64FromBigEndian(data.subspan<1, 8u>());
     data = data.subspan(1u + 8);
   } else {
     return std::nullopt;

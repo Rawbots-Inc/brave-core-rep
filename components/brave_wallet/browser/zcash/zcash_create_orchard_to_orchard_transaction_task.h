@@ -7,7 +7,7 @@
 #define BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_ZCASH_ZCASH_CREATE_ORCHARD_TO_ORCHARD_TRANSACTION_TASK_H_
 
 #include <string>
-#include <vector>
+#include <variant>
 
 #include "brave/components/brave_wallet/browser/internal/orchard_sync_state.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_action_context.h"
@@ -24,19 +24,18 @@ class ZCashCreateOrchardToOrchardTransactionTask {
       ZCashWalletService::CreateTransactionCallback;
 
   ZCashCreateOrchardToOrchardTransactionTask(
-      absl::variant<
+      std::variant<
           base::PassKey<class ZCashCreateOrchardToOrchardTransactionTaskTest>,
           base::PassKey<ZCashWalletService>> pass_key,
       ZCashWalletService& zcash_wallet_service,
       ZCashActionContext context,
       const OrchardAddrRawPart& receiver,
       std::optional<OrchardMemo> memo,
-      uint64_t amount,
-      ZCashWalletService::CreateTransactionCallback callback);
+      uint64_t amount);
 
   virtual ~ZCashCreateOrchardToOrchardTransactionTask();
 
-  void Start();
+  void Start(CreateTransactionCallback callback);
 
  private:
   void ScheduleWorkOnTask();
@@ -47,9 +46,6 @@ class ZCashCreateOrchardToOrchardTransactionTask {
       base::expected<std::optional<OrchardSyncState::SpendableNotesBundle>,
                      OrchardStorage::Error> result);
   void CreateTransaction();
-
-  void CalculateWitness();
-  void OnWittnessCalculated();
 
   raw_ref<ZCashWalletService> zcash_wallet_service_;
   ZCashActionContext context_;

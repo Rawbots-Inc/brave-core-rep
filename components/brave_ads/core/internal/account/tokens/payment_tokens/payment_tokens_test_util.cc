@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "base/check.h"
 #include "base/check_op.h"
 #include "brave/components/brave_ads/core/internal/account/tokens/payment_tokens/payment_tokens.h"
 #include "brave/components/brave_ads/core/internal/account/transactions/transaction_test_constants.h"
@@ -22,7 +23,7 @@ namespace {
 PaymentTokenInfo BuildPaymentToken(const std::string& payment_token_base64) {
   PaymentTokenInfo payment_token;
 
-  payment_token.transaction_id = test::kTransactionId;
+  payment_token.transaction_id = kTransactionId;
 
   payment_token.unblinded_token = cbr::UnblindedToken(payment_token_base64);
   CHECK(payment_token.unblinded_token.has_value());

@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/resources/settings/privacy_page/personalization_options.ts b/chrome/browser/resources/settings/privacy_page/personalization_options.ts
-index 03e347503a03866b3a95c4087a2471a76a856c3d..417119a3f260064cb22a50bce232007d94ddc245 100644
+index 3ffec6ac9aed4159981d6b0c0af25a917b20e8be..9791135b0fda6adb9a6390033b0eef2b785001df 100644
 --- a/chrome/browser/resources/settings/privacy_page/personalization_options.ts
 +++ b/chrome/browser/resources/settings/privacy_page/personalization_options.ts
-@@ -91,7 +91,7 @@ export class SettingsPersonalizationOptionsElement extends
+@@ -79,7 +79,7 @@ export class SettingsPersonalizationOptionsElement extends
  
        syncStatus: Object,
  
@@ -11,16 +11,16 @@ index 03e347503a03866b3a95c4087a2471a76a856c3d..417119a3f260064cb22a50bce232007d
        // TODO(dbeam): make a virtual.* pref namespace and set/get this normally
        // (but handled differently in C++).
        metricsReportingPref_: {
-@@ -150,7 +150,7 @@ export class SettingsPersonalizationOptionsElement extends
-   focusConfig: FocusConfig;
-   syncStatus: SyncStatus;
+@@ -125,7 +125,7 @@ export class SettingsPersonalizationOptionsElement extends
+   declare pageVisibility: PrivacyPageVisibility;
+   declare syncStatus: SyncStatus;
  
 -  // <if expr="_google_chrome and not chromeos_ash">
 +  // <if expr="not chromeos_ash">
-   private metricsReportingPref_: chrome.settingsPrivate.PrefObject<boolean>;
-   private showRestart_: boolean;
-   // </if>
-@@ -192,7 +192,7 @@ export class SettingsPersonalizationOptionsElement extends
+   declare private metricsReportingPref_:
+       chrome.settingsPrivate.PrefObject<boolean>;
+   declare private showRestart_: boolean;
+@@ -165,7 +165,7 @@ export class SettingsPersonalizationOptionsElement extends
    override ready() {
      super.ready();
  
@@ -29,7 +29,7 @@ index 03e347503a03866b3a95c4087a2471a76a856c3d..417119a3f260064cb22a50bce232007d
      const setMetricsReportingPref = (metricsReporting: MetricsReporting) =>
          this.setMetricsReportingPref_(metricsReporting);
      this.addWebUiListener('metrics-reporting-change', setMetricsReportingPref);
-@@ -207,9 +207,11 @@ export class SettingsPersonalizationOptionsElement extends
+@@ -180,9 +180,11 @@ export class SettingsPersonalizationOptionsElement extends
          this.setChromeSigninUserChoiceInfo_.bind(this));
      // </if>
  
@@ -41,7 +41,7 @@ index 03e347503a03866b3a95c4087a2471a76a856c3d..417119a3f260064cb22a50bce232007d
    }
  
    // <if expr="chromeos_ash">
-@@ -230,7 +232,7 @@ export class SettingsPersonalizationOptionsElement extends
+@@ -203,7 +205,7 @@ export class SettingsPersonalizationOptionsElement extends
    }
    // </if>
  

@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import Foundation
+import Web
 import WebKit
 
 class CustomSearchScriptHandler: TabContentScript {
@@ -27,7 +28,7 @@ class CustomSearchScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {

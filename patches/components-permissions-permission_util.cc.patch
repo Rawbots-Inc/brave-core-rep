@@ -1,9 +1,25 @@
 diff --git a/components/permissions/permission_util.cc b/components/permissions/permission_util.cc
-index ce926b9da23df5dc9b36a447755c9251dac0c95b..acbf74733270a0bfee920c00f8a367a2b4a3d801 100644
+index b379cc24f772260ea360779b26ca0836d21c89c4..f9960d6f4954b541aae87a94d53ba21d394a32b3 100644
 --- a/components/permissions/permission_util.cc
 +++ b/components/permissions/permission_util.cc
-@@ -386,6 +386,7 @@ ContentSettingsType PermissionUtil::PermissionTypeToContentSettingsTypeSafe(
-       return ContentSettingsType::WEB_APP_INSTALLATION;
+@@ -112,6 +112,7 @@ RequestTypeForUma PermissionUtil::GetUmaValueForRequests(
+   if (requests.size() == 1) {
+     return GetUmaValueForRequestType(request_type);
+   }
++  BRAVE_GET_UMA_VALUE_FOR_REQUESTS
+   return permissions::GetUmaValueForRequests(request_type);
+ }
+ 
+@@ -210,6 +211,7 @@ RequestTypeForUma PermissionUtil::GetUmaValueForRequestType(
+ #endif
+     case RequestType::kIdentityProvider:
+       return RequestTypeForUma::PERMISSION_IDENTITY_PROVIDER;
++    BRAVE_GET_UMA_VALUE_FOR_REQUEST_TYPE
+   }
+ }
+ 
+@@ -522,6 +524,7 @@ ContentSettingsType PermissionUtil::PermissionTypeToContentSettingsTypeSafe(
+       return ContentSettingsType::LOCAL_NETWORK_ACCESS;
      case PermissionType::NUM:
        break;
 +    PERMISSION_UTIL_PERMISSION_TYPE_TO_CONTENT_SETTINGS_TYPE

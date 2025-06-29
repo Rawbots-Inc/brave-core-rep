@@ -9,13 +9,16 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 
+#include "base/check.h"
 #include "base/check_is_test.h"
 #include "base/feature_list.h"
 #include "base/functional/bind.h"
 #include "base/json/json_writer.h"
 #include "base/no_destructor.h"
 #include "base/strings/strcat.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/browser/brave_browser_process.h"
@@ -23,7 +26,6 @@
 #include "brave/browser/speedreader/speedreader_service_factory.h"
 #include "brave/browser/ui/page_action/brave_page_action_icon_type.h"
 #include "brave/browser/ui/speedreader/speedreader_bubble_view.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/speedreader/common/features.h"
 #include "brave/components/speedreader/speedreader_extended_info_handler.h"
 #include "brave/components/speedreader/speedreader_rewriter_service.h"
@@ -39,6 +41,7 @@
 #include "content/public/browser/reload_type.h"
 #include "content/public/browser/web_contents.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/resource/resource_bundle.h"
 
 #if !BUILDFLAG(IS_ANDROID)
@@ -58,7 +61,7 @@ std::u16string GetSpeedreaderData(
   base::Value::Dict sr_data;
   sr_data.Set("ttsEnabled", kSpeedreaderTTS.Get());
   for (const auto& r : resources) {
-    sr_data.Set(r.first, brave_l10n::GetLocalizedResourceUTF16String(r.second));
+    sr_data.Set(r.first, l10n_util::GetStringUTF16(r.second));
   }
 
   return base::StrCat(
@@ -138,7 +141,7 @@ base::WeakPtr<SpeedreaderTabHelper> SpeedreaderTabHelper::GetWeakPtr() {
 
 void SpeedreaderTabHelper::ProcessIconClick() {
   if (DistillStates::IsViewOriginal(distill_state_)) {
-    const auto& vo = absl::get<DistillStates::ViewOriginal>(distill_state_);
+    const auto& vo = std::get<DistillStates::ViewOriginal>(distill_state_);
     if (!vo.was_auto_distilled ||
         !GetSpeedreaderService()->IsEnabledForSite(web_contents())) {
       GetDistilledHTML(

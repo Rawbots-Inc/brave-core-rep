@@ -18,6 +18,7 @@
 #include "brave/browser/ntp_background/brave_ntp_custom_background_service_factory.h"
 #include "brave/browser/ntp_background/ntp_p3a_helper_impl.h"
 #include "brave/browser/ui/brave_ui_features.h"
+#include "brave/browser/ui/webui/brave_new_tab_page_refresh/new_tab_page_initializer.h"
 #include "brave/browser/ui/webui/brave_webui_source.h"
 #include "brave/browser/ui/webui/new_tab_page/brave_new_tab_message_handler.h"
 #include "brave/browser/ui/webui/new_tab_page/brave_new_tab_page_handler.h"
@@ -27,16 +28,19 @@
 #include "brave/components/brave_news/browser/brave_news_controller.h"
 #include "brave/components/brave_news/common/features.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/country_code_util.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/misc_metrics/new_tab_metrics.h"
 #include "brave/components/ntp_background_images/browser/ntp_custom_images_source.h"
 #include "brave/components/ntp_background_images/browser/ntp_sponsored_rich_media_ad_event_handler.h"
+#include "brave/components/ntp_background_images/browser/view_counter_service.h"
+#include "brave/components/ntp_background_images/common/url_constants.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/browser/themes/theme_syncable_service.h"
 #include "chrome/browser/ui/webui/sanitized_image_source.h"
+#include "chrome/common/pref_names.h"
+#include "components/country_codes/country_codes.h"
 #include "components/grit/brave_components_resources.h"
+#include "components/prefs/pref_service.h"
 #include "components/strings/grit/components_strings.h"
 #include "content/public/browser/navigation_entry.h"
 #include "content/public/browser/url_data_source.h"
@@ -44,6 +48,7 @@
 #include "content/public/browser/web_ui_data_source.h"
 #include "content/public/common/url_constants.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/webui/resources/cr_components/searchbox/searchbox.mojom.h"
 
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
@@ -54,36 +59,17 @@
 
 using ntp_background_images::NTPCustomImagesSource;
 
-namespace {
-
-std::string GetSearchWidgetDefaultHost(PrefService* local_state) {
-  constexpr char kBraveSearchHost[] = "search.brave.com";
-  constexpr char kYahooSearchHost[] = "search.yahoo.co.jp";
-  if (!local_state) {
-    CHECK_IS_TEST();
-    return kBraveSearchHost;
-  }
-
-  if (brave_l10n::GetCountryCode(local_state) == "JP") {
-    return kYahooSearchHost;
-  }
-
-  return kBraveSearchHost;
-}
-
-}  // namespace
-
-BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
-                             const std::string& name,
-                             brave_ads::AdsService* ads_service,
-                             PrefService* local_state,
-                             p3a::P3AService* p3a_service,
-                             ntp_background_images::NTPBackgroundImagesService*
-                                 ntp_background_images_service)
+BraveNewTabUI::BraveNewTabUI(
+    content::WebUI* web_ui,
+    const std::string& name,
+    brave_ads::AdsService* ads_service,
+    ntp_background_images::ViewCounterService* view_counter_service,
+    regional_capabilities::RegionalCapabilitiesService* regional_capabilities)
     : ui::MojoWebUIController(
           web_ui,
           true /* Needed for legacy non-mojom message handler */),
-      page_factory_receiver_(this) {
+      page_factory_receiver_(this),
+      regional_capabilities_(regional_capabilities) {
   content::WebContents* web_contents = web_ui->GetWebContents();
   CHECK(web_contents);
 
@@ -93,8 +79,7 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
       navigation_entry ? navigation_entry->IsRestored() : false;
 
   Profile* profile = Profile::FromWebUI(web_ui);
-  web_ui->OverrideTitle(
-      brave_l10n::GetLocalizedResourceUTF16String(IDS_NEW_TAB_TITLE));
+  web_ui->OverrideTitle(l10n_util::GetStringUTF16(IDS_NEW_TAB_TITLE));
 
   if (brave::ShouldNewTabShowBlankpage(profile)) {
     content::WebUIDataSource* source =
@@ -123,10 +108,9 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
       "trusted-types static-types lottie-worker-script-loader lit-html-desktop "
       "default; ");
 
-  source->AddBoolean(
-      "featureCustomBackgroundEnabled",
-      !profile->GetPrefs()->IsManagedPreference(GetThemePrefNameInMigration(
-          ThemePrefInMigration::kNtpCustomBackgroundDict)));
+  source->AddBoolean("featureCustomBackgroundEnabled",
+                     !profile->GetPrefs()->IsManagedPreference(
+                         prefs::kNtpCustomBackgroundDict));
 
   // Let frontend know about feature flags
   source->AddBoolean("featureFlagBraveNewsPromptEnabled",
@@ -140,8 +124,12 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
   source->AddBoolean(
       "featureFlagSearchWidget",
       base::FeatureList::IsEnabled(features::kBraveNtpSearchWidget));
-  source->AddString("searchWidgetDefaultHost",
-                    GetSearchWidgetDefaultHost(local_state));
+  source->AddString(
+      "searchWidgetDefaultHost",
+      brave_new_tab_page_refresh::GetSearchDefaultHost(regional_capabilities_));
+
+  source->AddString("newTabTakeoverLearnMoreLinkUrl",
+                    ntp_background_images::kNewTabTakeoverLearnMoreLinkUrl);
 
   source->AddBoolean("vpnWidgetSupported",
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
@@ -170,15 +158,13 @@ BraveNewTabUI::BraveNewTabUI(content::WebUI* web_ui,
   source->AddString("ntpNewTabTakeoverRichMediaUrl",
                     kNTPNewTabTakeoverRichMediaUrl);
 
-  std::unique_ptr<ntp_background_images::NTPP3AHelperImpl> ntp_p3a_helper;
-  if (g_brave_browser_process->p3a_service() != nullptr) {
-    ntp_p3a_helper = std::make_unique<ntp_background_images::NTPP3AHelperImpl>(
-        local_state, p3a_service, ntp_background_images_service,
-        profile->GetPrefs());
+  ntp_background_images::NTPP3AHelper* ntp_p3a_helper = nullptr;
+  if (view_counter_service != nullptr) {
+    ntp_p3a_helper = view_counter_service->GetP3AHelper();
   }
   rich_media_ad_event_handler_ = std::make_unique<
       ntp_background_images::NTPSponsoredRichMediaAdEventHandler>(
-      ads_service, std::move(ntp_p3a_helper));
+      ads_service, ntp_p3a_helper);
 
   // Add a SanitizedImageSource to allow fetching images for Brave News.
   content::URLDataSource::Add(profile,

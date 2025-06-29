@@ -19,8 +19,8 @@ import Preferences
 import Shared
 import Static
 import SwiftUI
-import SwiftyJSON
 import UIKit
+import Web
 import WebKit
 
 extension TabBarVisibility: RepresentableOptionType {
@@ -47,6 +47,10 @@ extension Preferences.AutoCloseTabsOption: RepresentableOptionType {
 protocol SettingsDelegate: AnyObject {
   func settingsOpenURLInNewTab(_ url: URL)
   func settingsOpenURLs(_ urls: [URL], loadImmediately: Bool)
+
+  func settingsCreateFakeTabs()
+  func settingsCreateFakeBookmarks()
+  func settingsCreateFakeHistory()
 }
 
 class SettingsViewController: TableViewController {
@@ -56,7 +60,7 @@ class SettingsViewController: TableViewController {
   private let tabManager: TabManager
   private let rewards: BraveRewards?
   private let feedDataSource: FeedDataSource
-  private let braveCore: BraveCoreMain
+  private let braveCore: BraveProfileController
   private let historyAPI: BraveHistoryAPI
   private let passwordAPI: BravePasswordAPI
   private let syncAPI: BraveSyncAPI
@@ -84,7 +88,8 @@ class SettingsViewController: TableViewController {
     feedDataSource: FeedDataSource,
     rewards: BraveRewards? = nil,
     windowProtection: WindowProtection?,
-    braveCore: BraveCoreMain,
+    p3aUtils: BraveP3AUtils,
+    braveCore: BraveProfileController,
     attributionManager: AttributionManager,
     keyringStore: KeyringStore? = nil,
     cryptoStore: CryptoStore? = nil
@@ -99,7 +104,7 @@ class SettingsViewController: TableViewController {
     self.passwordAPI = braveCore.passwordAPI
     self.syncAPI = braveCore.syncAPI
     self.syncProfileServices = braveCore.syncProfileService
-    self.p3aUtilities = braveCore.p3aUtils
+    self.p3aUtilities = p3aUtils
     self.deAmpPrefs = braveCore.deAmpPrefs
     self.attributionManager = attributionManager
     self.keyringStore = keyringStore
@@ -257,6 +262,9 @@ class SettingsViewController: TableViewController {
                   self.settingsDelegate?.settingsOpenURLInNewTab(url)
                   self.dismiss(animated: true)
                 },
+                dismiss: { [unowned self] in
+                  self.navigationController?.popViewController(animated: true)
+                },
                 onDismiss: { [weak self] in
                   self?.navigationController?.setNavigationBarHidden(false, animated: false)
                 }
@@ -289,6 +297,7 @@ class SettingsViewController: TableViewController {
                   feedDataSource: self.feedDataSource,
                   debounceService: DebounceServiceFactory.get(privateMode: false),
                   braveCore: braveCore,
+                  p3aUtils: p3aUtilities,
                   rewards: rewards,
                   webcompatReporterHandler: WebcompatReporter.ServiceFactory.get(
                     privateMode: false
@@ -339,15 +348,7 @@ class SettingsViewController: TableViewController {
         Row(
           text: Strings.braveRewardsSettingsTitle,
           selection: { [unowned self] in
-            let rewardsVC = BraveRewardsSettingsViewController(rewards)
-            rewardsVC.walletTransferLearnMoreTapped = { [weak self] in
-              guard let self = self else { return }
-              self.dismiss(animated: true) {
-                self.presentingViewController?.dismiss(animated: true) {
-                  self.settingsDelegate?.settingsOpenURLInNewTab(.brave.rewardsOniOS)
-                }
-              }
-            }
+            let rewardsVC = BraveRewardsSettingsViewController(rewards: rewards)
             self.navigationController?.pushViewController(rewardsVC, animated: true)
           },
           image: UIImage(braveSystemNamed: "leo.product.bat-outline"),
@@ -485,26 +486,41 @@ class SettingsViewController: TableViewController {
       ]
     )
 
+    let defaultHostContentSettings = braveCore.defaultHostContentSettings
     if UIDevice.isIpad {
+      let defaultPageModeSwitch = SwitchAccessoryView(
+        initialValue: defaultHostContentSettings.defaultPageMode == .desktop,
+        valueChange: { value in
+          defaultHostContentSettings.defaultPageMode = value ? .desktop : .mobile
+        }
+      )
       general.rows.append(
-        .boolRow(
-          title: Strings.alwaysRequestDesktopSite,
-          option: Preferences.UserAgent.alwaysRequestDesktopSite,
-          image: UIImage(braveSystemNamed: "leo.window.cursor")
+        Row(
+          text: Strings.alwaysRequestDesktopSite,
+          image: UIImage(braveSystemNamed: "leo.window.cursor"),
+          accessory: .view(defaultPageModeSwitch),
+          cellClass: MultilineSubtitleCell.self
         )
       )
     }
 
+    let blockPopupsSwitch = SwitchAccessoryView(
+      initialValue: !defaultHostContentSettings.popupsAllowed,
+      valueChange: { value in
+        defaultHostContentSettings.popupsAllowed = !value
+      }
+    )
     general.rows.append(contentsOf: [
       .boolRow(
         title: Strings.enablePullToRefresh,
         option: Preferences.General.enablePullToRefresh,
         image: UIImage(braveSystemNamed: "leo.browser.refresh")
       ),
-      .boolRow(
-        title: Strings.blockPopups,
-        option: Preferences.General.blockPopups,
-        image: UIImage(braveSystemNamed: "leo.shield.block")
+      Row(
+        text: Strings.blockPopups,
+        image: UIImage(braveSystemNamed: "leo.shield.block"),
+        accessory: .view(blockPopupsSwitch),
+        cellClass: MultilineSubtitleCell.self
       ),
     ])
 
@@ -716,7 +732,15 @@ class SettingsViewController: TableViewController {
         text: Strings.NTP.settingsTitle,
         selection: { [unowned self] in
           self.navigationController?.pushViewController(
-            NTPTableViewController(rewards),
+            NTPTableViewController(
+              rewards: rewards,
+              linkTapped: { [unowned self] request in
+                self.tabManager.addTabAndSelect(
+                  request,
+                  isPrivate: false
+                )
+              }
+            ),
             animated: true
           )
         },
@@ -1138,23 +1162,44 @@ class SettingsViewController: TableViewController {
         Row(
           text: "Load all QA Links",
           selection: { [unowned self] in
-            let url = URL(
-              string: "https://raw.githubusercontent.com/brave/qa-resources/master/testlinks.json"
-            )!
-            let string = try? String(contentsOf: url)
-            let urls = JSON(parseJSON: string!)["links"].arrayValue.compactMap {
-              URL(string: $0.stringValue)
+            struct Links: Decodable {
+              var links: [String]
             }
-            self.settingsDelegate?.settingsOpenURLs(urls, loadImmediately: false)
-            self.dismiss(animated: true)
+            Task.detached {
+              let url = URL(
+                string: "https://raw.githubusercontent.com/brave/qa-resources/master/testlinks.json"
+              )!
+              let data = try Data(contentsOf: url)
+              let links = try JSONDecoder().decode(Links.self, from: data)
+              let urls = links.links.compactMap(URL.init)
+              await MainActor.run {
+                self.settingsDelegate?.settingsOpenURLs(urls, loadImmediately: false)
+                self.dismiss(animated: true)
+              }
+            }
           },
           cellClass: MultilineButtonCell.self
         ),
         Row(
           text: "Create 1000 Tabs",
           selection: { [unowned self] in
-            let urls = (0..<1000).map { URL(string: "https://search.brave.com/search?q=\($0)")! }
-            self.settingsDelegate?.settingsOpenURLs(urls, loadImmediately: false)
+            self.settingsDelegate?.settingsCreateFakeTabs()
+            self.dismiss(animated: true)
+          },
+          cellClass: ButtonCell.self
+        ),
+        Row(
+          text: "Create 1000 Bookmark Entries",
+          selection: { [unowned self] in
+            self.settingsDelegate?.settingsCreateFakeBookmarks()
+            self.dismiss(animated: true)
+          },
+          cellClass: ButtonCell.self
+        ),
+        Row(
+          text: "Create 1000 History Entries",
+          selection: { [unowned self] in
+            self.settingsDelegate?.settingsCreateFakeHistory()
             self.dismiss(animated: true)
           },
           cellClass: ButtonCell.self

@@ -9,6 +9,8 @@
 #include <string>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_transaction.h"
 #include "brave/components/brave_wallet/common/zcash_utils.h"
@@ -39,8 +41,8 @@ mojom::ZecTxDataPtr ToZecTxData(const std::string& chain_id,
   bool use_shielded_pool = !tx.orchard_part().inputs.empty();
   DCHECK(!use_shielded_pool || tx.transparent_part().inputs.empty());
   return mojom::ZecTxData::New(
-      use_shielded_pool, tx.to(), OrchardMemoToVec(tx.memo()), tx.amount(),
-      tx.fee(), std::move(mojom_inputs), std::move(mojom_outputs));
+      use_shielded_pool, tx.to(), false, OrchardMemoToVec(tx.memo()),
+      tx.amount(), tx.fee(), std::move(mojom_inputs), std::move(mojom_outputs));
 }
 }  // namespace
 

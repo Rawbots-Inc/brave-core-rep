@@ -31,14 +31,15 @@ def UpdateSha1(path: str):
 
 def DownloadFileFromCloudStorage(folder: CloudFolder, sha1: str, output: str):
   assert perf_test_utils.IsSha1Hash(sha1)
-  url = f'{_CLOUD_HTTPS_URL}/{folder}/{sha1}'
+  url = f'{_CLOUD_HTTPS_URL}/{folder.value}/{sha1}'
   perf_test_utils.DownloadFile(url, output)
 
 
 def UploadFileToCloudStorage(folder: CloudFolder, path: str):
   sha1 = UpdateSha1(path)
 
-  s3_url = f's3://{_CLOUD_BUCKET}/{folder}/{sha1}'
+  s3_url = f's3://{_CLOUD_BUCKET}/{folder.value}/{sha1}'
+  print(f'Uploading {path} to {s3_url}')
   success, _ = perf_test_utils.GetProcessOutput(
       ['aws', 's3', 'cp', path, s3_url, '--sse', 'AES256'], timeout=10 * 60)
   if not success:

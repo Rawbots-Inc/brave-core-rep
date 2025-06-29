@@ -25,14 +25,14 @@ TEST_F(BraveAdsRewardCredentialJsonWriterTest, WriteRewardCredential) {
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
   const RewardInfo reward = test::BuildReward(*confirmation);
 
   // Act
-  const std::optional<std::string> reward_credential =
+  std::optional<std::string> reward_credential =
       json::writer::WriteRewardCredential(
           reward,
           /*payload=*/"definition: the weight of a payload");
@@ -40,11 +40,11 @@ TEST_F(BraveAdsRewardCredentialJsonWriterTest, WriteRewardCredential) {
 
   // Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "signature": "XsaQ/XqKiWfeTCjFDhkyldsx0086qu6tjgJDCKo+f7kA0eA+mdf3Ae+BjPcDDQ8JfVbVQkI5ub394qdTmE2bRw==",
                       "t": "PLowz2WF2eGD5zfwZjk9p76HXBLDKMq/3EAZHeG/fE2XGQ48jyte+Ve50ZlasOuYL5mwA8CU2aFMlJrt3DDgCw=="
-                    })"),
+                    })JSON"),
             base::test::ParseJsonDict(*reward_credential));
 }
 

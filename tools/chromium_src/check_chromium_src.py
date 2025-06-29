@@ -23,7 +23,7 @@ import argparse
 import re
 import os
 import sys
-
+import brave_chromium_utils
 # Look for potential problems in chromium_src overrides.
 
 BRAVE_SRC = os.path.abspath(
@@ -165,7 +165,7 @@ class ChromiumSrcOverridesChecker:
 
     def do_check_includes(self, override_filepath, original_is_in_gen):
         """
-        Checks if |override_filepath| uses relative includes and also checks
+        Checks if |override_filepath| uses relative includes and also checks <>,
         src/ and ../gen-prefixed includes for naming consistency between the
         original and the override.
         """
@@ -175,29 +175,42 @@ class ChromiumSrcOverridesChecker:
             display_override_filepath = os.path.join('chromium_src',
                                                      override_filepath)
             override_filename = os.path.basename(override_filepath)
-            regexp = r'^#include "src/(.*)"'
+            regexp = r"""
+                ^\#include\s
+                (?:
+                    # 1. Double quoted include starting with src/
+                    "src/(.*)"
+                    # 2. Angle brackets include <...> for source files
+                    |<(.*\.(?:c|cc|cpp|m|mm))>
+                    # 3. Angle brackets include <...> for header files followed
+                    # by `// IWYU pragma: export`
+                    |<(.*\.h)>\s*//\ IWYU\ pragma:\ export
+                )
+            """
             gen_regexp = r'^#include "\.\./gen/(.*)"'
             rel_regexp = rf'^#include "(\.\./.*{override_filename})"'
 
             for line in override_file:
                 # Check src/-prefixed includes
-                line_match = re.search(regexp, line)
+                line_match = re.search(regexp, line, re.VERBOSE)
                 if line_match:
+                    line_match_path = line_match.group(1) or line_match.group(
+                        2) or line_match.group(3)
                     if original_is_in_gen:
                         self.AddError(
                             f"  {display_override_filepath} overrides a " +
-                            "generated source file, but uses a src/-prefixed " +
-                            "include.\n  A ../gen/-prefixed include should " +
-                            "be used instead.")
-                    elif line_match.group(1) != normalized_override_filepath:
+                            "generated source file, but does not use a " +
+                            "../gen/-prefixed include.\n  A ../gen/-prefixed "
+                            + "include should be used instead.")
+                    elif line_match_path != normalized_override_filepath:
                         # Check for v8 overrides, they can have includes
                         # starting with src.
                         if normalized_override_filepath.startswith("v8/src"):
                             continue
                         self.AddError(
                             f"  {display_override_filepath} uses a " +
-                            "src/-prefixed include that doesn't point to " +
-                            "the expected file:\n" + f"  Include: {line}" +
+                            "src/-prefixed or <> include that doesn't point " +
+                            "to the expected file:\n" + f"  Include: {line}" +
                             "  Expected include target: src/" +
                             f"{normalized_override_filepath}")
                     continue
@@ -247,8 +260,19 @@ class ChromiumSrcOverridesChecker:
                 # Found #undef of the target
                 found['undef'] = (found['def_position'] >= 0
                                   and match.start() > found['def_position'])
-            else:
-                # Found internal use of the target
+            elif re.fullmatch(r'^[A-Z0-9]+(?:_[A-Z0-9]+)*$', target):
+                # Flag as found in the override file.
+                # As can be noticed in the regex above, only SHOUTY_CASE
+                # defines are considered for this check. This is an incidental
+                # assumption that anything named as SHOUTY_CASE is a macro that
+                # could either occur in the override file or in the original.
+                # When it comes to all the other defines, we assume they are
+                # actual references to symbols in the original file.
+                # To summarise, a SHOUTY_CASE define appearing in the override
+                # file means that it could be consumed internally. A non
+                # SHOUTY_CASE define appearing in the override file is
+                # expected, and should be ignored, as it still has to appear
+                # in the original file.
                 found['other'] = True
 
         display_override_filepath = os.path.join('chromium_src',
@@ -318,7 +342,8 @@ class ChromiumSrcOverridesChecker:
                 # Report ERROR if target can't be found in the original file.
                 with open(original_filepath, mode='r', encoding='utf-8') as \
                     original_file:
-                    if target not in strip_comments(original_file.read()):
+                    if not re.search(rf"\b{re.escape(target)}\b",
+                                     strip_comments(original_file.read())):
                         display_override_filepath = os.path.join(
                             'chromium_src', override_filepath)
                         if not used_internally:
@@ -349,7 +374,14 @@ class ChromiumSrcOverridesChecker:
             display_override_filepath = os.path.join('chromium_src',
                                                      override_filepath)
             if not os.path.isfile(original_filepath):
-                if self.gen_buildir is None:
+                additional_extensions = (
+                    brave_chromium_utils.get_additional_extensions())
+                if any(
+                        override_filepath.endswith(ext)
+                        and os.path.isfile(original_filepath.replace(ext, ''))
+                        for ext in additional_extensions):
+                    original_filepath_found = True
+                elif self.gen_buildir is None:
                     # When invoked from presubmit there's no gen_dir, so we can
                     # try to at least check that the include in the override is
                     # consistent with overriding a generated file.

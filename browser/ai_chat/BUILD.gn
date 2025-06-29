@@ -54,11 +54,56 @@ static_library("ai_chat") {
   }
 }
 
+if (enable_print_preview) {
+  source_set("print_preview_extractor") {
+    sources = [
+      "print_preview_extractor.cc",
+      "print_preview_extractor.h",
+    ]
+    deps = [
+      "//base",
+      "//brave/components/ai_chat/content/browser",
+      "//content/public/browser",
+      "//printing/buildflags",
+    ]
+  }
+
+  source_set("print_preview_extractor_internal") {
+    visibility = [
+      "//brave/browser/ai_chat:unit_tests",
+      "//chrome/browser",
+    ]
+    sources = [
+      "print_preview_extractor_internal.cc",
+      "print_preview_extractor_internal.h",
+    ]
+    deps = [
+      "//brave/browser/ai_chat:print_preview_extractor",
+      "//brave/components/ai_chat/content/browser",
+      "//brave/components/ai_chat/core/browser",
+      "//brave/components/text_recognition/common/buildflags",
+      "//chrome/browser/pdf",
+      "//chrome/browser/pdf:pdf_pref_names",
+      "//chrome/browser/profiles",
+      "//chrome/common:constants",
+      "//chrome/services/printing/public/mojom",
+      "//components/pdf/browser",
+      "//components/prefs",
+      "//components/printing/browser",
+      "//components/printing/common:mojo_interfaces",
+      "//components/services/print_compositor/public/mojom",
+      "//pdf:buildflags",
+      "//pdf:features",
+    ]
+  }
+}
+
 source_set("unit_tests") {
   testonly = true
   sources = [
     "ai_chat_throttle_unittest.cc",
     "brave_open_ai_chat_permission_context_unittest.cc",
+    "full_screenshotter_unittest.cc",
     "upload_file_helper_unittest.cc",
   ]
 
@@ -72,11 +117,25 @@ source_set("unit_tests") {
     "//brave/components/constants",
     "//chrome/common",
     "//chrome/test:test_support",
+    "//components/paint_preview/common/mojom",
+    "//components/services/paint_preview_compositor/public/mojom",
     "//content/public/browser",
     "//content/test:test_support",
     "//testing/gtest",
     "//url",
   ]
+
+  if (enable_print_preview) {
+    sources += [ "print_preview_extractor_unittest.cc" ]
+    deps += [
+      "//brave/browser/ai_chat:print_preview_extractor",
+      "//brave/browser/ai_chat:print_preview_extractor_internal",
+      "//brave/components/ai_chat/core/browser",
+      "//brave/components/text_recognition/common/buildflags",
+      "//chrome/services/printing/public/mojom",
+      "//components/printing/browser",
+    ]
+  }
 }
 
 source_set("browser_tests") {
@@ -99,6 +158,7 @@ source_set("browser_tests") {
       "//brave/app:generate_command_metadata",
       "//brave/browser/ai_chat",
       "//brave/browser/misc_metrics",
+      "//brave/browser/ui/sidebar",
       "//brave/components/ai_chat/content/browser",
       "//brave/components/ai_chat/core/browser",
       "//brave/components/ai_chat/core/browser:test_support",
@@ -109,6 +169,7 @@ source_set("browser_tests") {
       "//brave/components/sidebar/browser",
       "//brave/components/text_recognition/common/buildflags",
       "//chrome/browser",
+      "//chrome/browser/pdf:pdf_extension_test_utils",
       "//chrome/browser/screen_ai:screen_ai_install_state",
       "//chrome/browser/ui/browser_window",
       "//chrome/test:test_support",
@@ -124,5 +185,15 @@ source_set("browser_tests") {
       ]
       deps += [ "//printing:test_support" ]
     }
+
+    data = [
+      "//brave/test/data/ai_chat/initial.xml",
+      "//brave/test/data/ai_chat/navigated.xml",
+      "//brave/test/data/ai_chat/youtube.html",
+      "//brave/test/data/ai_chat/youtube-fallback.html",
+      "//brave/test/data/ai_chat/youtubei/v1/player_dir/default.json",
+      "//brave/test/data/ai_chat/youtubei/v1/player_dir/video_id_001.json",
+      "//brave/test/data/ai_chat/youtubei/v1/player_dir/video_id_002.json",
+    ]
   }
 }

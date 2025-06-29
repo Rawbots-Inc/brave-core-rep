@@ -14,6 +14,7 @@
 
 #include "base/callback_list.h"
 #include "base/containers/flat_map.h"
+#include "base/gtest_prod_util.h"
 #include "base/memory/raw_ref.h"
 #include "base/memory/ref_counted.h"
 #include "base/metrics/histogram_base.h"
@@ -21,6 +22,7 @@
 #include "brave/components/p3a/message_manager.h"
 #include "brave/components/p3a/metric_log_type.h"
 #include "brave/components/p3a/p3a_config.h"
+#include "brave/components/p3a/remote_config_manager.h"
 #include "components/prefs/pref_change_registrar.h"
 
 class PrefRegistrySimple;
@@ -41,7 +43,8 @@ struct P3AConfig;
 // P3AMessageManager.
 // TODO(iefremov): It should be possible to get rid of refcounted here.
 class P3AService : public base::RefCountedThreadSafe<P3AService>,
-                   public MessageManager::Delegate {
+                   public MessageManager::Delegate,
+                   public RemoteConfigManager::Delegate {
  public:
   P3AService(PrefService& local_state,
              std::string channel,
@@ -68,26 +71,15 @@ class P3AService : public base::RefCountedThreadSafe<P3AService>,
                              MetricLogType log_type,
                              bool should_be_on_ui_thread = true);
   void RemoveDynamicMetric(const std::string& histogram_name);
-  // Updates the metric value for a single upload format (JSON or
-  // Constellation). This method is required by NTP/creative metrics; the
-  // differing rotation schedules between upload formats require that the
-  // differing values are recorded for each format.
-  // TODO(djandries): this method should be removed once JSON reporting is fully
-  // removed
-  void UpdateMetricValueForSingleFormat(const std::string& histogram_name,
-                                        size_t bucket,
-                                        bool is_constellation);
 
   // Callbacks are invoked after rotation for a particular log type,
   // before metrics are sent. Useful for just-in-time metrics collection
   base::CallbackListSubscription RegisterRotationCallback(
-      base::RepeatingCallback<void(MetricLogType log_type,
-                                   bool is_constellation)> callback);
-  // Callbacks are invoked for each metric is sent to the P3A JSON server,
-  // or Constellation message preparation.
+      base::RepeatingCallback<void(MetricLogType log_type)> callback);
+  // Callbacks are invoked for each metric message prepared via Constellation.
   base::CallbackListSubscription RegisterMetricCycledCallback(
-      base::RepeatingCallback<void(const std::string& histogram_name,
-                                   bool is_constellation)> callback);
+      base::RepeatingCallback<void(const std::string& histogram_name)>
+          callback);
 
   bool IsP3AEnabled() const;
 
@@ -96,21 +88,38 @@ class P3AService : public base::RefCountedThreadSafe<P3AService>,
 
   // Invoked by callbacks registered by our service. Since these callbacks
   // can fire on any thread, this method reposts everything to UI thread.
-  void OnHistogramChanged(const char* histogram_name,
+  void OnHistogramChanged(std::string_view histogram_name,
                           uint64_t name_hash,
                           base::HistogramBase::Sample32 sample);
 
-  // P3AMessageManager::Delegate
-  void OnRotation(MetricLogType log_type, bool is_constellation) override;
-  void OnMetricCycled(const std::string& histogram_name,
-                      bool is_constellation) override;
-  std::optional<MetricLogType> GetDynamicMetricLogType(
-      const std::string& histogram_name) const override;
+  // Returns the RemoteConfigManager instance owned by this P3AService
+  RemoteConfigManager* remote_config_manager() {
+    return remote_config_manager_.get();
+  }
 
-  void DisableStarAttestationForTesting();
+  // MessageManager::Delegate
+  void OnRotation(MetricLogType log_type) override;
+  void OnMetricCycled(const std::string& histogram_name) override;
+  std::optional<MetricLogType> GetDynamicMetricLogType(
+      std::string_view histogram_name) const override;
+  const MetricConfig* GetMetricConfig(
+      std::string_view histogram_name) const override;
+  std::optional<MetricLogType> GetLogTypeForHistogram(
+      std::string_view histogram_name) const override;
+
+  // RemoteConfigManager::Delegate
+  void OnRemoteConfigLoaded() override;
 
  private:
   friend class base::RefCountedThreadSafe<P3AService>;
+  friend class P3AServiceTest;
+  FRIEND_TEST_ALL_PREFIXES(P3AServiceTest, MessageManagerStartedWhenP3AEnabled);
+  FRIEND_TEST_ALL_PREFIXES(P3AServiceTest,
+                           MessageManagerNotStartedWhenP3ADisabled);
+  FRIEND_TEST_ALL_PREFIXES(P3AServiceTest,
+                           MessageManagerStartsAndStopsOnPrefChange);
+  FRIEND_TEST_ALL_PREFIXES(P3AServiceTest, MetricValueStored);
+
   ~P3AService() override;
 
   void InitCallback(std::string_view histogram_name);
@@ -119,15 +128,8 @@ class P3AService : public base::RefCountedThreadSafe<P3AService>,
 
   void OnP3AEnabledChanged();
 
-  void OnHistogramChangedOnUI(const char* histogram_name,
-                              base::HistogramBase::Sample32 sample,
-                              size_t bucket);
-
   // Updates or removes a metric from the log.
-  void HandleHistogramChange(
-      std::string_view histogram_name,
-      size_t bucket,
-      std::optional<bool> only_update_for_constellation = std::nullopt);
+  void HandleHistogramChange(std::string_view histogram_name, size_t bucket);
 
   // General prefs:
   bool initialized_ = false;
@@ -146,6 +148,7 @@ class P3AService : public base::RefCountedThreadSafe<P3AService>,
       dynamic_metric_sample_callbacks_;
 
   std::unique_ptr<MessageManager> message_manager_;
+  std::unique_ptr<RemoteConfigManager> remote_config_manager_;
 
   // Used to store histogram values that are produced between constructing
   // the service and its initialization.
@@ -156,12 +159,9 @@ class P3AService : public base::RefCountedThreadSafe<P3AService>,
       histogram_sample_callbacks_;
 
   // Contains callbacks registered via `RegisterRotationCallback`
-  base::RepeatingCallbackList<void(MetricLogType log_type,
-                                   bool is_constellation)>
-      rotation_callbacks_;
+  base::RepeatingCallbackList<void(MetricLogType log_type)> rotation_callbacks_;
   // Contains callbacks registered via `RegisterMetricCycledCallback`
-  base::RepeatingCallbackList<void(const std::string& histogram_name,
-                                   bool is_constellation)>
+  base::RepeatingCallbackList<void(const std::string& histogram_name)>
       metric_cycled_callbacks_;
 };
 

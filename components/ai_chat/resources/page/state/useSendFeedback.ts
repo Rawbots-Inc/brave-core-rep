@@ -13,14 +13,28 @@ import { getLocale } from '$web-common/locale'
  */
 export interface SendFeedbackState {
   isFeedbackFormVisible: boolean
+  ratingTurnUuid?: { isLiked: boolean; turnUuid: string }
   handleFeedbackFormCancel: () => void
-  handleFeedbackFormSubmit: (selectedCategory: string, feedbackText: string, shouldSendUrl: boolean) => void
+  handleFeedbackFormSubmit: (
+    selectedCategory: string,
+    feedbackText: string,
+    shouldSendUrl: boolean
+  ) => Promise<void>
+  handleCloseRateMessagePrivacyModal: () => void
+  handleRateMessage: (
+    turnUuid: string,
+    isLiked: boolean,
+    ignoreFutureWarnings?: boolean
+  ) => Promise<void>
 }
 
 export const defaultSendFeedbackState: SendFeedbackState = {
   isFeedbackFormVisible: false,
+  ratingTurnUuid: undefined,
   handleFeedbackFormCancel: () => {},
-  handleFeedbackFormSubmit: () => {}
+  handleFeedbackFormSubmit: async () => {},
+  handleCloseRateMessagePrivacyModal: () => {},
+  handleRateMessage: async () => {}
 }
 
 /**
@@ -33,28 +47,44 @@ export default function useSendFeedback(
   conversationHandler: Mojom.ConversationHandlerRemote,
   conversationEntriesFrameObserver: Mojom.ParentUIFrameCallbackRouter
 ): SendFeedbackState {
+
   const feedbackId = React.useRef<string | null>(null)
   const [isFeedbackFormVisible, setIsFeedbackFormVisible] = React.useState(false)
+  const [ratingTurnUuid, setRatingTurnUuid] = React.useState<
+    { isLiked: boolean; turnUuid: string }
+  >()
 
-  // Listen to ratings requests from the child frame
-  React.useEffect(() => {
-    async function handleRateMessage(turnUuid: string, isLiked: boolean) {
+  const handleRateMessage = React.useCallback(
+    async (
+      turnUuid: string,
+      isLiked: boolean
+    ) => {
       // Reset feedback form
       feedbackId.current = null
       setIsFeedbackFormVisible(false)
+
+      // If ratingTurnUuid is undefined, set the ratingTurnUuid
+      // to display the rate message privacy modal.
+      if (!ratingTurnUuid) {
+        setRatingTurnUuid({ isLiked, turnUuid })
+        return
+      }
+
+      // Rate the message.
       const response = await conversationHandler?.rateMessage(isLiked, turnUuid)
       if (!response.ratingId) {
         showAlert({
           type: 'error',
-          content: getLocale('ratingError'),
+          content: getLocale(S.CHAT_UI_RATING_ERROR),
           actions: []
         })
+        setRatingTurnUuid(undefined)
         return
       }
       if (isLiked) {
         showAlert({
           type: 'info',
-          content: getLocale('answerLiked'),
+          content: getLocale(S.CHAT_UI_ANSWER_LIKED),
           actions: []
         })
       } else {
@@ -63,29 +93,39 @@ export default function useSendFeedback(
         feedbackId.current = response.ratingId
         showAlert({
           type: 'info',
-          content: getLocale('answerDisliked'),
+          content: getLocale(S.CHAT_UI_ANSWER_DISLIKED),
           actions: [
             {
-              text: getLocale('addFeedbackButtonLabel'),
+              text: getLocale(S.CHAT_UI_ADD_FEEDBACK_BUTTON_LABEL),
               kind: 'plain-faint',
               action: () => setIsFeedbackFormVisible(true)
             }
           ]
         }, 5000)
       }
-    }
+      setRatingTurnUuid(undefined)
+    },
+    [conversationHandler, ratingTurnUuid]
+  )
 
-    const listenerId = conversationEntriesFrameObserver.rateMessage.addListener(
-      handleRateMessage
-    )
+  // Listen to ratings requests from the child frame
+  React.useEffect(() => {
+    const listenerId =
+      conversationEntriesFrameObserver.rateMessage.addListener(
+        handleRateMessage
+      )
 
     return () => {
       conversationEntriesFrameObserver.removeListener(listenerId)
     }
-  }, [conversationHandler, conversationEntriesFrameObserver])
+  }, [conversationEntriesFrameObserver, handleRateMessage])
 
   function handleFeedbackFormCancel() {
     setIsFeedbackFormVisible(false)
+  }
+
+  function handleCloseRateMessagePrivacyModal() {
+    setRatingTurnUuid(undefined)
   }
 
   async function handleFeedbackFormSubmit(
@@ -98,7 +138,7 @@ export default function useSendFeedback(
       if (!response.isSuccess) {
         showAlert({
           type: 'error',
-          content: getLocale('feedbackError'),
+          content: getLocale(S.CHAT_UI_FEEDBACK_SUBMIT_ERROR),
           actions: []
         })
         return
@@ -106,7 +146,7 @@ export default function useSendFeedback(
 
       showAlert({
         type: 'success',
-        content: getLocale('feedbackSent'),
+        content: getLocale(S.CHAT_UI_FEEDBACK_SENT),
         actions: []
       })
       setIsFeedbackFormVisible(false)
@@ -115,7 +155,10 @@ export default function useSendFeedback(
 
   return {
     isFeedbackFormVisible,
+    ratingTurnUuid,
     handleFeedbackFormCancel,
-    handleFeedbackFormSubmit
+    handleFeedbackFormSubmit,
+    handleCloseRateMessagePrivacyModal,
+    handleRateMessage
   }
 }

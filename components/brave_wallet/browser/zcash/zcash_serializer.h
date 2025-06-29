@@ -6,9 +6,11 @@
 #ifndef BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_ZCASH_ZCASH_SERIALIZER_H_
 #define BRAVE_COMPONENTS_BRAVE_WALLET_BROWSER_ZCASH_ZCASH_SERIALIZER_H_
 
+#include <array>
 #include <string>
 #include <vector>
 
+#include "base/gtest_prod_util.h"
 #include "brave/components/brave_wallet/browser/keyring_service.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_keyring.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_transaction.h"

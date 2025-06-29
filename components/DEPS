@@ -5,10 +5,38 @@ include_rules = [
   "+components",
   "+net",
   "+mojo/public",
+  "+ui/base",
 
   # Components that wish to use the content API or IPC must explicitly declare
   # these dependencies; see /components/README.
   "-ipc",
+
+  # In most cases you want l10n_util - see comments in the source
+  "-brave/components/l10n",
+]
+
+# Work in progress: https://github.com/brave/brave-browser/issues/46907
+# This list disallows implicitly depend on some chromium components. Eventually
+# would removed and "+components" above would be changed to "-components"
+include_rules += [
+  "-components/affiliations",
+  "-components/assist_ranker",
+  "-components/autofill",
+  "-components/base32",
+  "-components/bookmarks",
+  "-components/cbor",
+  "-components/component_updater",
+  "-components/content_settings",
+  "-components/grit",
+  "-components/history",
+  "-components/keyed_service",
+  "-components/omnibox",
+  "-components/prefs",
+  "-components/search_engines",
+  "-components/security_interstitials",
+  "-components/sync_preferences",
+  "-components/sync",
+  "-components/user_prefs",
 ]
 
 specific_include_rules = {
@@ -38,9 +66,11 @@ specific_include_rules = {
     "+brave/browser",
     "+chrome",
   ],
-  "webcompat_exceptions_browsertest\.cc": [
-    "+brave/browser",
+  "webcompat_exceptions_unittest\.cc": [
     "+chrome",
     "+content",
+  ],
+  ".*test.*\.cc": [
+    "!brave/components/l10n/common/test/scoped_default_locale.h",
   ],
 }

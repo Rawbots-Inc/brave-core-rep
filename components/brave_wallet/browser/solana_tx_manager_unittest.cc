@@ -16,6 +16,8 @@
 #include "base/location.h"
 #include "base/run_loop.h"
 #include "base/scoped_observation.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/test/bind.h"
 #include "base/test/task_environment.h"
@@ -125,8 +127,9 @@ class SolanaTxManagerUnitTest : public testing::Test {
                                                         &prefs_, &local_state_);
     ASSERT_TRUE(temp_dir_.CreateUniqueTempDir());
     tx_service_ = std::make_unique<TxService>(
-        json_rpc_service_.get(), nullptr, nullptr, *keyring_service_, &prefs_,
-        temp_dir_.GetPath(), base::SequencedTaskRunner::GetCurrentDefault());
+        json_rpc_service_.get(), nullptr, nullptr, nullptr, *keyring_service_,
+        &prefs_, temp_dir_.GetPath(),
+        base::SequencedTaskRunner::GetCurrentDefault());
     WaitForTxStorageDelegateInitialized(tx_service_->GetDelegateForTesting());
     CreateWallet();
 
@@ -254,11 +257,12 @@ class SolanaTxManagerUnitTest : public testing::Test {
                 "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":"
                 "{\"context\":{\"slot\":1069},\"value\":{\"blockhash\":\"" +
                     latest_blockhash + "\", \"lastValidBlockHeight\":" +
-                    std::to_string(last_valid_block_height) + "}}}");
+                    base::NumberToString(last_valid_block_height) + "}}}");
           } else if (*method == "getBlockHeight") {
             url_loader_factory_.AddResponse(
                 request.url.spec(), R"({"jsonrpc":"2.0", "id":1, "result":)" +
-                                        std::to_string(block_height) + "}");
+                                        base::NumberToString(block_height) +
+                                        "}");
           } else if (*method == "sendTransaction") {
             send_transaction_calls_++;
             url_loader_factory_.AddResponse(

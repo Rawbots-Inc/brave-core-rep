@@ -10,7 +10,7 @@ import { BraveWallet } from '../../../constants/types'
 
 // Utils
 import { reduceAccountDisplayName } from '../../../utils/reduce-account-name'
-import { getLocale, splitStringForTag } from '../../../../common/locale'
+import { getLocale, formatLocale } from '$web-common/locale'
 
 // Components
 import { NavButton } from '../buttons/nav-button/index'
@@ -26,7 +26,7 @@ import {
   MessageBox,
   MessageText,
   ButtonRow,
-  DecryptButton
+  DecryptButton,
 } from './style'
 
 import { TabRow, URLText } from '../shared-panel-styles'
@@ -36,7 +36,7 @@ import { useAccountOrb } from '../../../common/hooks/use-orb'
 import { useAccountQuery } from '../../../common/slices/api.slice.extra'
 import {
   useProcessPendingDecryptRequestMutation,
-  useProcessPendingGetEncryptionPublicKeyRequestMutation
+  useProcessPendingGetEncryptionPublicKeyRequestMutation,
 } from '../../../common/slices/api.slice'
 
 export interface ProvidePubKeyPanelProps {
@@ -53,23 +53,30 @@ export function ProvidePubKeyPanel({ payload }: ProvidePubKeyPanelProps) {
 
   const orb = useAccountOrb(account)
 
-  const descriptionString = getLocale(
-    'braveWalletProvideEncryptionKeyDescription'
-  ).replace('$url', payload.originInfo.originSpec)
-  const { duringTag, afterTag } = splitStringForTag(descriptionString)
+  const description = formatLocale(
+    'braveWalletProvideEncryptionKeyDescription',
+    {
+      $1: (
+        <CreateSiteOrigin
+          originSpec={payload.originInfo.originSpec}
+          eTldPlusOne={payload.originInfo.eTldPlusOne}
+        />
+      ),
+    },
+  )
 
   // methods
   const onProvideOrAllow = async () => {
     await processGetEncryptionPublicKeyRequest({
       requestId: payload.requestId,
-      approved: true
+      approved: true,
     }).unwrap()
   }
 
   const onCancel = async (requestId: string) => {
     await processGetEncryptionPublicKeyRequest({
       requestId,
-      approved: false
+      approved: false,
     }).unwrap()
   }
 
@@ -90,13 +97,7 @@ export function ProvidePubKeyPanel({ payload }: ProvidePubKeyPanelProps) {
         />
       </TabRow>
       <MessageBox needsCenterAlignment={false}>
-        <MessageText>
-          <CreateSiteOrigin
-            originSpec={duringTag ?? ''}
-            eTldPlusOne={payload.originInfo.eTldPlusOne}
-          />
-          {afterTag}
-        </MessageText>
+        <MessageText>{description}</MessageText>
       </MessageBox>
       <ButtonRow>
         <NavButton
@@ -135,14 +136,14 @@ export function DecryptRequestPanel({ payload }: DecryptRequestPanelProps) {
   const onAllow = async () => {
     await processDecryptRequest({
       requestId: payload.requestId,
-      approved: true
+      approved: true,
     }).unwrap()
   }
 
   const onCancel = async () => {
     await processDecryptRequest({
       requestId: payload.requestId,
-      approved: false
+      approved: false,
     }).unwrap()
   }
 

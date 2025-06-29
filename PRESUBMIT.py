@@ -24,6 +24,7 @@ def CheckToModifyInputApi(input_api, _output_api):
 
 # Check Leo variables actually exist
 def CheckLeoVariables(input_api, output_api):
+
     def _web_files_filter(affected_file):
         return input_api.FilterSourceFile(
             affected_file,
@@ -49,95 +50,24 @@ def CheckLeoVariables(input_api, output_api):
     except RuntimeError as err:
         return [output_api.PresubmitError(err.args[1])]
 
+
 # Check and fix formatting issues (supports --fix).
 def CheckPatchFormatted(input_api, output_api):
-    # Use git cl format to format supported files with Chromium formatters.
-    git_cl_format_cmd = [
-        '-C',
-        input_api.change.RepositoryRoot(),
-        'cl',
-        'format',
-        '--presubmit',
+    cmd = [
+        brave_chromium_utils.wspath(
+            '//brave/build/commands/scripts/format.js'), '--presubmit'
     ]
-
-    # Keep in sync with `npm run format` command.
-    git_cl_format_cmd.extend([
-        '--python',
-        '--no-rust-fmt',
-    ])
-
-    # Make sure the passed --upstream branch is applied to git cl format.
-    if input_api.change.UpstreamBranch():
-        git_cl_format_cmd.extend(
-            ['--upstream', input_api.change.UpstreamBranch()])
-
-    # Do a dry run if --fix was not passed.
     if not input_api.PRESUBMIT_FIX:
-        git_cl_format_cmd.append('--dry-run')
-
-    # Pass a path where the current PRESUBMIT.py file is located.
-    git_cl_format_cmd.append(input_api.PresubmitLocalPath())
-
-    with brave_chromium_utils.sys_path("//brave/vendor/depot_tools"):
-        import git_cl
-
-    # Run git cl format and get return code.
-    git_cl_format_code, _ = git_cl.RunGitWithCode(git_cl_format_cmd)
-    if git_cl_format_code not in (0, 2):
+        cmd.append('--dry-run')
+    try:
+        brave_node.RunNode(cmd)
+        return []
+    except RuntimeError as err:
         return [
             output_api.PresubmitError(
-                f'Presubmit format check has failed, return code: {git_cl_format_code}'
-            )
+                f'The code requires formatting. '
+                f'Please run: npm run presubmit -- --fix.\n\n{err.args[1]}')
         ]
-
-    is_format_required = git_cl_format_code == 2
-
-    if not is_format_required or input_api.PRESUBMIT_FIX:
-        # Use Prettier to format other file types.
-        files_to_check = (
-            # Enable when files will be formatted.
-            # r'.+\.js$',
-            # r'.+\.ts$',
-            # r'.+\.tsx$',
-        )
-        files_to_skip = input_api.DEFAULT_FILES_TO_SKIP
-
-        file_filter = lambda f: input_api.FilterSourceFile(
-            f, files_to_check=files_to_check, files_to_skip=files_to_skip)
-        affected_files = input_api.AffectedFiles(file_filter=file_filter,
-                                                 include_deletes=False)
-        files_to_format = [f.AbsoluteLocalPath() for f in affected_files]
-
-        node_args = [
-            brave_node.PathInNodeModules('prettier', 'bin-prettier'),
-            '--write' if input_api.PRESUBMIT_FIX else '--check',
-        ]
-
-        files_per_command = 25 if input_api.is_windows else 1000
-        for i in range(0, len(files_to_format), files_per_command):
-            args = node_args + files_to_format[i:i + files_per_command]
-            try:
-                brave_node.RunNode(args)
-            except RuntimeError as err:
-                if 'Forgot to run Prettier?' in str(err):
-                    is_format_required = True
-                    break
-                # Raise on unexpected output. Could be node or prettier issues.
-                raise
-
-    if is_format_required:
-        if input_api.PRESUBMIT_FIX:
-            raise RuntimeError('--fix was passed, but format has failed')
-        short_path = input_api.basename(input_api.change.RepositoryRoot())
-        git_cl_format_cmd.remove('--dry-run')
-        git_cl_format_cmd.append('--diff')
-        _, diff_output = git_cl.RunGitWithCode(git_cl_format_cmd)
-        return [
-            output_api.PresubmitError(
-                f'The {short_path} directory requires source formatting. '
-                f'Please run: npm run presubmit -- --fix.\n\n{diff_output}')
-        ]
-    return []
 
 
 # Check and fix ESLint issues (supports --fix).
@@ -212,8 +142,8 @@ def CheckLicense(input_api, output_api):
         r'.*? Copyright \(c\) %(year)s The Brave Authors\. All rights reserved\.\n'
         r'.*? This Source Code Form is subject to the terms of the Mozilla Public\n'
         r'.*? License, v\. 2\.0\. If a copy of the MPL was not distributed with this file,\n'
-        r'.*? You can obtain one at https://mozilla.org/MPL/2\.0/\.(?: \*/)?\n')
-                                               % {'year': years_re},
+        r'.*? You can obtain one at https://mozilla.org/MPL/2\.0/\..*\n') %
+                                               {'year': years_re},
                                                input_api.re.MULTILINE)
 
     # License regexp to match in EXISTING files, it allows some variance.
@@ -221,18 +151,20 @@ def CheckLicense(input_api, output_api):
         r'.*? Copyright \(c\) %(year)s The Brave Authors\. All rights reserved\.\n'
         r'.*? This Source Code Form is subject to the terms of the Mozilla Public\n'
         r'.*? License, v\. 2\.0\. If a copy of the MPL was not distributed with this(\n.*?)? file,\n?'
-        r'.*? (y|Y)ou can obtain one at https?://mozilla.org/MPL/2\.0/\.(?: \*/)?\n'
-    ) % {'year': years_re}, input_api.re.MULTILINE)
+        r'.*? (y|Y)ou can obtain one at https?://mozilla.org/MPL/2\.0/\..*\n')
+                                                    % {'year': years_re},
+                                                    input_api.re.MULTILINE)
 
     # License template for new files. Includes current year.
     expected_license_template = (
         '%(comment)s Copyright (c) %(year)s The Brave Authors. All rights reserved.\n'
         '%(comment)s This Source Code Form is subject to the terms of the Mozilla Public\n'
         '%(comment)s License, v. 2.0. If a copy of the MPL was not distributed with this file,\n'
-        '%(comment)s You can obtain one at https://mozilla.org/MPL/2.0/.\n') % {
-            'comment': '#',
-            'year': current_year,
-        }
+        '%(comment)s You can obtain one at https://mozilla.org/MPL/2.0/.\n'
+    ) % {
+        'comment': '#',
+        'year': current_year,
+    }
 
     bad_new_files = []
     bad_files = []
@@ -258,15 +190,24 @@ def CheckLicense(input_api, output_api):
         f' * {splitted_expected_license_template[1]}\n'
         f' * {splitted_expected_license_template[2]}\n'
         f' * {splitted_expected_license_template[3]} */\n')
+    xml_multiline_comment_expected_license = (
+        f'<!-- {splitted_expected_license_template[0]}\n'
+        f'     {splitted_expected_license_template[1]}\n'
+        f'     {splitted_expected_license_template[2]}\n'
+        f'     {splitted_expected_license_template[3]} -->\n')
     assert new_file_license_re.search(expected_license_template)
     assert existing_file_license_re.search(expected_license_template)
     assert new_file_license_re.search(multiline_comment_expected_license)
     assert existing_file_license_re.search(multiline_comment_expected_license)
+    assert new_file_license_re.search(xml_multiline_comment_expected_license)
+    assert existing_file_license_re.search(
+        xml_multiline_comment_expected_license)
 
     # Show this to simplify copy-paste when an invalid license is found.
     expected_licenses = (f'{expected_license_template.replace("#", "//")}\n'
                          f'{multiline_comment_expected_license}\n'
-                         f'{expected_license_template}')
+                         f'{expected_license_template}\n'
+                         f'{xml_multiline_comment_expected_license}')
 
     result = []
     if bad_new_files:
@@ -328,6 +269,38 @@ def CheckNewSourceFileWithoutGnChangeOnUpload(input_api, output_api):
         ]
     return []
 
+
+def CheckPlasterFiles(input_api, output_api):
+    """Checks that all Plaster files are up-to-date with their patches.
+
+    This check ensures that all Plaster files in the repository are
+    synchronized with their corresponding patches in the Chromium repository.
+    This helps detecting unintentiional manual patching for sources that already
+    have a Plaster file.
+    """
+
+    affected_files = []
+    for f in input_api.AffectedFiles(include_deletes=True):
+        local_path = f.LocalPath()
+        if (local_path.startswith("patches/") and local_path.endswith(".patch")
+            ) or (local_path.startswith("rewrite/")
+                  and local_path.endswith(".toml")):
+            affected_files.append(local_path)
+
+    if not affected_files:
+        return []
+
+    cmd = [input_api.python3_executable, 'tools/cr/plaster.py', 'check'
+           ] + affected_files
+    kwargs = {'cwd': input_api.PresubmitLocalPath()}
+    return input_api.RunTests([
+        input_api.Command(name='plaster_check',
+                          cmd=cmd,
+                          kwargs=kwargs,
+                          message=output_api.PresubmitError),
+    ])
+
+
 # DON'T ADD NEW BRAVE CHECKS AFTER THIS LINE.
 #
 # This call inlines Chromium checks into current scope from src/PRESUBMIT.py. We
@@ -337,6 +310,19 @@ chromium_presubmit_overrides.inline_presubmit('//PRESUBMIT.py', globals(),
                                               locals())
 
 # pyright: reportUnboundVariable=false, reportUndefinedVariable=false
+
+_BANNED_JAVA_FUNCTIONS += (BanRule(
+    r'/(BraveLeoPrefUtils|Utils)\.getProfile\(\)',
+    ('Prefer passing in the Profile reference instead of relying on the '
+     'static getProfile() call. Only top level entry points '
+     '(e.g. Activities) should call ProfileManager.getLastUsedRegularProfile '
+     'instead. Otherwise, the Profile should either be passed in explicitly '
+     'or retreived from an existing entity with a reference to the Profile '
+     '(e.g. WebContents). This is a warning only for existing usages, new '
+     'usages are strictly banned.', ),
+    False,
+    excluded_paths=(r'.*Test[A-Z]?.*\.java', ),
+), )
 
 _BANNED_CPP_FUNCTIONS += (
     BanRule(
@@ -358,7 +344,15 @@ _BANNED_CPP_FUNCTIONS += (
         treat_as_error=True,
         excluded_paths=[_THIRD_PARTY_EXCEPT_BLINK],
     ),
-)
+    BanRule(
+        r'/\bAllowInjectingJavaScript\(\)',
+        ('ExecuteJavaScript() should not be used outside of chrome:// urls. If '
+         'you must inject into the main world, consider using '
+         'script_injector::ScriptInjector::RequestAsyncExecuteScript(...) '
+         'instead. This is a warning only for existing usages, new usages are '
+         'strictly banned.'),
+        treat_as_error=False,
+    ))
 
 
 # Extend BanRule exclude lists with Brave-specific paths.
@@ -404,23 +398,26 @@ ApplyBanRuleExcludes()
 def CheckForIncludeGuards(original_check, input_api, output_api, **kwargs):
     # Add 'brave/' prefix for header guard checks to properly validate guards.
     def AffectedSourceFiles(self, original_method, source_file):
+
         def PrependBrave(affected_file):
             affected_file = copy.copy(affected_file)
             affected_file._path = f'brave/{affected_file._path}'
             return affected_file
 
         return [
-            PrependBrave(f)
-            for f in filter(self.FilterSourceFile, original_method(source_file))
+            PrependBrave(f) for f in filter(self.FilterSourceFile,
+                                            original_method(source_file))
         ]
 
-    with override_utils.override_scope_function(input_api, AffectedSourceFiles):
+    with override_utils.override_scope_function(input_api,
+                                                AffectedSourceFiles):
         return original_check(input_api, output_api, **kwargs)
 
 
 # Use BanRule.excluded_paths in all BanRule-like checks.
 @override_utils.override_function(globals())
 def _GetMessageForMatchingType(orig, input_api, f, line_num, line, ban_rule):
+
     def IsExcludedFile(affected_file, excluded_paths):
         if not excluded_paths:
             return False
@@ -453,6 +450,7 @@ def CheckJavaStyle(_original_check, input_api, output_api):
     errors are replaced with warnings except UnusedImports.
     When all style error will be fixed, this function should be removed and
     the original function from upstream must be used again """
+
     def _IsJavaFile(input_api, file_path):
         return input_api.os_path.splitext(file_path)[1] == ".java"
 
@@ -473,9 +471,10 @@ def CheckJavaStyle(_original_check, input_api, output_api):
 
     # Filter out non-Java files and files that were deleted.
     java_files = [
-        x.AbsoluteLocalPath() for x in
-        input_api.AffectedSourceFiles(lambda f: input_api.FilterSourceFile(
-            f, files_to_skip=files_to_skip)) if x.LocalPath().endswith('.java')
+        x.AbsoluteLocalPath() for x in input_api.AffectedSourceFiles(
+            lambda f: input_api.FilterSourceFile(f,
+                                                 files_to_skip=files_to_skip))
+        if x.LocalPath().endswith('.java')
     ]
     if not java_files:
         return []
@@ -498,5 +497,38 @@ def CheckJavaStyle(_original_check, input_api, output_api):
 To remove unused imports: ./tools/android/checkstyle/remove_unused_imports.sh"""
         ret.append(output_api.PresubmitError(msg))
     return ret
+
+
+@chromium_presubmit_overrides.override_check(globals())
+def CheckTodoBugReferences(_original_check, input_api, output_api):
+    """Checks that bugs in TODOs use updated issue tracker IDs."""
+
+    files_to_skip = [
+        'PRESUBMIT_test.py', r"^third_party/rust/chromium_crates_io/vendor/.*"
+    ]
+
+    def _FilterFile(affected_file):
+        return input_api.FilterSourceFile(affected_file,
+                                          files_to_skip=files_to_skip)
+
+    # Check for bug link in TODO comments.
+    pattern = input_api.re.compile(r'.*\bTODO\([^\)0-9]*([0-9]+)\).*')
+    problems = []
+    for f in input_api.AffectedSourceFiles(_FilterFile):
+        for line_number, line in f.ChangedContents():
+            match = pattern.match(line)
+            if match and 'https://github.com/brave/brave-browser/issues' not in match.group(
+                    0):
+                problems.append(f"{f.LocalPath()}: {line_number}\n    {line}")
+
+    if problems:
+        return [
+            output_api.PresubmitPromptWarning(
+                'TODO comments must be accompanied with a valid brave-browser '
+                'issue. https://github.com/brave/brave-browser/issues',
+                problems)
+        ]
+    return []
+
 
 # DON'T ADD NEW CHECKS HERE, ADD THEM BEFORE FIRST inline_presubmit().

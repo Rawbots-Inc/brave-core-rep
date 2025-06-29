@@ -11,7 +11,7 @@ import Icon from '@brave/leo/react/icon'
 import { getLocale } from '$web-common/locale'
 import classnames from '$web-common/classnames'
 import * as Mojom from '../../../common/mojom'
-import { useConversation, useSupportsAttachments } from '../../state/conversation_context'
+import { useConversation, useIsNewConversation } from '../../state/conversation_context'
 import { useAIChat } from '../../state/ai_chat_context'
 import { isLeoModel } from '../../model_utils'
 import ErrorConnection from '../alerts/error_connection'
@@ -21,6 +21,7 @@ import ErrorInvalidEndpointURL from '../alerts/error_invalid_endpoint_url'
 import ErrorRateLimit from '../alerts/error_rate_limit'
 import ErrorServiceOverloaded from '../alerts/error_service_overloaded'
 import LongConversationInfo from '../alerts/long_conversation_info'
+import TemporaryChatInfo from '../alerts/temporary_chat_info'
 import NoticeConversationStorage from '../notices/notice_conversation_storage'
 import WarningPremiumDisconnected from '../alerts/warning_premium_disconnected'
 import ConversationsList from '../conversations_list'
@@ -29,17 +30,18 @@ import FeedbackForm from '../feedback_form'
 import { ConversationHeader } from '../header'
 import InputBox from '../input_box'
 import ModelIntro from '../model_intro'
-import PageContextToggle from '../page_context_toggle'
+import OpenExternalLinkModal from '../open_external_link_modal'
+import RateMessagePrivacyModal from '../rate_message_privacy_modal'
 import PremiumSuggestion from '../premium_suggestion'
 import PrivacyMessage from '../privacy_message'
-import SiteTitle from '../site_title'
 import { GenerateSuggestionsButton, SuggestedQuestion } from '../suggested_question'
-import ToolsButtonMenu from '../tools_button_menu'
+import ToolsMenu from '../filter_menu/tools_menu'
 import WelcomeGuide from '../welcome_guide'
 import styles from './style.module.scss'
-import useIsConversationVisible from '../../hooks/useIsConversationVisible'
 import Attachments from '../attachments'
 import { useIsElementSmall } from '../../hooks/useIsElementSmall'
+import useHasConversationStarted from '../../hooks/useHasConversationStarted'
+import { useExtractedQuery } from '../filter_menu/query'
 
 // Amount of pixels user has to scroll up to break out of
 // automatic scroll to bottom when new response lines are generated.
@@ -79,18 +81,11 @@ function Main() {
     conversationContext.associatedContentInfo === null && // AssociatedContent request has finished and this is a standalone conversation
     !aiChatContext.isPremiumUser
 
-
-  const isLastTurnBraveSearchSERPSummary =
-    conversationContext.conversationHistory.at(-1)?.fromBraveSearchSERP ?? false
-
-  const showContextToggle =
-    (conversationContext.conversationHistory.length === 0 ||
-      isLastTurnBraveSearchSERPSummary) &&
-    !!conversationContext.associatedContentInfo
-
-  const showAttachments = useSupportsAttachments()
+  const showAttachments = useIsNewConversation()
     && conversationContext.showAttachments
     && aiChatContext.tabs.length > 0
+
+  const showTemporaryChatInfo = conversationContext.isTemporaryChat
 
   let currentErrorElement = null
 
@@ -170,7 +165,8 @@ function Main() {
     (conversationContext.suggestedQuestions.length > 0 ||
       SUGGESTION_STATUS_SHOW_BUTTON.has(conversationContext.suggestionStatus))
 
-  const isVisible = useIsConversationVisible(conversationContext.conversationUuid)
+  const hasConversationStarted =
+    useHasConversationStarted(conversationContext.conversationUuid)
 
   const maybeShowSoftKeyboard = (querySubmitted: boolean) => {
     if (aiChatContext.isMobile && aiChatContext.hasAcceptedAgreement &&
@@ -183,8 +179,17 @@ function Main() {
     return false
   }
 
+  const extractedQuery = useExtractedQuery(conversationContext.inputText, {
+    onlyAtStart: false,
+    triggerCharacter: '/',
+  })
+
   return (
-    <main className={styles.main} ref={setMainElement}>
+    <main className={classnames({
+      [styles.main]: true,
+      [styles.mainPanel]: !aiChatContext.isStandalone,
+      [styles.mainMobile]: aiChatContext.isMobile
+    })} ref={setMainElement}>
       {isConversationListOpen && !aiChatContext.isStandalone && (
         <div className={styles.conversationsList}>
           <div
@@ -231,9 +236,9 @@ function Main() {
               <>
                 <ModelIntro />
 
-                {conversationContext.associatedContentInfo && conversationContext.shouldSendPageContents && (
-                  <div className={styles.siteTitleContainer}>
-                    <SiteTitle size='default' />
+                {showTemporaryChatInfo && (
+                  <div className={styles.promptContainer}>
+                    <TemporaryChatInfo />
                   </div>
                 )}
 
@@ -277,13 +282,13 @@ function Main() {
             {shouldShowPremiumSuggestionForModel && (
               <div className={styles.promptContainer}>
                 <PremiumSuggestion
-                  title={getLocale('unlockPremiumTitle')}
+                  title={getLocale(S.CHAT_UI_UNLOCK_PREMIUM_TITLE)}
                   secondaryActionButton={
                     <Button
                       kind='plain-faint'
                       onClick={() => conversationContext.switchToBasicModel()}
                     >
-                      {getLocale('switchToBasicModelButtonLabel')}
+                      {getLocale(S.CHAT_UI_SWITCH_TO_BASIC_MODEL_BUTTON_LABEL)}
                     </Button>
                   }
                 />
@@ -292,13 +297,13 @@ function Main() {
             {shouldShowPremiumSuggestionStandalone && (
               <div className={styles.promptContainer}>
                 <PremiumSuggestion
-                  title={getLocale('unlockPremiumTitle')}
+                  title={getLocale(S.CHAT_UI_UNLOCK_PREMIUM_TITLE)}
                   secondaryActionButton={
                     <Button
                       kind='plain-faint'
                       onClick={() => aiChatContext.dismissPremiumPrompt()}
                     >
-                      {getLocale('dismissButtonLabel')}
+                      {getLocale(S.CHAT_UI_DISMISS_BUTTON_LABEL)}
                     </Button>
                   }
                 />
@@ -327,19 +332,22 @@ function Main() {
             <Attachments />
           </div>)}
         <div className={styles.input}>
-          {showContextToggle && (
-            <div className={styles.toggleContainer}>
-              <PageContextToggle />
-            </div>
-          )}
-          <ToolsButtonMenu {...conversationContext} />
+          <ToolsMenu
+            isOpen={conversationContext.isToolsMenuOpen}
+            setIsOpen={conversationContext.setIsToolsMenuOpen}
+            query={extractedQuery}
+            categories={aiChatContext.actionList}
+            handleClick={conversationContext.handleActionTypeClick}
+          />
           <InputBox
-            conversationStarted={isVisible}
+            conversationStarted={hasConversationStarted}
             context={{ ...conversationContext, ...aiChatContext }}
             maybeShowSoftKeyboard={maybeShowSoftKeyboard}
           />
         </div>
         <DeleteConversationModal />
+        <OpenExternalLinkModal />
+        <RateMessagePrivacyModal />
       </div>
     </main>
   )

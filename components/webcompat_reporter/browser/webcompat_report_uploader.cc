@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "base/json/json_writer.h"
+#include "base/logging.h"
 #include "base/values.h"
 #include "brave/components/brave_stats/browser/brave_stats_updater_util.h"
 #include "brave/components/version_info/version_info.h"
@@ -155,6 +156,16 @@ void WebcompatReportUploader::SubmitReport(mojom::ReportInfoPtr report_info) {
   if (report_info->block_scripts) {
     report_details_dict.Set(kBlockScriptsField,
                             report_info->block_scripts.value() == kStringTrue);
+  }
+
+  if (report_info->webcompat_reporter_errors &&
+      !report_info->webcompat_reporter_errors->empty()) {
+    base::Value::List errors_list;
+    for (const auto& error : report_info->webcompat_reporter_errors.value()) {
+      errors_list.Append(error);
+    }
+    report_details_dict.Set(kWebcompatReportErrorsField,
+                            std::move(errors_list));
   }
 
   report_details_dict.Set(kApiKeyField, base::Value(api_key));

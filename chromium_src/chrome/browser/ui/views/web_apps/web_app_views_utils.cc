@@ -5,6 +5,7 @@
 
 #include "chrome/browser/ui/views/web_apps/web_app_views_utils.h"
 
+#include "base/check.h"
 #include "brave/browser/ui/brave_scheme_utils.h"
 
 #define CreateOriginLabelFromStartUrl CreateOriginLabelFromStartUrl_ChromiumImpl
@@ -18,7 +19,7 @@ std::unique_ptr<views::Label> CreateOriginLabelFromStartUrl(
   std::unique_ptr<views::Label> origin_label =
       CreateOriginLabelFromStartUrl_ChromiumImpl(start_url, is_primary_text);
   CHECK(origin_label);
-  std::u16string label_text = origin_label->GetText();
+  auto label_text = std::u16string(origin_label->GetText());
   brave_utils::ReplaceChromeToBraveScheme(label_text);
   origin_label->SetText(label_text);
 

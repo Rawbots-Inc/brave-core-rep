@@ -9,6 +9,7 @@
 #include <memory>
 #include <string>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "base/memory/raw_ptr.h"
 #include "base/task/single_thread_task_runner.h"
@@ -21,8 +22,8 @@
 #include "brave/components/brave_welcome/resources/grit/brave_welcome_generated_map.h"
 #include "brave/components/constants/pref_names.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_finder.h"
 #include "chrome/browser/ui/webui/settings/privacy_sandbox_handler.h"
@@ -37,6 +38,7 @@
 #include "content/public/browser/page_navigator.h"
 #include "content/public/browser/web_ui_data_source.h"
 #include "content/public/browser/web_ui_message_handler.h"
+#include "ui/base/l10n/l10n_util.h"
 
 namespace {
 
@@ -94,20 +96,6 @@ void OpenJapanWelcomePage(Profile* profile) {
   }
 }
 
-// Converts Chromium country ID to 2 digit country string
-// For more info see src/components/country_codes/country_codes.h
-std::string CountryIDToCountryString(int country_id) {
-  if (country_id == country_codes::kCountryIDUnknown) {
-    return std::string();
-  }
-
-  char chars[3] = {static_cast<char>(country_id >> 8),
-                   static_cast<char>(country_id), 0};
-  std::string country_string(chars);
-  DCHECK_EQ(country_string.size(), 2U);
-  return country_string;
-}
-
 }  // namespace
 
 BraveWelcomeUI::BraveWelcomeUI(content::WebUI* web_ui, const std::string& name)
@@ -132,13 +120,16 @@ BraveWelcomeUI::BraveWelcomeUI(content::WebUI* web_ui, const std::string& name)
 
   Profile* profile = Profile::FromWebUI(web_ui);
   // added to allow front end to read/modify default search engine
-  web_ui->AddMessageHandler(
-      std::make_unique<settings::BraveSearchEnginesHandler>(profile));
+  web_ui->AddMessageHandler(std::make_unique<
+                            settings::BraveSearchEnginesHandler>(
+      profile,
+      regional_capabilities::RegionalCapabilitiesServiceFactory::GetForProfile(
+          profile)));
 
   // Open additional page in Japanese region
-  int country_id = country_codes::GetCountryIDFromPrefs(profile->GetPrefs());
-  const bool is_jpn =
-      country_id == country_codes::CountryStringToCountryID("JP");
+  country_codes::CountryId country_id =
+      country_codes::GetCountryIDFromPrefs(profile->GetPrefs());
+  const bool is_jpn = country_id == country_codes::CountryId("JP");
   if (!profile->GetPrefs()->GetBoolean(prefs::kHasSeenWelcomePage)) {
     if (is_jpn) {
       base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
@@ -148,13 +139,12 @@ BraveWelcomeUI::BraveWelcomeUI(content::WebUI* web_ui, const std::string& name)
   }
 
   for (const auto& str : kLocalizedStrings) {
-    std::u16string l10n_str =
-        brave_l10n::GetLocalizedResourceUTF16String(str.id);
+    std::u16string l10n_str = l10n_util::GetStringUTF16(str.id);
     source->AddString(str.name, l10n_str);
   }
 
   // Variables considered when determining which onboarding cards to show
-  source->AddString("countryString", CountryIDToCountryString(country_id));
+  source->AddString("countryString", country_id.CountryCode());
   source->AddBoolean(
       "showRewardsCard",
       base::FeatureList::IsEnabled(brave_welcome::features::kShowRewardsCard));

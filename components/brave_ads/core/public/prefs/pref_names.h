@@ -8,6 +8,9 @@
 
 namespace brave_ads::prefs {
 
+// IMPORTANT: Prefs that need clearing should be prefixed with
+// `brave.brave_ads`.
+
 // Ads prefs.
 inline constexpr char kDiagnosticId[] = "brave.brave_ads.diagnostics.id";
 
@@ -47,6 +50,8 @@ inline constexpr char kSaveAds[] = "brave.brave_ads.reactions.saved_ads";
 inline constexpr char kMarkedAsInappropriate[] =
     "brave.brave_ads.reactions.marked_as_inappropriate";
 
+inline constexpr char kHasMigratedState[] =
+    "brave.brave_ads.state.has_migrated.v2";
 inline constexpr char kHasMigratedClientState[] =
     "brave.brave_ads.state.has_migrated.client.v7";
 inline constexpr char kHasMigratedConfirmationState[] =
@@ -66,17 +71,16 @@ inline constexpr char kNotificationAdDidFallbackToCustom[] =
 inline constexpr char kShouldShowOnboardingNotification[] =
     "brave.brave_ads.should_show_my_first_ad_notification";
 
-inline constexpr char kShouldShowSearchResultAdClickedInfoBar[] =
-    "brave.brave_ads.should_show_search_result_ad_clicked_infobar";
-
 // Brave stats prefs.
 inline constexpr char kEnabledForLastProfile[] =
     "brave.brave_ads.enabled_last_profile";
 inline constexpr char kEverEnabledForAnyProfile[] =
     "brave.brave_ads.ever_enabled_any_profile";
 
-// P2A prefs.
-inline constexpr char kP2APrefPathPrefix[] = "brave.weekly_storage.";
+// We don't prefix `brave.brave_ads` to this pref path because we don't want
+// them cleared if the user clears ads data or resets Brave Rewards.
+inline constexpr char kShouldShowSearchResultAdClickedInfoBar[] =
+    "brave.search.search_result_ad.should_show_clicked_infobar";
 
 }  // namespace brave_ads::prefs
 

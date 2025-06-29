@@ -7,8 +7,12 @@
 
 #include <utility>
 
+#include "base/notreached.h"
+
+#if defined(TOOLKIT_VIEWS)
 #include "brave/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_finder.h"
+#endif
 
 WalletPageHandler::WalletPageHandler(
     mojo::PendingReceiver<brave_wallet::mojom::PageHandler> receiver,

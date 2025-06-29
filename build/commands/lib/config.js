@@ -21,7 +21,12 @@ if (process.platform === 'win32') {
 const rootDir = path.resolve(dirName, '..', '..', '..', '..', '..')
 const braveCoreDir = path.join(rootDir, 'src', 'brave')
 
-var packageConfig = function (key, sourceDir = braveCoreDir) {
+if (rootDir.includes(' ')) {
+  Log.error(`Root directory contains spaces, this is not supported: ${rootDir}`)
+  process.exit(1)
+}
+
+const packageConfig = function (key, sourceDir = braveCoreDir) {
   let packages = { config: {} }
   const configAbsolutePath = path.join(sourceDir, 'package.json')
   if (fs.existsSync(configAbsolutePath)) {
@@ -30,7 +35,7 @@ var packageConfig = function (key, sourceDir = braveCoreDir) {
 
   // packages.config should include version string.
   let obj = Object.assign({}, packages.config, { version: packages.version })
-  for (var i = 0, len = key.length; i < len; i++) {
+  for (let i = 0, len = key.length; i < len; i++) {
     if (!obj) {
       return obj
     }
@@ -39,7 +44,7 @@ var packageConfig = function (key, sourceDir = braveCoreDir) {
   return obj
 }
 
-const getEnvConfig = (key, default_value = undefined) => {
+const getEnvConfig = (key, defaultValue = undefined) => {
   if (!envConfig) {
     envConfig = {}
 
@@ -50,8 +55,8 @@ const getEnvConfig = (key, default_value = undefined) => {
     } else {
       // The .env file is used by `gn gen`. Create it if it doesn't exist.
       const defaultEnvConfigContent =
-        '# This is a placeholder .env config file for the build system.\n' +
-        '# See for details: https://github.com/brave/brave-browser/wiki/Build-configuration\n'
+        '# This is a placeholder .env config file for the build system.\n'
+        + '# See for details: https://github.com/brave/brave-browser/wiki/Build-configuration\n'
       fs.writeFileSync(envConfigPath, defaultEnvConfigContent)
     }
 
@@ -64,14 +69,16 @@ const getEnvConfig = (key, default_value = undefined) => {
   }
 
   const envConfigValue = envConfig[key.join('_')]
-  if (envConfigValue !== undefined)
+  if (envConfigValue !== undefined) {
     return envConfigValue
+  }
 
   const packageConfigValue = packageConfig(key)
-  if (packageConfigValue !== undefined)
+  if (packageConfigValue !== undefined) {
     return packageConfigValue
+  }
 
-  return default_value
+  return defaultValue
 }
 
 const getDepotToolsDir = (rootDir) => {
@@ -102,7 +109,7 @@ const getBraveVersion = (ignorePatchVersionNumber) => {
   }
 
   const braveVersionParts = braveVersion.split('.')
-  assert(braveVersionParts.length == 3)
+  assert(braveVersionParts.length === 3)
   braveVersionParts[2] = '0'
   return braveVersionParts.join('.')
 }
@@ -123,8 +130,10 @@ const getHostOS = () => {
 const Config = function () {
   this.isTeamcity = process.env.TEAMCITY_VERSION !== undefined
   this.isCI = process.env.BUILD_ID !== undefined || this.isTeamcity
-  this.internalDepsUrl = 'https://vhemnu34de4lf5cj6bx2wwshyy0egdxk.lambda-url.us-west-2.on.aws'
-  this.defaultBuildConfig = getEnvConfig(['default_build_config']) || 'Component'
+  this.internalDepsUrl =
+    'https://vhemnu34de4lf5cj6bx2wwshyy0egdxk.lambda-url.us-west-2.on.aws'
+  this.defaultBuildConfig =
+    getEnvConfig(['default_build_config']) || 'Component'
   this.buildConfig = this.defaultBuildConfig
   this.buildTargets = ['brave']
   this.rootDir = rootDir
@@ -138,7 +147,12 @@ const Config = function () {
   this.buildToolsDir = path.join(this.srcDir, 'build')
   this.resourcesDir = path.join(this.rootDir, 'resources')
   this.depotToolsDir = getDepotToolsDir(this.braveCoreDir)
-  this.depotToolsRepo = getEnvConfig(['projects', 'depot_tools', 'repository', 'url'])
+  this.depotToolsRepo = getEnvConfig([
+    'projects',
+    'depot_tools',
+    'repository',
+    'url',
+  ])
   this.defaultGClientFile = path.join(this.rootDir, '.gclient')
   this.gClientFile = process.env.BRAVE_GCLIENT_FILE || this.defaultGClientFile
   this.gClientVerbose = getEnvConfig(['gclient_verbose']) || false
@@ -148,70 +162,115 @@ const Config = function () {
   this.targetEnvironment = getEnvConfig(['target_environment'])
   this.gypTargetArch = 'x64'
   this.targetAndroidBase = 'classic'
-  this.braveServicesProductionDomain = getEnvConfig(['brave_services_production_domain']) || ''
-  this.braveServicesStagingDomain = getEnvConfig(['brave_services_staging_domain']) || ''
-  this.braveServicesDevDomain = getEnvConfig(['brave_services_dev_domain']) || ''
-  this.braveGoogleApiKey = getEnvConfig(['brave_google_api_key']) || 'AIzaSyAREPLACEWITHYOUROWNGOOGLEAPIKEY2Q'
-  this.googleApiEndpoint = getEnvConfig(['brave_google_api_endpoint']) || 'https://www.googleapis.com/geolocation/v1/geolocate?key='
+  this.braveServicesProductionDomain =
+    getEnvConfig(['brave_services_production_domain']) || ''
+  this.braveServicesStagingDomain =
+    getEnvConfig(['brave_services_staging_domain']) || ''
+  this.braveServicesDevDomain =
+    getEnvConfig(['brave_services_dev_domain']) || ''
+  this.braveGoogleApiKey =
+    getEnvConfig(['brave_google_api_key'])
+    || 'AIzaSyAREPLACEWITHYOUROWNGOOGLEAPIKEY2Q'
+  this.googleApiEndpoint =
+    getEnvConfig(['brave_google_api_endpoint'])
+    || 'https://www.googleapis.com/geolocation/v1/geolocate?key='
   this.googleDefaultClientId = getEnvConfig(['google_default_client_id']) || ''
-  this.googleDefaultClientSecret = getEnvConfig(['google_default_client_secret']) || ''
+  this.googleDefaultClientSecret =
+    getEnvConfig(['google_default_client_secret']) || ''
   this.infuraProjectId = getEnvConfig(['brave_infura_project_id']) || ''
   this.sardineClientId = getEnvConfig(['sardine_client_id']) || ''
   this.sardineClientSecret = getEnvConfig(['sardine_client_secret']) || ''
-  this.bitFlyerProductionClientId = getEnvConfig(['bitflyer_production_client_id']) || ''
-  this.bitFlyerProductionClientSecret = getEnvConfig(['bitflyer_production_client_secret']) || ''
-  this.bitFlyerProductionFeeAddress = getEnvConfig(['bitflyer_production_fee_address']) || ''
+  this.bitFlyerProductionClientId =
+    getEnvConfig(['bitflyer_production_client_id']) || ''
+  this.bitFlyerProductionClientSecret =
+    getEnvConfig(['bitflyer_production_client_secret']) || ''
+  this.bitFlyerProductionFeeAddress =
+    getEnvConfig(['bitflyer_production_fee_address']) || ''
   this.bitFlyerProductionUrl = getEnvConfig(['bitflyer_production_url']) || ''
-  this.bitFlyerSandboxClientId = getEnvConfig(['bitflyer_sandbox_client_id']) || ''
-  this.bitFlyerSandboxClientSecret = getEnvConfig(['bitflyer_sandbox_client_secret']) || ''
-  this.bitFlyerSandboxFeeAddress = getEnvConfig(['bitflyer_sandbox_fee_address']) || ''
+  this.bitFlyerSandboxClientId =
+    getEnvConfig(['bitflyer_sandbox_client_id']) || ''
+  this.bitFlyerSandboxClientSecret =
+    getEnvConfig(['bitflyer_sandbox_client_secret']) || ''
+  this.bitFlyerSandboxFeeAddress =
+    getEnvConfig(['bitflyer_sandbox_fee_address']) || ''
   this.bitFlyerSandboxUrl = getEnvConfig(['bitflyer_sandbox_url']) || ''
-  this.geminiProductionApiUrl = getEnvConfig(['gemini_production_api_url']) || ''
-  this.geminiProductionClientId = getEnvConfig(['gemini_production_client_id']) || ''
-  this.geminiProductionClientSecret = getEnvConfig(['gemini_production_client_secret']) || ''
-  this.geminiProductionFeeAddress = getEnvConfig(['gemini_production_fee_address']) || ''
-  this.geminiProductionOauthUrl = getEnvConfig(['gemini_production_oauth_url']) || ''
+  this.geminiProductionApiUrl =
+    getEnvConfig(['gemini_production_api_url']) || ''
+  this.geminiProductionClientId =
+    getEnvConfig(['gemini_production_client_id']) || ''
+  this.geminiProductionClientSecret =
+    getEnvConfig(['gemini_production_client_secret']) || ''
+  this.geminiProductionFeeAddress =
+    getEnvConfig(['gemini_production_fee_address']) || ''
+  this.geminiProductionOauthUrl =
+    getEnvConfig(['gemini_production_oauth_url']) || ''
   this.geminiSandboxApiUrl = getEnvConfig(['gemini_sandbox_api_url']) || ''
   this.geminiSandboxClientId = getEnvConfig(['gemini_sandbox_client_id']) || ''
-  this.geminiSandboxClientSecret = getEnvConfig(['gemini_sandbox_client_secret']) || ''
-  this.geminiSandboxFeeAddress = getEnvConfig(['gemini_sandbox_fee_address']) || ''
+  this.geminiSandboxClientSecret =
+    getEnvConfig(['gemini_sandbox_client_secret']) || ''
+  this.geminiSandboxFeeAddress =
+    getEnvConfig(['gemini_sandbox_fee_address']) || ''
   this.geminiSandboxOauthUrl = getEnvConfig(['gemini_sandbox_oauth_url']) || ''
-  this.upholdProductionApiUrl = getEnvConfig(['uphold_production_api_url']) || ''
-  this.upholdProductionClientId = getEnvConfig(['uphold_production_client_id']) || ''
-  this.upholdProductionClientSecret = getEnvConfig(['uphold_production_client_secret']) || ''
-  this.upholdProductionFeeAddress = getEnvConfig(['uphold_production_fee_address']) || ''
-  this.upholdProductionOauthUrl = getEnvConfig(['uphold_production_oauth_url']) || ''
+  this.upholdProductionApiUrl =
+    getEnvConfig(['uphold_production_api_url']) || ''
+  this.upholdProductionClientId =
+    getEnvConfig(['uphold_production_client_id']) || ''
+  this.upholdProductionClientSecret =
+    getEnvConfig(['uphold_production_client_secret']) || ''
+  this.upholdProductionFeeAddress =
+    getEnvConfig(['uphold_production_fee_address']) || ''
+  this.upholdProductionOauthUrl =
+    getEnvConfig(['uphold_production_oauth_url']) || ''
   this.upholdSandboxApiUrl = getEnvConfig(['uphold_sandbox_api_url']) || ''
   this.upholdSandboxClientId = getEnvConfig(['uphold_sandbox_client_id']) || ''
-  this.upholdSandboxClientSecret = getEnvConfig(['uphold_sandbox_client_secret']) || ''
-  this.upholdSandboxFeeAddress = getEnvConfig(['uphold_sandbox_fee_address']) || ''
+  this.upholdSandboxClientSecret =
+    getEnvConfig(['uphold_sandbox_client_secret']) || ''
+  this.upholdSandboxFeeAddress =
+    getEnvConfig(['uphold_sandbox_fee_address']) || ''
   this.upholdSandboxOauthUrl = getEnvConfig(['uphold_sandbox_oauth_url']) || ''
-  this.zebPayProductionApiUrl = getEnvConfig(['zebpay_production_api_url']) || ''
-  this.zebPayProductionClientId = getEnvConfig(['zebpay_production_client_id']) || ''
-  this.zebPayProductionClientSecret = getEnvConfig(['zebpay_production_client_secret']) || ''
-  this.zebPayProductionOauthUrl = getEnvConfig(['zebpay_production_oauth_url']) || ''
+  this.zebPayProductionApiUrl =
+    getEnvConfig(['zebpay_production_api_url']) || ''
+  this.zebPayProductionClientId =
+    getEnvConfig(['zebpay_production_client_id']) || ''
+  this.zebPayProductionClientSecret =
+    getEnvConfig(['zebpay_production_client_secret']) || ''
+  this.zebPayProductionOauthUrl =
+    getEnvConfig(['zebpay_production_oauth_url']) || ''
   this.zebPaySandboxApiUrl = getEnvConfig(['zebpay_sandbox_api_url']) || ''
   this.zebPaySandboxClientId = getEnvConfig(['zebpay_sandbox_client_id']) || ''
-  this.zebPaySandboxClientSecret = getEnvConfig(['zebpay_sandbox_client_secret']) || ''
+  this.zebPaySandboxClientSecret =
+    getEnvConfig(['zebpay_sandbox_client_secret']) || ''
   this.zebPaySandboxOauthUrl = getEnvConfig(['zebpay_sandbox_oauth_url']) || ''
   this.braveSyncEndpoint = getEnvConfig(['brave_sync_endpoint']) || ''
-  this.safeBrowsingApiEndpoint = getEnvConfig(['safebrowsing_api_endpoint']) || ''
+  this.safeBrowsingApiEndpoint =
+    getEnvConfig(['safebrowsing_api_endpoint']) || ''
   this.updaterProdEndpoint = getEnvConfig(['updater_prod_endpoint']) || ''
   this.updaterDevEndpoint = getEnvConfig(['updater_dev_endpoint']) || ''
-  this.webcompatReportApiEndpoint = getEnvConfig(['webcompat_report_api_endpoint']) || 'https://webcompat.brave.com/1/webcompat'
-  this.rewardsGrantDevEndpoint = getEnvConfig(['rewards_grant_dev_endpoint']) || ''
-  this.rewardsGrantStagingEndpoint = getEnvConfig(['rewards_grant_staging_endpoint']) || ''
-  this.rewardsGrantProdEndpoint = getEnvConfig(['rewards_grant_prod_endpoint']) || ''
-  this.ignorePatchVersionNumber = !this.isBraveReleaseBuild() && getEnvConfig(['ignore_patch_version_number'], !this.isCI)
+  this.webcompatReportApiEndpoint =
+    getEnvConfig(['webcompat_report_api_endpoint'])
+    || 'https://webcompat.brave.com/1/webcompat'
+  this.rewardsGrantDevEndpoint =
+    getEnvConfig(['rewards_grant_dev_endpoint']) || ''
+  this.rewardsGrantStagingEndpoint =
+    getEnvConfig(['rewards_grant_staging_endpoint']) || ''
+  this.rewardsGrantProdEndpoint =
+    getEnvConfig(['rewards_grant_prod_endpoint']) || ''
+  this.ignorePatchVersionNumber =
+    !this.isBraveReleaseBuild()
+    && getEnvConfig(['ignore_patch_version_number'], !this.isCI)
   this.braveVersion = getBraveVersion(this.ignorePatchVersionNumber)
-  this.braveIOSMarketingPatchVersion = getEnvConfig(['brave_ios_marketing_version_patch']) || ''
+  this.braveIOSMarketingPatchVersion =
+    getEnvConfig(['brave_ios_marketing_version_patch']) || ''
   this.androidOverrideVersionName = this.braveVersion
   this.releaseTag = this.braveVersion.split('+')[0]
   this.mac_signing_identifier = getEnvConfig(['mac_signing_identifier'])
-  this.mac_installer_signing_identifier = getEnvConfig(['mac_installer_signing_identifier']) || ''
+  this.mac_installer_signing_identifier =
+    getEnvConfig(['mac_installer_signing_identifier']) || ''
   this.mac_signing_keychain = getEnvConfig(['mac_signing_keychain']) || 'login'
-  this.sparkleDSAPrivateKeyFile = getEnvConfig(['sparkle_dsa_private_key_file']) || ''
-  this.sparkleEdDSAPrivateKey = getEnvConfig(['sparkle_eddsa_private_key']) || ''
+  this.sparkleDSAPrivateKeyFile =
+    getEnvConfig(['sparkle_dsa_private_key_file']) || ''
+  this.sparkleEdDSAPrivateKey =
+    getEnvConfig(['sparkle_eddsa_private_key']) || ''
   this.sparkleEdDSAPublicKey = getEnvConfig(['sparkle_eddsa_public_key']) || ''
   this.notary_user = getEnvConfig(['notary_user']) || ''
   this.notary_password = getEnvConfig(['notary_password']) || ''
@@ -223,7 +282,8 @@ const Config = function () {
   this.rbeTlsClientAuthKey = getEnvConfig(['rbe_tls_client_auth_key']) || ''
   // Make sure "src/" is a part of RBE "exec_root" to allow "src/" files as inputs.
   this.rbeExecRoot = this.rootDir
-  this.realRewrapperDir = process.env.RBE_DIR || path.join(this.srcDir, 'buildtools', 'reclient')
+  this.realRewrapperDir =
+    process.env.RBE_DIR || path.join(this.srcDir, 'buildtools', 'reclient')
   this.braveStatsApiKey = getEnvConfig(['brave_stats_api_key']) || ''
   this.braveStatsUpdaterUrl = getEnvConfig(['brave_stats_updater_url']) || ''
   this.ignore_compile_failure = false
@@ -232,17 +292,31 @@ const Config = function () {
   this.sign_widevine_cert = process.env.SIGN_WIDEVINE_CERT || ''
   this.sign_widevine_key = process.env.SIGN_WIDEVINE_KEY || ''
   this.sign_widevine_passwd = process.env.SIGN_WIDEVINE_PASSPHRASE || ''
-  this.signature_generator = path.join(this.srcDir, 'third_party', 'widevine', 'scripts', 'signature_generator.py') || ''
+  this.signature_generator =
+    path.join(
+      this.srcDir,
+      'third_party',
+      'widevine',
+      'scripts',
+      'signature_generator.py',
+    ) || ''
   this.extraGnArgs = {}
   this.extraGnGenOpts = getEnvConfig(['brave_extra_gn_gen_opts']) || ''
   this.extraNinjaOpts = []
-  this.braveAndroidSafeBrowsingApiKey = getEnvConfig(['brave_safebrowsing_api_key']) || ''
-  this.braveAndroidDeveloperOptionsCode = getEnvConfig(['brave_android_developer_options_code']) || ''
+  this.braveAndroidSafeBrowsingApiKey =
+    getEnvConfig(['brave_safebrowsing_api_key']) || ''
+  this.braveAndroidDeveloperOptionsCode =
+    getEnvConfig(['brave_android_developer_options_code']) || ''
   this.braveAndroidKeystorePath = getEnvConfig(['brave_android_keystore_path'])
   this.braveAndroidKeystoreName = getEnvConfig(['brave_android_keystore_name'])
-  this.braveAndroidKeystorePassword = getEnvConfig(['brave_android_keystore_password'])
+  this.braveAndroidKeystorePassword = getEnvConfig([
+    'brave_android_keystore_password',
+  ])
   this.braveAndroidKeyPassword = getEnvConfig(['brave_android_key_password'])
-  this.braveVariationsServerUrl = getEnvConfig(['brave_variations_server_url']) || ''
+  this.braveAndroidPkcs11Provider = ''
+  this.braveAndroidPkcs11Alias = ''
+  this.braveVariationsServerUrl =
+    getEnvConfig(['brave_variations_server_url']) || ''
   this.nativeRedirectCCDir = path.join(this.srcDir, 'out', 'redirect_cc')
   this.useRemoteExec = getEnvConfig(['use_remoteexec']) || false
   this.offline = getEnvConfig(['offline']) || false
@@ -251,9 +325,11 @@ const Config = function () {
   this.useBraveHermeticToolchain = this.rbeService.includes('.brave.com:')
   this.brave_services_key_id = getEnvConfig(['brave_services_key_id']) || ''
   this.service_key_aichat = getEnvConfig(['service_key_aichat']) || ''
-  this.braveIOSDeveloperOptionsCode = getEnvConfig(['brave_ios_developer_options_code']) || ''
+  this.braveIOSDeveloperOptionsCode =
+    getEnvConfig(['brave_ios_developer_options_code']) || ''
   this.service_key_stt = getEnvConfig(['service_key_stt']) || ''
-  this.skip_download_rust_toolchain_aux = getEnvConfig(['skip_download_rust_toolchain_aux']) || false
+  this.skip_download_rust_toolchain_aux =
+    getEnvConfig(['skip_download_rust_toolchain_aux']) || false
 }
 
 Config.prototype.isReleaseBuild = function () {
@@ -263,8 +339,10 @@ Config.prototype.isReleaseBuild = function () {
 Config.prototype.isBraveReleaseBuild = function () {
   const isBraveReleaseBuildValue = getEnvConfig(['is_brave_release_build'])
   if (isBraveReleaseBuildValue !== undefined) {
-    assert(isBraveReleaseBuildValue === '0' || isBraveReleaseBuildValue === '1',
-      'Bad is_brave_release_build value (should be 0 or 1)')
+    assert(
+      isBraveReleaseBuildValue === '0' || isBraveReleaseBuildValue === '1',
+      'Bad is_brave_release_build value (should be 0 or 1)',
+    )
     return isBraveReleaseBuildValue === '1'
   }
 
@@ -280,12 +358,13 @@ Config.prototype.isDebug = function () {
 }
 
 Config.prototype.enableCDMHostVerification = function () {
-  const enable = this.buildConfig === 'Release' &&
-    process.platform !== 'linux' &&
-    this.sign_widevine_cert !== "" &&
-    this.sign_widevine_key !== "" &&
-    this.sign_widevine_passwd !== "" &&
-    fs.existsSync(this.signature_generator)
+  const enable =
+    this.buildConfig === 'Release'
+    && process.platform !== 'linux'
+    && this.sign_widevine_cert !== ''
+    && this.sign_widevine_key !== ''
+    && this.sign_widevine_passwd !== ''
+    && fs.existsSync(this.signature_generator)
   if (enable) {
     console.log('Widevine cdm host verification is enabled')
   } else {
@@ -306,14 +385,14 @@ Config.prototype.isOfficialBuild = function () {
 }
 
 Config.prototype.getBraveLogoIconName = function () {
-  let iconName = "brave-icon-dev-color.svg"
+  let iconName = 'brave-icon-dev-color.svg'
   if (this.isBraveReleaseBuild()) {
-    if (this.channel === "beta") {
-      iconName = "brave-icon-beta-color.svg"
-    } else if (this.channel === "nightly") {
-      iconName = "brave-icon-nightly-color.svg"
+    if (this.channel === 'beta') {
+      iconName = 'brave-icon-beta-color.svg'
+    } else if (this.channel === 'nightly') {
+      iconName = 'brave-icon-nightly-color.svg'
     } else {
-      iconName = "brave-icon-release-color.svg"
+      iconName = 'brave-icon-release-color.svg'
     }
   }
   return iconName
@@ -321,10 +400,8 @@ Config.prototype.getBraveLogoIconName = function () {
 
 Config.prototype.buildArgs = function () {
   const version = this.braveVersion
-  let version_parts = version.split('+')[0]
-  version_parts = version_parts.split('.')
-
-  const chrome_version_parts = this.chromeVersion.split('.')
+  let versionParts = version.split('+')[0]
+  versionParts = versionParts.split('.')
 
   let args = {
     sardine_client_id: this.sardineClientId,
@@ -334,17 +411,18 @@ Config.prototype.buildArgs = function () {
     v8_enable_verify_heap: this.isAsan(),
     disable_fieldtrial_testing_config: true,
     safe_browsing_mode: 1,
-    root_extra_deps: ["//brave"],
-    clang_unsafe_buffers_paths: "//brave/build/config/unsafe_buffers_paths.txt",
+    root_extra_deps: ['//brave'],
+    clang_unsafe_buffers_paths: '//brave/build/config/unsafe_buffers_paths.txt',
     // TODO: Re-enable when chromium_src overrides work for files in relative
     // paths like widevine_cmdm_compoennt_installer.cc
     // use_jumbo_build: !this.officialBuild,
     is_component_build: this.isComponentBuild(),
     is_universal_binary: this.isUniversalBinary,
     proprietary_codecs: true,
-    ffmpeg_branding: "Chrome",
-    branding_path_component: "brave",
-    branding_path_product: "brave",
+    ffmpeg_branding: 'Chrome',
+    branding_path_component: 'brave',
+    branding_path_product: 'brave',
+    enable_glic: false,
     enable_nacl: false,
     enable_widevine: true,
     // Our copy of signature_generator.py doesn't support --ignore_missing_cert:
@@ -352,7 +430,8 @@ Config.prototype.buildArgs = function () {
     target_cpu: this.targetArch,
     is_official_build: this.isOfficialBuild(),
     is_debug: this.isDebug(),
-    dcheck_always_on: getEnvConfig(['dcheck_always_on']) || this.isComponentBuild(),
+    dcheck_always_on:
+      getEnvConfig(['dcheck_always_on']) || this.isComponentBuild(),
     brave_channel: this.channel,
     brave_google_api_key: this.braveGoogleApiKey,
     brave_google_api_endpoint: this.googleApiEndpoint,
@@ -395,9 +474,9 @@ Config.prototype.buildArgs = function () {
     zebpay_sandbox_client_id: this.zebPaySandboxClientId,
     zebpay_sandbox_client_secret: this.zebPaySandboxClientSecret,
     zebpay_sandbox_oauth_url: this.zebPaySandboxOauthUrl,
-    brave_version_major: version_parts[0],
-    brave_version_minor: version_parts[1],
-    brave_version_build: version_parts[2],
+    brave_version_major: versionParts[0],
+    brave_version_minor: versionParts[1],
+    brave_version_build: versionParts[2],
     chrome_version_string: this.chromeVersion,
     brave_sync_endpoint: this.braveSyncEndpoint,
     safebrowsing_api_endpoint: this.safeBrowsingApiEndpoint,
@@ -418,8 +497,12 @@ Config.prototype.buildArgs = function () {
     sparkle_eddsa_private_key: this.sparkleEdDSAPrivateKey,
     sparkle_eddsa_public_key: this.sparkleEdDSAPublicKey,
     use_remoteexec: this.useRemoteExec,
+    use_reclient: this.useRemoteExec,
+    use_siso: false,
     use_libfuzzer: this.use_libfuzzer,
     enable_updater: this.isOfficialBuild(),
+    // Disable "Can't update Brave" notification on macOS until we have switched
+    // to Omaha 4 and have background updates:
     enable_update_notifications: this.isOfficialBuild(),
     brave_services_production_domain: this.braveServicesProductionDomain,
     brave_services_staging_domain: this.braveServicesStagingDomain,
@@ -457,7 +540,8 @@ Config.prototype.buildArgs = function () {
   if (this.shouldSign()) {
     if (this.getTargetOS() === 'mac') {
       args.mac_signing_identifier = this.mac_signing_identifier
-      args.mac_installer_signing_identifier = this.mac_installer_signing_identifier
+      args.mac_installer_signing_identifier =
+        this.mac_installer_signing_identifier
       args.mac_signing_keychain = this.mac_signing_keychain
       if (this.notarize) {
         args.notarize = true
@@ -469,6 +553,10 @@ Config.prototype.buildArgs = function () {
       args.brave_android_keystore_name = this.braveAndroidKeystoreName
       args.brave_android_keystore_password = this.braveAndroidKeystorePassword
       args.brave_android_key_password = this.braveAndroidKeyPassword
+      if (this.braveAndroidPkcs11Provider && this.braveAndroidPkcs11Alias) {
+        args.brave_android_pkcs11_provider = this.braveAndroidPkcs11Provider
+        args.brave_android_pkcs11_alias = this.braveAndroidPkcs11Alias
+      }
     }
   }
 
@@ -480,8 +568,14 @@ Config.prototype.buildArgs = function () {
     }
   }
 
-  if ((process.platform === 'win32' || process.platform === 'darwin') && this.build_delta_installer) {
-    assert(this.last_chrome_installer, 'Need last_chrome_installer args for building delta installer')
+  if (
+    (process.platform === 'win32' || process.platform === 'darwin')
+    && this.build_delta_installer
+  ) {
+    assert(
+      this.last_chrome_installer,
+      'Need last_chrome_installer args for building delta installer',
+    )
     args.build_delta_installer = true
     args.last_chrome_installer = this.last_chrome_installer
   }
@@ -490,10 +584,12 @@ Config.prototype.buildArgs = function () {
     args.allow_runtime_configurable_key_storage = true
   }
 
-  if (this.isDebug() &&
-      !this.isComponentBuild() &&
-      this.targetOS !== 'ios' &&
-      this.targetOS !== 'android') {
+  if (
+    this.isDebug()
+    && !this.isComponentBuild()
+    && this.targetOS !== 'ios'
+    && this.targetOS !== 'android'
+  ) {
     args.enable_profiling = true
   }
 
@@ -519,9 +615,11 @@ Config.prototype.buildArgs = function () {
   //    configuration. symbol_level = 2 cannot be used because of "relocation
   //    R_X86_64_32 out of range" errors.
   if (
-    this.getTargetOS() === 'linux' &&
-    (this.targetArch === 'x86' ||
-      (!this.isDebug() && !this.isComponentBuild() && !this.isReleaseBuild()))
+    this.getTargetOS() === 'linux'
+    && (this.targetArch === 'x86'
+      || (!this.isDebug()
+        && !this.isComponentBuild()
+        && !this.isReleaseBuild()))
   ) {
     args.symbol_level = 1
   }
@@ -533,10 +631,20 @@ Config.prototype.buildArgs = function () {
     args.use_debug_fission = true
   }
 
-  if (this.getTargetOS() === 'mac' &&
-      fs.existsSync(path.join(this.srcDir, 'build', 'mac_files', 'xcode_binaries', 'Contents'))) {
-      // always use hermetic xcode for macos when available
-      args.use_system_xcode = false
+  if (
+    this.getTargetOS() === 'mac'
+    && fs.existsSync(
+      path.join(
+        this.srcDir,
+        'build',
+        'mac_files',
+        'xcode_binaries',
+        'Contents',
+      ),
+    )
+  ) {
+    // always use hermetic xcode for macos when available
+    args.use_system_xcode = false
   }
 
   if (this.getTargetOS() === 'linux') {
@@ -546,7 +654,6 @@ Config.prototype.buildArgs = function () {
       // consider enabling it for x86 builds. See
       // https://github.com/brave/brave-browser/issues/1024#issuecomment-1175397914
       args.use_vaapi = true
-
     }
   }
 
@@ -565,9 +672,12 @@ Config.prototype.buildArgs = function () {
     args.enable_brave_page_graph = false
   }
   // Enable Page Graph WebAPI probes only in dev/nightly builds.
-  if (args.enable_brave_page_graph &&
-      (!this.isBraveReleaseBuild() || this.channel === 'dev' ||
-       this.channel === 'nightly')) {
+  if (
+    args.enable_brave_page_graph
+    && (!this.isBraveReleaseBuild()
+      || this.channel === 'dev'
+      || this.channel === 'nightly')
+  ) {
     args.enable_brave_page_graph_webapi_probes = true
   } else {
     args.enable_brave_page_graph_webapi_probes = false
@@ -580,7 +690,7 @@ Config.prototype.buildArgs = function () {
   }
 
   if (this.targetOS) {
-    args.target_os = this.targetOS;
+    args.target_os = this.targetOS
   }
 
   if (this.targetOS === 'android') {
@@ -604,10 +714,12 @@ Config.prototype.buildArgs = function () {
 
     args.target_android_base = this.targetAndroidBase
     args.target_android_output_format =
-      this.targetAndroidOutputFormat || (this.buildConfig === 'Release' ? 'aab' : 'apk')
+      this.targetAndroidOutputFormat
+      || (this.buildConfig === 'Release' ? 'aab' : 'apk')
     args.android_override_version_name = this.androidOverrideVersionName
 
-    args.brave_android_developer_options_code = this.braveAndroidDeveloperOptionsCode
+    args.brave_android_developer_options_code =
+      this.braveAndroidDeveloperOptionsCode
     args.brave_safebrowsing_api_key = this.braveAndroidSafeBrowsingApiKey
     args.safe_browsing_mode = 2
 
@@ -625,7 +737,7 @@ Config.prototype.buildArgs = function () {
 
     args.android_aab_to_apk = this.androidAabToApk
 
-    if (this.targetArch == "arm64") {
+    if (this.targetArch === 'arm64') {
       // Flag use_relr_relocations is incompatible with Android 8 arm64, but
       // makes huge optimizations on Android 9 and above.
       // Decision is to specify android:minSdkVersion=28 for arm64 and keep
@@ -635,6 +747,17 @@ Config.prototype.buildArgs = function () {
       //   - for Android 9 and above GP will supply arm64 and we can enable all
       //     optimizations.
       args.default_min_sdk_version = 28
+    }
+
+    if (
+      args.target_android_output_format === 'apk'
+      && (this.targetArch === 'arm64' || this.targetArch === 'x64')
+    ) {
+      // We want to have both 32 and 64 bit native libs in arm64/x64 apks
+      // Starting from cr136 it is defaulted to false.
+      // For local build you can add --gn=enable_android_secondary_abi:false
+      // to have only 64 bit libs.
+      args.enable_android_secondary_abi = true
     }
 
     // These do not exist on android
@@ -647,8 +770,9 @@ Config.prototype.buildArgs = function () {
     if (this.targetEnvironment) {
       args.target_environment = this.targetEnvironment
     }
-    if (this.braveIOSMarketingPatchVersion != '') {
-      args.brave_ios_marketing_version_patch = this.braveIOSMarketingPatchVersion
+    if (this.braveIOSMarketingPatchVersion) {
+      args.brave_ios_marketing_version_patch =
+        this.braveIOSMarketingPatchVersion
     }
     args.enable_stripping = !this.isComponentBuild()
     // Component builds are not supported for iOS:
@@ -685,14 +809,12 @@ Config.prototype.buildArgs = function () {
     // https://github.com/brave/brave-browser/issues/29934
     args.ios_partition_alloc_enabled = false
 
-    args.ios_provider_target = "//brave/ios/browser/providers:brave_providers"
+    args.ios_provider_target = '//brave/ios/browser/providers:brave_providers'
 
     args.ios_locales_pack_extra_source_patterns = [
-      "%root_gen_dir%/components/brave_components_strings_",
+      '%root_gen_dir%/components/brave_components_strings_',
     ]
-    args.ios_locales_pack_extra_deps = [
-      "//brave/components/resources:strings",
-    ]
+    args.ios_locales_pack_extra_deps = ['//brave/components/resources:strings']
 
     delete args.safebrowsing_api_endpoint
     delete args.safe_browsing_mode
@@ -700,6 +822,7 @@ Config.prototype.buildArgs = function () {
     delete args.ffmpeg_branding
     delete args.branding_path_component
     delete args.branding_path_product
+    delete args.enable_glic
     delete args.enable_nacl
     delete args.enable_widevine
     delete args.enable_hangout_services_extension
@@ -752,9 +875,7 @@ Config.prototype.buildArgs = function () {
 }
 
 Config.prototype.shouldSign = function () {
-  if (this.skip_signing ||
-    this.isComponentBuild() ||
-    this.targetOS === 'ios') {
+  if (this.skip_signing || this.isComponentBuild() || this.targetOS === 'ios') {
     return false
   }
 
@@ -767,9 +888,11 @@ Config.prototype.shouldSign = function () {
   }
 
   if (process.platform === 'win32') {
-    return process.env.CERT !== undefined ||
-      process.env.AUTHENTICODE_HASH !== undefined ||
-      process.env.SIGNTOOL_ARGS !== undefined
+    return (
+      process.env.CERT !== undefined
+      || process.env.AUTHENTICODE_HASH !== undefined
+      || process.env.SIGNTOOL_ARGS !== undefined
+    )
   }
 
   return false
@@ -802,13 +925,16 @@ Config.prototype.addPythonPathToEnv = function (env, addPath) {
 
 Config.prototype.getProjectVersion = function (projectName) {
   return (
-    getEnvConfig(['projects', projectName, 'revision']) ||
-    getEnvConfig(['projects', projectName, 'tag']) ||
-    getEnvConfig(['projects', projectName, 'branch'])
+    getEnvConfig(['projects', projectName, 'revision'])
+    || getEnvConfig(['projects', projectName, 'tag'])
+    || getEnvConfig(['projects', projectName, 'branch'])
   )
 }
 
-Config.prototype.getProjectRef = function (projectName, defaultValue = 'origin/master') {
+Config.prototype.getProjectRef = function (
+  projectName,
+  defaultValue = 'origin/master',
+) {
   const revision = getEnvConfig(['projects', projectName, 'revision'])
   if (revision) {
     return revision
@@ -855,15 +981,15 @@ Config.prototype.update = function (options) {
     // Handle non-standard target_os values as they are used on CI currently and
     // it's easier to support them as is instead of rewriting the CI scripts.
     if (options.target_os === 'macos') {
-      this.targetOS = 'mac';
+      this.targetOS = 'mac'
     } else if (options.target_os === 'windows') {
-      this.targetOS = 'win';
+      this.targetOS = 'win'
     } else {
-      this.targetOS = options.target_os;
+      this.targetOS = options.target_os
     }
     assert(
       ['android', 'ios', 'linux', 'mac', 'win'].includes(this.targetOS),
-      `Unsupported target_os value: ${this.targetOS}`
+      `Unsupported target_os value: ${this.targetOS}`,
     )
   }
 
@@ -905,9 +1031,9 @@ Config.prototype.update = function (options) {
   }
 
   if (options.force_gn_gen) {
-    this.force_gn_gen = true;
+    this.force_gn_gen = true
   } else {
-    this.force_gn_gen = false;
+    this.force_gn_gen = false
   }
 
   if (options.C) {
@@ -932,16 +1058,16 @@ Config.prototype.update = function (options) {
   if (options.build_omaha) {
     assert(process.platform === 'win32')
     this.build_omaha = true
-    assert(options.tag_ap, "--tag_ap is required for --build_omaha")
+    assert(options.tag_ap, '--tag_ap is required for --build_omaha')
   }
 
   if (options.tag_ap) {
-    assert(options.build_omaha, "--tag_ap requires --build_omaha")
+    assert(options.build_omaha, '--tag_ap requires --build_omaha')
     this.tag_ap = options.tag_ap
   }
 
   if (options.tag_installdataindex) {
-    assert(options.build_omaha, "--tag_installdataindex requires --build_omaha")
+    assert(options.build_omaha, '--tag_installdataindex requires --build_omaha')
     this.tag_installdataindex = options.tag_installdataindex
   }
 
@@ -954,23 +1080,30 @@ Config.prototype.update = function (options) {
     this.last_chrome_installer = options.last_chrome_installer
   }
 
-  if (options.mac_signing_identifier)
+  if (options.mac_signing_identifier) {
     this.mac_signing_identifier = options.mac_signing_identifier
+  }
 
-  if (options.mac_installer_signing_identifier)
-    this.mac_installer_signing_identifier = options.mac_installer_signing_identifier
+  if (options.mac_installer_signing_identifier) {
+    this.mac_installer_signing_identifier =
+      options.mac_installer_signing_identifier
+  }
 
-  if (options.mac_signing_keychain)
+  if (options.mac_signing_keychain) {
     this.mac_signing_keychain = options.mac_signing_keychain
+  }
 
-  if (options.notarize)
+  if (options.notarize) {
     this.notarize = true
+  }
 
-  if (options.gclient_verbose)
+  if (options.gclient_verbose) {
     this.gClientVerbose = options.gclient_verbose
+  }
 
-  if (options.ignore_compile_failure)
+  if (options.ignore_compile_failure) {
     this.ignore_compile_failure = true
+  }
 
   if (options.xcode_gen) {
     assert(process.platform === 'darwin' || options.target_os === 'ios')
@@ -1012,11 +1145,20 @@ Config.prototype.update = function (options) {
   if (options.use_libfuzzer) {
     this.use_libfuzzer = options.use_libfuzzer
   }
+
+  if (options.pkcs11Provider) {
+    this.braveAndroidPkcs11Provider = options.pkcs11Provider
+  }
+
+  if (options.pkcs11Alias) {
+    this.braveAndroidPkcs11Alias = options.pkcs11Alias
+  }
 }
 
-Config.prototype.getTargetOS = function() {
-  if (this.targetOS)
+Config.prototype.getTargetOS = function () {
+  if (this.targetOS) {
     return this.targetOS
+  }
   return this.hostOS
 }
 
@@ -1027,16 +1169,31 @@ Config.prototype.getCachePath = function () {
 Object.defineProperty(Config.prototype, 'defaultOptions', {
   get: function () {
     let env = Object.assign({}, process.env)
-    env = this.addPathToEnv(env, path.join(this.depotToolsDir, 'python-bin'),
-                            true)
-    env = this.addPathToEnv(env, path.join(this.depotToolsDir, 'python2-bin'),
-                            true)
-    env = this.addPathToEnv(env, path.join(this.srcDir, 'third_party',
-                                           'rust-toolchain', 'bin'), true)
+    env = this.addPathToEnv(
+      env,
+      path.join(this.depotToolsDir, 'python-bin'),
+      true,
+    )
+    env = this.addPathToEnv(
+      env,
+      path.join(this.depotToolsDir, 'python2-bin'),
+      true,
+    )
+    env = this.addPathToEnv(
+      env,
+      path.join(this.srcDir, 'third_party', 'rust-toolchain', 'bin'),
+      true,
+    )
     env = this.addPathToEnv(env, this.depotToolsDir, true)
     if (this.getTargetOS() === 'mac' && process.platform !== 'darwin') {
-      const crossCompilePath = path.join(this.srcDir, 'brave', 'build', 'mac',
-                                         'cross_compile', 'path')
+      const crossCompilePath = path.join(
+        this.srcDir,
+        'brave',
+        'build',
+        'mac',
+        'cross_compile',
+        'path',
+      )
       env = this.addPathToEnv(env, crossCompilePath, true)
     }
     const pythonPaths = [
@@ -1048,7 +1205,7 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       ['build'],
       ['third_party', 'depot_tools'],
     ]
-    pythonPaths.forEach(p => {
+    pythonPaths.forEach((p) => {
       env = this.addPythonPathToEnv(env, path.join(this.srcDir, ...p))
     })
     env.PYTHONUNBUFFERED = '1'
@@ -1064,7 +1221,7 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
     // Fix `gclient runhooks` - broken since depot_tools a7b20b34f85432b5958963b75edcedfef9cf01fd
     env.GSUTIL_ENABLE_LUCI_AUTH = '0'
 
-    if (this.channel != "") {
+    if (this.channel) {
       env.BRAVE_CHANNEL = this.channel
     }
 
@@ -1074,7 +1231,7 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
       // Use hermetic toolchain only internally.
       env.USE_BRAVE_HERMETIC_TOOLCHAIN = '1'
       env.DEPOT_TOOLS_WIN_TOOLCHAIN = '1'
-      env.GYP_MSVS_HASH_7393122652 = 'd325744cf9'
+      env.GYP_MSVS_HASH_68a20d6dee = '6c25999c85'
       env.DEPOT_TOOLS_WIN_TOOLCHAIN_BASE_URL = `${this.internalDepsUrl}/windows-hermetic-toolchain/`
     }
 
@@ -1089,7 +1246,16 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
         env.CCACHE_CPP2 = 'yes'
         env.CCACHE_SLOPPINESS = 'pch_defines,time_macros,include_file_mtime'
         env.CCACHE_BASEDIR = this.srcDir
-        env = this.addPathToEnv(env, path.join(this.srcDir, 'third_party', 'llvm-build', 'Release+Asserts', 'bin'))
+        env = this.addPathToEnv(
+          env,
+          path.join(
+            this.srcDir,
+            'third_party',
+            'llvm-build',
+            'Release+Asserts',
+            'bin',
+          ),
+        )
       }
     }
 
@@ -1144,13 +1310,16 @@ Object.defineProperty(Config.prototype, 'defaultOptions', {
     // TeamCity displays only stderr on the "Build Problems" page when an error
     // occurs. By redirecting stdout to stderr, we ensure that all outputs from
     // external processes are visible in case of a failure.
-    const stdio = this.isTeamcity ? ['inherit', process.stderr, 'inherit'] : 'inherit'
+    const stdio = this.isTeamcity
+      ? ['inherit', process.stderr, 'inherit']
+      : 'inherit'
 
     return {
       env,
       stdio: stdio,
       cwd: this.srcDir,
-      shell: true,
+      // Shell is required to launch .bat files (gclient, vpython3, etc.).
+      shell: process.platform === 'win32',
       git_cwd: '.',
     }
   },
@@ -1161,28 +1330,30 @@ Object.defineProperty(Config.prototype, 'outputDir', {
     const baseDir = path.join(this.srcDir, 'out')
     if (this.__outputDir) {
       if (path.isAbsolute(this.__outputDir)) {
-        return this.__outputDir;
+        return this.__outputDir
       }
       return path.join(baseDir, this.__outputDir)
     }
 
     let buildConfigDir = this.buildConfig
-    if (this.targetArch && this.targetArch != 'x64') {
+    if (this.targetArch && this.targetArch !== 'x64') {
       buildConfigDir = buildConfigDir + '_' + this.targetArch
     }
     if (this.targetOS && this.targetOS !== this.hostOS) {
       buildConfigDir = this.targetOS + '_' + buildConfigDir
     }
-    if (this.targetEnvironment && this.targetEnvironment != 'device') {
-      buildConfigDir = buildConfigDir + "_" + this.targetEnvironment
+    if (this.targetEnvironment && this.targetEnvironment !== 'device') {
+      buildConfigDir = buildConfigDir + '_' + this.targetEnvironment
     }
     if (this.isChromium) {
-      buildConfigDir = buildConfigDir + "_chromium"
+      buildConfigDir = buildConfigDir + '_chromium'
     }
 
     return path.join(baseDir, buildConfigDir)
   },
-  set: function (outputDir) { return this.__outputDir = outputDir },
+  set: function (outputDir) {
+    return (this.__outputDir = outputDir)
+  },
 })
 
-module.exports = new Config
+module.exports = new Config()

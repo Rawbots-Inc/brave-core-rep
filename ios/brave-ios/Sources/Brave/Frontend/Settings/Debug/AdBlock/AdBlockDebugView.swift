@@ -3,6 +3,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import BraveShared
+import Strings
 import SwiftUI
 import WebKit
 
@@ -10,6 +12,7 @@ struct AdBlockDebugView: View {
   var body: some View {
     Form {
       CompileContentBlockersSectionView()
+      CorruptCacheSectionView()
     }
   }
 }
@@ -20,19 +23,13 @@ struct AdBlockDebugView: View {
 
 private struct CompileContentBlockersSectionView: View {
   @AppStorage("numberOfRuns") private var numberOfRuns: Int = 10
-  @AppStorage("selectionId") private var selectionId: String = ""
+  @State private var selection: AdBlockEngineManager.FileInfo?
   @State private var currentRun = 0
   @State private var currentAverage = 0
   @State private var result: Result<Duration, Error>?
   @State private var availableSelections: [AdBlockEngineManager.FileInfo] = []
   @State private var task: Task<Void, Never>?
   @State private var stopping = false
-
-  var selection: AdBlockEngineManager.FileInfo? {
-    return availableSelections.first(where: {
-      $0.filterListInfo.source.debugDescription == selectionId
-    })
-  }
 
   var body: some View {
     Section {
@@ -48,12 +45,14 @@ private struct CompileContentBlockersSectionView: View {
         .multilineTextAlignment(.trailing)
       }
 
-      Picker("Filter List", selection: $selectionId) {
-        ForEach(availableSelections, id: \.filterListInfo.source) { selection in
+      Picker(selection: $selection) {
+        ForEach(availableSelections) { selection in
           Group {
             Text(getTitle(for: selection)) + Text(verbatim: " v\(selection.filterListInfo.version)")
-          }.tag(selection.filterListInfo.source.debugDescription)
+          }.tag(selection)
         }
+      } label: {
+        Text("Filter List")
       }
 
       if let result {
@@ -110,10 +109,10 @@ private struct CompileContentBlockersSectionView: View {
         return AdBlockGroupsManager.shared.getManager(for: engineType).compilableFiles(
           for: sources
         )
-      })
+      }).uniqued(on: \.id)
 
-      if selectionId.isEmpty, let selection = availableSelections.first {
-        self.selectionId = selection.filterListInfo.source.debugDescription
+      if selection == nil {
+        self.selection = availableSelections.first
       }
     }
   }
@@ -181,5 +180,113 @@ private struct CompileContentBlockersSectionView: View {
         where: { $0.setting.uuid == uuid }
       )?.setting.externalURL.lastPathComponent ?? uuid
     }
+  }
+}
+
+private struct CorruptCacheSectionView: View {
+  enum CacheResult: Error, Identifiable {
+    case success
+    case noCache
+    case failedStandard
+    case failedAggressive
+
+    var id: String {
+      return message
+    }
+
+    var title: String {
+      switch self {
+      case .success:
+        return "Success"
+      case .noCache, .failedStandard, .failedAggressive:
+        return "Failure"
+      }
+    }
+
+    var message: String {
+      switch self {
+      case .success:
+        return "Successfully corrupted adblock cache."
+      case .noCache:
+        return "Cache unavailable."
+      case .failedStandard:
+        return "Failed to corrupt standard cache."
+      case .failedAggressive:
+        return "Failed to corrupt aggressive cache."
+      }
+    }
+  }
+  @State private var corruptCacheResult: CacheResult?
+
+  var body: some View {
+    Section {
+      Button(action: corruptAdblockDATCache) {
+        Text("Corrupt Adblock Engine DAT Caches")
+      }
+    }
+    .alert(item: $corruptCacheResult) { corruptCacheResult in
+      Alert(
+        title: Text(corruptCacheResult.title),
+        message: Text(corruptCacheResult.message),
+        dismissButton: .default(Text(Strings.OKString))
+      )
+    }
+  }
+
+  private func corruptAdblockDATCache() {
+    Task {
+      guard
+        let folderURL = try? AsyncFileManager.default.url(
+          for: .cachesDirectory,
+          in: .userDomainMask
+        )
+      else {
+        self.corruptCacheResult = .noCache
+        return
+      }
+
+      let standardCacheFolderURL =
+        folderURL
+        .appendingPathComponent("engines", conformingTo: .folder)
+        .appendingPathComponent("standard", conformingTo: .folder)
+      if await !corruptListDATFile(in: standardCacheFolderURL) {
+        self.corruptCacheResult = .failedStandard
+        return
+      }
+
+      let aggressiveCacheFolderURL =
+        folderURL
+        .appendingPathComponent("engines", conformingTo: .folder)
+        .appendingPathComponent("aggressive", conformingTo: .folder)
+      if await !corruptListDATFile(in: aggressiveCacheFolderURL) {
+        self.corruptCacheResult = .failedAggressive
+        return
+      }
+      return self.corruptCacheResult = .success
+    }
+  }
+
+  private func corruptListDATFile(in directory: URL) async -> Bool {
+    guard await AsyncFileManager.default.fileExists(atPath: directory.path) else {
+      return false
+    }
+    let cachedDATFile = directory.appendingPathComponent("list.dat", conformingTo: .data)
+    guard await AsyncFileManager.default.fileExists(atPath: cachedDATFile.path) else {
+      // if file doesn't exist, we can't corrupt it.
+      return false
+    }
+    guard let content = await AsyncFileManager.default.contents(atPath: cachedDATFile.path),
+      var corruptedData = UUID().uuidString.data(using: .utf8)
+    else {
+      return false
+    }
+    // prefix UUID string to existing data to corrupt it
+    corruptedData.append(content)
+    // remove the cached DAT file
+    try? await AsyncFileManager.default.removeItem(atPath: cachedDATFile.path)
+    // 'corrupt' by replacing with corrupted data format
+    await AsyncFileManager.default.createFile(atPath: cachedDATFile.path, contents: corruptedData)
+
+    return true
   }
 }

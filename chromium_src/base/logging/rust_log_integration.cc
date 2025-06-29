@@ -5,22 +5,26 @@
 
 #include "base/logging/rust_log_integration.h"
 
+#include "base/logging.h"
+
 #define print_rust_log print_rust_log_chromium_impl
-#include "src/base/logging/rust_log_integration.cc"
+#include <base/logging/rust_log_integration.cc>
 #undef print_rust_log
 
 namespace logging {
 namespace internal {
 
-BASE_EXPORT void print_rust_log(const char* msg,
-                                const char* file,
-                                int line,
-                                LogSeverity severity,
-                                bool verbose) {
+void print_rust_log(const RustFmtArguments& msg,
+                    const char* file,
+                    int32_t line,
+                    int32_t severity,
+                    bool verbose) {
   switch (severity) {
     // Trace and debug logs are set as `LOGGING_INFO`. Trace is also set as
-    // versbose, so we make a higher level verbosity.
+    // verbose, so we make a higher level verbosity. We also map `LOGGING_WARN`
+    // to verbose, to avoid "excessive output" errors in unit tests.
     case LOGGING_INFO:
+    case LOGGING_WARNING:
       severity = LOGGING_VERBOSE - verbose;
       break;
     default:
@@ -33,8 +37,7 @@ BASE_EXPORT void print_rust_log(const char* msg,
     return;
   }
 
-  logging::LogMessage log_message(file, line, severity);
-  log_message.stream() << msg;
+  print_rust_log_chromium_impl(msg, file, line, severity, verbose);
 }
 
 }  // namespace internal

@@ -24,6 +24,28 @@ function addElementsDynamically() {
   }
 }
 
+function addElementWithChildDynamically() {
+  let root = document.documentElement;
+  const rootElement = document.createElement('div');
+  rootElement.setAttribute('class', 'procedural-filter-root-node-class');
+
+  const childNode = document.createElement('div');
+  childNode.setAttribute('class', 'procedural-filter-child-node-class');
+  rootElement.appendChild(childNode);
+  const p = document.createElement('p');
+  p.textContent = 'View in App';
+  childNode.appendChild(p);
+
+  const childNode2 = document.createElement('div');
+  childNode2.setAttribute('class', 'procedural-filter-child-node-class');
+  rootElement.appendChild(childNode2);
+  const span = document.createElement('span');
+  span.textContent = 'View in App';
+  childNode2.appendChild(span);
+
+  root.appendChild(rootElement);
+}
+
 let didWait = false;
 
 function check(selector, predicate) {
@@ -283,6 +305,13 @@ const classes = (expectedClasses) =>
 
       <div class="positive-regex-case">
         <h2><code>:matches-path</code> positive regex case</h2>
+        <p class="odd" data-expect="hidden">Should be hidden</p>
+        <p class="even" data-expect="visible">Should not be hidden</p>
+        <p data-expect="visible">Should not be hidden</p>
+      </div>
+
+      <div class="positive-unicode-case">
+        <h2><code>:matches-path</code>: positive unicode case</h2>
         <p class="odd" data-expect="hidden">Should be hidden</p>
         <p class="even" data-expect="visible">Should not be hidden</p>
         <p data-expect="visible">Should not be hidden</p>

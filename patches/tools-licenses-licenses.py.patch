@@ -1,5 +1,5 @@
 diff --git a/tools/licenses/licenses.py b/tools/licenses/licenses.py
-index e2eafa2d533b9264e6452b38ef51b9363cccda31..2b2765ff98f1106c6b9266e19a25030a2c2fd28a 100755
+index b0807ee3d8ebcf34f0d740362aa46c8631562d38..8df2583def874ca82f362ba14e8cc4ee0e3fe12f 100755
 --- a/tools/licenses/licenses.py
 +++ b/tools/licenses/licenses.py
 @@ -42,6 +42,7 @@ _REPOSITORY_ROOT = os.path.abspath(
@@ -10,7 +10,7 @@ index e2eafa2d533b9264e6452b38ef51b9363cccda31..2b2765ff98f1106c6b9266e19a25030a
  
  METADATA_FILE_NAMES = frozenset({
      "README.chromium", "README.crashpad", "README.v8", "README.pdfium",
-@@ -337,6 +338,7 @@ SPECIAL_CASES = {
+@@ -338,6 +339,7 @@ SPECIAL_CASES = {
          "License File": ["//third_party/dawn/third_party/khronos/LICENSE"],
      },
  }
@@ -28,7 +28,7 @@ index e2eafa2d533b9264e6452b38ef51b9363cccda31..2b2765ff98f1106c6b9266e19a25030a
        # Add all subdirectories that are not marked for skipping.
        for d in dirs:
          dirpath = os.path.join(path, d)
-@@ -1022,8 +1025,10 @@ def GenerateCredits(file_template_file,
+@@ -1023,8 +1026,10 @@ def GenerateCredits(file_template_file,
                                         _REPOSITORY_ROOT,
                                         enable_warnings=enable_warnings)
        if not directory_metadata:

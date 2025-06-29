@@ -12,6 +12,7 @@ import Data
 import Foundation
 import Growth
 import Preferences
+import Web
 import os
 
 @MainActor class AdvancedShieldsSettings: ObservableObject {
@@ -93,6 +94,12 @@ import os
     }
   }
 
+  @Published var isSurveyPanelistEnabled: Bool = false {
+    didSet {
+      rewards?.ads.isSurveyPanelistEnabled = isSurveyPanelistEnabled
+    }
+  }
+
   typealias ClearDataCallback = @MainActor (Bool, Bool) -> Void
   @Published var clearableSettings: [ClearableSetting]
 
@@ -110,12 +117,13 @@ import os
     tabManager: TabManager,
     feedDataSource: FeedDataSource,
     debounceService: DebounceService?,
-    braveCore: BraveCoreMain,
+    braveCore: BraveProfileController,
+    p3aUtils: BraveP3AUtils,
     rewards: BraveRewards?,
     webcompatReporterHandler: WebcompatReporterWebcompatReporterHandler?,
     clearDataCallback: @escaping ClearDataCallback
   ) {
-    self.p3aUtilities = braveCore.p3aUtils
+    self.p3aUtilities = p3aUtils
     self.deAmpPrefs = braveCore.deAmpPrefs
     self.debounceService = debounceService
     self.tabManager = tabManager
@@ -128,6 +136,7 @@ import os
     self.isDebounceEnabled = debounceService?.isEnabled ?? false
     self.shredLevel = ShieldPreferences.shredLevel
     self.webcompatReporterHandler = webcompatReporterHandler
+    self.isSurveyPanelistEnabled = rewards?.ads.isSurveyPanelistEnabled ?? false
 
     cookieConsentBlocking = FilterListStorage.shared.isEnabled(
       for: AdblockFilterListCatalogEntry.cookieConsentNoticesComponentID
@@ -257,7 +266,7 @@ import os
 
     // Reset Webkit configuration to remove data from memory
     if clearAffectsTabs {
-      self.tabManager.resetConfiguration()
+      self.tabManager.reset()
       // Unlock the folders to allow clearing of data.
       await _toggleFolderAccessForBlockCookies(locked: false)
     }

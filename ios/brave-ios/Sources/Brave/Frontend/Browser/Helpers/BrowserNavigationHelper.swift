@@ -5,6 +5,7 @@
 
 import BraveShared
 import Foundation
+import Preferences
 import Shared
 import SwiftUI
 import UIKit
@@ -59,6 +60,35 @@ class BrowserNavigationHelper {
     open(vc, doneButton: DoneButton(style: .done, position: .right))
   }
 
+  func openSyncedTabsList() {
+    guard let bvc = bvc else { return }
+    let controller = UIHostingController(
+      rootView: SyncedTabsView(
+        openTabs: bvc.profileController.openTabsAPI,
+        urlActionHandler: bvc,
+        openSyncSettings: { [unowned bvc] in
+          let controller: UIViewController
+          if Preferences.Chromium.syncEnabled.value {
+            controller = SyncSettingsTableViewController(
+              isModallyPresented: true,
+              braveCoreMain: bvc.profileController,
+              windowProtection: bvc.windowProtection
+            )
+          } else {
+            controller = SyncWelcomeViewController(
+              braveCore: bvc.profileController,
+              windowProtection: bvc.windowProtection,
+              isModallyPresented: true
+            )
+          }
+          let container = UINavigationController(rootViewController: controller)
+          bvc.presentedViewController?.present(container, animated: true)
+        }
+      )
+    )
+    bvc.present(controller, animated: true)
+  }
+
   func openDownloads(_ completion: @escaping (Bool) -> Void) {
     UIApplication.shared.openBraveDownloadsFolder(completion)
   }
@@ -68,7 +98,7 @@ class BrowserNavigationHelper {
     let vc = UIHostingController(
       rootView: HistoryView(
         model: HistoryModel(
-          api: bvc.braveCore.historyAPI,
+          api: bvc.profileController.historyAPI,
           tabManager: bvc.tabManager,
           toolbarUrlActionsDelegate: bvc,
           dismiss: { [weak bvc] in bvc?.dismiss(animated: true) },
@@ -76,7 +106,7 @@ class BrowserNavigationHelper {
         )
       )
     )
-    open(vc, doneButton: DoneButton(style: .done, position: .right))
+    bvc.present(vc, animated: true)
   }
 
 
@@ -84,7 +114,7 @@ class BrowserNavigationHelper {
     guard let bvc = bvc else { return }
     dismissView()
 
-    guard let tab = bvc.tabManager.selectedTab, let url = tab.url else { return }
+    guard let tab = bvc.tabManager.selectedTab, let url = tab.visibleURL else { return }
 
     Task { @MainActor in
       @MainActor func share(url: URL) {

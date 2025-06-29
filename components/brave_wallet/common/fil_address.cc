@@ -7,8 +7,10 @@
 
 #include <optional>
 
+#include "base/check.h"
 #include "base/containers/extend.h"
 #include "base/containers/to_vector.h"
+#include "base/notreached.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
@@ -172,8 +174,9 @@ FilAddress FilAddress::FromUncompressedPublicKey(
   if (uncompressed_public_key.empty()) {
     return FilAddress();
   }
-  return FromPayload(Blake2bHash<kHashLengthSecp256K>(uncompressed_public_key),
-                     protocol, network);
+  return FromPayload(
+      Blake2bHash<kHashLengthSecp256K>({uncompressed_public_key}), protocol,
+      network);
 }
 
 // static
@@ -182,11 +185,11 @@ FilAddress FilAddress::FromFEVMAddress(bool is_mainnet,
   if (!fevm_address.IsValid()) {
     return FilAddress();
   }
-  std::vector<uint8_t> to_hash = {4, 10};
-  base::Extend(to_hash, fevm_address.bytes());
 
   auto payload = fevm_address.bytes();
-  base::Extend(payload, Blake2bHash<kChecksumSize>(to_hash));
+  base::Extend(payload,
+               Blake2bHash<kChecksumSize>(
+                   {std::vector<uint8_t>({4, 10}), fevm_address.bytes()}));
 
   std::string encoded =
       base32::Base32Encode(payload, base32::Base32EncodePolicy::OMIT_PADDING);
@@ -264,7 +267,7 @@ std::string FilAddress::EncodeAsString() const {
   base::Extend(checksum_payload, bytes_);
 
   std::vector<uint8_t> payload_hash(bytes_);
-  base::Extend(payload_hash, Blake2bHash<kChecksumSize>(checksum_payload));
+  base::Extend(payload_hash, Blake2bHash<kChecksumSize>({checksum_payload}));
 
   // Encoding as lower case base32 without padding according to
   // https://spec.filecoin.io/appendix/address/#section-appendix.address.payload
@@ -272,12 +275,12 @@ std::string FilAddress::EncodeAsString() const {
   std::string encoded_output = base::ToLowerASCII(base32::Base32Encode(
       payload_hash, base32::Base32EncodePolicy::OMIT_PADDING));
   if (protocol_ == mojom::FilecoinAddressProtocol::DELEGATED) {
-    auto r = network_ + std::to_string(static_cast<int>(protocol_)) +
+    auto r = network_ + base::NumberToString(static_cast<int>(protocol_)) +
              // Agent id + delimiter
              "10f" + encoded_output;
     return r;
   } else {
-    return network_ + std::to_string(static_cast<int>(protocol_)) +
+    return network_ + base::NumberToString(static_cast<int>(protocol_)) +
            encoded_output;
   }
 }
@@ -285,6 +288,16 @@ std::string FilAddress::EncodeAsString() const {
 std::vector<uint8_t> FilAddress::GetBytes() const {
   std::vector<uint8_t> result;
   result.push_back(static_cast<uint8_t>(protocol_));
+  result.insert(result.end(), bytes_.begin(), bytes_.end());
+  return result;
+}
+
+std::vector<uint8_t> FilAddress::GetBytesForCbor() const {
+  std::vector<uint8_t> result;
+  result.push_back(static_cast<uint8_t>(protocol_));
+  if (protocol_ == mojom::FilecoinAddressProtocol::DELEGATED) {
+    result.push_back(0x0a);
+  }
   result.insert(result.end(), bytes_.begin(), bytes_.end());
   return result;
 }

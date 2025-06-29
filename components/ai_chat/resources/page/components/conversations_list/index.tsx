@@ -66,9 +66,9 @@ function ConversationItem(props: ConversationItemProps) {
   const conversationContext = useConversation()
 
   const { uuid } = props.conversation
-  const title = props.conversation.title || getLocale('conversationListUntitled')
+  const title = props.conversation.title || getLocale(S.AI_CHAT_CONVERSATION_LIST_UNTITLED)
 
-  const handleButtonMenuChange = (e: {isOpen: boolean}) => {
+  const handleButtonMenuChange = (e: { isOpen: boolean }) => {
     setIsOptionsMenuOpen(e.isOpen)
   }
 
@@ -127,13 +127,13 @@ function ConversationItem(props: ConversationItemProps) {
             <leo-menu-item onClick={handleEditTitle}>
               <div className={styles.optionsMenuItemWithIcon}>
                 <Icon name='edit-pencil' />
-                <div>{getLocale('menuRenameConversation')}</div>
+                <div>{getLocale(S.CHAT_UI_MENU_RENAME_CONVERSATION)}</div>
               </div>
             </leo-menu-item>
             <leo-menu-item onClick={handleDelete}>
               <div className={styles.optionsMenuItemWithIcon}>
                 <Icon name='trash' />
-                <div>{getLocale('menuDeleteConversation')}</div>
+                <div>{getLocale(S.CHAT_UI_MENU_DELETE_CONVERSATION)}</div>
               </div>
             </leo-menu-item>
           </ButtonMenu>
@@ -161,41 +161,51 @@ interface ConversationsListProps {
 
 export default function ConversationsList(props: ConversationsListProps) {
   const aiChatContext = useAIChat()
+  const startedNonTemporaryConversations = aiChatContext.conversations.filter(
+    c => !c.temporary && c.hasContent
+  )
 
   return (
     <>
       <div className={styles.scroller}>
         <nav className={styles.nav}>
-          {!aiChatContext.isStoragePrefEnabled &&
-          <Alert type='notice'>
-            <Icon name='history' slot='icon' />
-            <div slot='title'>{getLocale('noticeConversationHistoryTitleDisabledPref')}</div>
-            {getLocale('noticeConversationHistoryDisabledPref')}
-            <div slot='actions'>
-              <Button kind='outline' onClick={aiChatContext.enableStoragePref}>
-                {getLocale('noticeConversationHistoryDisabledPrefButton')}
-              </Button>
-            </div>
-          </Alert>
-          }
-          {aiChatContext.isStoragePrefEnabled && aiChatContext.visibleConversations.length === 0 &&
-          <Alert type='notice'>
-            <Icon name='history' slot='icon' />
-            <div slot='title'>{getLocale('menuConversationHistory')}</div>
-            {getLocale('noticeConversationHistoryEmpty')}
-          </Alert>
-          }
-          {aiChatContext.visibleConversations.length > 0 &&
-          <ol>
-            {aiChatContext.visibleConversations.map(conversation =>
-              <ConversationItem
-                key={conversation.uuid}
-                {...props}
-                conversation={conversation}
-              />
-            )}
-          </ol>
-          }
+          {!aiChatContext.isStoragePrefEnabled && (
+            <Alert type='notice'>
+              <Icon name='history' slot='icon' />
+              <div slot='title'>
+                {getLocale(S.CHAT_UI_NOTICE_CONVERSATION_HISTORY_TITLE_DISABLED_PREF)}
+              </div>
+              {getLocale(S.CHAT_UI_NOTICE_CONVERSATION_HISTORY_DISABLED_PREF)}
+              <div slot='actions'>
+                <Button kind='outline'
+                        onClick={aiChatContext.enableStoragePref}>
+                  {getLocale(S.CHAT_UI_NOTICE_CONVERSATION_HISTORY_DISABLED_PREF_BUTTON)}
+                </Button>
+              </div>
+            </Alert>
+          )}
+          {aiChatContext.isStoragePrefEnabled &&
+            startedNonTemporaryConversations.length === 0 && (
+            <Alert type='notice'>
+              <Icon name='history' slot='icon' />
+              <div slot='title'>
+                {getLocale(S.CHAT_UI_MENU_CONVERSATION_HISTORY)}
+              </div>
+              {getLocale(S.CHAT_UI_NOTICE_CONVERSATION_HISTORY_EMPTY)}
+            </Alert>
+          )}
+          {startedNonTemporaryConversations.length > 0 && (
+            <ol>
+              {startedNonTemporaryConversations
+                .map(conversation => (
+                  <ConversationItem
+                    key={conversation.uuid}
+                    {...props}
+                    conversation={conversation}
+                  />
+                ))}
+            </ol>
+          )}
         </nav>
       </div>
     </>

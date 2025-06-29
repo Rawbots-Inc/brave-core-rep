@@ -3,6 +3,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import BraveShared
 import CoreData
 import Foundation
 import Shared
@@ -46,6 +47,13 @@ public final class RecentlyClosed: NSManagedObject, CRUD {
       NSSortDescriptor(key: #keyPath(RecentlyClosed.dateAdded), ascending: false)
     ]
     return all(sortDescriptors: sortDescriptors) ?? []
+  }
+
+  public class func first() -> RecentlyClosed? {
+    let sortDescriptors = [
+      NSSortDescriptor(key: #keyPath(RecentlyClosed.dateAdded), ascending: false)
+    ]
+    return first(sortDescriptors: sortDescriptors) ?? nil
   }
 
   public class func remove(with url: String) {

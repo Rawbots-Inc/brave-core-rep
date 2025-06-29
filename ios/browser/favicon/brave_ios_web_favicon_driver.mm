@@ -5,8 +5,11 @@
 
 #import "brave/ios/browser/favicon/brave_ios_web_favicon_driver.h"
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/functional/bind.h"
 #include "base/memory/ptr_util.h"
+#include "base/notreached.h"
 #include "components/favicon/core/favicon_url.h"
 #include "components/favicon/ios/favicon_url_util.h"
 #include "ios/chrome/browser/shared/model/profile/profile_ios.h"
@@ -158,7 +161,5 @@ void BraveIOSWebFaviconDriver::SetFaviconStatus(
   NotifyFaviconUpdatedObservers(notification_icon_type, favicon_status.url,
                                 icon_url_changed, favicon_status.image);
 }
-
-WEB_STATE_USER_DATA_KEY_IMPL(BraveIOSWebFaviconDriver)
 
 }  // namespace brave_favicon

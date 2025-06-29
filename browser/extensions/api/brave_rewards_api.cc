@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/browser/brave_adaptive_captcha/brave_adaptive_captcha_service_factory.h"
@@ -16,7 +17,6 @@
 #include "brave/browser/brave_rewards/rewards_tab_helper.h"
 #include "brave/browser/brave_rewards/rewards_util.h"
 #include "brave/browser/ui/brave_rewards/rewards_panel_coordinator.h"
-#include "brave/browser/ui/brave_rewards/tip_panel_coordinator.h"
 #include "brave/common/extensions/api/brave_rewards.h"
 #include "brave/components/brave_adaptive_captcha/brave_adaptive_captcha_service.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
@@ -29,7 +29,9 @@
 #include "chrome/browser/extensions/extension_tab_util.h"
 #include "chrome/browser/extensions/window_controller.h"
 #include "chrome/browser/profiles/profile.h"
+#include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_finder.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "components/prefs/pref_service.h"
 #include "content/public/browser/web_contents.h"
 #include "extensions/browser/event_router.h"
@@ -40,7 +42,6 @@ using brave_rewards::RewardsPanelCoordinator;
 using brave_rewards::RewardsService;
 using brave_rewards::RewardsServiceFactory;
 using brave_rewards::RewardsTabHelper;
-using brave_rewards::TipPanelCoordinator;
 
 namespace {
 
@@ -59,22 +60,11 @@ RewardsTabHelper* GetRewardsTabHelperForTabId(
   return RewardsTabHelper::FromWebContents(web_contents);
 }
 
-content::WebContents* WebContentsFromBrowserContext(
-    int tab_id,
-    content::BrowserContext* browser_context) {
-  content::WebContents* contents = nullptr;
-  extensions::WindowController* window = nullptr;
-  extensions::ExtensionTabUtil::GetTabById(
-      tab_id, Profile::FromBrowserContext(browser_context),
-      /*incognito_enabled=*/false, &window, &contents, /*tab_index=*/nullptr);
-  return contents;
-}
-
 RewardsPanelCoordinator* GetPanelCoordinator(
     content::WebContents* web_contents) {
   DCHECK(web_contents);
   auto* browser = chrome::FindBrowserWithTab(web_contents);
-  return browser ? RewardsPanelCoordinator::FromBrowser(browser) : nullptr;
+  return browser ? browser->GetFeatures().rewards_panel_coordinator() : nullptr;
 }
 
 RewardsPanelCoordinator* GetPanelCoordinator(ExtensionFunction* function) {
@@ -84,22 +74,6 @@ RewardsPanelCoordinator* GetPanelCoordinator(ExtensionFunction* function) {
     return nullptr;
   }
   return GetPanelCoordinator(web_contents);
-}
-
-TipPanelCoordinator* GetTipPanelCoordinator(
-    int tab_id,
-    content::BrowserContext* browser_context) {
-  auto* contents = WebContentsFromBrowserContext(tab_id, browser_context);
-  if (!contents) {
-    return nullptr;
-  }
-
-  auto* browser = chrome::FindBrowserWithTab(contents);
-  if (!browser) {
-    return nullptr;
-  }
-
-  return brave_rewards::TipPanelCoordinator::FromBrowser(browser);
 }
 
 std::string StringifyResult(
@@ -261,29 +235,6 @@ void BraveRewardsGetPublisherInfoForTabFunction::OnGetPublisherPanelInfo(
   dict.Set("favIconUrl", info->favicon_url);
 
   Respond(WithArguments(std::move(dict)));
-}
-
-BraveRewardsTipSiteFunction::~BraveRewardsTipSiteFunction() = default;
-
-ExtensionFunction::ResponseAction BraveRewardsTipSiteFunction::Run() {
-  std::optional<brave_rewards::TipSite::Params> params =
-      brave_rewards::TipSite::Params::Create(args());
-  EXTENSION_FUNCTION_VALIDATE(params);
-
-  // Sanity check: don't allow tips in private / tor contexts,
-  // although the command should not have been enabled in the first place.
-  if (!Profile::FromBrowserContext(browser_context())->IsRegularProfile()) {
-    return RespondNow(Error("Cannot tip to site in a private context"));
-  }
-
-  auto* coordinator = GetTipPanelCoordinator(params->tab_id, browser_context());
-  if (!coordinator) {
-    return RespondNow(Error(extensions::ExtensionTabUtil::kTabNotFoundError,
-                            base::NumberToString(params->tab_id)));
-  }
-
-  coordinator->ShowPanelForPublisher(params->publisher_key);
-  return RespondNow(NoArguments());
 }
 
 BraveRewardsGetRewardsParametersFunction::
@@ -769,7 +720,11 @@ void BraveRewardsGetAdsAccountStatementFunction::OnGetAdsAccountStatement(
     base::Value::Dict dict;
     dict.Set("nextPaymentDate",
              statement->next_payment_date.InSecondsFSinceUnixEpoch() * 1000);
-    dict.Set("adsReceivedThisMonth", statement->ads_received_this_month);
+    auto& ad_type_map = statement->ads_summary_this_month;
+    dict.Set("adsReceivedThisMonth",
+             ad_type_map[brave_ads::mojom::AdType::kNotificationAd] +
+                 ad_type_map[brave_ads::mojom::AdType::kNewTabPageAd] +
+                 ad_type_map[brave_ads::mojom::AdType::kSearchResultAd]);
     dict.Set("minEarningsThisMonth", statement->min_earnings_this_month);
     dict.Set("maxEarningsThisMonth", statement->max_earnings_this_month);
     dict.Set("minEarningsLastMonth", statement->min_earnings_previous_month);

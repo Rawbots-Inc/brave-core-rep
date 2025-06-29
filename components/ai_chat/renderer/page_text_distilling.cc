@@ -15,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/compiler_specific.h"
 #include "base/containers/fixed_flat_map.h"
 #include "base/containers/fixed_flat_set.h"
@@ -28,6 +29,7 @@
 #include "brave/components/ai_chat/core/common/features.h"
 #include "content/public/renderer/render_frame.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
+#include "third_party/abseil-cpp/absl/strings/str_format.h"
 #include "third_party/blink/public/mojom/script/script_evaluation_params.mojom-shared.h"
 #include "third_party/blink/public/platform/web_string.h"
 #include "third_party/blink/public/web/web_document.h"
@@ -159,7 +161,8 @@ void DistillPageText(
   }
 
   auto snapshotter = render_frame->CreateAXTreeSnapshotter(
-      ui::AXMode::kWebContents | ui::AXMode::kHTML | ui::AXMode::kScreenReader);
+      ui::AXMode::kWebContents | ui::AXMode::kHTML |
+      ui::AXMode::kExtendedProperties);
   ui::AXTreeUpdate snapshot;
   snapshotter->Snapshot(
       /* max_nodes= */ 9000, /* timeout= */ base::Seconds(4), &snapshot);

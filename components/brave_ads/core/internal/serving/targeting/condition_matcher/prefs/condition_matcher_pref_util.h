@@ -9,9 +9,9 @@
 #include <optional>
 #include <string>
 
-namespace brave_ads {
+#include "base/values.h"
 
-class PrefProviderInterface;
+namespace brave_ads {
 
 // Get the pref value as a string from the provider for the given path. Handles
 // nested dictionaries, lists, and dot-separated keys.
@@ -20,7 +20,7 @@ class PrefProviderInterface;
 // should be separated by `|`. Example `list|1` would return the second element
 // of a list.
 std::optional<std::string> MaybeGetPrefValueAsString(
-    const PrefProviderInterface* pref_provider,
+    const base::Value::Dict& virtual_prefs,
     const std::string& pref_path);
 
 }  // namespace brave_ads

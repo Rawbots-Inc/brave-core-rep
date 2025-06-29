@@ -2,10 +2,10 @@
 "About" = "Über uns";
 
 /* The title of the screen explaining Brave Shields */
-"AboutBraveShields" = "Über Brave Schutz";
+"AboutBraveShields" = "Über Brave Shields";
 
 /* The body of the screen explaining Brave Shields */
-"AboutBraveShieldsBody" = "Websites nutzen häufig Cookies und Skripte, mit denen man dich und dein Gerät erkennen kann. Das Ziel ist dabei, deine Identität zu ermitteln und deine Aktivitäten im Internet auf jeder der von deiner besuchten Websites zu verfolgen.\n\nBrave blockiert dieses Tracking, damit du surfen kannst, ohne im Web getrackt zu werden.";
+"AboutBraveShieldsBody" = "Websites nutzen häufig Cookies und Skripte, mit denen man dich und dein Gerät erkennen kann. Das Ziel ist dabei, deine Identität zu ermitteln und deine Aktivitäten im Internet auf jeder der von deiner besuchten Websites zu tracken.\n\nBrave blockiert dieses Tracking, damit du surfen kannst, ohne im Web getrackt zu werden.";
 
 /* See http://mzl.la/1G7uHo7 */
 "AccessPhotoDeniedAlertMessage" = "Ermöglicht es dir, das Bild in deiner Galerie zu speichern.";
@@ -85,20 +85,17 @@
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "Alle blockieren";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "Das Blockieren aller Cookies verhindert, dass einige Websites ordnungsgemäß funktionieren.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "Alle Cookies blockieren?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "Alle Cookies blockieren?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "Shields blockiert bereits Cookies von Drittanbietern. Diese Einstellung zum Blockieren aller Cookies entfernt vorhandene Cookies und Website-Daten und kann dazu führen, dass Websites nicht mehr richtig funktionieren.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "Die Einstellung konnte nicht festgelegt werden. Bitte versuche es erneut.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "Cookie-Einwilligungshinweise blockieren";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "Verhindert, dass Websites Informationen über Ihre früheren Besuche speichern.\nDie Option „Alle Cookies blockieren“ ist veraltet. Um zu erfahren, wie du diese Option zwangsweise aktivieren kannst, besuche [unsere Hilfeseite] (https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "Übersicht über Blockierungen";
@@ -458,7 +455,7 @@
 "ClearSyncedHistoryAlertCancelButtoTitle" = "Abbrechen";
 
 /* Description of the confirmation dialog shown when a user tries to clear history that's synced to another device. */
-"ClearSyncedHistoryAlertMessage" = "Mit dieser Aktion werden all Ihre privaten Daten gelöscht, einschließlich des Verlaufs von deinen synchronisierten Geräten.";
+"ClearSyncedHistoryAlertMessage" = "Mit dieser Aktion werden all deine privaten Daten gelöscht, einschließlich des Verlaufs von deinen synchronisierten Geräten.";
 
 /* The confirmation button that clears history even when Sync is connected. */
 "ClearSyncedHistoryAlertOkButtoTitle" = "OK";
@@ -490,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "Bestätigen";
 
-/* Cookie settings option title */
-"CookieControl" = "Cookie-Verwaltung";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "Cookies und Seitendaten";
 
@@ -523,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "Derzeit verwendete Suchmaschinen";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "Eine benutzerdefinierte Suchmaschine hinzufügen";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "Gebe die Such-URL ein und ersetze die Abfrage durch %1$s.\nZum Beispiel: https://youtube.com/search?q=%2$s\n(Wenn die Site OpenSearch unterstützt, wird beim Bearbeiten dieses Felds eine Option zum automatischen Hinzufügen bereitgestellt.)";
 
@@ -540,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "Eine Suchmaschine mit demselben Namen existiert bereits.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "Name der Suchmaschine eingeben";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "Unsichere benutzerdefinierte Suchvorlage für";
@@ -656,13 +656,10 @@
 "DisplayCertificate" = "Sicherheitszertifikat";
 
 /* Section name for display preferences. */
-"DisplaySettingsSection" = "Anzeige";
+"DisplaySettingsSection" = "Display";
 
 /* No comment provided by engineer. */
 "Done" = "Fertig";
-
-/* cookie settings option */
-"DontBlockCookies" = "Cookies nicht blockieren";
 
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "Nicht senden";
@@ -703,6 +700,9 @@
 /* Title for editing a folder */
 "EditFolderTitle" = "Ordner bearbeiten";
 
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "Schnellsuchmaschinen verwalten";
+
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "Pull-to-Refresh aktivieren";
 
@@ -734,7 +734,7 @@
 "ErrorPagesCertErrorTitle" = "Diese Website kann keine sichere Verbindung herstellen";
 
 /* Title on the certificate error page */
-"ErrorPagesCertWarningTitle" = "Ihre Verbindung ist nicht privat";
+"ErrorPagesCertWarningTitle" = "Deine Verbindung ist nicht privat";
 
 /* Label for button to hide advanced actions on the error page */
 "ErrorPagesHideDetailsButton" = "Details ausblenden";
@@ -787,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "Fertig";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "\"%@\" finden";
+/* Find `search query` */
+"FindInPageFormat" = "Finden";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "Zum nächsten Eintrag";
@@ -879,6 +879,9 @@
 
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "HTTPS-Upgrades";
+
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "Browserdaten importieren";
 
 /* title for per-site shield toggles */
 "IndividualControls" = "Benutzerdefinierte Steuerung";
@@ -1052,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "Gesponserte Bilder ausblenden";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "„Gesponsert“ zeigt zusätzliche gebrandete Hintergrunde, über die du etwas verdienen kannst, wenn die Brave Rewards aktiviert sind.";
+"ntp.imageTypeSelectionDescription" = "Gesponserte Bilder sind gebrandete Hintergründe, die in neu geöffneten Tabs im Browser angezeigt werden. Wenn du diese gesponserten Bilder aktivierst, unterstützt du die Mission von Brave.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "Mehr erfahren";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "Mehr über Brave Rewards erfahren";
@@ -1094,7 +1100,7 @@
 "OBAdsOptInMessage" = "Verdiene Token und belohne die Erstellenden für großartige Inhalte, während du surfst.";
 
 /* Message when opting into brave Ads when region becomes available */
-"OBAdsOptInMessageJapan" = "Sammele Punkte und belohne die Erstellenden für großartige Inhalte, während du surfst.";
+"OBAdsOptInMessageJapan" = "Sammele Punkte und belohne die Creators für großartige Inhalte, während du surfst.";
 
 /* Title when opting into brave Ads when region becomes available */
 "OBAdsOptInTitle" = "Brave Ads ist da!";
@@ -1151,10 +1157,10 @@
 "OBRewardsAgreementTitle" = "Brave Rewards";
 
 /* Detail text for rewards onboarding screen */
-"OBRewardsDetail" = "Wenn du dich für private Brave- entscheidest, werden Publisher und Content-Erstellende unterstützt, wann immer du eine Anzeige öffnen.";
+"OBRewardsDetail" = "Wenn du dich für private Brave Ads entscheidest, werden Publisher und Content Creators unterstützt, wann immer du eine Anzeige öffnen.";
 
 /* Detail text for rewards onboarding screen */
-"OBRewardsDetailInAdRegion" = "Verdiene Token und belohne die Creator für großartige Inhalte, während du surfst.";
+"OBRewardsDetailInAdRegion" = "Verdiene Token und belohne die Creators für großartige Inhalte, während du surfst.";
 
 /* Detail text for rewards agreement onboarding screen */
 "OBRewardsPrivacyPolicyDetailLink" = "Datenschutzerklärung";
@@ -1835,7 +1841,7 @@
 "playlistFolderSharing.offlineManagementViewSettingsButtonTitle" = "Einstellungen";
 
 /* Title of the playlist offline data management view */
-"playlistFolderSharing.offlineManagementViewTitle" = "Verwaltung Ihrer Playlist-Daten";
+"playlistFolderSharing.offlineManagementViewTitle" = "Verwaltung deiner Playlist-Daten";
 
 /* Menu Title for renaming a folder */
 "playlistFolderSharing.renameMenuTitle" = "Umbenennen";
@@ -2054,7 +2060,7 @@
 "ReaderModeErrorConvertDisplayText" = "Fehler beim Konvertieren der Seite.";
 
 /* Font type setting in the reading view settings */
-"ReaderModeFontButtonSansSerifTitle" = "Grotesk";
+"ReaderModeFontButtonSansSerifTitle" = "Sans-serif";
 
 /* Font type setting in the reading view settings */
 "ReaderModeFontButtonSerifTitle" = "Serifen";
@@ -2131,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "Verbergen";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "Einfügen & los geht's";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "auf";
 
@@ -2150,10 +2153,13 @@
 "RecentSearchScannerTitle" = "QR-Code scannen";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "Mithilfe der letzten Suchanfragen kannst du privat auf frühere Suchanfragen zugreifen. Möchtest du die letzten Suchanfragen aktivieren?";
+"RecentSearchSectionDescription" = "Möchtest du die ‚Letzten Suchanfragen‘ aktivieren?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "Letzte Suchanfragen";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "Letzte Suchanfragen";
+"RecentSearchSectionTitle" = "Letzte Suchanfragen‘ ermöglichen dir den privaten Zugriff auf frühere Suchanfragen.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "Anzeigen";
@@ -2453,13 +2459,13 @@
 "RewardsInternalsVersion" = "Version";
 
 /* No comment provided by engineer. */
-"RewardsInternalsWalletCreationDate" = "Belohnungsprofil-Erstellungsdatum";
+"RewardsInternalsWalletCreationDate" = "Rewards-Profil-Erstellungsdatum";
 
 /* No comment provided by engineer. */
-"RewardsInternalsWalletInfoHeader" = "Belohnungsprofil-Infos";
+"RewardsInternalsWalletInfoHeader" = "Rewards-Profil-Infos";
 
 /* No comment provided by engineer. */
-"RewardsInternalsWalletPaymentID" = "Belohnungszahlungs-ID";
+"RewardsInternalsWalletPaymentID" = "Rewards-Zahlungs-ID";
 
 /* Button to show the rewards panel */
 "RewardsPanel" = "Prämienmenü";
@@ -2498,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "Sucht nach diesem Vorschlag";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "Offene Registerkarten &; Lesezeichen & Verlauf";
+"SearchHistorySectionHeader" = "Auf deinem Gerät";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "Suche löschen";
@@ -2511,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "Suchen";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "Suche \"%@\"";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "Benutzerdefinierte Suchmaschine hinzufügen";
@@ -2547,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "Suchvorschläge";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "Möchtest du die Suchvorschläge aktivieren?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "Mit Brave suchen";
@@ -2625,9 +2637,6 @@
 
 /* Header for the YouTube settings section */
 "settings.youtube" = "YouTube";
-
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "Seite konnte nicht geladen werden.";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "Lizenzen";
@@ -2897,7 +2906,7 @@
 "ShowTabsBar" = "Tab-Leiste";
 
 /* No comment provided by engineer. */
-"SiteReportedBody" = "Danke, dass du den Developern von Brave mitgeteilt habst, dass mit dieser Seite etwas nicht stimmt. Wir bemühen uns, das zu reparieren!";
+"SiteReportedBody" = "Danke, dass du den Developern von Brave mitgeteilt hast, dass mit dieser Seite etwas nicht stimmt. Wir bemühen uns, das zu reparieren!";
 
 /* No comment provided by engineer. */
 "SiteReportedTitle" = "Vielen Dank";
@@ -3203,16 +3212,13 @@
 "sync.unableToConnectTitle" = "Verbindung nicht möglich";
 
 /* Sync Error Description */
-"sync.validForTooLongError" = "Dieser Code ist ungültig. Bitte überprüfe, ob Uhrzeit und Zeitzone auf Ihrem Gerät richtig eingestellt sind.";
+"sync.validForTooLongError" = "Dieser Code ist ungültig. Bitte überprüfe, ob Uhrzeit und Zeitzone auf deinem Gerät richtig eingestellt sind.";
 
 /* Sync settings welcome */
 "sync.welcome" = "Zum Starten musst du Brave auf allen zu synchronisierenden Geräten installiert haben. Um sie miteinander zu verketten, starte eine Synchronisierungskette, mit der du alle deine Geräte sicher miteinander verbinden kannst.";
 
 /* Word count title */
 "sync.wordCount" = "Anzahl der Wörter: %i";
-
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "Importierte Lesezeichen";
 
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "Schließen";
@@ -3271,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "Nicht sicher";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "Einfügen und direkt starten";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "Playlist";
 
@@ -3292,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "Anhalten";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "Sprachsuche";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3461,10 +3470,10 @@
 "today.isEnabledToggleLabel" = "Brave News anzeigen";
 
 /* No comment provided by engineer. */
-"today.learnMoreTitle" = "Mehr über Ihre Daten erfahren";
+"today.learnMoreTitle" = "Mehr über deine Daten erfahren";
 
 /* 'Brave Offers' is a product name */
-"today.moreBraveOffers" = "Mehr Brave-Angebote";
+"today.moreBraveOffers" = "Mehr Brave Angebote";
 
 /* No comment provided by engineer. */
 "today.noInternet" = "Kein Internet";
@@ -3539,7 +3548,7 @@
 "ToggleReaderMode" = "Lesemodus umschalten";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "Translate";
+"TranslatePage" = "Seite übersetzen";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "Sollen Suchvorschläge aktiviert werden?";
@@ -3587,7 +3596,7 @@
 "voice.search.microphone.title.required" = "Mikrofonzugriff erforderlich";
 
 /* Disclaimer for screen to search using voice. */
-"voice.search.screen.disclaimer" = "Brave speichert oder teilt Ihre Sprachsuchen nicht.";
+"voice.search.screen.disclaimer" = "Brave speichert oder teilt deine Sprachsuchen nicht.";
 
 /* The date your wallet was created */
 "WalletCreationDate" = "Erstellungsdatum der Wallet";

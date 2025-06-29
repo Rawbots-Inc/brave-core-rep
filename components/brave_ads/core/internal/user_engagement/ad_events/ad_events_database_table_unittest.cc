@@ -8,12 +8,14 @@
 #include "base/run_loop.h"
 #include "base/test/gmock_callback_support.h"
 #include "base/test/mock_callback.h"
+#include "brave/components/brave_ads/core/internal/ad_units/ad_test_constants.h"
 #include "brave/components/brave_ads/core/internal/ad_units/new_tab_page_ad/new_tab_page_ad_test_util.h"
 #include "brave/components/brave_ads/core/internal/ad_units/notification_ad/notification_ad_test_util.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/common/test/time_test_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/conversions/creative_set_conversion_database_table_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/conversions/creative_set_conversion_test_util.h"
+#include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ad_wallpaper_type.h"
 #include "brave/components/brave_ads/core/internal/creatives/notification_ads/creative_notification_ad_test_util.h"
 #include "brave/components/brave_ads/core/internal/settings/settings_test_util.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_builder.h"
@@ -47,11 +49,62 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, RecordEvent) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
+}
+
+TEST_F(BraveAdsAdEventsDatabaseTableTest, IsFirstTime) {
+  // Arrange
+  AdvanceClockTo(test::TimeFromUTCString("Tue, 19 Mar 2024 05:35"));
+
+  const NotificationAdInfo ad =
+      test::BuildNotificationAd(/*should_generate_random_uuids=*/false);
+  const AdEventInfo ad_event =
+      BuildAdEvent(ad, mojom::ConfirmationType::kViewedImpression,
+                   /*created_at=*/test::Now());
+
+  base::MockCallback<ResultCallback> record_ad_event_callback;
+  EXPECT_CALL(record_ad_event_callback, Run(/*success=*/true));
+  database_table_.RecordEvent(ad_event, record_ad_event_callback.Get());
+
+  // Act & Assert
+  base::MockCallback<database::table::IsFirstTimeCallback> callback;
+  base::RunLoop run_loop;
+  EXPECT_CALL(callback, Run(/*success=*/true, /*is_first_time=*/true))
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
+  database_table_.IsFirstTime(test::kCampaignId,
+                              mojom::ConfirmationType::kViewedImpression,
+                              callback.Get());
+  run_loop.Run();
+}
+
+TEST_F(BraveAdsAdEventsDatabaseTableTest, IsNotFirstTime) {
+  // Arrange
+  AdvanceClockTo(test::TimeFromUTCString("Tue, 19 Mar 2024 05:35"));
+
+  const NotificationAdInfo ad =
+      test::BuildNotificationAd(/*should_generate_random_uuids=*/false);
+  const AdEventInfo ad_event =
+      BuildAdEvent(ad, mojom::ConfirmationType::kViewedImpression,
+                   /*created_at=*/test::Now());
+
+  base::MockCallback<ResultCallback> record_ad_event_callback;
+  EXPECT_CALL(record_ad_event_callback, Run(/*success=*/true)).Times(2);
+  database_table_.RecordEvent(ad_event, record_ad_event_callback.Get());
+  database_table_.RecordEvent(ad_event, record_ad_event_callback.Get());
+
+  // Act & Assert
+  base::MockCallback<database::table::IsFirstTimeCallback> callback;
+  base::RunLoop run_loop;
+  EXPECT_CALL(callback, Run(/*success=*/true, /*is_first_time=*/false))
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
+  database_table_.IsFirstTime(test::kCampaignId,
+                              mojom::ConfirmationType::kViewedImpression,
+                              callback.Get());
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, Get) {
@@ -92,7 +145,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, Get) {
   // Ad event 4: Recorded on 17th June 2024. This ad event should not be
   // included because it is not a notification ad.
   const NewTabPageAdInfo ad_3 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
   const AdEventInfo ad_event_4 =
       BuildAdEvent(ad_3, mojom::ConfirmationType::kServedImpression,
                    /*created_at=*/test::Now());
@@ -189,11 +243,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
 
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetUnexpired(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredOnTheCuspOfExpiry) {
@@ -217,11 +271,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredOnTheCuspOfExpiry) {
 
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetUnexpired(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForAdType) {
@@ -234,7 +288,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForAdType) {
   // Ad event 1: Recorded on 19th March 2024. This ad event should not be
   // included because it will occur outside the expiry window.
   const NewTabPageAdInfo ad_1 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
   const AdEventInfo ad_event_1 =
       BuildAdEvent(ad_1, mojom::ConfirmationType::kViewedImpression,
                    /*created_at=*/test::Now());
@@ -255,7 +310,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForAdType) {
   // Ad event 3: Recorded on 17th June 2024. This ad event should be included
   // because it occurred within the expiry window.
   const NewTabPageAdInfo ad_3 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
   const AdEventInfo ad_event_3 =
       BuildAdEvent(ad_3, mojom::ConfirmationType::kViewedImpression,
                    /*created_at=*/test::Now());
@@ -263,11 +319,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, GetUnexpiredForAdType) {
 
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_3}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetUnexpired(mojom::AdType::kNewTabPageAd, callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest,
@@ -290,7 +346,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
   // Ad event 2: Recorded on 19th March 2024. This ad event should not be
   // included because it has a mismatching ad type.
   const NewTabPageAdInfo ad_2 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
   const AdEventInfo ad_event_2 =
       BuildAdEvent(ad_2, mojom::ConfirmationType::kViewedImpression,
                    /*created_at=*/test::Now());
@@ -311,11 +368,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
 
   // Act & Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_1}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetUnexpired(mojom::AdType::kNotificationAd, callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpired) {
@@ -351,11 +408,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpired) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_2}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpiredForNonRewardsUser) {
@@ -393,11 +450,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeExpiredForNonRewardsUser) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event_2}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest,
@@ -435,11 +492,11 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest,
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true, AdEventList{ad_event}))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphanedForType) {
@@ -468,7 +525,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphanedForType) {
   // Ad event 2: This served impression ad event should not be purged because it
   // has a mismatching ad type.
   const NewTabPageAdInfo ad_2 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
 
   const AdEventInfo ad_event_2_served =
       BuildAdEvent(ad_2, mojom::ConfirmationType::kServedImpression,
@@ -491,15 +549,15 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphanedForType) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(
       callback,
       Run(/*success=*/true,
           ::testing::UnorderedElementsAreArray(AdEventList{
               ad_event_1_served, ad_event_1_viewed, ad_event_2_served})))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphaned) {
@@ -525,7 +583,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphaned) {
   // Ad event 2: This served impression ad event should be purged because it has
   // a matching placement id.
   const NewTabPageAdInfo ad_2 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
 
   const AdEventInfo ad_event_2_served =
       BuildAdEvent(ad_2, mojom::ConfirmationType::kServedImpression,
@@ -549,15 +608,15 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeOrphaned) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(
       callback,
       Run(/*success=*/true,
           ::testing::UnorderedElementsAreArray(AdEventList{
               ad_event_1_served, ad_event_1_viewed, ad_event_3_served})))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeAllOrphaned) {
@@ -583,7 +642,8 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeAllOrphaned) {
   // Ad event 2: This served impression ad event should be purged because it
   // does not have an associated viewed impression ad event.
   const NewTabPageAdInfo ad_2 =
-      test::BuildNewTabPageAd(/*should_generate_random_uuids=*/true);
+      test::BuildNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
+                              /*should_generate_random_uuids=*/true);
 
   const AdEventInfo ad_event_2_served =
       BuildAdEvent(ad_2, mojom::ConfirmationType::kServedImpression,
@@ -605,13 +665,13 @@ TEST_F(BraveAdsAdEventsDatabaseTableTest, PurgeAllOrphaned) {
 
   // Assert
   base::MockCallback<database::table::GetAdEventsCallback> callback;
-  base::RunLoop run_loop2;
+  base::RunLoop run_loop;
   EXPECT_CALL(callback, Run(/*success=*/true,
                             ::testing::UnorderedElementsAreArray(AdEventList{
                                 ad_event_1_served, ad_event_1_viewed})))
-      .WillOnce(base::test::RunOnceClosure(run_loop2.QuitClosure()));
+      .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
   database_table_.GetAll(callback.Get());
-  run_loop2.Run();
+  run_loop.Run();
 }
 
 TEST_F(BraveAdsAdEventsDatabaseTableTest, GetTableName) {

@@ -35,7 +35,9 @@
   case PermissionType::BRAVE_ETHEREUM:                  \
     return "BraveEthereum";                             \
   case PermissionType::BRAVE_SOLANA:                    \
-    return "BraveSolana";
+    return "BraveSolana";                               \
+  case PermissionType::BRAVE_CARDANO:                   \
+    return "BraveCardano";
 
 #define kDisplayCapture                                         \
   kDisplayCapture;                                              \
@@ -55,9 +57,43 @@
   case PermissionType::BRAVE_GOOGLE_SIGN_IN:                    \
   case PermissionType::BRAVE_LOCALHOST_ACCESS:                  \
   case PermissionType::BRAVE_OPEN_AI_CHAT:                      \
-    return std::nullopt
+    return std::nullopt;                                        \
+  case PermissionType::BRAVE_CARDANO:                           \
+    return network::mojom::PermissionsPolicyFeature::kCardano
+
+#define BRAVE_PERMISSION_UTIL_PERMISSION_DESCRIPTOR_INFO_TO_PERMISSION_TYPE \
+  case PermissionName::BRAVE_ETHEREUM:                                      \
+    return PermissionType::BRAVE_ETHEREUM;                                  \
+  case PermissionName::BRAVE_SOLANA:                                        \
+    return PermissionType::BRAVE_SOLANA;                                    \
+  case PermissionName::BRAVE_ADS:                                           \
+    return PermissionType::BRAVE_ADS;                                       \
+  case PermissionName::BRAVE_COSMETIC_FILTERING:                            \
+    return PermissionType::BRAVE_COSMETIC_FILTERING;                        \
+  case PermissionName::BRAVE_TRACKERS:                                      \
+    return PermissionType::BRAVE_TRACKERS;                                  \
+  case PermissionName::BRAVE_HTTP_UPGRADABLE_RESOURCES:                     \
+    return PermissionType::BRAVE_HTTP_UPGRADABLE_RESOURCES;                 \
+  case PermissionName::BRAVE_FINGERPRINTING_V2:                             \
+    return PermissionType::BRAVE_FINGERPRINTING_V2;                         \
+  case PermissionName::BRAVE_SHIELDS:                                       \
+    return PermissionType::BRAVE_SHIELDS;                                   \
+  case PermissionName::BRAVE_REFERRERS:                                     \
+    return PermissionType::BRAVE_SHIELDS;                                   \
+  case PermissionName::BRAVE_COOKIES:                                       \
+    return PermissionType::BRAVE_COOKIES;                                   \
+  case PermissionName::BRAVE_SPEEDREADER:                                   \
+    return PermissionType::BRAVE_SPEEDREADER;                               \
+  case PermissionName::BRAVE_GOOGLE_SIGN_IN:                                \
+    return PermissionType::BRAVE_GOOGLE_SIGN_IN;                            \
+  case PermissionName::BRAVE_LOCALHOST_ACCESS:                              \
+    return PermissionType::BRAVE_LOCALHOST_ACCESS;                          \
+  case PermissionName::BRAVE_OPEN_AI_CHAT:                                  \
+    return PermissionType::BRAVE_OPEN_AI_CHAT;                              \
+  case PermissionName::BRAVE_CARDANO:                                       \
+    return PermissionType::BRAVE_CARDANO;
 
 #include "src/third_party/blink/common/permissions/permission_utils.cc"
-
+#undef BRAVE_PERMISSION_UTIL_PERMISSION_DESCRIPTOR_INFO_TO_PERMISSION_TYPE
 #undef kDisplayCapture
 #undef PERMISSION_UTIL_GET_PERMISSION_STRING

@@ -5,6 +5,7 @@
 
 import Foundation
 import Preferences
+import Web
 
 extension BrowserViewController {
   /// Updates the url of the screen time controller. Keep in mind a single screen time controller is used for every window.
@@ -30,7 +31,7 @@ extension BrowserViewController {
     screenTimeViewController.url = url
   }
 
-  func recordScreenTimeUsage(for tab: Tab) {
+  func recordScreenTimeUsage(for tab: some TabState) {
     screenTimeViewController?.suppressUsageRecording =
       tab.isPrivate || !Preferences.Privacy.screenTimeEnabled.value
   }

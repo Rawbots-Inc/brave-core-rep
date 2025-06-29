@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "brave/components/brave_wallet/common/common_utils.h"
 #include "components/grit/brave_components_strings.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -16,17 +17,15 @@ namespace brave_wallet {
 ZCashResolveBalanceTask::ZCashResolveBalanceTask(
     base::PassKey<ZCashWalletService> pass_key,
     ZCashWalletService& zcash_wallet_service,
-    ZCashActionContext context,
-    ZCashResolveBalanceTaskCallback callback)
+    ZCashActionContext context)
     : zcash_wallet_service_(zcash_wallet_service),
-      context_(std::move(context)),
-      callback_(std::move(callback)) {}
+      context_(std::move(context)) {}
 
 ZCashResolveBalanceTask::~ZCashResolveBalanceTask() = default;
 
-void ZCashResolveBalanceTask::Start() {
-  DCHECK(!started_);
-  started_ = true;
+void ZCashResolveBalanceTask::Start(ZCashResolveBalanceTaskCallback callback) {
+  DCHECK(!callback_);
+  callback_ = std::move(callback);
   ScheduleWorkOnTask();
 }
 
@@ -39,7 +38,6 @@ void ZCashResolveBalanceTask::ScheduleWorkOnTask() {
 void ZCashResolveBalanceTask::WorkOnTask() {
   if (error_) {
     std::move(callback_).Run(base::unexpected(error_.value()));
-    zcash_wallet_service_->ResolveBalanceTaskDone(this);
     return;
   }
 
@@ -79,7 +77,6 @@ void ZCashResolveBalanceTask::WorkOnTask() {
   }
 
   std::move(callback_).Run(base::ok(std::move(result_.value())));
-  zcash_wallet_service_->ResolveBalanceTaskDone(this);
 }
 
 #if BUILDFLAG(ENABLE_ORCHARD)

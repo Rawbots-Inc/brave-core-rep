@@ -22,6 +22,12 @@ import '../getting_started_page/getting_started.js'
 import '../social_blocking_page/social_blocking_page.js'
 import '../brave_leo_assistant_page/brave_leo_assistant_page.js'
 import '../brave_leo_assistant_page/model_list_section.js'
+import '../brave_survey_panelist_page/brave_survey_panelist_page.js'
+
+// <if expr="enable_containers">
+import '../brave_content_page/containers.js'
+import { ContainersStrings } from '../brave_generated_resources_webui_strings.js'
+// </if>
 
 import {
   html,
@@ -328,6 +334,37 @@ RegisterPolymerTemplateModifications({
         }
       ))
 
+      const sectionSurveyPanelist = document.createElement('template')
+      sectionSurveyPanelist.setAttribute('is', 'dom-if')
+      sectionSurveyPanelist.setAttribute('restamp', 'true')
+      sectionSurveyPanelist
+        .setAttribute('if', '[[showPage_(pageVisibility.surveyPanelist)]]')
+      sectionSurveyPanelist.content.appendChild(createSectionElement(
+        'surveyPanelist',
+        'surveyPanelist',
+        'settings-brave-survey-panelist-page',
+        {
+          prefs: '{{prefs}}'
+        }
+      ))
+
+      // <if expr="enable_containers">
+      const sectionContainers = document.createElement('template')
+      sectionContainers.setAttribute('is', 'dom-if')
+      sectionContainers.setAttribute('restamp', 'true')
+      sectionContainers.setAttribute('if', '[[showPage_(pageVisibility.containers)]]')
+      sectionContainers.content.appendChild(createNestedSectionElement(
+        'containers',
+        'content',
+        ContainersStrings.SETTINGS_CONTAINERS_SECTION_LABEL,
+        'settings-brave-content-containers',
+        {
+          prefs: '{{prefs}}',
+          'page-visibility': '[[pageVisibility]]'
+        }
+      ))
+      // </if>
+
       const sectionPlaylist = document.createElement('template')
       sectionPlaylist.setAttribute('is', 'dom-if')
       sectionPlaylist.setAttribute('restamp', 'true')
@@ -393,8 +430,12 @@ RegisterPolymerTemplateModifications({
       last = last.insertAdjacentElement('afterend', sectionToolbar)
       last = last.insertAdjacentElement('afterend', sectionTabs)
       last = last.insertAdjacentElement('afterend', sectionSidebar)
-      // Insert nested Content, Playlist, Speedreader under 'Content' menu
+      // Insert nested Content, Containers, Playlist, Speedreader under
+      // 'Content' menu
       last = last.insertAdjacentElement('afterend', sectionContent)
+      // <if expr="enable_containers">
+      last = last.insertAdjacentElement('afterend', sectionContainers)
+      // </if>
       last = last.insertAdjacentElement('afterend', sectionPlaylist)
       last = last.insertAdjacentElement('afterend', sectionSpeedreader)
       // Insert shields
@@ -423,6 +464,8 @@ RegisterPolymerTemplateModifications({
       last = last.insertAdjacentElement('afterend', sectionDataCollection)
       // Insert Leo Assistant
       last = last.insertAdjacentElement('afterend', sectionLeoAssist)
+      // Insert Surevy Panelist
+      last = last.insertAdjacentElement('afterend', sectionSurveyPanelist)
       // Insert Custom Models List
       last.insertAdjacentElement('afterend', sectionLeoCustomModels)
 

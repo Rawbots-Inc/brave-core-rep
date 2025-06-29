@@ -10,7 +10,7 @@ import PackageDescription
 var package = Package(
   name: "Brave",
   defaultLocalization: "en",
-  platforms: [.iOS(.v16), .macOS(.v13)],
+  platforms: [.iOS(.v17), .macOS(.v14)],
   products: [
     .library(name: "Brave", targets: ["Brave"]),
     .library(name: "Shared", targets: ["Shared"]),
@@ -45,6 +45,7 @@ var package = Package(
     .library(name: "CredentialProviderUI", targets: ["CredentialProviderUI"]),
     .library(name: "PlaylistUI", targets: ["PlaylistUI"]),
     .library(name: "BrowserMenu", targets: ["BrowserMenu"]),
+    .library(name: "Web", targets: ["Web"]),
     .executable(name: "LeoAssetCatalogGenerator", targets: ["LeoAssetCatalogGenerator"]),
     .plugin(name: "IntentBuilderPlugin", targets: ["IntentBuilderPlugin"]),
     .plugin(name: "LoggerPlugin", targets: ["LoggerPlugin"]),
@@ -53,7 +54,6 @@ var package = Package(
   dependencies: [
     .package(url: "https://github.com/SnapKit/SnapKit", from: "5.0.1"),
     .package(url: "https://github.com/cezheng/Fuzi", from: "3.1.3"),
-    .package(url: "https://github.com/SwiftyJSON/SwiftyJSON", from: "5.0.0"),
     .package(url: "https://github.com/airbnb/lottie-spm", from: "4.4.3"),
     .package(url: "https://github.com/SDWebImage/SDWebImage", exact: "5.10.3"),
     .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "2.2.0"),
@@ -80,7 +80,6 @@ var package = Package(
         "BraveCore",
         "MaterialComponents",
         "Strings",
-        "SwiftyJSON",
       ],
       plugins: ["LoggerPlugin"]
     ),
@@ -157,7 +156,7 @@ var package = Package(
     ),
     .target(
       name: "Data",
-      dependencies: ["BraveShields", "Storage", "Strings", "Preferences", "Shared"],
+      dependencies: ["BraveShields", "BraveShared", "Storage", "Strings", "Preferences", "Shared"],
       plugins: ["LoggerPlugin"]
     ),
     .target(
@@ -310,6 +309,7 @@ var package = Package(
         .copy("LottieAssets/onboarding-rewards.json"),
         .copy("LottieAssets/playlist-confetti.json"),
         .copy("WelcomeFocus/Resources/LottieAssets"),
+        .copy("WelcomeFocus/Resources/Videos"),
         .copy("WelcomeFocus/Resources/Fonts/Poppins-SemiBold.ttf"),
         .copy("WelcomeFocus/Resources/Fonts/Poppins-Medium.ttf"),
         .copy("WelcomeFocus/Resources/Fonts/Poppins-Regular.ttf"),
@@ -341,7 +341,7 @@ var package = Package(
       ],
       plugins: ["LoggerPlugin"]
     ),
-    .target(name: "UserAgent", dependencies: ["Preferences"]),
+    .target(name: "UserAgent", dependencies: ["Preferences", "BraveCore"]),
     .target(
       name: "CredentialProviderUI",
       dependencies: ["BraveCore", "DesignSystem", "BraveShared", "Strings", "BraveUI"]
@@ -419,6 +419,15 @@ var package = Package(
         "DesignSystem", "BraveUI", "Preferences", "Strings", "BraveStrings","BraveWallet"
       ]
     ),
+    .target(
+      name: "Web",
+      dependencies: [
+        "BraveCore", "FaviconModels", "BraveShared", "Shared", "CertificateUtilities", "Storage",
+        "BraveStrings", "Strings",
+        .product(name: "OrderedCollections", package: "swift-collections"),
+      ],
+      plugins: ["LoggerPlugin"]
+    ),
     .testTarget(name: "BrowserMenuTests", dependencies: ["BrowserMenu"]),
     .plugin(name: "IntentBuilderPlugin", capability: .buildTool()),
     .plugin(name: "LoggerPlugin", capability: .buildTool()),
@@ -449,7 +458,6 @@ var braveTarget: PackageDescription.Target = .target(
     "Static",
     "SDWebImage",
     "Then",
-    "SwiftyJSON",
     "BrowserIntentsModels",
     "BraveWidgetsModels",
     "BraveNews",
@@ -468,6 +476,7 @@ var braveTarget: PackageDescription.Target = .target(
     .product(name: "Collections", package: "swift-collections"),
     "PlaylistUI",
     "BrowserMenu",
+    "Web",
   ],
   exclude: [
     "Frontend/UserContent/UserScripts/AllFrames",
@@ -525,6 +534,7 @@ var braveTarget: PackageDescription.Target = .target(
     .copy("Frontend/Reader/Reader.html"),
     .copy("Frontend/Reader/ReaderViewLoading.html"),
     .copy("Frontend/Browser/New Tab Page/Backgrounds/Assets/NTP_Images/corwin-prescott-3.jpg"),
+    .copy("Frontend/Browser/Favorites/Data/top_sites_by_region.json"),
     .copy(
       "Frontend/UserContent/UserScripts/Scripts_Dynamic/Scripts/DomainSpecific/Paged/BraveSearchResultAdScript.js"
     ),
@@ -604,7 +614,7 @@ if isNativeTalkEnabled {
     )
   )
   package.dependencies.append(
-    .package(name: "JitsiMeet", path: "../../third_party/ios_deps/JitsiMeet")
+    .package(name: "JitsiMeet", path: "../third_party/JitsiMeet")
   )
   package.products.append(.library(name: "BraveTalk", targets: ["BraveTalk"]))
   package.targets.append(contentsOf: [

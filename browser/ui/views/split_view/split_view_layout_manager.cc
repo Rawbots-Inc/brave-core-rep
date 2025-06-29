@@ -5,6 +5,7 @@
 
 #include "brave/browser/ui/views/split_view/split_view_layout_manager.h"
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "brave/browser/ui/tabs/features.h"
 #include "brave/browser/ui/views/split_view/split_view_separator.h"
@@ -38,11 +39,16 @@ SplitViewLayoutManager::SplitViewLayoutManager(
     : contents_container_(contents_container),
       secondary_contents_container_(secondary_contents_container),
       split_view_separator_(split_view_separator) {
-  CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
-  split_view_separator_->set_delegate(this);
+  CHECK(tabs::features::IsBraveSplitViewEnabled());
+  split_view_separator_->set_resize_delegate(this);
+  split_view_separator_->set_separator_delegate(this);
 }
 
-SplitViewLayoutManager::~SplitViewLayoutManager() = default;
+SplitViewLayoutManager::~SplitViewLayoutManager() {
+  // Need to reset as layout manager is destroyed earlier than child views.
+  split_view_separator_->set_resize_delegate(nullptr);
+  split_view_separator_->set_separator_delegate(nullptr);
+}
 
 void SplitViewLayoutManager::OnDoubleClicked() {
   split_view_size_delta_ = ongoing_split_view_size_delta_ = 0;

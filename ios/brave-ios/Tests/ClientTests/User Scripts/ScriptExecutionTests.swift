@@ -36,6 +36,9 @@ final class ScriptExecutionTests: XCTestCase {
     let localFrameElement: Bool
     let hasTextDisplayIsNone: Bool
     let hasDisplayIsNone: Bool
+    let delayedHasTextHidden: Bool
+    let delayedChildHasTextHidden: [Bool]
+    let altMutationStrategyHidden: Bool
   }
 
   override class func setUp() {
@@ -261,6 +264,9 @@ final class ScriptExecutionTests: XCTestCase {
         "brave.com###test-upward-selector-target:upward(#test-upward-selector)",
         "brave.com###test-has-text:has-text(hide me)",
         "brave.com###test-has:has(a.banner-link)",
+        "brave.com###test-delayed-has-text:has-text(hide me)",
+        "brave.com##.procedural-filter-child-node-class:has-text(View in App)",
+        "brave.com###test-alt-mutation-observation-strategy:has-text(hide me)",
       ].joined(separator: "\n")
     )
     let cosmeticFilterModel = try engine.cosmeticFilterModel(forFrameURL: siteURL)!
@@ -285,34 +291,11 @@ final class ScriptExecutionTests: XCTestCase {
       contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,
       name: CosmeticFiltersScriptHandler.messageHandlerName,
       messageHandler: MockMessageHandler(callback: { message in
-        do {
-          let data = try JSONSerialization.data(withJSONObject: message.body)
-          let dto = try JSONDecoder().decode(
-            CosmeticFiltersScriptHandler.CosmeticFiltersDTO.self,
-            from: data
-          )
-
-          if message.frameInfo.isMainFrame {
-            for id in polledAggressiveIds {
-              XCTAssertTrue(dto.data.ids.contains(id))
-            }
-            for id in polledStandardIds {
-              XCTAssertTrue(dto.data.ids.contains(id))
-            }
-            for id in nestedIds {
-              XCTAssertTrue(dto.data.ids.contains(id))
-            }
-          }
-
-          // Return selectors to hide
-          return [
-            "aggressiveSelectors": polledAggressiveIds.map({ "#\($0)" }),
-            "standardSelectors": polledStandardIds.map({ "#\($0)" }),
-          ]
-        } catch {
-          XCTFail(String(describing: error))
-          return nil
-        }
+        // Return selectors to hide
+        return [
+          "aggressiveSelectors": polledAggressiveIds.map({ "#\($0)" }),
+          "standardSelectors": polledStandardIds.map({ "#\($0)" }),
+        ]
       })
     )
     viewController.attachScriptHandler(
@@ -374,12 +357,15 @@ final class ScriptExecutionTests: XCTestCase {
       let script = try ScriptFactory.shared.makeScript(
         for: .contentCosmetic(setup, proceduralActions: Set(proceduralFilters))
       )
-      try await viewController.webView.evaluateSafeJavaScriptThrowing(
-        functionName: script.source,
-        frame: message.frameInfo,
-        contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,
-        asFunction: false
-      )
+      _ = try await withCheckedThrowingContinuation { continuation in
+        viewController.webView.evaluateJavaScript(
+          script.source,
+          in: message.frameInfo,
+          in: CosmeticFiltersScriptHandler.scriptSandbox
+        ) { result in
+          continuation.resume(with: result)
+        }
+      }
       // Expecting 2 frames (main frame & about:blank iframe)
       if frameInfos.count == 2 {
         break
@@ -388,13 +374,52 @@ final class ScriptExecutionTests: XCTestCase {
 
     // Await the execution of the selectors message handler (so we know we already hid our elements)
     var count = 0
-    for try await _ in selectorsMessageHandler {
+    for try await message in selectorsMessageHandler {
       count += 1
+      if count == 1 {
+        // Verify expected first pass elements. Some elements, like `test-delayed-has-text`,
+        // are added later into the html for testing the mutation observer.
+        do {
+          let data = try JSONSerialization.data(withJSONObject: message.body)
+          let dto = try JSONDecoder().decode(
+            CosmeticFiltersScriptHandler.CosmeticFiltersDTO.self,
+            from: data
+          )
+
+          if message.frameInfo.isMainFrame {
+            for id in polledAggressiveIds {
+              XCTAssertTrue(dto.data.ids.contains(id))
+            }
+            for id in polledStandardIds {
+              XCTAssertTrue(dto.data.ids.contains(id))
+            }
+            for id in nestedIds {
+              XCTAssertTrue(dto.data.ids.contains(id))
+            }
+          }
+        } catch {
+          XCTFail(String(describing: error))
+        }
+      }
+
       // We only care about the first script handler result for each frame
       if count == frameInfos.count {
         break
       }
     }
+
+    let addDynamicElementsJavascript = """
+        addElementForProceduralFilter(/* id */ 'test-delayed-has-text');
+        addElementWithChildDynamically();
+        triggerAltMutationObservationStrategy();
+        // add element to hide using alt mutation observation strategy, but delayed
+        // so it's not grouped with above mutation
+        window.setTimeout(
+          addElementForProceduralFilter, 
+          /* delay */ 50,
+          /* id */ 'test-alt-mutation-observation-strategy');
+      """
+    try await viewController.webView.evaluateJavaScript(addDynamicElementsJavascript)
 
     // Now wait for the pump which takes a few seconds (The pump unhides 1st party elements).
     try await Task.sleep(seconds: 5)
@@ -402,11 +427,15 @@ final class ScriptExecutionTests: XCTestCase {
     // Execute a script that will test the cosmetic filters page
     let testURL = Bundle.module.url(forResource: "cosmetic-filter-tests", withExtension: "js")!
     let source = try String(contentsOf: testURL)
-    try await viewController.webView.evaluateSafeJavaScriptThrowing(
-      functionName: source,
-      contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,
-      asFunction: false
-    )
+    _ = try await withCheckedThrowingContinuation { continuation in
+      viewController.webView.evaluateJavaScript(
+        source,
+        in: nil,
+        in: CosmeticFiltersScriptHandler.scriptSandbox
+      ) { result in
+        continuation.resume(with: result)
+      }
+    }
 
     // Await the results of the test script
     var resultsAfterPump: CosmeticFilteringTestDTO?
@@ -456,6 +485,15 @@ final class ScriptExecutionTests: XCTestCase {
     XCTAssertTrue(resultsAfterPump?.upwardSelector ?? false)
     XCTAssertTrue(resultsAfterPump?.hasTextDisplayIsNone ?? false)
     XCTAssertTrue(resultsAfterPump?.hasDisplayIsNone ?? false)
+    XCTAssertTrue(resultsAfterPump?.delayedHasTextHidden ?? false)
+    if let delayedChildHasTextHidden = resultsAfterPump?.delayedChildHasTextHidden {
+      // expecting 2 elements with the same id to be hidden
+      XCTAssertEqual(delayedChildHasTextHidden.count, 2)
+      XCTAssertTrue(delayedChildHasTextHidden.allSatisfy({ $0 }))
+    } else {
+      XCTFail("delayedChildHasTextHidden missing in results")
+    }
+    XCTAssertTrue(resultsAfterPump?.altMutationStrategyHidden ?? false)
     // Test for local frames
     XCTAssertTrue(resultsAfterPump?.localFrameElement ?? false)
   }
@@ -503,17 +541,24 @@ final class ScriptExecutionTests: XCTestCase {
 
     // check that the main frame & local frame (about:blank) have set value from scriptlet
     guard
-      let mainFrameResult = await viewController.webView.evaluateSafeJavaScript(
-        functionName: "document.getElementById('scriptlet-main-div').innerText",
-        contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,
-        asFunction: false
-      ).0 as? String,
-      let localFrameResult = await viewController.webView.evaluateSafeJavaScript(
-        functionName:
+      let mainFrameResult = try await withCheckedThrowingContinuation({ continuation in
+        viewController.webView.evaluateJavaScript(
+          "document.getElementById('scriptlet-main-div').innerText",
+          in: nil,
+          in: CosmeticFiltersScriptHandler.scriptSandbox
+        ) { result in
+          continuation.resume(with: result)
+        }
+      }) as? String,
+      let localFrameResult = try await withCheckedThrowingContinuation({ continuation in
+        viewController.webView.evaluateJavaScript(
           "document.getElementById('local-iframe').contentDocument.getElementById('scriptlet-local-frame-div').innerText",
-        contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,
-        asFunction: false
-      ).0 as? String
+          in: nil,
+          in: CosmeticFiltersScriptHandler.scriptSandbox
+        ) { result in
+          continuation.resume(with: result)
+        }
+      }) as? String
     else {
       XCTFail("Elements should be available. Check test setup.")
       return

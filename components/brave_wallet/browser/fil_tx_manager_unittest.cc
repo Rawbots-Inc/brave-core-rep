@@ -12,6 +12,7 @@
 
 #include "base/files/scoped_temp_dir.h"
 #include "base/json/json_writer.h"
+#include "base/strings/string_util.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/test/bind.h"
 #include "base/test/task_environment.h"
@@ -74,8 +75,9 @@ class FilTxManagerUnitTest : public testing::Test {
                                                         &prefs_, &local_state_);
     ASSERT_TRUE(temp_dir_.CreateUniqueTempDir());
     tx_service_ = std::make_unique<TxService>(
-        json_rpc_service_.get(), nullptr, nullptr, *keyring_service_, &prefs_,
-        temp_dir_.GetPath(), base::SequencedTaskRunner::GetCurrentDefault());
+        json_rpc_service_.get(), nullptr, nullptr, nullptr, *keyring_service_,
+        &prefs_, temp_dir_.GetPath(),
+        base::SequencedTaskRunner::GetCurrentDefault());
     WaitForTxStorageDelegateInitialized(tx_service_->GetDelegateForTesting());
 
     GetAccountUtils().CreateWallet(kMnemonicDivideCruise, kTestWalletPassword);

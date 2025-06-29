@@ -13,7 +13,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ad_test_util.h"
-#include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/creative_new_tab_page_ads_database_util.h"
 #include "brave/components/brave_ads/core/internal/creatives/new_tab_page_ads/new_tab_page_ad_builder.h"
 #include "brave/components/brave_ads/core/internal/serving/new_tab_page_ad_serving_delegate.h"
 #include "brave/components/brave_ads/core/internal/serving/new_tab_page_ad_serving_delegate_mock.h"
@@ -55,7 +54,7 @@ TEST_F(BraveAdsNewTabPageAdServingTest, DoNotServeAdForUnsupportedVersion) {
   const CreativeNewTabPageAdInfo creative_ad =
       test::BuildCreativeNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
                                       /*should_generate_random_uuids=*/true);
-  database::SaveCreativeNewTabPageAds({creative_ad});
+  test::SaveCreativeNewTabPageAds({creative_ad});
 
   // Act & Assert
   EXPECT_CALL(delegate_mock_, OnFailedToServeNewTabPageAd);
@@ -70,12 +69,15 @@ TEST_F(BraveAdsNewTabPageAdServingTest, DoNotServeAdForUnsupportedVersion) {
 
 TEST_F(BraveAdsNewTabPageAdServingTest, ServeAd) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kNewTabPageAdServingFeature);
+
   test::ForcePermissionRules();
 
   const CreativeNewTabPageAdInfo creative_ad =
       test::BuildCreativeNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
                                       /*should_generate_random_uuids=*/true);
-  database::SaveCreativeNewTabPageAds({creative_ad});
+  test::SaveCreativeNewTabPageAds({creative_ad});
   const NewTabPageAdInfo ad = BuildNewTabPageAd(creative_ad);
 
   // Act & Assert
@@ -93,6 +95,9 @@ TEST_F(BraveAdsNewTabPageAdServingTest, ServeAd) {
 
 TEST_F(BraveAdsNewTabPageAdServingTest, DoNotServeAdIfNoEligibleAdsFound) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kNewTabPageAdServingFeature);
+
   test::ForcePermissionRules();
 
   // Act & Assert
@@ -111,10 +116,13 @@ TEST_F(BraveAdsNewTabPageAdServingTest, DoNotServeAdIfNoEligibleAdsFound) {
 TEST_F(BraveAdsNewTabPageAdServingTest,
        DoNotServeAdIfNotAllowedDueToPermissionRules) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kNewTabPageAdServingFeature);
+
   const CreativeNewTabPageAdInfo creative_ad =
       test::BuildCreativeNewTabPageAd(CreativeNewTabPageAdWallpaperType::kImage,
                                       /*should_generate_random_uuids=*/true);
-  database::SaveCreativeNewTabPageAds({creative_ad});
+  test::SaveCreativeNewTabPageAds({creative_ad});
 
   // Act & Assert
   EXPECT_CALL(delegate_mock_, OnFailedToServeNewTabPageAd);

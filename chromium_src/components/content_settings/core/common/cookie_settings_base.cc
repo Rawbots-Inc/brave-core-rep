@@ -8,6 +8,7 @@
 #include <optional>
 
 #include "base/auto_reset.h"
+#include "base/check.h"
 #include "base/compiler_specific.h"
 #include "base/feature_list.h"
 #include "base/no_destructor.h"
@@ -107,7 +108,8 @@ bool CookieSettingsBase::ShouldUseEphemeralStorage(
     return false;
 
   bool allow_3p = IsFullCookieAccessAllowed(
-      url, site_for_cookies, top_frame_origin, net::CookieSettingOverrides());
+      url, site_for_cookies, top_frame_origin, net::CookieSettingOverrides(),
+      /*cookie_partition_key=*/std::nullopt);
   bool allow_1p =
       first_party_setting
           ? IsAllowed(first_party_setting->cookie_setting())
@@ -122,13 +124,16 @@ bool CookieSettingsBase::IsEphemeralCookieAccessAllowed(
     const GURL& url,
     const net::SiteForCookies& site_for_cookies,
     base::optional_ref<const url::Origin> top_frame_origin,
-    net::CookieSettingOverrides overrides) const {
+    net::CookieSettingOverrides overrides,
+    base::optional_ref<const net::CookiePartitionKey> cookie_partition_key,
+    CookieSettingWithMetadata* cookie_settings) const {
   if (ShouldUseEphemeralStorage(url, site_for_cookies, top_frame_origin)) {
     return true;
   }
 
   return IsFullCookieAccessAllowed(url, site_for_cookies, top_frame_origin,
-                                   overrides);
+                                   overrides, cookie_partition_key,
+                                   cookie_settings);
 }
 
 bool CookieSettingsBase::IsFullCookieAccessAllowed(
@@ -136,9 +141,11 @@ bool CookieSettingsBase::IsFullCookieAccessAllowed(
     const net::SiteForCookies& site_for_cookies,
     base::optional_ref<const url::Origin> top_frame_origin,
     net::CookieSettingOverrides overrides,
+    base::optional_ref<const net::CookiePartitionKey> cookie_partition_key,
     CookieSettingWithMetadata* cookie_settings) const {
   bool allow = IsFullCookieAccessAllowed_ChromiumImpl(
-      url, site_for_cookies, top_frame_origin, overrides, cookie_settings);
+      url, site_for_cookies, top_frame_origin, overrides, cookie_partition_key,
+      cookie_settings);
 
   const bool is_1p_ephemeral_feature_enabled = base::FeatureList::IsEnabled(
       net::features::kBraveFirstPartyEphemeralStorage);
@@ -243,11 +250,14 @@ bool CookieSettingsBase::ShouldBlockThirdPartyIfSettingIsExplicit(
 #define BRAVE_COOKIE_SETTINGS_BASE_DECIDE_ACCESS                              \
   const bool block_third =                                                    \
       IsAllowed(setting) && !is_explicit_setting && is_third_party_request && \
-      ShouldBlockThirdPartyCookies() &&                                       \
+      ShouldBlockThirdPartyCookies(url::Origin::Create(first_party_url),      \
+                                   overrides) &&                              \
       !IsThirdPartyCookiesAllowedScheme(first_party_url.scheme());            \
   if (!block_third && is_third_party_request &&                               \
       ShouldBlockThirdPartyIfSettingIsExplicit(                               \
-          ShouldBlockThirdPartyCookies(), setting, is_explicit_setting,       \
+          ShouldBlockThirdPartyCookies(url::Origin::Create(first_party_url),  \
+                                       overrides),                            \
+          setting, is_explicit_setting,                                       \
           IsThirdPartyCookiesAllowedScheme(first_party_url.scheme()))) {      \
     return AllowPartitionedCookies{};                                         \
   }

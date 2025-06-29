@@ -80,25 +80,22 @@
 "Block3rdPartyCookies" = "Sekat kuki pihak ke 3";
 
 /* Title for setting to block all website cookies. */
-"BlockAllCookies" = "Sekat semua Kuki";
+"BlockAllCookies" = "Sekat Semua Kuki";
 
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "Sekat Semua";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "Menyekat semua Kuki akan menghalang sesetengah laman web berfungsi dengan betul.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "Sekat Semua Kuki?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "Sekat semua Kuki?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "Shields sudah menyekat kuki pihak ketiga. Tetapan untuk menyekat SEMUA kuki ini akan memadam kuki dan data laman sedia ada, dan boleh memecahkan laman web.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "Gagal menetapkan keutamaan. Sila cuba lagi.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "Sekat Notis Persetujuan Kuki";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "Mencegah laman web daripada menyimpan maklumat tentang lawatan anda sebelum ini.\nPilihan \"Sekat Semua Kuki\" telah dihentikan. Untuk mengetahui cara memaksa pilihan ini diaktifkan, lawati [halaman bantuan kami](https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "Pemantau Penyekatan";
@@ -490,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "Sah";
 
-/* Cookie settings option title */
-"CookieControl" = "Kawalan Kuki";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "Kuki dan Data Laman";
 
@@ -523,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "Enjin carian yang digunakan sekarang";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "Tambah enjin carian tersuai";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "Tulis url carian dan gantikan pertanyaan dengan %1$s.\nSebagai contoh: https://youtube.com/search?q=%2$s \n(Sekiranya tapak ini menyokong OpenSearch, satu pilihan untuk menambah secara automatik akan diberikan semasa mengedit bidang ini.)";
 
@@ -540,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "Enjin carian dengan nama yang sama telah wujud.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "Masukkan nama enjin carian";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "Templat Carian Tersuai Tidak Selamat untuk";
@@ -661,9 +661,6 @@
 /* No comment provided by engineer. */
 "Done" = "Selesai";
 
-/* cookie settings option */
-"DontBlockCookies" = "Jangan sekat kuki";
-
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "Jangan Hantar";
 
@@ -702,6 +699,9 @@
 
 /* Title for editing a folder */
 "EditFolderTitle" = "Edit folder";
+
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "Edit enjin carian pantas";
 
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "Dayakan Tarik-untuk-segar semula";
@@ -787,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "Selesai";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "Cari \"%@\"";
+/* Find `search query` */
+"FindInPageFormat" = "Cari ";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "Hasil dalam halaman seterusnya";
@@ -879,6 +879,9 @@
 
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "Naik Taraf HTTPS";
+
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "Import Data Penyemakan Imbas";
 
 /* title for per-site shield toggles */
 "IndividualControls" = "Kawalan Individu";
@@ -1052,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "Sembunyikan imej tajaan";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "'Tajaan' ialah latar belakang jenama tambahan yang boleh anda dapat dengan mendayakan Brave Rewards.";
+"ntp.imageTypeSelectionDescription" = "Imej tajaan ialah latar belakang berjenama yang muncul apabila tab baharu dibuka dalam pelayar. Dengan mengaktifkannya, anda menyokong misi Brave.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "Ketahui lebih lanjut";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "Ketahui lebih lanjut tentang Brave Rewards";
@@ -2131,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "Sembunyikan";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "Tampal & Pergi";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "pada";
 
@@ -2150,10 +2153,13 @@
 "RecentSearchScannerTitle" = "Imbas Kod QR";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "Carian Terkini membenarkan anda mengakses carian masa lampau secara rahsia. Adakah anda ingin mendayakan Carian Terkini?";
+"RecentSearchSectionDescription" = "Adakah anda ingin mengaktifkan Carian Terkini?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "Carian Terkini";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "Carian Terkini";
+"RecentSearchSectionTitle" = "Carian Terkini membolehkan anda mengakses semula carian lepas secara peribadi.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "Tunjuk";
@@ -2498,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "Carian untuk cadangan";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "Buka Tab & Penanda Halaman & Sejarah";
+"SearchHistorySectionHeader" = "Pada Peranti Anda";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "Kosongkan Carian";
@@ -2511,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "Cari";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "Cari \"%@\"";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "Tambah Enjin Carian Tersuai";
@@ -2547,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "Cadangan Carian";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "Adakah anda ingin mengaktifkan Cadangan Carian?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "Buat carian melalui Brave";
@@ -2625,9 +2637,6 @@
 
 /* Header for the YouTube settings section */
 "settings.youtube" = "YouTube";
-
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "Tidak dapat memuat halaman.";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "Lesen";
@@ -3211,9 +3220,6 @@
 /* Word count title */
 "sync.wordCount" = "Bilangan perkataan: %i";
 
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "Penanda Buku Diimport";
-
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "Tutup";
 
@@ -3271,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "Tidak Selamat";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "Tampal dan Teruskan";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "Senarai main";
 
@@ -3292,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "Berhenti";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "Carian Suara";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3539,7 +3548,7 @@
 "ToggleReaderMode" = "Togol Mod Pembaca";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "Terjemah";
+"TranslatePage" = "Terjemahkan Halaman";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "Hidupkan cadangan carian?";

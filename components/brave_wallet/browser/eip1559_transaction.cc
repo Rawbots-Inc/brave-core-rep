@@ -9,6 +9,7 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/containers/extend.h"
 #include "base/values.h"
 #include "brave/components/brave_wallet/browser/rlp_encode.h"
@@ -334,6 +335,10 @@ base::Value::Dict Eip1559Transaction::ToValue() const {
                  Uint256ValueToHex(gas_estimation_.base_fee_per_gas));
 
   return tx;
+}
+
+bool Eip1559Transaction::VIsRecid() const {
+  return true;
 }
 
 std::vector<uint8_t> Eip1559Transaction::Serialize() const {

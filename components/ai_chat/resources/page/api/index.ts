@@ -12,19 +12,24 @@ import * as Mojom from '../../common/mojom'
 export type State = Mojom.ServiceState & {
   initialized: boolean
   isStandalone?: boolean
-  visibleConversations: Mojom.Conversation[]
+  conversations: Mojom.Conversation[]
   isPremiumStatusFetching: boolean
   isPremiumUser: boolean
   isPremiumUserDisconnected: boolean
   isMobile: boolean
   isHistoryFeatureEnabled: boolean
-  allActions: Mojom.ActionGroup[]
+  actionList: Mojom.ActionGroup[]
   tabs: Mojom.TabData[]
+
+  // This is the content of the tab that this conversation is shown next to (if
+  // any). If the user creates a new conversation this will be used as the
+  // default tab content.
+  defaultTabContentId?: number
 }
 
 export const defaultUIState: State = {
   initialized: false,
-  visibleConversations: [],
+  conversations: [],
   hasAcceptedAgreement: false,
   isStoragePrefEnabled: false,
   isPremiumStatusFetching: true,
@@ -34,7 +39,7 @@ export const defaultUIState: State = {
   canShowPremiumPrompt: false,
   isMobile: loadTimeData.getBoolean('isMobile'),
   isHistoryFeatureEnabled: loadTimeData.getBoolean('isHistoryEnabled'),
-  allActions: [],
+  actionList: [],
   tabs: []
 }
 
@@ -71,16 +76,23 @@ class PageAPI extends API<State> {
     // to start as early as possible.
     // Premium state separately because it takes longer to fetch and we don't
     // need to wait for it.
+
+    this.uiObserver.onNewDefaultConversation.addListener((contentId?: number) => {
+      this.setPartialState({
+        defaultTabContentId: contentId
+      })
+    })
+
     const [
       { state },
       { isStandalone },
-      { conversations: visibleConversations },
-      { actionList: allActions },
+      { conversations },
+      { actionList },
       premiumStatus
     ] = await Promise.all([
       this.service.bindObserver(this.observer.$.bindNewPipeAndPassRemote()),
       this.uiHandler.setChatUI(this.uiObserver.$.bindNewPipeAndPassRemote()),
-      this.service.getVisibleConversations(),
+      this.service.getConversations(),
       this.service.getActionMenuList(),
       this.getCurrentPremiumStatus()
     ])
@@ -89,21 +101,18 @@ class PageAPI extends API<State> {
       ...premiumStatus,
       initialized: true,
       isStandalone,
-      visibleConversations,
-      allActions
+      conversations,
+      actionList
     })
 
     this.service.bindMetrics(this.metrics.$.bindNewPipeAndPassReceiver())
 
-    // If we're in standalone mode, listen for tab changes so we can show a picker.
-    if (isStandalone) {
-      Mojom.TabTrackerService.getRemote().addObserver(this.tabObserver.$.bindNewPipeAndPassRemote())
-      this.tabObserver.tabDataChanged.addListener((tabs: Mojom.TabData[]) => {
-        this.setPartialState({
-          tabs
-        })
+    Mojom.TabTrackerService.getRemote().addObserver(this.tabObserver.$.bindNewPipeAndPassRemote())
+    this.tabObserver.tabDataChanged.addListener((tabs: Mojom.TabData[]) => {
+      this.setPartialState({
+        tabs
       })
-    }
+    })
 
     this.observer.onStateChanged.addListener((state: Mojom.ServiceState) => {
       this.setPartialState(state)
@@ -112,7 +121,7 @@ class PageAPI extends API<State> {
     this.observer.onConversationListChanged.addListener(
       (conversations: Mojom.Conversation[]) => {
         this.setPartialState({
-          visibleConversations: conversations
+          conversations
         })
       }
     )

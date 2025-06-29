@@ -7,13 +7,17 @@
 
 #include <optional>
 
+#include "base/check.h"
 #include "base/containers/fixed_flat_map.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/feature_list.h"
-#include "base/strings/string_util.h"
+#include "base/logging.h"
+#include "base/strings/utf_string_conversions.h"
 #include "brave/browser/autocomplete/brave_autocomplete_scheme_classifier.h"
 #include "brave/browser/brave_shields/brave_shields_tab_helper.h"
 #include "brave/browser/cosmetic_filters/cosmetic_filters_tab_helper.h"
+#include "brave/browser/misc_metrics/profile_misc_metrics_service.h"
+#include "brave/browser/misc_metrics/profile_misc_metrics_service_factory.h"
 #include "brave/browser/renderer_context_menu/brave_spelling_options_submenu_observer.h"
 #include "brave/browser/ui/brave_pages.h"
 #include "brave/browser/ui/browser_commands.h"
@@ -25,6 +29,7 @@
 #include "chrome/browser/autocomplete/chrome_autocomplete_provider_client.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_list.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/common/channel_info.h"
 #include "components/omnibox/browser/autocomplete_classifier.h"
 #include "components/omnibox/browser/autocomplete_controller.h"
@@ -46,11 +51,11 @@
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/misc_metrics/process_misc_metrics.h"
-#include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/sidebar/sidebar_controller.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_metrics.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_service.h"
+#include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
 #include "brave/components/ai_chat/core/browser/utils.h"
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
@@ -62,6 +67,10 @@
 #include "brave/browser/ui/ai_rewriter/ai_rewriter_dialog_delegate.h"
 #include "brave/components/ai_rewriter/common/features.h"
 #endif
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+#include "brave/components/containers/core/common/features.h"
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
 
 // Our .h file creates a masquerade for RenderViewContextMenu.  Switch
 // back to the Chromium one for the Chromium implementation.
@@ -283,7 +292,8 @@ void OnRewriteSuggestionCompleted(
     base::WeakPtr<content::WebContents> web_contents,
     const std::string& selected_text,
     ai_chat::mojom::ActionType action_type,
-    base::expected<std::string, ai_chat::mojom::APIError> result) {
+    base::expected<ai_chat::EngineConsumer::GenerationResultData,
+                   ai_chat::mojom::APIError> result) {
   if (!web_contents) {
     return;
   }
@@ -325,8 +335,7 @@ void OnRewriteSuggestionCompleted(
     }
     conversation->MaybeUnlinkAssociatedContent();
 
-    auto* sidebar_controller =
-        static_cast<BraveBrowser*>(browser)->sidebar_controller();
+    auto* sidebar_controller = browser->GetFeatures().sidebar_controller();
     CHECK(sidebar_controller);
     sidebar_controller->ActivatePanelItem(
         sidebar::SidebarItem::BuiltInItemType::kChatUI);
@@ -340,7 +349,7 @@ void OnRewriteSuggestionCompleted(
 
 bool CanOpenSplitViewForWebContents(
     base::WeakPtr<content::WebContents> web_contents) {
-  if (!base::FeatureList::IsEnabled(tabs::features::kBraveSplitView)) {
+  if (!tabs::features::IsBraveSplitViewEnabled()) {
     return false;
   }
 
@@ -429,6 +438,8 @@ bool BraveRenderViewContextMenu::IsCommandIdEnabled(int id) const {
       return CanOpenSplitViewForWebContents(source_web_contents_->GetWeakPtr());
     case IDC_ADBLOCK_CONTEXT_BLOCK_ELEMENTS:
       return true;
+    case IDC_OPEN_IN_CONTAINER:
+      return true;
     default:
       return RenderViewContextMenu_Chromium::IsCommandIdEnabled(id);
   }
@@ -495,7 +506,8 @@ void BraveRenderViewContextMenu::ExecuteCommand(int id, int event_flags) {
       break;
 #endif
     case IDC_CONTENT_CONTEXT_OPENLINK_SPLIT_VIEW:
-      OpenLinkInSplitView(source_web_contents_->GetWeakPtr(), params_.link_url);
+      ::OpenLinkInSplitView(source_web_contents_->GetWeakPtr(),
+                            params_.link_url);
       break;
     case IDC_ADBLOCK_CONTEXT_BLOCK_ELEMENTS:
       cosmetic_filters::CosmeticFiltersTabHelper::LaunchContentPicker(
@@ -544,10 +556,18 @@ void BraveRenderViewContextMenu::ExecuteAIChatCommand(int command) {
   auto [action_type, p3a_action] = GetActionTypeAndP3A(command);
   auto selected_text = base::UTF16ToUTF8(params_.selection_text);
 
-  auto* ai_chat_metrics =
-      g_brave_browser_process->process_misc_metrics()->ai_chat_metrics();
-  if (ai_chat_metrics) {
-    ai_chat_metrics->OnQuickActionStatusChange(true);
+  auto* browser = GetBrowser();
+  ai_chat::AIChatMetrics* ai_chat_metrics = nullptr;
+  if (browser) {
+    auto* profile_metrics =
+        misc_metrics::ProfileMiscMetricsServiceFactory::GetServiceForContext(
+            browser->profile());
+    if (profile_metrics) {
+      ai_chat_metrics = profile_metrics->GetAIChatMetrics();
+      if (ai_chat_metrics) {
+        ai_chat_metrics->OnQuickActionStatusChange(true);
+      }
+    }
   }
 
   if (rewrite_in_place) {
@@ -568,7 +588,6 @@ void BraveRenderViewContextMenu::ExecuteAIChatCommand(int command) {
                        source_web_contents_->GetWeakPtr(), selected_text,
                        action_type));
   } else {
-    auto* browser = GetBrowser();
     if (!browser) {
       VLOG(1) << "Can't get browser";
       return;
@@ -592,8 +611,7 @@ void BraveRenderViewContextMenu::ExecuteAIChatCommand(int command) {
     conversation->MaybeUnlinkAssociatedContent();
 
     // Active the panel.
-    auto* sidebar_controller =
-        static_cast<BraveBrowser*>(browser)->sidebar_controller();
+    auto* sidebar_controller = browser->GetFeatures().sidebar_controller();
     CHECK(sidebar_controller);
     sidebar_controller->ActivatePanelItem(
         sidebar::SidebarItem::BuiltInItemType::kChatUI);
@@ -682,6 +700,26 @@ void BraveRenderViewContextMenu::BuildAIChatMenu() {
       IDS_AI_CHAT_CONTEXT_LEO_TOOLS, &ai_chat_submenu_model_);
 }
 
+#if BUILDFLAG(ENABLE_CONTAINERS)
+void BraveRenderViewContextMenu::BuildContainersMenu() {
+  if (!base::FeatureList::IsEnabled(containers::features::kContainers) ||
+      !params_.link_url.is_valid()) {
+    return;
+  }
+
+  containers_submenu_model_ = std::make_unique<containers::ContainersMenuModel>(
+      *this, *GetProfile()->GetPrefs());
+
+  menu_model_.AddSubMenuWithStringId(IDC_OPEN_IN_CONTAINER,
+                                     IDS_CXMENU_OPEN_IN_CONTAINER,
+                                     containers_submenu_model_.get());
+}
+
+Browser* BraveRenderViewContextMenu::GetBrowserToOpenSettings() {
+  return GetBrowser();
+}
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
+
 void BraveRenderViewContextMenu::AddSpellCheckServiceItem(bool is_checked) {
   // Call our implementation, not the one in the base class.
   // Assumption:
@@ -736,6 +774,23 @@ void BraveRenderViewContextMenu::AppendDeveloperItems() {
     }
   }
 }
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+void BraveRenderViewContextMenu::OnContainerSelected(
+    const containers::mojom::ContainerPtr& container) {
+  // TODO(https://github.com/brave/brave-browser/issues/47118)
+  // Open |params_.link_url| in the selected container.
+  NOTIMPLEMENTED();
+}
+
+base::flat_set<std::string>
+BraveRenderViewContextMenu::GetCurrentContainerIds() {
+  // TODO(https://github.com/brave/brave-browser/issues/47118) If the tab is in
+  // a container, return the container ID.
+  NOTIMPLEMENTED();
+  return {};
+}
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
 
 void BraveRenderViewContextMenu::SetAIEngineForTesting(
     std::unique_ptr<ai_chat::EngineConsumer> ai_engine) {
@@ -823,6 +878,10 @@ void BraveRenderViewContextMenu::InitMenu() {
         index.value(), IDC_CONTENT_CONTEXT_OPENLINK_SPLIT_VIEW,
         IDS_CONTENT_CONTEXT_SPLIT_VIEW);
   }
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+  BuildContainersMenu();
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
 }
 
 void BraveRenderViewContextMenu::NotifyMenuShown() {

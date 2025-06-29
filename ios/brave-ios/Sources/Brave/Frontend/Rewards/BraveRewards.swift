@@ -11,6 +11,7 @@ import Foundation
 import Growth
 import Preferences
 import Shared
+import Web
 
 public class BraveRewards: PreferencesObserver {
 
@@ -34,24 +35,24 @@ public class BraveRewards: PreferencesObserver {
 
     ads = BraveAds(stateStoragePath: configuration.storageURL.appendingPathComponent("ads").path)
 
-    braveNewsObservation = Preferences.BraveNews.isEnabled.$value
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] value in
-        if !value {
-          self?.proposeAdsShutdown()
-        }
-      }
-
     if Preferences.Rewards.adsEnabledTimestamp.value == nil, ads.isEnabled {
       Preferences.Rewards.adsEnabledTimestamp.value = Date()
     }
 
     ads.notifyBraveNewsIsEnabledPreferenceDidChange(Preferences.BraveNews.isEnabled.value)
     Preferences.BraveNews.isEnabled.observe(from: self)
+
+    ads.notifySponsoredImagesIsEnabledPreferenceDidChange(
+      Preferences.NewTabPage.backgroundMediaType.isSponsored
+    )
+    Preferences.NewTabPage.backgroundMediaTypeRaw.observe(from: self)
   }
 
   public func preferencesDidChange(for key: String) {
     ads.notifyBraveNewsIsEnabledPreferenceDidChange(Preferences.BraveNews.isEnabled.value)
+    ads.notifySponsoredImagesIsEnabledPreferenceDidChange(
+      Preferences.NewTabPage.backgroundMediaType.isSponsored
+    )
   }
 
   func startRewardsService(_ completion: (() -> Void)?) {
@@ -106,23 +107,6 @@ public class BraveRewards: PreferencesObserver {
     }
   }
 
-  private var braveNewsObservation: AnyCancellable?
-
-  private var shouldShutdownAds: Bool {
-    ads.isServiceRunning() && !shouldStartAds
-  }
-
-  /// Propose that the ads service should be shutdown based on whether or not that all features
-  /// that use it are disabled
-  private func proposeAdsShutdown() {
-    if !shouldShutdownAds { return }
-    ads.shutdownService {
-      self.ads = BraveAds(
-        stateStoragePath: self.configuration.storageURL.appendingPathComponent("ads").path
-      )
-    }
-  }
-
   // MARK: - State
 
   /// Whether or not rewards is enabled
@@ -142,22 +126,12 @@ public class BraveRewards: PreferencesObserver {
         }
         if !newValue {
           self.ads.isEnabled = newValue
-          self.proposeAdsShutdown()
           self.isTurningOnRewards = false
         } else {
           self.fetchWalletAndInitializeAds(toggleAds: true)
         }
       }
     }
-  }
-
-  public var shouldStartAds: Bool {
-    // Start Brave Ads if one of the following is true:
-    // - Brave Rewards is enabled.
-    // - Brave News is enabled.
-    // - `ShouldAlwaysRunBraveAdsService` feature is enabled.
-    return ads.isEnabled || Preferences.BraveNews.isEnabled.value
-      || BraveAds.shouldAlwaysRunService()
   }
 
   private(set) var isTurningOnRewards: Bool = false
@@ -201,35 +175,41 @@ public class BraveRewards: PreferencesObserver {
 
   /// Notifies Brave Ads that the given tab did change
   func maybeNotifyTabDidChange(
-    tab: Tab,
+    tab: some TabState,
     isSelected: Bool
   ) {
-    guard !tab.redirectChain.isEmpty, !tab.isPrivate, ads.isServiceRunning() else {
+    guard !tab.redirectChain.isEmpty, !tab.isPrivate,
+      ads.isServiceRunning(),
+      let reportingState = tab.rewardsReportingState
+    else {
       // Don't notify `DidChange` for tabs that haven't finished loading, private tabs,
       // or when the ads service is not running.
       return
     }
 
     ads.notifyTabDidChange(
-      Int(tab.rewardsId),
+      Int(tab.rewardsId ?? 0),
       redirectChain: tab.redirectChain,
-      isNewNavigation: tab.rewardsReportingState.isNewNavigation,
-      isRestoring: tab.rewardsReportingState.wasRestored,
+      isNewNavigation: reportingState.isNewNavigation,
+      isRestoring: reportingState.wasRestored,
       isSelected: isSelected
     )
   }
 
   /// Notifies Brave Ads that the given tab did load
-  func maybeNotifyTabDidLoad(tab: Tab) {
-    guard !tab.redirectChain.isEmpty, !tab.isPrivate, ads.isServiceRunning() else {
+  func maybeNotifyTabDidLoad(tab: some TabState) {
+    guard !tab.redirectChain.isEmpty, !tab.isPrivate,
+      ads.isServiceRunning(),
+      let reportingState = tab.rewardsReportingState
+    else {
       // Don't notify `DidLoad` for tabs that haven't finished loading, private tabs,
       // or when the ads service is not running.
       return
     }
 
     ads.notifyTabDidLoad(
-      Int(tab.rewardsId),
-      httpStatusCode: tab.rewardsReportingState.httpStatusCode
+      Int(tab.rewardsId ?? 0),
+      httpStatusCode: reportingState.httpStatusCode
     )
   }
 
@@ -248,7 +228,7 @@ public class BraveRewards: PreferencesObserver {
 
   /// Report that a tab with a given id was updated
   func reportTabUpdated(
-    tab: Tab,
+    tab: some TabState,
     isSelected: Bool,
     isPrivate: Bool
   ) {
@@ -257,7 +237,7 @@ public class BraveRewards: PreferencesObserver {
       return
     }
 
-    let tabId = Int(tab.rewardsId)
+    let tabId = Int(tab.rewardsId ?? 0)
     if isSelected {
       tabRetrieved(tabId, url: url, html: nil)
     }
@@ -266,7 +246,7 @@ public class BraveRewards: PreferencesObserver {
   /// Report that a page has loaded in the current browser tab, and the
   /// text/HTML content is available for analysis.
   func reportLoadedPage(
-    tab: Tab,
+    tab: some TabState,
     htmlContent: String?,
     textContent: String?
   ) {
@@ -275,19 +255,19 @@ public class BraveRewards: PreferencesObserver {
       return
     }
 
-    let tabId = Int(tab.rewardsId)
+    let tabId = Int(tab.rewardsId ?? 0)
 
     tabRetrieved(tabId, url: url, html: htmlContent)
 
     // Don't notify about content changes if the ads service is not available, the
     // tab was restored, was a previously committed navigation, or an error page was displayed.
-    if ads.isServiceRunning() {
+    if ads.isServiceRunning(), let tabData = tab.browserData {
       let kHttpClientErrorResponseStatusCodeClass = 4
       let kHttpServerErrorResponseStatusCodeClass = 5
-      let responseStatusCodeClass = tab.rewardsReportingState.httpStatusCode / 100
+      let responseStatusCodeClass = tabData.rewardsReportingState.httpStatusCode / 100
 
-      if !tab.rewardsReportingState.wasRestored
-        && tab.rewardsReportingState.isNewNavigation
+      if !tabData.rewardsReportingState.wasRestored
+        && tabData.rewardsReportingState.isNewNavigation
         && responseStatusCodeClass != kHttpClientErrorResponseStatusCodeClass
         && responseStatusCodeClass != kHttpServerErrorResponseStatusCodeClass
       {
@@ -296,13 +276,13 @@ public class BraveRewards: PreferencesObserver {
         // changed with empty HTML to ensure that regular conversions are processed.
         ads.notifyTabHtmlContentDidChange(
           tabId,
-          redirectChain: tab.redirectChain,
+          redirectChain: tab.redirectChain ?? [],
           html: htmlContent ?? ""
         )
         if let textContent {
           ads.notifyTabTextContentDidChange(
             tabId,
-            redirectChain: tab.redirectChain,
+            redirectChain: tab.redirectChain ?? [],
             text: textContent
           )
         }

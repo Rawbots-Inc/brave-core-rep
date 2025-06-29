@@ -1,6 +1,6 @@
 {
   "name": "brave-core",
-  "version": "1.78.44",
+  "version": "1.82.33",
   "description": "Brave Core is a set of changes, APIs and scripts used for customizing Chromium to make Brave.",
   "main": "index.js",
   "scripts": {
@@ -24,12 +24,13 @@
     "pull_l10n": "node ./build/commands/scripts/commands.js pull_l10n",
     "chromium_rebase_l10n": "node ./build/commands/scripts/commands.js chromium_rebase_l10n",
     "presubmit": "node ./build/commands/scripts/commands.js presubmit",
-    "format": "node ./build/commands/scripts/commands.js format",
+    "format": "node ./build/commands/scripts/format.js",
     "mass_rename": "node ./build/commands/scripts/commands.js mass_rename",
+    "docs": "node ./build/commands/scripts/commands.js docs",
     "test": "node ./build/commands/scripts/commands.js test",
     "test:scripts": "cross-env NODE_OPTIONS=--no-experimental-fetch jest build/commands/lib build/commands/scripts",
     "tslint": "npm run eslint",
-    "eslint": "eslint ./components",
+    "eslint": "eslint ./components ./build",
     "pep8": "pycodestyle --max-line-length 120 -r script",
     "web-ui-gen-grd": "node components/webpack/gen-webpack-grd",
     "web-ui-gen-tsconfig": "node build/commands/scripts/genTsConfig",
@@ -48,7 +49,8 @@
     "ios_pack_js": "webpack --config ios/brave-ios/webpack.config.js",
     "ios_bootstrap": "node ./build/commands/scripts/iosCommands.js ios_bootstrap",
     "update_brave_tools_crates": "node ./build/commands/scripts/updateBraveToolsCrates.js",
-    "build_rust_toolchain_aux": "node ./build/commands/scripts/buildRustToolchainAux.js"
+    "build_rust_toolchain_aux": "node ./build/commands/scripts/buildRustToolchainAux.js",
+    "update_wasm_resources": "node ./build/commands/scripts/updateWasmResources.js"
   },
   "repository": {
     "type": "git",
@@ -70,7 +72,7 @@
     "projects": {
       "chrome": {
         "dir": "src",
-        "tag": "134.0.6998.95",
+        "tag": "138.0.7204.49",
         "repository": {
           "url": "https://github.com/brave/chromium"
         }
@@ -98,6 +100,7 @@
     "@types/async": "3.2.20",
     "@types/bs58": "4.0.4",
     "@types/chrome": "0.0.241",
+    "@types/diff": "7.0.1",
     "@types/dom-navigation": "1.0.3",
     "@types/jest": "28.1.6",
     "@types/qr-image": "3.2.5",
@@ -120,6 +123,7 @@
     "crypto-browserify": "3.12.0",
     "css-loader": "5.2.7",
     "csstype": "2.6.21",
+    "diff": "7.0.0",
     "dotenv": "16.3.1",
     "emptykit.css": "1.0.1",
     "eslint": "8.57.1",
@@ -151,7 +155,7 @@
     "mz": "2.7.0",
     "os-browserify": "0.3.0",
     "path-browserify": "1.0.1",
-    "prettier": "2.8.8",
+    "prettier": "3.5.3",
     "process": "0.11.10",
     "querystring-es3": "0.2.1",
     "react": "18.2.0",
@@ -172,6 +176,7 @@
     "timers-browserify": "2.0.12",
     "ts-jest": "28.0.8",
     "ts-loader": "9.5.2",
+    "tsx": "4.19.2",
     "typesafe-actions": "2.2.0",
     "typescript": "5.7.3",
     "typescript-plugin-css-modules": "5.1.0",
@@ -181,9 +186,9 @@
   },
   "dependencies": {
     "@brave/brave-ui": "0.40.6",
-    "@brave/leo": "github:brave/leo#dd81836705e7a0055f70aa15f1955ced61d624cc",
+    "@brave/leo": "github:brave/leo#e088e487166d88c1cafc98442e7928a6d874e2da",
     "@brave/leo-sf-symbols": "github:brave/leo-sf-symbols#8685eec0851afa96d23dd424cd152854476e585d",
-    "@brave/wallet-standard-brave": "0.0.13",
+    "@brave/wallet-standard-brave": "0.0.16",
     "@dnd-kit/core": "6.0.5",
     "@dnd-kit/sortable": "7.0.1",
     "@glif/filecoin-wallet-provider": "3.0.15",
@@ -191,15 +196,13 @@
     "@ledgerhq/hw-app-eth": "6.42.8",
     "@ledgerhq/hw-app-solana": "6.27.1",
     "@ledgerhq/hw-transport-webhid": "6.29.0",
-    "@mozilla/readability": "^0.4.2",
+    "@mozilla/readability": "^0.6.0",
     "@reduxjs/toolkit": "1.8.6",
-    "@solana/web3.js": "1.91.7",
+    "@solana/web3.js": "1.98.2",
     "@trezor/connect": "9.1.11",
     "@trezor/connect-web": "9.1.11",
     "@types/jszip": "^3.1.6",
-    "@types/parse-torrent": "^5.8.3",
     "@types/react-router-dom": "^5.3.3",
-    "@types/webtorrent": "^0.109.8",
     "array-move": "^2.2.1",
     "async": "^3.2.4",
     "bignumber.js": "^9.0.2",
@@ -221,11 +224,11 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "throttleit": "^1.0.0",
-    "webext-redux": "^2.1.4",
-    "webtorrent": "1.9.7"
+    "webext-redux": "^2.1.4"
   },
   "overrides": {
     "@jest/transform": "npm:@brave/jest-transform@28.1.3",
+    "@zondax/ledger-filecoin": "2.0.4",
     "axios": "1.8.2",
     "elliptic": "6.6.1",
     "esbuild": "0.25.0",

@@ -6,11 +6,11 @@
 #ifndef BRAVE_BROWSER_UI_WEBUI_SETTINGS_BRAVE_EXTENSIONS_MANIFEST_V2_HANDLER_H_
 #define BRAVE_BROWSER_UI_WEBUI_SETTINGS_BRAVE_EXTENSIONS_MANIFEST_V2_HANDLER_H_
 
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "base/feature_list.h"
-#include "base/memory/scoped_refptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "chrome/browser/ui/webui/settings/settings_page_ui_handler.h"
@@ -19,6 +19,10 @@
 #include "extensions/browser/extension_registry_observer.h"
 
 BASE_DECLARE_FEATURE(kExtensionsManifestV2);
+
+namespace extensions_mv2 {
+class ExtensionManifestV2Installer;
+}
 
 class BraveExtensionsManifestV2Handler
     : public settings::SettingsPageUIHandler,
@@ -68,8 +72,8 @@ class BraveExtensionsManifestV2Handler
   base::ScopedObservation<extensions::ExtensionRegistry,
                           extensions::ExtensionRegistryObserver>
       observation_{this};
-  scoped_refptr<class ExtensionWebstoreInstaller> installer_;
 
+  std::unique_ptr<extensions_mv2::ExtensionManifestV2Installer> installer_;
   std::vector<struct ExtensionManifestV2> extensions_;
 
   base::WeakPtrFactory<BraveExtensionsManifestV2Handler> weak_factory_{this};

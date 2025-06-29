@@ -13,10 +13,14 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/feature_list.h"
 #include "base/functional/callback_helpers.h"
 #include "base/i18n/file_util_icu.h"
 #include "base/i18n/time_formatting.h"
+#include "base/logging.h"
+#include "base/notreached.h"
 #include "base/path_service.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/app/brave_command_ids.h"
@@ -29,6 +33,8 @@
 #include "brave/browser/ui/tabs/brave_tab_strip_model.h"
 #include "brave/browser/ui/tabs/features.h"
 #include "brave/browser/ui/tabs/split_view_browser_data.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_region_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_widget_delegate_view.h"
 #include "brave/browser/url_sanitizer/url_sanitizer_service_factory.h"
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
 #include "brave/components/constants/pref_names.h"
@@ -52,16 +58,19 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/profiles/profile_picker.h"
 #include "chrome/browser/ui/tabs/tab_enums.h"
-#include "chrome/browser/ui/tabs/tab_group.h"
 #include "chrome/browser/ui/tabs/tab_group_model.h"
 #include "chrome/browser/ui/tabs/tab_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/tab_utils.h"
+#include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/channel_info.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/pref_names.h"
+#include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/tab_groups/tab_group_visual_data.h"
+#include "components/tabs/public/split_tab_visual_data.h"
+#include "components/tabs/public/tab_group.h"
 #include "content/public/browser/browser_thread.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/base/clipboard/clipboard_buffer.h"
@@ -188,6 +197,11 @@ class BookmarksExportListener : public ui::SelectFileDialog::Listener {
   void FileSelected(const ui::SelectedFileInfo& file, int index) override {
     bookmark_html_writer::WriteBookmarks(profile_, file.file_path,
                                          base::DoNothing());
+    file_selector_->ListenerDestroyed();
+    delete this;
+  }
+  void FileSelectionCanceled() override {
+    file_selector_->ListenerDestroyed();
     delete this;
   }
   void ShowFileDialog(Browser* browser) {
@@ -253,7 +267,7 @@ void MaybeDistillAndShowSpeedreaderBubble(Browser* browser) {
 
 void ShowBraveVPNBubble(Browser* browser) {
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
-  browser->GetFeatures().GetBraveVPNController()->ShowBraveVPNBubble();
+  browser->GetFeatures().brave_vpn_controller()->ShowBraveVPNBubble();
 #endif
 }
 
@@ -397,8 +411,26 @@ void ToggleVerticalTabStripFloatingMode(Browser* browser) {
 
 void ToggleVerticalTabStripExpanded(Browser* browser) {
   auto* prefs = browser->profile()->GetPrefs();
-  prefs->SetBoolean(brave_tabs::kVerticalTabsCollapsed,
-                    !prefs->GetBoolean(brave_tabs::kVerticalTabsCollapsed));
+  bool expanded_state_per_window =
+      prefs->GetBoolean(brave_tabs::kVerticalTabsExpandedStatePerWindow);
+  // Toggle preference if all tabs share the same state (derived from prefs)
+  if (!expanded_state_per_window) {
+    prefs->SetBoolean(brave_tabs::kVerticalTabsCollapsed,
+                      !prefs->GetBoolean(brave_tabs::kVerticalTabsCollapsed));
+    return;
+  }
+  // Otherwise, retrieve current vertical tab strip region view
+  auto* browser_view = static_cast<BraveBrowserView*>(browser->window());
+  if (!browser_view) {
+    return;
+  }
+  auto* vtsr_view = browser_view->vertical_tab_strip_widget_delegate_view()
+                        ->vertical_tab_strip_region_view();
+  if (!vtsr_view) {
+    return;
+  }
+  // toggle state for only this vtsr view
+  vtsr_view->ToggleState();
 }
 
 void ToggleActiveTabAudioMute(Browser* browser) {
@@ -595,7 +627,9 @@ void UngroupCurrentGroup(Browser* browser) {
 
   auto* group = tsm->group_model()->GetTabGroup(group_id.value());
   std::vector<int> indices(group->tab_count());
-  std::iota(indices.begin(), indices.end(), group->GetFirstTab().value());
+  tabs::TabInterface* first_tab = group->GetFirstTab();
+  DCHECK(first_tab);
+  std::iota(indices.begin(), indices.end(), tsm->GetIndexOfTab(first_tab));
   tsm->RemoveFromGroup(indices);
 }
 
@@ -983,7 +1017,7 @@ void ToggleAllBookmarksButtonVisibility(Browser* browser) {
 
 bool CanOpenNewSplitViewForTab(Browser* browser,
                                std::optional<tabs::TabHandle> tab) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return false;
   }
@@ -1002,7 +1036,7 @@ bool CanOpenNewSplitViewForTab(Browser* browser,
 void NewSplitViewForTab(Browser* browser,
                         std::optional<tabs::TabHandle> tab,
                         const GURL& url) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return;
   }
@@ -1035,7 +1069,7 @@ void NewSplitViewForTab(Browser* browser,
 }
 
 void TileTabs(Browser* browser, const std::vector<int>& indices) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return;
   }
@@ -1072,7 +1106,7 @@ void TileTabs(Browser* browser, const std::vector<int>& indices) {
 }
 
 void BreakTiles(Browser* browser, const std::vector<int>& indices) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return;
   }
@@ -1092,7 +1126,7 @@ void BreakTiles(Browser* browser, const std::vector<int>& indices) {
 }
 
 bool IsTabsTiled(Browser* browser, const std::vector<int>& indices) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return false;
   }
@@ -1114,7 +1148,7 @@ bool IsTabsTiled(Browser* browser, const std::vector<int>& indices) {
 }
 
 bool CanTileTabs(Browser* browser, const std::vector<int>& indices) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return false;
   }
@@ -1139,7 +1173,7 @@ bool CanTileTabs(Browser* browser, const std::vector<int>& indices) {
 }
 
 void SwapTabsInTile(Browser* browser) {
-  auto* split_view_data = SplitViewBrowserData::FromBrowser(browser);
+  auto* split_view_data = browser->GetFeatures().split_view_browser_data();
   if (!split_view_data) {
     return;
   }
@@ -1160,6 +1194,91 @@ void SwapTabsInTile(Browser* browser) {
   model->MoveWebContentsAt(model->GetIndexOfTab(tile.second.Get()),
                            model->GetIndexOfTab(tile.first.Get()),
                            /*select_after_move*/ false);
+}
+
+bool CanOpenNewSplitTabsWithSideBySide(Browser* browser) {
+  CHECK(base::FeatureList::IsEnabled(features::kSideBySide));
+
+  auto* tab_strip_model = browser->tab_strip_model();
+  auto active_index = tab_strip_model->active_index();
+  if (active_index == TabStripModel::kNoTab) {
+    return false;
+  }
+
+  return !tab_strip_model->GetSplitForTab(active_index).has_value();
+}
+
+bool CanSplitTabsWithSideBySide(Browser* browser) {
+  CHECK(base::FeatureList::IsEnabled(features::kSideBySide));
+
+  auto* tab_strip_model = browser->tab_strip_model();
+  if (tab_strip_model->empty()) {
+    return false;
+  }
+
+  auto selected_indices = GetSelectedIndices(browser);
+  if (selected_indices.size() != 2) {
+    return false;
+  }
+
+  return std::ranges::none_of(selected_indices, [&](auto index) {
+    return tab_strip_model->GetSplitForTab(index).has_value();
+  });
+}
+
+bool IsSplitTabs(Browser* browser) {
+  auto* tab_strip_model = browser->tab_strip_model();
+  if (tab_strip_model->empty()) {
+    return false;
+  }
+
+  auto selected_indices = GetSelectedIndices(browser);
+  return std::ranges::any_of(selected_indices, [&](auto index) {
+    return tab_strip_model->GetSplitForTab(index).has_value();
+  });
+}
+
+void SplitTabsWithSideBySide(Browser* browser) {
+  CHECK(brave::CanSplitTabsWithSideBySide(browser));
+
+  auto selected_indices = GetSelectedIndices(browser);
+  CHECK(selected_indices.size() == 2);
+  auto* tab_strip_model = browser->tab_strip_model();
+  const auto active_index = tab_strip_model->active_index();
+  CHECK_NE(TabStripModel::kNoTab, active_index);
+  // selected indices must have active tab index.
+  CHECK(active_index == selected_indices[0] ||
+        active_index == selected_indices[1]);
+  const int non_active_index_from_selected_indices =
+      active_index == selected_indices[0] ? selected_indices[1]
+                                          : selected_indices[0];
+  tab_strip_model->AddToNewSplit(
+      {non_active_index_from_selected_indices},
+      split_tabs::SplitTabVisualData(split_tabs::SplitTabLayout::kVertical));
+}
+
+void RemoveSplitWithSideBySide(Browser* browser) {
+  CHECK(base::FeatureList::IsEnabled(features::kSideBySide));
+
+  auto selected_indices = GetSelectedIndices(browser);
+  auto* tab_strip_model = browser->tab_strip_model();
+  for (auto index : selected_indices) {
+    if (auto split_id = tab_strip_model->GetSplitForTab(index)) {
+      tab_strip_model->RemoveSplit(*split_id);
+    }
+  }
+}
+
+void SwapTabsInSplitWithSideBySide(Browser* browser) {
+  CHECK(base::FeatureList::IsEnabled(features::kSideBySide));
+
+  auto* tab_strip_model = browser->tab_strip_model();
+  auto active_index = tab_strip_model->active_index();
+  CHECK_NE(TabStripModel::kNoTab, active_index);
+
+  auto split_id = tab_strip_model->GetSplitForTab(active_index);
+  CHECK(split_id.has_value());
+  tab_strip_model->ReverseTabsInSplit(*split_id);
 }
 
 }  // namespace brave

@@ -32,7 +32,7 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
   const ConfirmationQueueItemInfo confirmation_queue_item =
@@ -54,7 +54,7 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
   const ConfirmationQueueItemInfo confirmation_queue_item =
@@ -77,7 +77,7 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
   const ConfirmationQueueItemInfo confirmation_queue_item =
@@ -105,7 +105,7 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
 
   AdvanceClockTo(test::TimeFromUTCString("Mon, 8 Jul 1996 09:25"));
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -141,7 +141,7 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
 
   AdvanceClockTo(test::TimeFromUTCString("Mon, 8 Jul 1996 09:25"));
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -158,11 +158,11 @@ TEST_F(BraveAdsConfirmationQueueItemUtilTest,
 
   UserDataInfo expected_user_data = rebuilt_confirmation.user_data;
   expected_user_data.dynamic = base::test::ParseJsonDict(
-      R"(
+      R"JSON(
           {
             "diagnosticId": "c1298fde-7fdb-401f-a3ce-0b58fe86e6e2",
             "systemTimestamp": "1996-07-08T10:00:00.000Z"
-          })");
+          })JSON");
 
   EXPECT_THAT(
       rebuilt_confirmation,

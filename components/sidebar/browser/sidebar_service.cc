@@ -12,7 +12,9 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/check_is_test.h"
+#include "base/check_op.h"
 #include "base/containers/contains.h"
 #include "base/feature_list.h"
 #include "base/logging.h"
@@ -23,7 +25,6 @@
 #include "brave/components/brave_wallet/common/common_utils.h"
 #include "brave/components/constants/webui_url_constants.h"
 #include "brave/components/l10n/common/locale_util.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/playlist/common/buildflags/buildflags.h"
 #include "brave/components/sidebar/browser/constants.h"
 #include "brave/components/sidebar/browser/pref_names.h"
@@ -277,8 +278,8 @@ void SidebarService::MigratePrefSidebarBuiltInItemsToHidden() {
 }
 
 void SidebarService::AddItem(const SidebarItem& item) {
-  DCHECK(IsValidItem(item));
-  if (IsWebType(item)) {
+  DCHECK(item.IsValidItem());
+  if (item.is_web_type()) {
     items_.push_back(item);
     for (Observer& obs : observers_) {
       // Index starts at zero.
@@ -331,8 +332,8 @@ void SidebarService::MoveItem(size_t from, size_t to) {
 
 void SidebarService::UpdateItem(const GURL& old_url,
                                 const GURL& new_url,
-                                const std::u16string& old_title,
-                                const std::u16string& new_title) {
+                                std::u16string_view old_title,
+                                std::u16string_view new_title) {
   DCHECK(old_url.is_valid() && new_url.is_valid());
   DCHECK(!old_title.empty() && !new_title.empty());
 
@@ -428,7 +429,7 @@ std::vector<SidebarItem::BuiltInItemType>
 SidebarService::GetCurrentlyPresentBuiltInTypes() const {
   std::vector<SidebarItem::BuiltInItemType> items;
   std::ranges::for_each(items_, [&items](const auto& item) {
-    if (IsBuiltInType(item)) {
+    if (item.is_built_in_type()) {
       items.push_back(item.built_in_item_type);
     }
   });
@@ -464,7 +465,7 @@ std::optional<SidebarItem> SidebarService::GetDefaultPanelItem() const {
 
 bool SidebarService::IsEditableItemAt(size_t index) const {
   DCHECK(index < items_.size());
-  return sidebar::IsWebType(items_[index]);
+  return items_[index].is_web_type();
 }
 
 void SidebarService::SetSidebarShowOption(ShowSidebarOption show_options) {
@@ -592,35 +593,34 @@ SidebarItem SidebarService::GetBuiltInItemForType(
     SidebarItem::BuiltInItemType type) const {
   switch (type) {
     case SidebarItem::BuiltInItemType::kBraveTalk:
-      return SidebarItem::Create(GURL(kBraveTalkURL),
-                                 brave_l10n::GetLocalizedResourceUTF16String(
-                                     IDS_SIDEBAR_BRAVE_TALK_ITEM_TITLE),
-                                 SidebarItem::Type::kTypeBuiltIn,
-                                 SidebarItem::BuiltInItemType::kBraveTalk,
-                                 /* open_in_panel = */ false);
+      return SidebarItem::Create(
+          GURL(kBraveTalkURL),
+          l10n_util::GetStringUTF16(IDS_SIDEBAR_BRAVE_TALK_ITEM_TITLE),
+          SidebarItem::Type::kTypeBuiltIn,
+          SidebarItem::BuiltInItemType::kBraveTalk,
+          /* open_in_panel = */ false);
     case SidebarItem::BuiltInItemType::kWallet: {
       if (brave_wallet::IsAllowed(prefs_)) {
-        return SidebarItem::Create(GURL("chrome://wallet/"),
-                                   brave_l10n::GetLocalizedResourceUTF16String(
-                                       IDS_SIDEBAR_WALLET_ITEM_TITLE),
-                                   SidebarItem::Type::kTypeBuiltIn,
-                                   SidebarItem::BuiltInItemType::kWallet,
-                                   /* open_in_panel = */ false);
+        return SidebarItem::Create(
+            GURL("chrome://wallet/"),
+            l10n_util::GetStringUTF16(IDS_SIDEBAR_WALLET_ITEM_TITLE),
+            SidebarItem::Type::kTypeBuiltIn,
+            SidebarItem::BuiltInItemType::kWallet,
+            /* open_in_panel = */ false);
       }
       return SidebarItem();
     }
     case SidebarItem::BuiltInItemType::kBookmarks:
-      return SidebarItem::Create(brave_l10n::GetLocalizedResourceUTF16String(
-                                     IDS_SIDEBAR_BOOKMARKS_ITEM_TITLE),
-                                 SidebarItem::Type::kTypeBuiltIn,
-                                 SidebarItem::BuiltInItemType::kBookmarks,
-                                 /* open_in_panel = */ true);
+      return SidebarItem::Create(
+          l10n_util::GetStringUTF16(IDS_SIDEBAR_BOOKMARKS_ITEM_TITLE),
+          SidebarItem::Type::kTypeBuiltIn,
+          SidebarItem::BuiltInItemType::kBookmarks,
+          /* open_in_panel = */ true);
     case SidebarItem::BuiltInItemType::kReadingList:
       return SidebarItem::Create(
           // TODO(petemill): Have these items created under brave/browser
           // so that we can access common strings, like IDS_READ_LATER_TITLE.
-          brave_l10n::GetLocalizedResourceUTF16String(
-              IDS_SIDEBAR_READING_LIST_ITEM_TITLE),
+          l10n_util::GetStringUTF16(IDS_SIDEBAR_READING_LIST_ITEM_TITLE),
           SidebarItem::Type::kTypeBuiltIn,
           SidebarItem::BuiltInItemType::kReadingList,
           /* open_in_panel = */ true);
@@ -628,35 +628,34 @@ SidebarItem SidebarService::GetBuiltInItemForType(
       // TODO(sko) When should we show history item?
       constexpr bool kShowHistoryButton = false;
       if constexpr (kShowHistoryButton) {
-        return SidebarItem::Create(GURL("chrome://history/"),
-                                   brave_l10n::GetLocalizedResourceUTF16String(
-                                       IDS_SIDEBAR_HISTORY_ITEM_TITLE),
-                                   SidebarItem::Type::kTypeBuiltIn,
-                                   SidebarItem::BuiltInItemType::kHistory,
-                                   /* open_in_panel = */ true);
+        return SidebarItem::Create(
+            GURL("chrome://history/"),
+            l10n_util::GetStringUTF16(IDS_SIDEBAR_HISTORY_ITEM_TITLE),
+            SidebarItem::Type::kTypeBuiltIn,
+            SidebarItem::BuiltInItemType::kHistory,
+            /* open_in_panel = */ true);
       } else {
         return SidebarItem();
       }
     }
     case SidebarItem::BuiltInItemType::kPlaylist: {
       if (base::FeatureList::IsEnabled(playlist::features::kPlaylist)) {
-        return SidebarItem::Create(GURL(kPlaylistURL),
-                                   brave_l10n::GetLocalizedResourceUTF16String(
-                                       IDS_SIDEBAR_PLAYLIST_ITEM_TITLE),
-                                   SidebarItem::Type::kTypeBuiltIn,
-                                   SidebarItem::BuiltInItemType::kPlaylist,
-                                   /* open_in_panel = */ true);
+        return SidebarItem::Create(
+            GURL(kPlaylistURL),
+            l10n_util::GetStringUTF16(IDS_SIDEBAR_PLAYLIST_ITEM_TITLE),
+            SidebarItem::Type::kTypeBuiltIn,
+            SidebarItem::BuiltInItemType::kPlaylist,
+            /* open_in_panel = */ true);
       }
 
       return SidebarItem();
     }
     case SidebarItem::BuiltInItemType::kChatUI: {
       if (ai_chat::IsAIChatEnabled(prefs_)) {
-        return SidebarItem::Create(
-            brave_l10n::GetLocalizedResourceUTF16String(IDS_CHAT_UI_TITLE),
-            SidebarItem::Type::kTypeBuiltIn,
-            SidebarItem::BuiltInItemType::kChatUI,
-            /* open_in_panel = */ true);
+        return SidebarItem::Create(l10n_util::GetStringUTF16(IDS_CHAT_UI_TITLE),
+                                   SidebarItem::Type::kTypeBuiltIn,
+                                   SidebarItem::BuiltInItemType::kChatUI,
+                                   /* open_in_panel = */ true);
       } else {
         return SidebarItem();
       }
@@ -712,7 +711,7 @@ size_t SidebarService::GetBuiltInItemIndexToInsert(
   auto find_prev_builtin_in_items = [&]() {
     return std::find_if(items.cbegin(), items.cend(),
                         [&prev_builtin_item](const SidebarItem& item) {
-                          return IsBuiltInType(item) &&
+                          return item.is_built_in_type() &&
                                  item.built_in_item_type == prev_builtin_item;
                         });
   };

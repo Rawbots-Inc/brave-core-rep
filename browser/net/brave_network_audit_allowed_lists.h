@@ -63,16 +63,6 @@ inline constexpr auto kAllowedUrlPrefixes = std::to_array<std::string_view>({
     // Brave's Privacy-focused CDN
     "https://pcdn.brave.com/",
 
-    // Brave Rewards production
-    "https://api.rewards.brave.com/v1/parameters",
-    "https://rewards.brave.com/publishers/prefix-list",
-    "https://grant.rewards.brave.com/v1/promotions",
-
-    // Brave Rewards staging & dev
-    "https://api.rewards.bravesoftware.com/v1/parameters",
-    "https://rewards-stg.bravesoftware.com/publishers/prefix-list",
-    "https://grant.rewards.bravesoftware.com/v1/promotions",
-
     // p3a
     "https://p3a-creative.brave.com/",
     "https://p3a-json.brave.com/",
@@ -87,13 +77,6 @@ inline constexpr auto kAllowedUrlPrefixes = std::to_array<std::string_view>({
     "https://safebrowsing.brave.com/",
     "https://static.brave.com/",
     "https://static1.brave.com/",
-});
-
-// Before adding to this list, get approval from the security team.
-inline constexpr auto kAllowedUrlPatterns = std::to_array<std::string_view>({
-    // allowed because it's url for fetching super referral's mapping table
-    "https://mobile-data.s3.brave.com/superreferrer/map-table.json",
-    "https://mobile-data-dev.s3.brave.software/superreferrer/map-table.json",
 });
 
 }  // namespace brave

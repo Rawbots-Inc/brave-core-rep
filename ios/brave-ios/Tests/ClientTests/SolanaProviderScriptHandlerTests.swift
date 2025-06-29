@@ -5,12 +5,19 @@
 import BraveCore
 import Shared
 import UIKit
+import Web
 import XCTest
 
 @testable import Brave
 @testable import BraveWallet
 
 @MainActor class SolanaProviderScriptHandlerTests: XCTestCase {
+
+  private func testTab() -> TabState {
+    let tab = TabStateFactory.create(with: .init(braveCore: nil))
+    tab.browserData = .init(tab: tab)
+    return tab
+  }
 
   /// Test `connect()`, given no parameters, the error flow will return a tuple `(result: Any?, error: String?)`
   /// with the error populated as the given error dictionary
@@ -19,7 +26,7 @@ import XCTest
     provider._connect = { params, completion in
       completion(.internalError, Strings.Wallet.internalErrorMessage, "")
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -43,7 +50,7 @@ import XCTest
     provider._connect = { [kTestPublicKey] params, completion in
       completion(.success, "", kTestPublicKey)
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -69,7 +76,7 @@ import XCTest
       XCTAssertNotNil(params)  // onlyIfTrusted provided as an arg, should be non-nil
       completion(.success, "", kTestPublicKey)
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -100,7 +107,7 @@ import XCTest
     provider._signAndSendTransaction = { signTransactionParam, sendOptions, completion in
       completion(.internalError, Strings.Wallet.internalErrorMessage, [:])
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -143,7 +150,7 @@ import XCTest
         ]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -185,7 +192,7 @@ import XCTest
         ]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -214,7 +221,7 @@ import XCTest
     provider._signMessage = { _, _, completion in
       completion(.internalError, Strings.Wallet.internalErrorMessage, [:])
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -254,7 +261,7 @@ import XCTest
         ]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -299,7 +306,7 @@ import XCTest
         ]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -340,7 +347,7 @@ import XCTest
     provider._signTransaction = { _, completion in
       completion(.internalError, Strings.Wallet.internalErrorMessage, [], .legacy)
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -379,7 +386,7 @@ import XCTest
     provider._signTransaction = { [kSerializedTx] _, completion in
       completion(.success, "", kSerializedTx.map(NSNumber.init(value:)), .legacy)
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -418,7 +425,7 @@ import XCTest
     provider._signTransaction = { [kSerializedTx] _, completion in
       completion(.success, "", kSerializedTx.map(NSNumber.init(value:)), .V0)
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -457,7 +464,7 @@ import XCTest
     provider._signAllTransactions = { _, completion in
       completion(.internalError, Strings.Wallet.internalErrorMessage, [], [])
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -501,7 +508,7 @@ import XCTest
         [NSNumber(value: BraveWallet.SolanaMessageVersion.legacy.rawValue)]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 
@@ -547,7 +554,7 @@ import XCTest
         [NSNumber(value: BraveWallet.SolanaMessageVersion.V0.rawValue)]
       )
     }
-    let tab = Tab(configuration: .init())
+    let tab = testTab()
     let solProviderHelper = SolanaProviderScriptHandler()
     tab.walletSolProvider = provider
 

@@ -96,7 +96,7 @@ class BraveStatsUpdaterBrowserTest : public PlatformBrowserTest {
   }
 
   void SetBaseUpdateURLForTest() {
-    std::unique_ptr<base::Environment> env(base::Environment::Create());
+    auto env = base::Environment::Create();
     env->SetVar("BRAVE_REFERRALS_SERVER",
                 embedded_test_server()->base_url().spec());
   }
@@ -160,9 +160,7 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   WaitForReferralInitializeCallback();
   WaitForStandardStatsUpdatedCallback();
 
-  // We get //1/usage/brave-core here, so ignore the first slash.
-  EXPECT_STREQ(UNSAFE_TODO(GetUpdateURL().path().c_str() + 1),
-               "/1/usage/brave-core");
+  EXPECT_EQ(GetUpdateURL().path(), "//1/usage/brave-core");
 
   // First check preference should now be true
   EXPECT_TRUE(g_browser_process->local_state()->GetBoolean(kFirstCheckMade));
@@ -177,7 +175,7 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   WaitForStandardStatsUpdatedCallback();
 
   // Dummy URL confirms no request was triggered
-  EXPECT_STREQ(GetUpdateURL().host().c_str(), "no-thanks.invalid");
+  EXPECT_EQ(GetUpdateURL().host(), "no-thanks.invalid");
 
   // No prefs should be updated
   EXPECT_FALSE(g_browser_process->local_state()->GetBoolean(kFirstCheckMade));
@@ -201,11 +199,11 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   // Verify that daily parameter is true
   std::string query_value;
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "daily", &query_value));
-  EXPECT_STREQ(query_value.c_str(), "true");
+  EXPECT_EQ(query_value, "true");
 
   // Verify that there is no referral code
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "ref", &query_value));
-  EXPECT_STREQ(query_value.c_str(), "BRV001");
+  EXPECT_EQ(query_value, "BRV001");
 }
 
 // TODO(bridiver) - convert to a unit test
@@ -228,11 +226,11 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterBrowserTest,
   // Verify that daily parameter is true
   std::string query_value;
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "daily", &query_value));
-  EXPECT_STREQ(query_value.c_str(), "true");
+  EXPECT_EQ(query_value, "true");
 
   // Verify that there is no referral code
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "ref", &query_value));
-  EXPECT_STREQ(query_value.c_str(), "BRV001");
+  EXPECT_EQ(query_value, "BRV001");
 }
 
 class BraveStatsUpdaterReferralCodeBrowserTest
@@ -277,9 +275,9 @@ IN_PROC_BROWSER_TEST_F(BraveStatsUpdaterReferralCodeBrowserTest,
   // Verify that daily parameter is true
   std::string query_value;
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "daily", &query_value));
-  EXPECT_STREQ(query_value.c_str(), "true");
+  EXPECT_EQ(query_value, "true");
 
   // Verify that the expected referral code is present
   EXPECT_TRUE(net::GetValueForKeyInQuery(update_url, "ref", &query_value));
-  EXPECT_STREQ(query_value.c_str(), referral_code().c_str());
+  EXPECT_EQ(query_value, referral_code());
 }

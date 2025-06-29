@@ -7,11 +7,13 @@
 #define BRAVE_COMPONENTS_BRAVE_WALLET_COMMON_VALUE_CONVERSION_UTILS_H_
 
 #include <algorithm>
+#include <array>
 #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "base/strings/string_number_conversions.h"
 #include "base/values.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "url/origin.h"

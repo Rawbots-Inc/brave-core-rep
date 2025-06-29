@@ -5,14 +5,15 @@
 import Foundation
 import Shared
 import UIKit
+import Web
 
 /// A helper class that aids in the creation of share sheets
 class ShareExtensionHelper {
   /// URL and Tab to be shared
   private let selectedURL: URL
-  private weak var selectedTab: Tab?
+  private weak var selectedTab: (any TabState)?
 
-  init(url: URL, tab: Tab?) {
+  init(url: URL, tab: (any TabState)?) {
     self.selectedURL = url
     self.selectedTab = tab
   }
@@ -32,7 +33,7 @@ class ShareExtensionHelper {
     printInfo.outputType = .general
 
     var activityItems: [Any] = [
-      printInfo, selectedURL,
+      printInfo
     ]
 
     if let tab = selectedTab {
@@ -44,7 +45,9 @@ class ShareExtensionHelper {
     if let title = selectedTab?.title {
       // Makes sure the share sheet shows the same title as the tab
       // Also adds a title to several places, such as the Subject field in Mail
-      activityItems.append(TitleActivityItemProvider(title: title))
+      activityItems.append(URLActivityItemProvider(title: title, url: selectedURL))
+    } else {
+      activityItems.append(selectedURL)
     }
 
     let activityViewController = UIActivityViewController(

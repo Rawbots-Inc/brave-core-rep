@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_ads/browser/component_updater/resource_component.h"
 
+#include "base/check.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/functional/bind.h"
@@ -91,7 +92,7 @@ std::string LoadFile(const base::FilePath& path) {
 
   const bool success = base::ReadFileToString(path, &json);
   if (!success || json.empty()) {
-    VLOG(1) << "Failed to load file: " << path;
+    VLOG(0) << "Failed to load file: " << path;
     return json;
   }
 
@@ -118,10 +119,10 @@ void ResourceComponent::LoadManifestCallback(const std::string& component_id,
                                              const std::string& json) {
   VLOG(8) << "Manifest JSON: " << json;
 
-  const std::optional<base::Value::Dict> dict =
-      base::JSONReader::ReadDict(json);
+  std::optional<base::Value::Dict> dict = base::JSONReader::ReadDict(json);
   if (!dict) {
-    return VLOG(1) << "Failed to parse manifest";
+    VLOG(0) << "Failed to parse manifest";
+    return;
   }
 
   const std::string* const manifest_version =
@@ -145,19 +146,19 @@ void ResourceComponent::LoadResourceCallback(
     const std::string& json) {
   VLOG(8) << "Resource JSON: " << json;
 
-  const std::optional<base::Value::Dict> root =
-      base::JSONReader::ReadDict(json);
+  std::optional<base::Value::Dict> root = base::JSONReader::ReadDict(json);
   if (!root) {
-    return VLOG(1) << "Failed to parse resource";
+    VLOG(0) << "Failed to parse resource";
+    return;
   }
   const base::Value::Dict& dict = *root;
 
-  const std::optional<int> schema_version = dict.FindInt(kSchemaVersionKey);
+  std::optional<int> schema_version = dict.FindInt(kSchemaVersionKey);
   if (!schema_version) {
     return VLOG(1) << "Resource schema version is missing";
   }
 
-  if (*schema_version != kSchemaVersion) {
+  if (schema_version != kSchemaVersion) {
     return VLOG(1) << "Resource schema version mismatch";
   }
 
@@ -169,7 +170,8 @@ void ResourceComponent::LoadResourceCallback(
   for (const auto& item : *resources_list) {
     const auto* item_dict = item.GetIfDict();
     if (!item_dict) {
-      return VLOG(1) << "Failed to parse resource";
+      VLOG(0) << "Failed to parse resource";
+      return;
     }
 
     const std::string* const resource_id =
@@ -179,7 +181,7 @@ void ResourceComponent::LoadResourceCallback(
       continue;
     }
 
-    const std::optional<int> version = item_dict->FindInt(kResourceVersionKey);
+    std::optional<int> version = item_dict->FindInt(kResourceVersionKey);
     if (!version) {
       VLOG(1) << *resource_id << " resource version is missing";
       continue;

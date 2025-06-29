@@ -23,23 +23,22 @@ namespace brave_ads {
 class AdsService;
 class CreativeSearchResultAdHandler;
 
-class CreativeSearchResultAdTabHelper
+class CreativeSearchResultAdTabHelper final
     : public content::WebContentsObserver,
       public content::WebContentsUserData<CreativeSearchResultAdTabHelper> {
  public:
   explicit CreativeSearchResultAdTabHelper(content::WebContents* web_contents);
-  ~CreativeSearchResultAdTabHelper() override;
 
   CreativeSearchResultAdTabHelper(const CreativeSearchResultAdTabHelper&) =
       delete;
   CreativeSearchResultAdTabHelper& operator=(
       const CreativeSearchResultAdTabHelper&) = delete;
 
+  ~CreativeSearchResultAdTabHelper() override;
+
   static void SetAdsServiceForTesting(AdsService* ads_service);
 
   static void MaybeCreateForWebContents(content::WebContents* web_contents);
-
-  bool ShouldHandleCreativeAdEvents() const;
 
   void MaybeTriggerCreativeAdClickedEvent(const GURL& url,
                                           TriggerAdEventCallback callback);
@@ -65,7 +64,7 @@ class CreativeSearchResultAdTabHelper
       mojom::CreativeSearchResultAdInfoPtr creative_search_result_ad);
   void MaybeHandleCreativeAdViewedEventCallback(
       mojom::CreativeSearchResultAdInfoPtr creative_search_result_ad,
-      const base::Value value);
+      base::Value value);
 
   void MaybeHandleCreativeAdClickedEvent(const GURL& url);
   void MaybeHandleCreativeAdClickedEventCallback(

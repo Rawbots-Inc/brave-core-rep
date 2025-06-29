@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "base/strings/string_number_conversions.h"
+#include "base/check.h"
 #include "base/task/thread_pool/thread_pool_instance.h"
 #include "brave/components/brave_rewards/core/engine/bitflyer/bitflyer.h"
 #include "brave/components/brave_rewards/core/engine/contribution/contribution.h"
@@ -152,14 +152,14 @@ void RewardsEngine::GetBalanceReport(mojom::ActivityMonth month,
   });
 }
 
-void RewardsEngine::GetPublisherActivityFromUrl(
-    uint64_t window_id,
+void RewardsEngine::NotifyPublisherPageVisit(
+    uint64_t tab_id,
     mojom::VisitDataPtr visit_data,
     const std::string& publisher_blob) {
-  WhenReady([this, window_id, visit_data = std::move(visit_data),
+  WhenReady([this, tab_id, visit_data = std::move(visit_data),
              publisher_blob]() mutable {
-    publisher()->GetPublisherActivityFromUrl(window_id, std::move(visit_data),
-                                             publisher_blob);
+    publisher()->NotifyPublisherPageVisit(tab_id, std::move(visit_data),
+                                          publisher_blob);
   });
 }
 

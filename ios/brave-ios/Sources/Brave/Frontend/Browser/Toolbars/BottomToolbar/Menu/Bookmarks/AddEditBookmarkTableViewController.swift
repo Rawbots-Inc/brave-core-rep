@@ -9,6 +9,7 @@ import DesignSystem
 import Growth
 import Shared
 import UIKit
+import Web
 import os.log
 
 class AddEditBookmarkTableViewController: UITableViewController {
@@ -391,12 +392,12 @@ class AddEditBookmarkTableViewController: UITableViewController {
     }
   }
 
-  private func addListOfBookmarks(_ tabs: [Tab], parentFolder: Bookmarkv2? = nil) {
+  private func addListOfBookmarks(_ tabs: [any TabState], parentFolder: Bookmarkv2? = nil) {
     isLoading = true
 
     for tab in tabs {
       if tab.isPrivate {
-        if let url = tab.url, url.isWebPage(), !(InternalURL(url)?.isAboutHomeURL ?? false) {
+        if let url = tab.visibleURL, url.isWebPage(), !(InternalURL(url)?.isAboutHomeURL ?? false) {
           bookmarkManager.add(url: url, title: tab.title, parentFolder: parentFolder)
         }
       } else if let fetchedTab = SessionTab.from(tabId: tab.id), let tabURL = fetchedTab.url {

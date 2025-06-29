@@ -26,7 +26,6 @@ deps = {
     "url": "https://github.com/fanquake/libdmg-hfsplus.git@1cc791e4173da9cb0b0cc16c5a1aaa25d5eb5efa",
     "condition": 'checkout_mac and host_os != "mac" and checkout_dmg_tool',
   },
-  "third_party/rapidjson/src": "https://github.com/Tencent/rapidjson.git@06d58b9e848c650114556a23294d0b6440078c61",
   "third_party/reclient_configs/src": "https://github.com/EngFlow/reclient-configs.git@21c8fe69ff771956c179847b8c1d9fd216181967",
   'third_party/android_deps/libs/com_google_android_play_core': {
       'packages': [
@@ -91,7 +90,7 @@ hooks = [
     'pattern': '.',
     'condition': 'checkout_mac',
     'action': ['vpython3', 'build/download_dep.py',
-               'omaha4/BraveUpdater-132.1.76.11.zip',
+               'omaha4/BraveUpdater-136.1.79.71.zip',
                '//third_party/updater/chrome_mac_universal_prod/cipd'],
   },
   {
@@ -159,10 +158,20 @@ hooks = [
     'action': ['python3', 'build/apple/download_swift_format.py', '510.1.0', '0ddbb486640cde862fa311dc0f7387e6c5171bdcc0ee0c89bc9a1f8a75e8bfaf']
   },
   {
-    # Generate .clang-format.
-    'name': 'generate_clang_format',
+    # Chromium_src files require custom formatting to correctly sort includes
+    # that reference original files.
+    'name': 'generate_chromium_src_clang_format',
     'pattern': '.',
-    'action': ['vpython3', 'build/util/generate_clang_format.py', '../.clang-format', '.clang-format']
+    'action': ['vpython3', 'tools/chromium_src/generate_clang_format.py',
+               '../.clang-format', 'chromium_src/.clang-format'],
+  },
+  {
+    # We only need a custom .clang-format in chromium_src. It was previously
+    # generated in the root of brave/, so we remove it now. This hook can be
+    # removed after 08/2025.
+    'name': 'remove_stale_clang_format',
+    'pattern': '.',
+    'action': ['python3', '../tools/remove_stale_files.py', '.clang-format']
   },
   {
     'name': 'update_midl_files',

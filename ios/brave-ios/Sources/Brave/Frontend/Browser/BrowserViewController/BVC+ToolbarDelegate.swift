@@ -21,13 +21,14 @@ import Shared
 import SpeechRecognition
 import Storage
 import SwiftUI
+import Web
 import os.log
 
 // MARK: - TopToolbarDelegate
 
 extension BrowserViewController: TopToolbarDelegate {
 
-  func showTabTray(isExternallyPresented: Bool = false) {
+  func showTabTray() {
     if tabManager.tabsForCurrentMode.isEmpty {
       return
     }
@@ -43,9 +44,8 @@ extension BrowserViewController: TopToolbarDelegate {
     isTabTrayActive = true
 
     let tabTrayController = TabTrayController(
-      isExternallyPresented: isExternallyPresented,
       tabManager: tabManager,
-      braveCore: braveCore,
+      braveCore: profileController,
       windowProtection: windowProtection
     ).then {
       $0.delegate = self
@@ -55,12 +55,10 @@ extension BrowserViewController: TopToolbarDelegate {
     container.delegate = self
 
     if !UIAccessibility.isReduceMotionEnabled {
-      if !isExternallyPresented {
-        container.transitioningDelegate = tabTrayController
-      }
+      container.transitioningDelegate = tabTrayController
       container.modalPresentationStyle = .fullScreen
     }
-    present(container, animated: !isExternallyPresented)
+    present(container, animated: true)
   }
 
   func topToolbarDidPressReload(_ topToolbar: TopToolbarView) {
@@ -72,14 +70,14 @@ extension BrowserViewController: TopToolbarDelegate {
           let result = await decentralizedDNSHelper.lookup(
             domain: url.schemelessAbsoluteDisplayString
           )
-          topToolbar.locationView.loading = tabManager.selectedTab?.loading ?? false
+          topToolbar.locationView.loading = tabManager.selectedTab?.isLoading == true
           guard !Task.isCancelled else { return }  // user pressed stop, or typed new url
           switch result {
           case .loadInterstitial(let service):
             showWeb3ServiceInterstitialPage(service: service, originalURL: url)
           case .load(let resolvedURL):
             if resolvedURL.isIPFSScheme,
-              let resolvedIPFSURL = braveCore.ipfsAPI.resolveGatewayUrl(for: resolvedURL)
+              let resolvedIPFSURL = profileController.ipfsAPI.resolveGatewayUrl(for: resolvedURL)
             {
               tabManager.selectedTab?.loadRequest(URLRequest(url: resolvedIPFSURL))
             } else {
@@ -102,7 +100,7 @@ extension BrowserViewController: TopToolbarDelegate {
   }
 
   func topToolbarDidLongPressReloadButton(_ topToolbar: TopToolbarView, from button: UIButton) {
-    guard let tab = tabManager.selectedTab, let url = tab.url, !url.isLocal,
+    guard let tab = tabManager.selectedTab, let url = tab.visibleURL, !url.isLocal,
       !url.isInternalURL(for: .readermode)
     else { return }
 
@@ -110,7 +108,7 @@ extension BrowserViewController: TopToolbarDelegate {
     alert.addAction(UIAlertAction(title: Strings.cancelButtonTitle, style: .cancel, handler: nil))
 
     let toggleActionTitle =
-      tab.isDesktopSite == true
+      tab.currentUserAgentType == .desktop
       ? Strings.appMenuViewMobileSiteTitleString : Strings.appMenuViewDesktopSiteTitleString
     alert.addAction(
       UIAlertAction(
@@ -211,7 +209,7 @@ extension BrowserViewController: TopToolbarDelegate {
   func topToolbarDidPressScrollToTop(_ topToolbar: TopToolbarView) {
     if let selectedTab = tabManager.selectedTab, favoritesController == nil {
       // Only scroll to top if we are not showing the home view controller
-      selectedTab.webView?.scrollView.setContentOffset(CGPoint.zero, animated: true)
+      selectedTab.webViewProxy?.scrollView?.setContentOffset(CGPoint.zero, animated: true)
     }
   }
 
@@ -285,16 +283,16 @@ extension BrowserViewController: TopToolbarDelegate {
 
     if let url = URL(string: text), url.scheme == "brave" || url.scheme == "chrome" {
       topToolbar.leaveOverlayMode()
-      return handleChromiumWebUIURL(url)
+      if FeatureList.kUseChromiumWebViews.enabled {
+        finishEditingAndSubmit(url, isUserDefinedURLNavigation: isUserDefinedURLNavigation)
+        return true
+      } else {
+        return handleChromiumWebUIURL(url)
+      }
     }
 
     guard let fixupURL = URIFixup.getURL(text) else {
       return false
-    }
-
-    if fixupURL.scheme == "brave" || fixupURL.scheme == "chrome" {
-      topToolbar.leaveOverlayMode()
-      return handleChromiumWebUIURL(fixupURL)
     }
 
     // check text is decentralized DNS supported domain
@@ -305,7 +303,7 @@ extension BrowserViewController: TopToolbarDelegate {
       let result = await decentralizedDNSHelper.lookup(
         domain: fixupURL.schemelessAbsoluteDisplayString
       )
-      topToolbar.locationView.loading = tabManager.selectedTab?.loading ?? false
+      topToolbar.locationView.loading = tabManager.selectedTab?.isLoading == true
       guard !Task.isCancelled else { return true }  // user pressed stop, or typed new url
       switch result {
       case .loadInterstitial(let service):
@@ -313,7 +311,7 @@ extension BrowserViewController: TopToolbarDelegate {
         return true
       case .load(let resolvedURL):
         if resolvedURL.isIPFSScheme,
-          let resolvedIPFSURL = braveCore.ipfsAPI.resolveGatewayUrl(for: resolvedURL)
+          let resolvedIPFSURL = profileController.ipfsAPI.resolveGatewayUrl(for: resolvedURL)
         {
           finishEditingAndSubmit(resolvedIPFSURL)
         } else {
@@ -341,11 +339,13 @@ extension BrowserViewController: TopToolbarDelegate {
       "version",
       "skus-internals",
       "ads-internals",
+      "credits",
+      "sync-internals",
     ]
     guard let host = url.host, supportedPages.contains(host) else {
       return false
     }
-    let controller = ChromeWebUIController(braveCore: braveCore, isPrivateBrowsing: false)
+    let controller = ChromeWebUIController(braveCore: profileController, isPrivateBrowsing: false)
     controller.webView.load(URLRequest(url: url))
     controller.title = url.host?.capitalizeFirstLetter
     let webView = controller.webView
@@ -377,8 +377,8 @@ extension BrowserViewController: TopToolbarDelegate {
   func topToolbarDidLeaveOverlayMode(_ topToolbar: TopToolbarView) {
     hideSearchController()
     hideFavoritesController()
-    updateScreenTimeUrl(tabManager.selectedTab?.url)
-    updateInContentHomePanel(tabManager.selectedTab?.url as URL?)
+    updateScreenTimeUrl(tabManager.selectedTab?.visibleURL)
+    updateInContentHomePanel(tabManager.selectedTab?.visibleURL as URL?)
     updateTabsBarVisibility()
     if isUsingBottomBar {
       updateViewConstraints()
@@ -394,10 +394,13 @@ extension BrowserViewController: TopToolbarDelegate {
   }
 
   func presentBraveShieldsView() {
-    guard let selectedTab = tabManager.selectedTab, var url = selectedTab.url else { return }
+    guard let selectedTab = tabManager.selectedTab, var url = selectedTab.visibleURL else { return }
     if let internalURL = InternalURL(url) {
       guard let orignalURL = internalURL.url.strippedInternalURL else { return }
       url = orignalURL
+    }
+    if !url.isWebPage(includeDataURIs: false) {
+      return
     }
 
     weak var weakPopover: PopoverController?
@@ -436,7 +439,7 @@ extension BrowserViewController: TopToolbarDelegate {
 
   private func navigate(
     to target: ShieldsPanelView.Action.NavigationTarget,
-    tab: Tab,
+    tab: some TabState,
     url: URL,
     on viewController: UIViewController?
   ) {
@@ -461,7 +464,7 @@ extension BrowserViewController: TopToolbarDelegate {
   }
 
   private func changedShieldSettings() {
-    let currentDomain = self.tabManager.selectedTab?.url?.baseDomain
+    let currentDomain = self.tabManager.selectedTab?.visibleURL?.baseDomain
     let browsers = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
       .compactMap({ $0.browserViewController })
 
@@ -472,10 +475,10 @@ extension BrowserViewController: TopToolbarDelegate {
       // Reload the tabs. This will also trigger an update of the brave icon in `TabLocationView` if
       // the setting changed is the global `.AllOff` shield
       browser.tabManager.allTabs.forEach {
-        if $0.url?.baseDomain == currentDomain {
+        if $0.visibleURL?.baseDomain == currentDomain {
           $0.reload()
           // Domain specific shield setting changed, reset selectors cache.
-          $0.contentBlocker.resetSelectorsCache()
+          $0.contentBlocker?.resetSelectorsCache()
         }
       }
     }
@@ -490,7 +493,8 @@ extension BrowserViewController: TopToolbarDelegate {
           tabManager: self.tabManager,
           feedDataSource: self.feedDataSource,
           debounceService: DebounceServiceFactory.get(privateMode: false),
-          braveCore: braveCore,
+          braveCore: profileController,
+          p3aUtils: braveCore.p3aUtils,
           rewards: rewards,
           webcompatReporterHandler: WebcompatReporter.ServiceFactory.get(privateMode: false),
           clearDataCallback: { [weak self] isLoading, isHistoryCleared in
@@ -537,7 +541,7 @@ extension BrowserViewController: TopToolbarDelegate {
     self.present(container, animated: true)
   }
 
-  func shredData(for url: URL, in tab: Tab) {
+  func shredData(for url: URL, in tab: some TabState) {
     LottieAnimationView.showShredAnimation(on: view) {
       self.tabManager.shredData(for: url, in: tab)
     }
@@ -667,6 +671,23 @@ extension BrowserViewController: TopToolbarDelegate {
     }
   }
 
+  func topToolbarDidPressPasteAndGoButton(_ urlBar: TopToolbarView) {
+    if UIPasteboard.general.hasStrings || UIPasteboard.general.hasURLs,
+      let searchQuery = UIPasteboard.general.string
+        ?? UIPasteboard.general.url?.absoluteString
+    {
+      self.topToolbar.setLocation(searchQuery, search: false)
+      self.topToolbar(self.topToolbar, didEnterText: searchQuery)
+
+      if let fixupURL = URIFixup.getURL(searchQuery) {
+        finishEditingAndSubmit(fixupURL)
+        return
+      }
+
+      self.submitSearchText(searchQuery)
+    }
+  }
+
   func stopVoiceSearch(searchQuery: String? = nil) {
     voiceSearchViewController?.dismiss(animated: true) {
       if let query = searchQuery {
@@ -678,12 +699,15 @@ extension BrowserViewController: TopToolbarDelegate {
   }
 
   func topToolbarDidTapWalletButton(_ urlBar: TopToolbarView) {
-    guard let selectedTab = tabManager.selectedTab else {
+    guard let selectedTab = tabManager.selectedTab,
+      let origin = selectedTab.browserData?.getOrigin(),
+      let tabDappStore = selectedTab.tabDappStore
+    else {
       return
     }
     // System components sit on top so we want to dismiss it
-    selectedTab.webView?.findInteraction?.dismissFindNavigator()
-    presentWalletPanel(from: selectedTab.getOrigin(), with: selectedTab.tabDappStore)
+    selectedTab.dismissFindInteraction()
+    presentWalletPanel(from: origin, with: tabDappStore)
   }
 
   private func hideSearchController() {
@@ -701,9 +725,8 @@ extension BrowserViewController: TopToolbarDelegate {
     if searchController != nil { return }
 
     // Setting up data source for SearchSuggestions
-    let tabType = TabType.of(tabManager.selectedTab)
     let searchDataSource = SearchSuggestionDataSource(
-      forTabType: tabType,
+      isPrivate: tabManager.selectedTab?.isPrivate ?? false,
       searchEngines: profile.searchEngines
     )
 
@@ -716,10 +739,9 @@ extension BrowserViewController: TopToolbarDelegate {
     guard let searchController = searchController else { return }
     searchController.setupSearchEngineList()
     searchController.searchDelegate = self
-    searchController.profile = self.profile
 
     searchLoader = SearchLoader(
-      historyAPI: braveCore.historyAPI,
+      historyAPI: profileController.historyAPI,
       bookmarkManager: bookmarkManager,
       tabManager: tabManager
     )
@@ -758,8 +780,12 @@ extension BrowserViewController: TopToolbarDelegate {
 
   private func displayFavoritesController() {
     if favoritesController == nil {
+      let dse = profile.searchEngines.defaultEngine(
+        forType: privateBrowsingManager.isPrivateBrowsing ? .privateMode : .standard
+      )
       let favoritesController = FavoritesViewController(
         privateBrowsingManager: privateBrowsingManager,
+        defaultSearchEngine: dse,
         bookmarkAction: { [weak self] bookmark, action in
           self?.handleFavoriteAction(favorite: bookmark, action: action)
         },
@@ -783,13 +809,28 @@ extension BrowserViewController: TopToolbarDelegate {
             }
 
             switch searchType {
-            case .text, .website:
+            case .text:
               if let text = recentSearch.text {
                 self.topToolbar.setLocation(text, search: false)
                 self.topToolbar(self.topToolbar, didEnterText: text)
 
                 if shouldSubmitSearch {
                   submitSearch(text)
+                }
+              }
+            case .website:
+              if let text = recentSearch.text {
+                self.topToolbar.setLocation(text, search: false)
+                self.topToolbar(self.topToolbar, didEnterText: text)
+
+                if shouldSubmitSearch {
+                  if let urlString = recentSearch.websiteUrl,
+                    let url = URL(string: urlString)
+                  {
+                    finishEditingAndSubmit(url)
+                  } else {
+                    submitSearch(text)
+                  }
                 }
               }
             case .qrCode:
@@ -808,17 +849,6 @@ extension BrowserViewController: TopToolbarDelegate {
                   submitSearch(websiteUrl)
                 }
               }
-            }
-          } else if UIPasteboard.general.hasStrings || UIPasteboard.general.hasURLs,
-            let searchQuery = UIPasteboard.general.string
-              ?? UIPasteboard.general.url?.absoluteString
-          {
-
-            self.topToolbar.setLocation(searchQuery, search: false)
-            self.topToolbar(self.topToolbar, didEnterText: searchQuery)
-
-            if shouldSubmitSearch {
-              submitSearch(searchQuery)
             }
           }
         }
@@ -870,7 +900,7 @@ extension BrowserViewController: TopToolbarDelegate {
 
   func openAddBookmark() {
     guard let selectedTab = tabManager.selectedTab,
-      let selectedUrl = selectedTab.url,
+      let selectedUrl = selectedTab.visibleURL,
       !(selectedUrl.isLocal || selectedUrl.isInternalURL(for: .readermode))
     else {
       return
@@ -919,7 +949,7 @@ extension BrowserViewController: TopToolbarDelegate {
     /// The selected tab's url, or the extracted url from
     /// error page or reader mode page
     let selectedTabURL: URL? = {
-      guard let url = tabManager.selectedTab?.url else { return nil }
+      guard let url = tabManager.selectedTab?.visibleURL else { return nil }
 
       if let internalURL = InternalURL(url) {
         if internalURL.isErrorPage {
@@ -933,7 +963,7 @@ extension BrowserViewController: TopToolbarDelegate {
       return url
     }()
     /// The selected tab's url
-    let selectedTabOriginalURL = tabManager.selectedTab?.url
+    let selectedTabOriginalURL = tabManager.selectedTab?.visibleURL
 
     clearPageZoomDialog()
 
@@ -956,8 +986,7 @@ extension BrowserViewController: TopToolbarDelegate {
         from: tabToolbar.menuButton,
         activities: activities,
         tab: tabManager.selectedTab,
-        pageURL: selectedTabURL,
-        webView: tabManager.selectedTab?.webView
+        pageURL: selectedTabURL
       )
       return
     }
@@ -1007,7 +1036,7 @@ extension BrowserViewController: ToolbarDelegate {
 
   func tabToolbarDidPressBack(_ tabToolbar: ToolbarProtocol, button: UIButton) {
     tabManager.selectedTab?.goBack()
-    tabManager.selectedTab?.resetExternalAlertProperties()
+    tabManager.selectedTab?.browserData?.resetExternalAlertProperties()
     recordNavigationActionP3A(isNavigationActionForward: false)
   }
 
@@ -1018,7 +1047,7 @@ extension BrowserViewController: ToolbarDelegate {
 
   func tabToolbarDidPressForward(_ tabToolbar: ToolbarProtocol, button: UIButton) {
     tabManager.selectedTab?.goForward()
-    tabManager.selectedTab?.resetExternalAlertProperties()
+    tabManager.selectedTab?.browserData?.resetExternalAlertProperties()
     recordNavigationActionP3A(isNavigationActionForward: true)
   }
 
@@ -1048,13 +1077,13 @@ extension BrowserViewController: ToolbarDelegate {
   }
 
   func topToolbarDidTapSecureContentState(_ urlBar: TopToolbarView) {
-    guard let tab = tabManager.selectedTab, let url = tab.url
+    guard let tab = tabManager.selectedTab, let url = tab.visibleURL
     else { return }
     let hasCertificate =
-      (tab.webView?.serverTrust ?? (try? ErrorPageHelper.serverTrust(from: url))) != nil
+      (tab.serverTrust ?? (try? ErrorPageHelper.serverTrust(from: url))) != nil
     let pageSecurityView = PageSecurityView(
       displayURL: urlBar.locationView.urlDisplayLabel.text ?? url.absoluteDisplayString,
-      secureState: tab.lastKnownSecureContentState,
+      secureState: tab.visibleSecureContentState,
       hasCertificate: hasCertificate,
       presentCertificateViewer: { [weak self] in
         self?.dismiss(animated: true)
@@ -1066,7 +1095,7 @@ extension BrowserViewController: ToolbarDelegate {
   }
 
   func showBackForwardList() {
-    if let backForwardList = tabManager.selectedTab?.webView?.backForwardList {
+    if let backForwardList = tabManager.selectedTab?.backForwardList {
       let backForwardViewController = BackForwardListViewController(
         profile: profile,
         backForwardList: backForwardList
@@ -1095,10 +1124,10 @@ extension BrowserViewController: ToolbarDelegate {
   }
 
   func stopTabToolbarLoading() {
-    tabManager.selectedTab?.stop()
+    tabManager.selectedTab?.stopLoading()
     processAddressBarTask?.cancel()
     topToolbarDidPressReloadTask?.cancel()
-    topToolbar.locationView.loading = tabManager.selectedTab?.loading ?? false
+    topToolbar.locationView.loading = tabManager.selectedTab?.isLoading == true
   }
 }
 
@@ -1121,11 +1150,13 @@ extension BrowserViewController: UIContextMenuInteractionDelegate {
 
   /// Create the "Request Destop Site" / "Request Mobile Site" menu if the tab has a webpage loaded
   private func makeReloadMenu() -> UIMenu? {
-    guard let tab = tabManager.selectedTab, let url = tab.url, url.isWebPage() else { return nil }
+    guard let tab = tabManager.selectedTab, let url = tab.visibleURL, url.isWebPage() else {
+      return nil
+    }
     let reloadTitle =
-      tab.isDesktopSite == true
+      tab.currentUserAgentType == .desktop
       ? Strings.appMenuViewMobileSiteTitleString : Strings.appMenuViewDesktopSiteTitleString
-    let reloadIcon = tab.isDesktopSite == true ? "leo.smartphone" : "leo.monitor"
+    let reloadIcon = tab.currentUserAgentType == .desktop ? "leo.smartphone" : "leo.monitor"
     let reloadAction = UIAction(
       title: reloadTitle,
       image: UIImage(braveSystemNamed: reloadIcon),

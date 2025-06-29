@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 
+#include "base/check.h"
 #include "base/no_destructor.h"
 #include "brave/browser/brave_adaptive_captcha/brave_adaptive_captcha_service_factory.h"
 #include "brave/browser/brave_ads/ad_units/notification_ad/notification_ad_platform_bridge.h"
@@ -15,6 +16,7 @@
 #include "brave/browser/brave_ads/device_id/device_id_impl.h"
 #include "brave/browser/brave_ads/services/bat_ads_service_factory_impl.h"
 #include "brave/browser/brave_ads/tooltips/ads_tooltips_delegate_impl.h"
+#include "brave/browser/brave_ads/virtual_pref_provider_delegate.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/browser/brave_rewards/rewards_util.h"
@@ -98,6 +100,7 @@ AdsServiceFactory::BuildServiceInstanceForBrowserContext(
   return std::make_unique<AdsServiceImpl>(
       std::move(delegate), profile->GetPrefs(),
       g_browser_process->local_state(),
+      std::make_unique<VirtualPrefProviderDelegate>(*profile),
       profile->GetDefaultStoragePartition()
           ->GetURLLoaderFactoryForBrowserProcess(),
       brave::GetChannelName(), profile->GetPath(), CreateAdsTooltipsDelegate(),
@@ -108,7 +111,7 @@ AdsServiceFactory::BuildServiceInstanceForBrowserContext(
 }
 
 bool AdsServiceFactory::ServiceIsNULLWhileTesting() const {
-  return false;
+  return true;
 }
 
 }  // namespace brave_ads

@@ -105,6 +105,8 @@ class BraveWalletService : public KeyedService,
   void GetUserAssets(const std::string& chain_id,
                      mojom::CoinType coin,
                      GetUserAssetsCallback callback) override;
+  // Deprecated, use GetUserAssets instead that ensures native tokens for some
+  // coins.
   void GetAllUserAssets(GetUserAssetsCallback callback) override;
   void AddUserAsset(mojom::BlockchainTokenPtr token,
                     AddUserAssetCallback callback) override;
@@ -355,6 +357,10 @@ class BraveWalletService : public KeyedService,
   void OnGenerateZecReceiveAddress(
       GenerateReceiveAddressCallback callback,
       base::expected<mojom::ZCashAddressPtr, std::string> result);
+
+  void OnGenerateCardanoReceiveAddress(
+      GenerateReceiveAddressCallback callback,
+      base::expected<mojom::CardanoAddressPtr, std::string> result);
 
   void OnWalletUnlockPreferenceChanged(const std::string& pref_name);
 

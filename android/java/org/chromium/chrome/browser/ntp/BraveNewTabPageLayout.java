@@ -119,14 +119,15 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class BraveNewTabPageLayout
-        extends NewTabPageLayout implements ConnectionErrorHandler, OnBraveNtpListener {
+@SuppressWarnings("UseSharedPreferencesManagerFromChromeCheck")
+public class BraveNewTabPageLayout extends NewTabPageLayout
+        implements ConnectionErrorHandler, OnBraveNtpListener {
     private static final String TAG = "BraveNewTabPage";
 
     private static final int MINIMUM_VISIBLE_HEIGHT_THRESHOLD = 50;
     private static final int HOUR_MS = 3_600_000;
 
-    // To delete in bytecode, parent variable will be used instead.
+    // To be removed in bytecode, parent variable will be used instead.
     private ViewGroup mMvTilesContainerLayout;
 
     @SuppressWarnings("UnusedVariable")
@@ -141,6 +142,7 @@ public class BraveNewTabPageLayout
     private SponsoredRichMediaWebView mSponsoredRichMediaWebView;
     private FrameLayout mBackgroundSponsoredRichMediaView;
 
+    // To be removed in bytecode, parent variable will be used instead.
     private Profile mProfile;
     private SponsoredTab mSponsoredTab;
     private boolean mIsTablet;
@@ -151,7 +153,7 @@ public class BraveNewTabPageLayout
     private boolean mIsFromBottomSheet;
     private NTPBackgroundImagesBridge mNTPBackgroundImagesBridge;
     private ViewGroup mMainLayout;
-    private DatabaseHelper mDatabaseHelper;
+    private final DatabaseHelper mDatabaseHelper;
 
     private LottieAnimationView mBadgeAnimationView;
 
@@ -162,6 +164,8 @@ public class BraveNewTabPageLayout
     private BraveNtpAdapter mNtpAdapter;
     private Bitmap mSponsoredLogo;
     private Wallpaper mWallpaper;
+
+    private BraveNewTabTakeoverInfobar mNewTabTakeoverInfobar;
 
     private CopyOnWriteArrayList<FeedItemsCard> mNewsItemsFeedCard =
             new CopyOnWriteArrayList<FeedItemsCard>();
@@ -197,30 +201,7 @@ public class BraveNewTabPageLayout
     public BraveNewTabPageLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        mProfile = ProfileManager.getLastUsedRegularProfile();
-        mNTPBackgroundImagesBridge = NTPBackgroundImagesBridge.getInstance(mProfile);
-        mNTPBackgroundImagesBridge.setNewTabPageListener(mNewTabPageListener);
         mDatabaseHelper = DatabaseHelper.getInstance();
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-
-        mFeedHash = "";
-        initBraveNewsController(null);
-        try {
-            if (BraveNewsUtils.shouldDisplayNewsFeed()
-                    && BraveActivity.getBraveActivity().isLoadedFeed()) {
-                CopyOnWriteArrayList<FeedItemsCard> existingNewsFeedObject =
-                        BraveActivity.getBraveActivity().getNewsItemsFeedCards();
-                if (existingNewsFeedObject != null) {
-                    mNewsItemsFeedCard = existingNewsFeedObject;
-                }
-            }
-        } catch (BraveActivity.BraveActivityNotFoundException e) {
-            Log.e(TAG, "onFinishInflate " + e);
-        }
     }
 
     protected void updateTileGridPlaceholderVisibility() {
@@ -329,22 +310,25 @@ public class BraveNewTabPageLayout
         mNewsSettingsBar.setOnClickListener(view -> {});
 
         // Double tap on the settings bar to scroll back up
-        mNewsSettingsBar.setOnTouchListener(new OnTouchListener() {
-            private GestureDetector mGestureDetector =
-                    new GestureDetector(mActivity, new GestureDetector.SimpleOnGestureListener() {
-                        @Override
-                        public boolean onDoubleTap(MotionEvent e) {
-                            mRecyclerView.smoothScrollToPosition(0);
-                            return super.onDoubleTap(e);
-                        }
-                    });
+        mNewsSettingsBar.setOnTouchListener(
+                new OnTouchListener() {
+                    private final GestureDetector mGestureDetector =
+                            new GestureDetector(
+                                    mActivity,
+                                    new GestureDetector.SimpleOnGestureListener() {
+                                        @Override
+                                        public boolean onDoubleTap(MotionEvent e) {
+                                            mRecyclerView.smoothScrollToPosition(0);
+                                            return super.onDoubleTap(e);
+                                        }
+                                    });
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                mGestureDetector.onTouchEvent(event);
-                return true;
-            }
-        });
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        mGestureDetector.onTouchEvent(event);
+                        return true;
+                    }
+                });
         mNewContentLayout = findViewById(R.id.news_load_new_content);
         mNewContentText = findViewById(R.id.new_content_button_text);
         mNewContentProgressBar = findViewById(R.id.new_content_loading_spinner);
@@ -866,8 +850,8 @@ public class BraveNewTabPageLayout
         mNtpAdapter.setImageCreditAlpha(1f);
         mNtpAdapter.setDisplayNewsFeed(mIsDisplayNewsFeed);
 
-        if (isOptin && mBraveNewsController != null && BraveNewsUtils.getLocale() == null) {
-            BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, null);
+        if (isOptin && mBraveNewsController != null && BraveNewsUtils.getLocale().isEmpty()) {
+            BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, null, null);
         }
     }
 
@@ -1216,7 +1200,8 @@ public class BraveNewTabPageLayout
                 windowAndroid,
                 isTablet,
                 tabStripHeightSupplier);
-
+        mNTPBackgroundImagesBridge = NTPBackgroundImagesBridge.getInstance(mProfile);
+        mNTPBackgroundImagesBridge.setNewTabPageListener(mNewTabPageListener);
         mIsTablet = isTablet;
         mWindowAndroid = windowAndroid;
 
@@ -1237,6 +1222,15 @@ public class BraveNewTabPageLayout
         mActivity = activity;
         ((BraveActivity) mActivity).dismissShieldsTooltip();
         ((BraveActivity) mActivity).setNewTabPageManager(manager);
+        mFeedHash = "";
+        initBraveNewsController(null);
+        if (BraveNewsUtils.shouldDisplayNewsFeed() && ((BraveActivity) mActivity).isLoadedFeed()) {
+            CopyOnWriteArrayList<FeedItemsCard> existingNewsFeedObject =
+                    ((BraveActivity) mActivity).getNewsItemsFeedCards();
+            if (existingNewsFeedObject != null) {
+                mNewsItemsFeedCard = existingNewsFeedObject;
+            }
+        }
     }
 
     protected boolean useFixedMVTLayout() {
@@ -1255,6 +1249,8 @@ public class BraveNewTabPageLayout
         if (mNtpAdapter != null) {
             mNtpAdapter.setNtpImage(ntpImage);
         }
+
+        boolean wasWallpaperShown = true;
         if (ntpImage instanceof Wallpaper && ((Wallpaper) ntpImage).isRichMedia()) {
             setupSponsoredBackgroundContent();
         } else if (ntpImage instanceof Wallpaper
@@ -1267,6 +1263,17 @@ public class BraveNewTabPageLayout
                 && mSponsoredTab != null
                 && NTPImageUtil.shouldEnableNTPFeature()) {
             setBackgroundImage(ntpImage);
+        } else {
+            wasWallpaperShown = false;
+        }
+
+        if (wasWallpaperShown
+                && ntpImage instanceof Wallpaper
+                && getTab() != null
+                && mNewTabTakeoverInfobar == null) {
+            mNewTabTakeoverInfobar = new BraveNewTabTakeoverInfobar(mProfile);
+            mNewTabTakeoverInfobar.maybeDisplayAndIncrementCounter(
+                    mActivity, getTab().getWebContents());
         }
     }
 
@@ -1329,7 +1336,7 @@ public class BraveNewTabPageLayout
         if (shouldShowSuperReferral()) mNTPBackgroundImagesBridge.getTopSites();
     }
 
-    private NewTabPageListener mNewTabPageListener =
+    private final NewTabPageListener mNewTabPageListener =
             new NewTabPageListener() {
                 @Override
                 public void updateInteractableFlag(boolean isBottomSheet) {
@@ -1365,7 +1372,7 @@ public class BraveNewTabPageLayout
                 }
             };
 
-    private NTPBackgroundImagesBridge.NTPBackgroundImageServiceObserver
+    private final NTPBackgroundImagesBridge.NTPBackgroundImageServiceObserver
             mNTPBackgroundImageServiceObserver =
                     new NTPBackgroundImagesBridge.NTPBackgroundImageServiceObserver() {
                         @Override
@@ -1379,7 +1386,7 @@ public class BraveNewTabPageLayout
                         }
                     };
 
-    private FetchWallpaperWorkerTask.WallpaperRetrievedCallback mWallpaperRetrievedCallback =
+    private final FetchWallpaperWorkerTask.WallpaperRetrievedCallback mWallpaperRetrievedCallback =
             new FetchWallpaperWorkerTask.WallpaperRetrievedCallback() {
                 @Override
                 public void bgWallpaperRetrieved(Bitmap bgWallpaper) {
@@ -1414,8 +1421,7 @@ public class BraveNewTabPageLayout
 
             TextView tileViewTitleTv = tileView.findViewById(R.id.tile_view_title);
             tileViewTitleTv.setText(topSite.getName());
-            tileViewTitleTv.setTextColor(
-                    getContext().getColor(R.color.brave_state_time_count_color));
+            tileViewTitleTv.setTextAppearance(R.style.BraveSuggestionsTilesText);
 
             ImageView iconIv = tileView.findViewById(R.id.tile_view_icon);
             if (NTPImageUtil.imageCache.get(topSite.getDestinationUrl()) == null) {
@@ -1541,9 +1547,12 @@ public class BraveNewTabPageLayout
         }
 
         BraveNewsControllerFactory.getInstance()
-                .getBraveNewsController(this)
+                .getForProfile(mProfile, this)
                 .then(
                         braveNewsController -> {
+                            if (braveNewsController == null) {
+                                return;
+                            }
                             mBraveNewsController = braveNewsController;
                             if (mNtpAdapter != null) {
                                 mNtpAdapter.setBraveNewsController(mBraveNewsController);

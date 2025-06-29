@@ -164,7 +164,8 @@ struct SubmitReportView: View {
         cookiePolicy: Preferences.Privacy.blockAllCookies.value ? "block" : nil,
         blockScripts: blockScripts,
         adBlockComponentsVersion: nil,
-        screenshotPng: nil
+        screenshotPng: nil,
+        webcompatReporterErrors: nil
       )
     )
   }

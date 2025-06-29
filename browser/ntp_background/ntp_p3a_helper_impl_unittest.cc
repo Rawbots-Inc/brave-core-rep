@@ -47,10 +47,6 @@ constexpr char kLandsEventType[] = "lands";
 constexpr char kAwareEventType[] = "aware";
 constexpr char kViewedEventType[] = "viewed";
 
-constexpr char kTestP3AJsonHost[] = "https://p3a-json.brave.com";
-constexpr char kTestP2AJsonHost[] = "https://p2a-json.brave.com";
-constexpr char kTestP3ACreativeHost[] = "https://p3a-creative.brave.com";
-
 }  // namespace
 
 class NTPP3AHelperImplTest : public testing::Test {
@@ -71,9 +67,6 @@ class NTPP3AHelperImplTest : public testing::Test {
     brave_rewards::RegisterProfilePrefs(prefs_.registry());
 
     p3a::P3AConfig config;
-    config.p3a_json_upload_url = GURL(kTestP3AJsonHost);
-    config.p2a_json_upload_url = GURL(kTestP2AJsonHost);
-    config.p3a_creative_upload_url = GURL(kTestP3ACreativeHost);
     base::Time install_time;
     ASSERT_TRUE(base::Time::FromString("2049-01-01", &install_time));
     p3a_service_ = scoped_refptr(new p3a::P3AService(
@@ -81,8 +74,7 @@ class NTPP3AHelperImplTest : public testing::Test {
 
     ntp_p3a_helper_ = std::make_unique<NTPP3AHelperImpl>(
         &local_state_, p3a_service_.get(),
-        g_brave_browser_process->ntp_background_images_service(), &prefs_,
-        true);
+        g_brave_browser_process->ntp_background_images_service(), &prefs_);
   }
 
   void TearDown() override {
@@ -103,17 +95,11 @@ class NTPP3AHelperImplTest : public testing::Test {
   }
 
   void NotifyRotation() {
-    ntp_p3a_helper_->OnP3ARotation(p3a::MetricLogType::kExpress,
-                                   /*is_constellation=*/true);
-    ntp_p3a_helper_->OnP3ARotation(p3a::MetricLogType::kExpress,
-                                   /*is_constellation=*/false);
+    ntp_p3a_helper_->OnP3ARotation(p3a::MetricLogType::kExpress);
   }
 
   void NotifyMetricCycle(const std::string& histogram_name) {
-    ntp_p3a_helper_->OnP3AMetricCycled(histogram_name,
-                                       /*is_constellation=*/true);
-    ntp_p3a_helper_->OnP3AMetricCycled(histogram_name,
-                                       /*is_constellation=*/false);
+    ntp_p3a_helper_->OnP3AMetricCycled(histogram_name);
   }
 
   content::BrowserTaskEnvironment task_environment_;
@@ -219,13 +205,13 @@ TEST_F(NTPP3AHelperImplTest, LandCountReported) {
   EXPECT_FALSE(
       p3a_service_->GetDynamicMetricLogType(lands_histogram_name).has_value());
 
-  ntp_p3a_helper_->SetLastTabURL(GURL("https://adexample.com/page1"));
+  ntp_p3a_helper_->OnNavigationDidFinish(GURL("https://adexample.com/page1"));
 
   task_environment_.FastForwardBy(base::Seconds(6));
 
   // It's acceptable to access other pages,
   // as long as they're on the same host.
-  ntp_p3a_helper_->SetLastTabURL(GURL("https://adexample.com/page2"));
+  ntp_p3a_helper_->OnNavigationDidFinish(GURL("https://adexample.com/page2"));
 
   task_environment_.FastForwardBy(base::Seconds(5));
 
@@ -245,14 +231,15 @@ TEST_F(NTPP3AHelperImplTest, LandCountReported) {
   ntp_p3a_helper_->RecordNewTabPageAdEvent(
       brave_ads::mojom::NewTabPageAdEventType::kClicked, kTestCreativeMetricId);
 
-  ntp_p3a_helper_->SetLastTabURL(GURL("https://adexample.com/page1"));
+  ntp_p3a_helper_->OnNavigationDidFinish(GURL("https://adexample.com/page1"));
 
   task_environment_.FastForwardBy(base::Seconds(6));
   histogram_tester_->ExpectTotalCount(clicks_histogram_name, 1);
   histogram_tester_->ExpectTotalCount(lands_histogram_name, 1);
 
   // Should not trigger land, since user left page before "land time"
-  ntp_p3a_helper_->SetLastTabURL(GURL("https://differenthost.com/page1"));
+  ntp_p3a_helper_->OnNavigationDidFinish(
+      GURL("https://differenthost.com/page1"));
 
   task_environment_.FastForwardBy(base::Seconds(5));
 

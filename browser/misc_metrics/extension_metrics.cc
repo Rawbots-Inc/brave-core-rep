@@ -5,8 +5,10 @@
 
 #include "brave/browser/misc_metrics/extension_metrics.h"
 
+#include "base/check.h"
 #include "base/containers/fixed_flat_set.h"
 #include "base/metrics/histogram_macros.h"
+#include "brave/browser/extensions/manifest_v2/brave_extensions_manifest_v2_installer.h"
 #include "extensions/browser/extension_registry.h"
 
 namespace misc_metrics {
@@ -26,6 +28,15 @@ constexpr auto kPopularAdBlockExtensions =
             // AdBlocker Ultimate
             "ohahllgiabjaoigichmmfljhkcfikeof",
         });
+constexpr auto kManifestV2ExtensionIDExceptions =
+    base::MakeFixedFlatSet<std::string_view>(
+        base::sorted_unique,
+        {
+            // PDF Viewer
+            "mhjfbmdgcfjbbpaeojofohoefgiehjai",
+            // Brave
+            "mnojpmjdmbbfmejpflffifhffcmidifd",
+        });
 constexpr base::TimeDelta kReportDebounceTime = base::Seconds(10);
 
 }  // namespace
@@ -40,7 +51,7 @@ ExtensionMetrics::ExtensionMetrics(
   if (extension_registry) {
     observation_.Observe(extension_registry);
   }
-  ScheduleAdBlockMetricReport();
+  ScheduleMetricsReport();
 }
 
 ExtensionMetrics::~ExtensionMetrics() = default;
@@ -58,8 +69,20 @@ void ExtensionMetrics::OnExtensionLoaded(
     const extensions::Extension* extension) {
   if (kPopularAdBlockExtensions.contains(extension->id())) {
     adblock_extensions_loaded_.insert(extension->id());
-    ScheduleAdBlockMetricReport();
   }
+
+  // Check if this is a Manifest V2 extension
+  if (extension->manifest_version() == 2 &&
+      !kManifestV2ExtensionIDExceptions.contains(extension->id())) {
+    manifest_v2_extensions_loaded_.insert(extension->id());
+  }
+
+  // Check if this is a pre-configured Manifest V2 extension
+  if (extensions_mv2::IsKnownMV2Extension(extension->id())) {
+    select_manifest_v2_extensions_loaded_.insert(extension->id());
+  }
+
+  ScheduleMetricsReport();
 }
 
 void ExtensionMetrics::OnExtensionUninstalled(
@@ -68,20 +91,34 @@ void ExtensionMetrics::OnExtensionUninstalled(
     extensions::UninstallReason reason) {
   if (kPopularAdBlockExtensions.contains(extension->id())) {
     adblock_extensions_loaded_.erase(extension->id());
-    ScheduleAdBlockMetricReport();
   }
+
+  if (extension->manifest_version() == 2 &&
+      !kManifestV2ExtensionIDExceptions.contains(extension->id())) {
+    manifest_v2_extensions_loaded_.erase(extension->id());
+  }
+
+  // Check if this is a pre-configured Manifest V2 extension
+  if (extensions_mv2::IsKnownMV2Extension(extension->id())) {
+    select_manifest_v2_extensions_loaded_.erase(extension->id());
+  }
+
+  ScheduleMetricsReport();
 }
 
-void ExtensionMetrics::ScheduleAdBlockMetricReport() {
+void ExtensionMetrics::ScheduleMetricsReport() {
   report_debounce_timer_.Start(
       FROM_HERE, kReportDebounceTime,
-      base::BindOnce(&ExtensionMetrics::ReportAdBlockMetric,
-                     base::Unretained(this)));
+      base::BindOnce(&ExtensionMetrics::ReportMetrics, base::Unretained(this)));
 }
 
-void ExtensionMetrics::ReportAdBlockMetric() {
+void ExtensionMetrics::ReportMetrics() {
   UMA_HISTOGRAM_BOOLEAN(kAdblockExtensionsHistogramName,
                         !adblock_extensions_loaded_.empty());
+  UMA_HISTOGRAM_BOOLEAN(kManifestV2ExtensionsHistogramName,
+                        !manifest_v2_extensions_loaded_.empty());
+  UMA_HISTOGRAM_BOOLEAN(kSelectManifestV2ExtensionsHistogramName,
+                        !select_manifest_v2_extensions_loaded_.empty());
 }
 
 }  // namespace misc_metrics

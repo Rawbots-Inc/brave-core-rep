@@ -4,8 +4,10 @@
 # You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import os
+from pathlib import Path
 import re
 import subprocess
+import tomllib
 
 BRAVE_SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -19,6 +21,28 @@ DESKTOP_ONLY_PATHS = []
 
 _REPOSITORY_ROOT = None
 
+
+def GetRustWorkspaceTransitiveDeps(workspace):
+    ws_abs_path = Path(f'{_REPOSITORY_ROOT}/{workspace}')
+
+    def GetMembers():
+        with open(Path(f'{ws_abs_path}/Cargo.toml'), 'rb') as f:
+            return tomllib.load(f)['workspace']['members']
+
+    # The `members` field in `[workspace]` is an array of directories
+    # (as opposed to an array of package names), hence inspecting the
+    # Cargo.toml of each member, instead of using the Cargo.lock
+    # of the workspace.
+    def GetDepsForMember(member):
+        with open(Path(f'{ws_abs_path}/{member}/Cargo.toml'), 'rb') as f:
+            return list(tomllib.load(f)['dependencies'].keys())
+
+    all_deps = next(os.walk(Path(f'{ws_abs_path}/vendor')))[1]
+    direct_deps = [GetDepsForMember(member) for member in GetMembers()]
+    return [
+        str(Path(f'{workspace}/vendor/{dep}')) for dep in all_deps
+        if dep not in sum(direct_deps, [])
+    ]
 
 def AddBraveCredits(root, prune_paths, special_cases, prune_dirs,
                     additional_paths):
@@ -110,14 +134,9 @@ def AddBraveCredits(root, prune_paths, special_cases, prune_dirs,
         # android_deps/libs instead and it's special-cased further down.
         os.path.join('brave', 'third_party', 'android_deps'),
 
-        # No third-party code directly under ios_deps.
-        os.path.join('brave', 'third_party', 'ios_deps'),
-
         # Brave overrides to third-party code, also covered by main notice.
         os.path.join('brave', 'third_party', 'blink'),
         os.path.join('brave', 'third_party', 'libaddressinput'),
-        os.path.join('brave', 'third_party', 'tflite'),
-        os.path.join('brave', 'third_party', 'tflite_support'),
         os.path.join('brave', 'patches', 'third_party'),
         os.path.join('brave', 'third_party', 'polymer'),
         os.path.join('brave', 'third_party', 'lit'),
@@ -156,6 +175,9 @@ def AddBraveCredits(root, prune_paths, special_cases, prune_dirs,
         os.path.join('brave', 'vendor', 'omaha', 'omaha', 'scons-out'),
         os.path.join('brave', 'third_party', 'libdmg-hfsplus'),
         os.path.join('brave', 'tools', 'crates', 'vendor'),
+
+        # Transitive deps in brave/ui/webui/resources/wasm.
+        *GetRustWorkspaceTransitiveDeps(Path('brave/ui/webui/resources/wasm')),
     ])
 
     # Add the licensing info that would normally be in a README.chromium file.
@@ -217,12 +239,6 @@ def AddBraveCredits(root, prune_paths, special_cases, prune_dirs,
                 "/brave/vendor/omaha/third_party/googletest/LICENSE"
             ],
         },
-        os.path.join('brave', 'third_party', 'rapidjson'): {
-            "Name": "RapidJSON",
-            "URL": "https://github.com/Tencent/rapidjson",
-            "License": "MIT",
-            "License File": ["/brave/third_party/rapidjson/src/license.txt"],
-        },
         os.path.join('brave', 'third_party', 'reclient_configs'): {
             "Name": "reclient-configs",
             "URL": "https://github.com/EngFlow/reclient-configs",
@@ -282,14 +298,6 @@ def AddBraveCredits(root, prune_paths, special_cases, prune_dirs,
         for dirpath in dirs:
             dirname = os.path.basename(dirpath)
             additional_list += [os.path.join(android_libs, dirname)]
-
-    # Add all iOS libraries since they're not directly contained
-    # within a third_party directory. iOS deps will never be nested
-    ios_deps = os.path.join('brave', 'third_party', 'ios_deps')
-    for dirname in os.listdir(os.path.join(root, ios_deps)):
-        if not os.path.isdir(os.path.join(root, ios_deps, dirname)):
-            continue
-        additional_list += [os.path.join(ios_deps, dirname)]
 
     additional_paths = tuple(additional_list)
 

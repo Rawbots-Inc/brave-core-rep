@@ -37,6 +37,11 @@ class BraveWebClient : public ChromeWebClient {
   void PostBrowserURLRewriterCreation(
       web::BrowserURLRewriter* rewriter) override;
 
+  bool IsInsecureFormWarningEnabled(
+      web::BrowserState* browser_state) const override;
+  void BuildEditMenu(web::WebState* web_state,
+                     id<UIMenuBuilder>) const override;
+
  private:
   std::string legacy_user_agent_;
 };

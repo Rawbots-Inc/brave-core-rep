@@ -7,7 +7,10 @@
 
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/span.h"
+#include "base/dcheck_is_on.h"
 #include "base/feature_list.h"
 #include "base/hash/hash.h"
 #include "base/logging.h"
@@ -237,29 +240,23 @@ void SetBraveShieldsEnabled(HostContentSettingsMap* map,
     return;
   }
 
-  map->SetContentSettingCustomScope(
-      primary_pattern, ContentSettingsPattern::Wildcard(),
-      ContentSettingsType::BRAVE_SHIELDS,
-      // this is 'allow_brave_shields' so 'enable' == 'allow'
-      enable ? CONTENT_SETTING_ALLOW : CONTENT_SETTING_BLOCK);
+  // this is 'allow_brave_shields' so 'enable' == 'allow'
+  const auto setting = enable ? CONTENT_SETTING_ALLOW : CONTENT_SETTING_BLOCK;
+  if (map->IsOffTheRecord() ||
+      setting != map->GetDefaultContentSetting(
+                     ContentSettingsType::BRAVE_SHIELDS, nullptr)) {
+    map->SetContentSettingCustomScope(
+        primary_pattern, ContentSettingsPattern::Wildcard(),
+        ContentSettingsType::BRAVE_SHIELDS, setting);
 
-  RecordShieldsToggled(local_state);
-}
-
-void ResetBraveShieldsEnabled(HostContentSettingsMap* map, const GURL& url) {
-  if (url.is_valid() && !url.SchemeIsHTTPOrHTTPS()) {
-    return;
+    if (!map->IsOffTheRecord()) {
+      RecordShieldsToggled(local_state);
+    }
+  } else {
+    map->SetContentSettingCustomScope(
+        primary_pattern, ContentSettingsPattern::Wildcard(),
+        ContentSettingsType::BRAVE_SHIELDS, CONTENT_SETTING_DEFAULT);
   }
-
-  auto primary_pattern = GetPatternFromURL(url);
-
-  if (!primary_pattern.IsValid()) {
-    return;
-  }
-
-  map->SetContentSettingCustomScope(
-      primary_pattern, ContentSettingsPattern::Wildcard(),
-      ContentSettingsType::BRAVE_SHIELDS, CONTENT_SETTING_DEFAULT);
 }
 
 bool GetBraveShieldsEnabled(HostContentSettingsMap* map, const GURL& url) {
@@ -283,7 +280,8 @@ void SetAdControlType(HostContentSettingsMap* map,
                       ControlType type,
                       const GURL& url,
                       PrefService* local_state) {
-  DCHECK(type != ControlType::BLOCK_THIRD_PARTY);
+  DCHECK_NE(type, ControlType::BLOCK_THIRD_PARTY);
+  DCHECK_NE(type, ControlType::DEFAULT);
   auto primary_pattern = GetPatternFromURL(url);
 
   if (!primary_pattern.IsValid()) {
@@ -319,6 +317,7 @@ void SetCosmeticFilteringControlType(HostContentSettingsMap* map,
                                      const GURL& url,
                                      PrefService* local_state,
                                      PrefService* profile_state) {
+  DCHECK_NE(type, ControlType::DEFAULT);
   auto primary_pattern = GetPatternFromURL(url);
 
   if (!primary_pattern.IsValid()) {
@@ -682,6 +681,7 @@ void SetHttpsUpgradeControlType(HostContentSettingsMap* map,
                                 ControlType type,
                                 const GURL& url,
                                 PrefService* local_state) {
+  DCHECK_NE(type, ControlType::DEFAULT);
   if (!url.SchemeIsHTTPOrHTTPS() && !url.is_empty()) {
     return;
   }
@@ -786,7 +786,7 @@ void SetNoScriptControlType(HostContentSettingsMap* map,
                             ControlType type,
                             const GURL& url,
                             PrefService* local_state) {
-  DCHECK(type != ControlType::BLOCK_THIRD_PARTY);
+  DCHECK_NE(type, ControlType::BLOCK_THIRD_PARTY);
   auto primary_pattern = GetPatternFromURL(url);
 
   if (!primary_pattern.IsValid()) {

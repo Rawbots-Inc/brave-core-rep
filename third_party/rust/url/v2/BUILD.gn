@@ -38,11 +38,10 @@ cargo_crate("lib") {
   inputs = []
   build_native_rust_unit_tests = true
   edition = "2018"
-  cargo_pkg_version = "2.3.1"
-  cargo_pkg_authors = "The rust-url developers"
+  cargo_pkg_version = "2.5.0"
+  cargo_pkg_authors = "The rust-url developers, the brave-core developers"
   cargo_pkg_name = "url"
-  cargo_pkg_description =
-      "URL library for Rust, based on the WHATWG URL Standard"
+  cargo_pkg_description = "Stub of URL library for Rust to use chromium code"
   library_configs -= [ "//build/config/compiler:chromium_code" ]
   library_configs += [ "//build/config/compiler:no_chromium_code" ]
   executable_configs -= [ "//build/config/compiler:chromium_code" ]

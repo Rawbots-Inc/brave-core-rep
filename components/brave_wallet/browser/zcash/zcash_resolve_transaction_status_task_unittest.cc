@@ -10,8 +10,6 @@
 #include <vector>
 
 #include "base/files/scoped_temp_dir.h"
-#include "base/task/thread_pool.h"
-#include "base/test/bind.h"
 #include "base/test/mock_callback.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_prefs.h"
 #include "brave/components/brave_wallet/browser/keyring_service.h"
@@ -38,18 +36,6 @@ namespace brave_wallet {
 namespace {
 
 constexpr uint32_t kTransactionHeight = 10;
-
-class MockZCashWalletService : public ZCashWalletService {
- public:
-  MockZCashWalletService(base::FilePath zcash_data_path,
-                         KeyringService& keyring_service,
-                         std::unique_ptr<ZCashRpc> zcash_rpc)
-      : ZCashWalletService(zcash_data_path,
-                           keyring_service,
-                           std::move(zcash_rpc)) {}
-  MOCK_METHOD1(ResolveTransactionStatusTaskDone,
-               void(ZCashResolveTransactionStatusTask* task));
-};
 
 class MockZCashRPC : public ZCashRpc {
  public:
@@ -88,15 +74,10 @@ class ZCashResolveTransactionStatusTaskTest : public testing::Test {
     keyring_service_ =
         std::make_unique<KeyringService>(nullptr, &prefs_, &local_state_);
     keyring_service_->Reset();
-    keyring_service_->RestoreWallet(
-        "gallery equal segment repair outdoor bronze limb dawn daring main "
-        "burst "
-        "design palm demise develop exit cycle harbor motor runway turtle "
-        "quote "
-        "blast tail",
-        kTestWalletPassword, false, base::DoNothing());
+    keyring_service_->RestoreWallet(kMnemonicGalleryEqual, kTestWalletPassword,
+                                    false, base::DoNothing());
 
-    zcash_wallet_service_ = std::make_unique<MockZCashWalletService>(
+    zcash_wallet_service_ = std::make_unique<ZCashWalletService>(
         db_path, *keyring_service_,
         std::make_unique<testing::NiceMock<ZCashRpc>>(nullptr, nullptr));
   }
@@ -114,9 +95,7 @@ class ZCashResolveTransactionStatusTaskTest : public testing::Test {
                                          std::move(zcash_transaction));
   }
 
-  MockZCashWalletService& zcash_wallet_service() {
-    return *zcash_wallet_service_;
-  }
+  ZCashWalletService& zcash_wallet_service() { return *zcash_wallet_service_; }
 
   ZCashActionContext CreateContext() {
     return ZCashActionContext(zcash_rpc_,
@@ -142,7 +121,7 @@ class ZCashResolveTransactionStatusTaskTest : public testing::Test {
   sync_preferences::TestingPrefServiceSyncable local_state_;
 
   std::unique_ptr<KeyringService> keyring_service_;
-  std::unique_ptr<MockZCashWalletService> zcash_wallet_service_;
+  std::unique_ptr<ZCashWalletService> zcash_wallet_service_;
 
   mojom::AccountIdPtr account_id_;
   testing::NiceMock<MockZCashRPC> zcash_rpc_;
@@ -176,15 +155,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, Confirmed) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -220,15 +197,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, Expired_ExpiryHeight) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -265,15 +240,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, Expired_Time) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -309,15 +282,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, InProgress_ExpiryHeight) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -354,15 +325,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, InProgress_Time) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -399,15 +368,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest,
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -441,15 +408,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, Error_Transaction) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -482,15 +447,13 @@ TEST_F(ZCashResolveTransactionStatusTaskTest, Error_LatestBlock) {
 
   auto task = std::make_unique<ZCashResolveTransactionStatusTask>(
       CreatePassKey(), CreateContext(), zcash_wallet_service(),
-      std::move(tx_meta), callback.Get());
-  EXPECT_CALL(zcash_wallet_service(),
-              ResolveTransactionStatusTaskDone(testing::Eq(task.get())));
+      std::move(tx_meta));
   base::expected<ZCashWalletService::ResolveTransactionStatusResult,
                  std::string>
       tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 

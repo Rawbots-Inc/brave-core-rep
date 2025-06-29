@@ -10,57 +10,25 @@
 #include <string>
 #include <utility>
 
-#include "base/memory/raw_ptr.h"
-#include "brave/components/l10n/common/localization_util.h"
+#include "base/check.h"
+#include "base/check_op.h"
+#include "brave/browser/extensions/manifest_v2/brave_extensions_manifest_v2_installer.h"
 #include "brave/grit/brave_generated_resources.h"
-#include "chrome/browser/extensions/extension_service.h"
 #include "chrome/browser/extensions/webstore_install_with_prompt.h"
 #include "chrome/browser/profiles/profile.h"
-#include "components/grit/brave_components_strings.h"
 #include "content/public/browser/web_contents.h"
+#include "extensions/browser/extension_registrar.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extension_system.h"
-
-namespace {
-constexpr char kNoScriptId[] = "doojmbjmlfjjnbmnoijecmcbfeoakpjm";
-constexpr char kUBlockId[] = "cjpalhdlnbpafiamejdnhcphjbkeiagm";
-constexpr char kUMatrixId[] = "ogfcmafjalglgifnmanfmnieipoejdcf";
-constexpr char kAdGuardId[] = "gfggjaccafhcbfogfkogggoepomehbjl";
-}  // namespace
+#include "ui/base/l10n/l10n_util.h"
 
 BASE_FEATURE(kExtensionsManifestV2,
              "ExtensionsManifestV2",
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-class ExtensionWebstoreInstaller final
-    : public extensions::WebstoreInstallWithPrompt {
- public:
-  ExtensionWebstoreInstaller(
-      const std::string& webstore_item_id,
-      Profile* profile,
-      content::WebContents* web_contents,
-      extensions::WebstoreInstallWithPrompt::Callback callback)
-      : extensions::WebstoreInstallWithPrompt(
-            webstore_item_id,
-            profile,
-            web_contents->GetTopLevelNativeWindow(),
-            std::move(callback)),
-        web_contents_(web_contents) {}
-
- private:
-  ~ExtensionWebstoreInstaller() final = default;
-
-  bool ShouldShowPostInstallUI() const final { return true; }
-
-  std::unique_ptr<ExtensionInstallPrompt> CreateInstallUI() final {
-    return std::make_unique<ExtensionInstallPrompt>(web_contents_);
-  }
-
-  const raw_ptr<content::WebContents> web_contents_ = nullptr;
-};
-
 struct ExtensionManifestV2 {
   std::string id;
+  std::string sources;
   std::u16string name;
   std::u16string description;
   bool installed = false;
@@ -69,6 +37,7 @@ struct ExtensionManifestV2 {
   base::Value ToValue() const {
     base::Value::Dict v;
     v.Set("id", id);
+    v.Set("sources", sources);
     v.Set("name", name);
     v.Set("description", description);
     v.Set("installed", installed);
@@ -79,37 +48,41 @@ struct ExtensionManifestV2 {
 
 BraveExtensionsManifestV2Handler::BraveExtensionsManifestV2Handler() {
   // NoScript
-  extensions_.push_back({kNoScriptId,
-                         brave_l10n::GetLocalizedResourceUTF16String(
+  extensions_.push_back({extensions_mv2::kNoScriptId,
+                         "https://github.com/hackademix/noscript",
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_MANAGE_EXTENSIONS_V2_NO_SCRIPT_NAME),
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_MANAGE_EXTENSIONS_V2_NO_SCRIPT_DESC),
                          false});
 
   // uBlock Origin
   extensions_.push_back(
-      {kUBlockId,
-       brave_l10n::GetLocalizedResourceUTF16String(
+      {extensions_mv2::kUBlockId, "https://github.com/gorhill/uBlock",
+       l10n_util::GetStringUTF16(
            IDS_SETTINGS_MANAGE_EXTENSIONS_V2_UBLOCK_ORIGIN_NAME),
-       brave_l10n::GetLocalizedResourceUTF16String(
+       l10n_util::GetStringUTF16(
            IDS_SETTINGS_MANAGE_EXTENSIONS_V2_UBLOCK_ORIGIN_DESC),
        false});
 
   // uMatrix
-  extensions_.push_back({kUMatrixId,
-                         brave_l10n::GetLocalizedResourceUTF16String(
+  extensions_.push_back({extensions_mv2::kUMatrixId,
+                         "https://github.com/gorhill/uMatrix",
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_MANAGE_EXTENSIONS_V2_UMATRIX_NAME),
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_MANAGE_EXTENSIONS_V2_UMATRIX_DESC),
                          false});
 
   // AdGuard
-  extensions_.push_back({kAdGuardId,
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_MANAGE_EXTENSIONS_V2_ADGUARD_NAME),
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_MANAGE_EXTENSIONS_V2_ADGUARD_DESC),
-                         false});
+  extensions_.push_back(
+      {extensions_mv2::kAdGuardId,
+       "https://github.com/AdguardTeam/AdguardBrowserExtension",
+       l10n_util::GetStringUTF16(
+           IDS_SETTINGS_MANAGE_EXTENSIONS_V2_ADGUARD_NAME),
+       l10n_util::GetStringUTF16(
+           IDS_SETTINGS_MANAGE_EXTENSIONS_V2_ADGUARD_DESC),
+       false});
 }
 
 BraveExtensionsManifestV2Handler::~BraveExtensionsManifestV2Handler() = default;
@@ -205,25 +178,30 @@ void BraveExtensionsManifestV2Handler::EnableExtensionManifestV2(
 
   auto* profile = Profile::FromBrowserContext(
       web_ui()->GetWebContents()->GetBrowserContext());
-  auto* extension_service =
-      extensions::ExtensionSystem::Get(profile)->extension_service();
 
   if (enable) {
     if (!installed) {
-      installer_ = base::MakeRefCounted<ExtensionWebstoreInstaller>(
-          id, profile, web_ui()->GetWebContents(),
+      if (installer_) {
+        // Shouldn't happen, but reject the installation request if there is a
+        // pending one.
+        ResolveJavascriptCallback(args[0], base::Value(false));
+        return;
+      }
+      installer_ = std::make_unique<
+          extensions_mv2::ExtensionManifestV2Installer>(
+          id, web_ui()->GetWebContents(), profile->GetURLLoaderFactory(),
           base::BindOnce(
               &BraveExtensionsManifestV2Handler::OnExtensionManifestV2Installed,
               weak_factory_.GetWeakPtr(), args[0].Clone()));
       installer_->BeginInstall();
     } else {
-      extension_service->EnableExtension(id);
+      extensions::ExtensionRegistrar::Get(profile)->EnableExtension(id);
       ResolveJavascriptCallback(args[0], base::Value(true));
     }
   } else {
     installer_.reset();
-    extension_service->DisableExtension(
-        id, extensions::disable_reason::DISABLE_USER_ACTION);
+    extensions::ExtensionRegistrar::Get(profile)->DisableExtension(
+        id, {extensions::disable_reason::DISABLE_USER_ACTION});
     ResolveJavascriptCallback(args[0], base::Value(true));
   }
 }
@@ -241,9 +219,7 @@ void BraveExtensionsManifestV2Handler::RemoveExtensionManifestV2(
   if (installed) {
     auto* profile = Profile::FromBrowserContext(
         web_ui()->GetWebContents()->GetBrowserContext());
-    auto* extension_service =
-        extensions::ExtensionSystem::Get(profile)->extension_service();
-    extension_service->UninstallExtension(
+    extensions::ExtensionRegistrar::Get(profile)->UninstallExtension(
         id, extensions::UNINSTALL_REASON_INTERNAL_MANAGEMENT, nullptr);
   }
 
@@ -271,6 +247,7 @@ void BraveExtensionsManifestV2Handler::OnExtensionManifestV2Installed(
     bool success,
     const std::string& error,
     extensions::webstore_install::Result result) {
+  installer_.reset();
   AllowJavascript();
   if (!success &&
       result != extensions::webstore_install::Result::USER_CANCELLED) {

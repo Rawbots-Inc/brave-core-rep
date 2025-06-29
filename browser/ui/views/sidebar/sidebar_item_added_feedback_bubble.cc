@@ -10,9 +10,9 @@
 
 #include "base/functional/bind.h"
 #include "brave/app/vector_icons/vector_icons.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/grit/brave_generated_resources.h"
 #include "chrome/browser/ui/views/chrome_layout_provider.h"
+#include "ui/base/l10n/l10n_util.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/base/mojom/dialog_button.mojom.h"
 #include "ui/compositor/layer.h"
@@ -44,7 +44,7 @@ views::Widget* SidebarItemAddedFeedbackBubble::Create(
   frame_view->SetDisplayVisibleArrow(true);
   delegate->set_adjust_if_offscreen(true);
   delegate->SizeToContents();
-  frame_view->SetCornerRadius(6);
+  frame_view->SetRoundedCorners(gfx::RoundedCornersF(6));
 
   return bubble;
 }
@@ -58,7 +58,7 @@ SidebarItemAddedFeedbackBubble::SidebarItemAddedFeedbackBubble(
       animation_(base::Milliseconds(kFadeoutDurationInMs), 60, this) {
   // This bubble uses same color for all themes.
   constexpr SkColor kBubbleBackground = SkColorSetRGB(0x33, 0x9A, 0xF0);
-  set_color(kBubbleBackground);
+  SetBackgroundColor(kBubbleBackground);
   set_margins(gfx::Insets());
   set_title_margins(gfx::Insets());
   SetButtons(static_cast<int>(ui::mojom::DialogButton::kNone));
@@ -115,12 +115,11 @@ void SidebarItemAddedFeedbackBubble::AddChildViews() {
       views::BoxLayout::Orientation::kHorizontal, gfx::Insets(),
       kChildSpacing));
   auto* image = first_row->AddChildView(std::make_unique<views::ImageView>());
-  image->SetImage(
-      gfx::CreateVectorIcon(kSidebarItemAddedCheckIcon, SK_ColorWHITE));
+  image->SetImage(ui::ImageModel::FromImageSkia(
+      gfx::CreateVectorIcon(kSidebarItemAddedCheckIcon, SK_ColorWHITE)));
   // Use 12pt and 600 weight.
   auto* label = first_row->AddChildView(std::make_unique<views::Label>(
-      brave_l10n::GetLocalizedResourceUTF16String(
-          IDS_SIDEBAR_ADDED_FEEDBACK_TITLE_1),
+      l10n_util::GetStringUTF16(IDS_SIDEBAR_ADDED_FEEDBACK_TITLE_1),
       views::Label::CustomFont(
           {views::Label::GetDefaultFontList().DeriveWithWeight(
               gfx::Font::Weight::SEMIBOLD)})));
@@ -129,8 +128,7 @@ void SidebarItemAddedFeedbackBubble::AddChildViews() {
 
   // 11pt (1 decreased from default(12)) and 500 weight.
   label = AddChildView(std::make_unique<views::Label>(
-      brave_l10n::GetLocalizedResourceUTF16String(
-          IDS_SIDEBAR_ADDED_FEEDBACK_TITLE_2),
+      l10n_util::GetStringUTF16(IDS_SIDEBAR_ADDED_FEEDBACK_TITLE_2),
       views::Label::CustomFont(
           {views::Label::GetDefaultFontList()
                .DeriveWithSizeDelta(-1)

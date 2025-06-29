@@ -8,14 +8,13 @@
 #include <algorithm>
 #include <optional>
 #include <utility>
+#include <variant>
 
 #include "base/base64.h"
-#include "base/functional/overloaded.h"
+#include "base/check.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/notreached.h"
-#include "base/strings/string_number_conversions.h"
-#include "base/strings/stringprintf.h"
 #include "brave/components/brave_rewards/core/engine/database/database.h"
 #include "brave/components/brave_rewards/core/engine/global_constants.h"
 #include "brave/components/brave_rewards/core/engine/initialization_manager.h"
@@ -24,6 +23,7 @@
 #include "brave/components/brave_rewards/core/engine/rewards_engine.h"
 #include "brave/components/brave_rewards/core/engine/util/rewards_prefs.h"
 #include "brave/components/brave_rewards/core/engine/wallet_provider/wallet_provider.h"
+#include "third_party/abseil-cpp/absl/functional/overload.h"
 
 namespace brave_rewards::internal::wallet {
 
@@ -311,12 +311,12 @@ mojom::ExternalWalletPtr EnsureValidTransition(RewardsEngine& engine,
 
 mojom::ExternalWalletPtr TransitionWallet(
     RewardsEngine& engine,
-    absl::variant<mojom::ExternalWalletPtr, std::string> wallet_info,
+    std::variant<mojom::ExternalWalletPtr, std::string> wallet_info,
     mojom::WalletStatus to) {
   std::optional<mojom::WalletStatus> from;
 
-  auto wallet = absl::visit(
-      base::Overloaded{
+  auto wallet = std::visit(
+      absl::Overload{
           [&](const std::string& wallet_type) -> mojom::ExternalWalletPtr {
             auto wallet = GetWallet(engine, wallet_type);
             if (wallet) {

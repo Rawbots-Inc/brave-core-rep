@@ -8,9 +8,10 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
+#include "brave/components/brave_ads/core/internal/account/deposits/deposit_util.h"
 #include "brave/components/brave_ads/core/internal/account/user_data/fixed/conversion_user_data.h"
 #include "brave/components/brave_ads/core/internal/account/user_data/fixed/page_land_user_data.h"
-#include "brave/components/brave_ads/core/internal/ads_core/ads_core_util.h"
 #include "brave/components/brave_ads/core/internal/common/logging_util.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/conversions/actions/conversion_action_types_util.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/conversions/conversion/conversion_info.h"
@@ -35,16 +36,12 @@ AdHandler::AdHandler()
                                anti_targeting_resource_),
       promoted_content_ad_handler_(site_visit_),
       search_result_ad_handler_(site_visit_) {
-  conversions_.AddObserver(this);
-  site_visit_.AddObserver(this);
-  subdivision_.AddObserver(&country_code_);
+  conversions_observation_.Observe(&conversions_);
+  site_visit_observation_.Observe(&site_visit_);
   subdivision_.AddObserver(&subdivision_targeting_);
 }
 
 AdHandler::~AdHandler() {
-  conversions_.RemoveObserver(this);
-  site_visit_.RemoveObserver(this);
-  subdivision_.RemoveObserver(&country_code_);
   subdivision_.RemoveObserver(&subdivision_targeting_);
 }
 
@@ -56,6 +53,12 @@ void AdHandler::TriggerNotificationAdEvent(
 
   notification_ad_handler_.TriggerEvent(placement_id, mojom_ad_event_type,
                                         std::move(callback));
+}
+
+void AdHandler::ParseAndSaveNewTabPageAds(
+    base::Value::Dict dict,
+    ParseAndSaveNewTabPageAdsCallback callback) {
+  new_tab_page_ad_handler_.ParseAndSave(std::move(dict), std::move(callback));
 }
 
 void AdHandler::MaybeServeNewTabPageAd(
@@ -142,10 +145,9 @@ void AdHandler::OnDidConvertAd(const ConversionInfo& conversion) {
                        << ", campaign id " << conversion.campaign_id
                        << " and advertiser id " << conversion.advertiser_id);
 
-  GetAccount().DepositWithUserData(conversion.creative_instance_id,
-                                   conversion.segment, conversion.ad_type,
-                                   mojom::ConfirmationType::kConversion,
-                                   BuildConversionUserData(conversion));
+  DepositWithUserData(conversion.ad_type, mojom::ConfirmationType::kConversion,
+                      conversion.campaign_id, conversion.creative_instance_id,
+                      conversion.segment, BuildConversionUserData(conversion));
 }
 
 void AdHandler::OnMaybeLandOnPage(const AdInfo& ad, base::TimeDelta after) {
@@ -173,9 +175,9 @@ void AdHandler::OnDidLandOnPage(int32_t tab_id,
 
   BLOG(1, "Landed on page for " << ad.target_url << " on tab id " << tab_id);
 
-  GetAccount().DepositWithUserData(ad.creative_instance_id, ad.segment, ad.type,
-                                   mojom::ConfirmationType::kLanded,
-                                   BuildPageLandUserData(http_response_code));
+  DepositWithUserData(ad.type, mojom::ConfirmationType::kLanded, ad.campaign_id,
+                      ad.creative_instance_id, ad.segment,
+                      BuildPageLandUserData(http_response_code));
 }
 
 void AdHandler::OnDidNotLandOnPage(int32_t tab_id, const AdInfo& ad) {

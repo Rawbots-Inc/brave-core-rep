@@ -16,18 +16,18 @@ namespace brave_ads {
 
 TEST(BraveAdsChallengeBypassRistrettoTest, BuildCredential) {
   // Act
-  const std::optional<base::Value::Dict> credential = cbr::MaybeBuildCredential(
+  std::optional<base::Value::Dict> credential = cbr::MaybeBuildCredential(
       cbr::UnblindedToken(cbr::test::kUnblindedTokenBase64),
       /*payload=*/"definition: the weight of a payload");
   ASSERT_TRUE(credential);
 
   // Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "signature": "PblFP7WI3ZC3aAX73A9UvBdqnvl87Wx8nnz9DIbhNjxbFamMZGbwn5Hi+FXsSXg2GZ671rCwQ6Xpwe61JjeW9Q==",
                       "t": "IXDCnZnVEJ0orkbZfr2ut2NQPQ0ofdervKBmQ2hyjcClGCjA3/ExbBumO0ua5cxwo//nN0uKQ60kknru8hRXxw=="
-                    })"),
+                    })JSON"),
             *credential);
 }
 

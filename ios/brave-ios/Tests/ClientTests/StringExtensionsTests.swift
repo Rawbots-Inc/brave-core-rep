@@ -3,6 +3,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import Foundation
+import Web
 import XCTest
 
 @testable import Brave
@@ -67,7 +68,7 @@ import XCTest
 
     for (file, nounicode) in zip(files, nounicodes) {
       XCTAssert(file != nounicode)
-      let strip = Download.stripUnicode(fromFilename: file)
+      let strip = file.strippingUnicodeControlCharacters
       XCTAssert(strip == nounicode)
     }
   }

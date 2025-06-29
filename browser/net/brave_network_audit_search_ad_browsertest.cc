@@ -15,6 +15,8 @@
 #include "base/path_service.h"
 #include "base/run_loop.h"
 #include "base/strings/strcat.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/stringprintf.h"
 #include "base/task/single_thread_task_runner.h"
 #include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
@@ -24,7 +26,6 @@
 #include "brave/browser/net/brave_network_audit_allowed_lists.h"
 #include "brave/browser/net/brave_network_audit_test_helper.h"
 #include "brave/browser/ui/brave_browser.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/constants/brave_paths.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
@@ -61,12 +62,7 @@ void WaitForTimeout(int timeout) {
 
 class BraveNetworkAuditSearchAdTest : public InProcessBrowserTest {
  public:
-  BraveNetworkAuditSearchAdTest() {
-    feature_list_.InitWithFeatures(
-        {brave_ads::kShouldAlwaysRunBraveAdsServiceFeature,
-         brave_ads::kShouldAlwaysTriggerBraveSearchResultAdEventsFeature},
-        {});
-  }
+  BraveNetworkAuditSearchAdTest() = default;
 
   BraveNetworkAuditSearchAdTest(const BraveNetworkAuditSearchAdTest&) = delete;
   BraveNetworkAuditSearchAdTest& operator=(

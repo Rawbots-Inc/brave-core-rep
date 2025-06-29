@@ -10,7 +10,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/functional/bind.h"
+#include "base/logging.h"
+#include "base/notreached.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/types/cxx23_to_underlying.h"
 #include "brave/components/brave_sync/brave_sync_prefs.h"
@@ -269,7 +273,6 @@ void BraveSyncHandler::HandleSetSyncCode(const base::Value::List& args) {
   // we will set the result at BraveSyncHandler::OnJoinChainResult.
   // Otherwise we will not let to send request to the server.
 
-  sync_service->SetSyncFeatureRequested();
   sync_service->GetUserSettings()->SetInitialSyncFeatureSetupComplete(
       syncer::SyncFirstSetupCompleteSource::ADVANCED_FLOW_CONFIRM);
 }

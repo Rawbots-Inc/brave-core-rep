@@ -6,13 +6,11 @@
 #include "base/run_loop.h"
 #include "base/test/gmock_callback_support.h"
 #include "base/test/mock_callback.h"
-#include "base/test/scoped_feature_list.h"
 #include "brave/components/brave_ads/core/internal/ad_units/search_result_ad/search_result_ad_handler.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/creatives/search_result_ads/creative_search_result_ad_test_util.h"
 #include "brave/components/brave_ads/core/internal/serving/permission_rules/permission_rules_test_util.h"
 #include "brave/components/brave_ads/core/public/ads.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 
 // npm run test -- brave_unit_tests --filter=BraveAds*
 
@@ -23,14 +21,7 @@ class BraveAdsSearchResultAdForRewardsIntegrationTest : public test::TestBase {
   void SetUp() override {
     test::TestBase::SetUp(/*is_integration_test=*/true);
 
-    scoped_feature_list_.InitAndEnableFeature(
-        kShouldAlwaysTriggerBraveSearchResultAdEventsFeature);
-
     test::ForcePermissionRules();
-  }
-
-  void SetUpMocks() override {
-    EXPECT_CALL(ads_client_mock_, RecordP2AEvents).Times(0);
   }
 
   void TriggerSearchResultAdEventAndVerifyExpectations(
@@ -45,8 +36,6 @@ class BraveAdsSearchResultAdForRewardsIntegrationTest : public test::TestBase {
                                         mojom_ad_event_type, callback.Get());
     run_loop.Run();
   }
-
-  base::test::ScopedFeatureList scoped_feature_list_;
 };
 
 TEST_F(BraveAdsSearchResultAdForRewardsIntegrationTest, TriggerViewedEvents) {

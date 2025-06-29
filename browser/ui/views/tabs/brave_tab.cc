@@ -9,12 +9,13 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "brave/browser/ui/tabs/brave_tab_layout_constants.h"
 #include "brave/browser/ui/tabs/brave_tab_prefs.h"
 #include "brave/browser/ui/tabs/features.h"
 #include "brave/browser/ui/views/frame/brave_browser_view.h"
-#include "brave/browser/ui/views/frame/vertical_tab_strip_region_view.h"
-#include "brave/browser/ui/views/frame/vertical_tab_strip_widget_delegate_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_region_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_widget_delegate_view.h"
 #include "brave/browser/ui/views/tabs/vertical_tab_utils.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
@@ -166,4 +167,10 @@ void BraveTab::SetData(TabRendererData data) {
       data_.pinned) {
     SetGroup(std::nullopt);
   }
+}
+
+bool BraveTab::IsActive() const {
+  // When SideBySide is enabled, chromium gives true if tab is in split tab even
+  // it's not active. We want to give true only for current active tab.
+  return controller_->IsActiveTab(this);
 }

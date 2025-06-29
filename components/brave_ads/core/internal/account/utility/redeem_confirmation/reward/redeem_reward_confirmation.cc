@@ -3,12 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#ifdef UNSAFE_BUFFERS_BUILD
-// TODO(https://github.com/brave/brave-browser/issues/41661): Remove this and
-// convert code to safer constructs.
-#pragma allow_unsafe_buffers
-#endif
-
 #include "brave/components/brave_ads/core/internal/account/utility/redeem_confirmation/reward/redeem_reward_confirmation.h"
 
 #include <optional>
@@ -84,7 +78,7 @@ void RedeemRewardConfirmation::Redeem(
   BLOG(1, "Redeem reward confirmation");
 
   if (!HasIssuers()) {
-    BLOG(1, "Failed to redeem confirmation token due to missing issuers");
+    BLOG(0, "Failed to redeem confirmation token due to missing issuers");
     return redeem_confirmation.FailedToRedeemConfirmation(
         confirmation, /*should_retry=*/true);
   }
@@ -171,9 +165,7 @@ void RedeemRewardConfirmation::FetchPaymentTokenCallback(
   }
   const PaymentTokenInfo& payment_token = handle_url_response_result.value();
 
-  const auto add_payment_token_result = MaybeAddPaymentToken(payment_token);
-  if (!add_payment_token_result.has_value()) {
-    BLOG(1, add_payment_token_result.error());
+  if (!MaybeAddPaymentToken(payment_token)) {
     return redeem_confirmation.FailedToRedeemConfirmation(
         confirmation, /*should_retry=*/false);
   }
@@ -188,7 +180,7 @@ RedeemRewardConfirmation::HandleFetchPaymentTokenUrlResponse(
     const mojom::UrlResponseInfo& mojom_url_response) {
   if (mojom_url_response.status_code == net::HTTP_NOT_FOUND) {
     return base::unexpected(
-        std::make_tuple("Confirmation not found", /*should_retry=*/true));
+        std::make_tuple("Confirmation not found", /*should_retry=*/false));
   }
 
   if (mojom_url_response.status_code == net::HTTP_BAD_REQUEST) {
@@ -206,7 +198,7 @@ RedeemRewardConfirmation::HandleFetchPaymentTokenUrlResponse(
                                             /*should_retry=*/true));
   }
 
-  const std::optional<base::Value::Dict> dict =
+  std::optional<base::Value::Dict> dict =
       base::JSONReader::ReadDict(mojom_url_response.body);
   if (!dict) {
     return base::unexpected(std::make_tuple(
@@ -234,7 +226,7 @@ RedeemRewardConfirmation::HandleFetchPaymentTokenUrlResponse(
                                             /*should_retry=*/false));
   }
 
-  const std::optional<cbr::PublicKey> public_key =
+  std::optional<cbr::PublicKey> public_key =
       ParsePublicKey(*payment_token_dict);
   if (!public_key.has_value()) {
     return base::unexpected(std::make_tuple("Failed to parse public key",
@@ -248,7 +240,7 @@ RedeemRewardConfirmation::HandleFetchPaymentTokenUrlResponse(
                         /*should_retry=*/true));
   }
 
-  const std::optional<cbr::UnblindedTokenList> unblinded_tokens =
+  std::optional<cbr::UnblindedTokenList> unblinded_tokens =
       ParseVerifyAndUnblindTokens(
           *payment_token_dict, {confirmation.reward->token},
           {confirmation.reward->blinded_token}, *public_key);

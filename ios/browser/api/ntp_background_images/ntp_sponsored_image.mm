@@ -16,6 +16,7 @@
 
 @interface NTPSponsoredImageData ()
 @property(nonatomic, copy) NSArray<NTPSponsoredImageCampaign*>* campaigns;
+@property(nonatomic, nullable) NSNumber* gracePeriod;
 @property(nonatomic) BOOL isSuperReferral;
 @property(nonatomic, copy, nullable) NSString* themeName;
 @property(nonatomic, copy, nullable)
@@ -26,11 +27,13 @@
 
 - (instancetype)
     initWithCampaigns:(NSArray<NTPSponsoredImageCampaign*>*)campaigns
+          gracePeriod:(nullable NSNumber*)gracePeriod
       isSuperReferral:(BOOL)isSuperReferral
             themeName:(nullable NSString*)themeName
              topSites:(nullable NSArray<NTPSponsoredImageTopSite*>*)topSites {
   if ((self = [super init])) {
     self.campaigns = campaigns;
+    self.gracePeriod = gracePeriod;
     self.isSuperReferral = isSuperReferral;
     self.themeName = themeName;
     self.topSites = topSites;
@@ -45,6 +48,10 @@
     [campaigns addObject:[[NTPSponsoredImageCampaign alloc]
                              initWithCampaign:campaign]];
   }
+  NSNumber* gracePeriod = nil;
+  if (data.grace_period) {
+    gracePeriod = [NSNumber numberWithFloat:data.grace_period->InSecondsF()];
+  }
   auto isSuperReferral = data.IsSuperReferral();
   NSString* themeName = nil;
   NSMutableArray<NTPSponsoredImageTopSite*>* topSites = nil;
@@ -57,6 +64,7 @@
     }
   }
   return [self initWithCampaigns:campaigns
+                     gracePeriod:gracePeriod
                  isSuperReferral:isSuperReferral
                        themeName:themeName
                         topSites:topSites];
@@ -98,27 +106,24 @@
 @interface NTPSponsoredImageBackground ()
 @property(nonatomic, copy) NSURL* imagePath;
 @property(nonatomic) CGPoint focalPoint;
-@property(nonatomic, copy) NSString* backgroundColor;
 @property(nonatomic, copy) NSString* creativeInstanceId;
 @property(nonatomic) NTPSponsoredImageLogo* logo;
-@property(nonatomic) CGRect viewBox;
+@property(nonatomic) BOOL shouldMetricsFallbackToP3A;
 @end
 
 @implementation NTPSponsoredImageBackground
 
 - (instancetype)initWithImagePath:(NSURL*)imagePath
                        focalPoint:(CGPoint)focalPoint
-                  backgroundColor:(NSString*)backgroundColor
                creativeInstanceId:(NSString*)creativeInstanceId
                              logo:(NTPSponsoredImageLogo*)logo
-                          viewBox:(CGRect)viewBox {
+       shouldMetricsFallbackToP3A:(BOOL)shouldMetricsFallbackToP3A {
   if ((self = [super init])) {
     self.imagePath = imagePath;
     self.focalPoint = focalPoint;
-    self.backgroundColor = backgroundColor;
     self.creativeInstanceId = creativeInstanceId;
     self.logo = logo;
-    self.viewBox = viewBox;
+    self.shouldMetricsFallbackToP3A = shouldMetricsFallbackToP3A;
   }
   return self;
 }
@@ -129,19 +134,17 @@
       [NSURL fileURLWithPath:base::SysUTF8ToNSString(
                                  sponsoredBackground.file_path.value())];
   auto focalPoint = sponsoredBackground.focal_point.ToCGPoint();
-  auto backgroundColor =
-      base::SysUTF8ToNSString(sponsoredBackground.background_color);
   auto creativeInstanceId =
       base::SysUTF8ToNSString(sponsoredBackground.creative_instance_id);
   auto logo =
       [[NTPSponsoredImageLogo alloc] initWithLogo:sponsoredBackground.logo];
-  auto viewBox = sponsoredBackground.viewbox.value_or(gfx::Rect()).ToCGRect();
+  const bool shouldMetricsFallbackToP3A =
+      sponsoredBackground.should_metrics_fallback_to_p3a;
   return [self initWithImagePath:imagePath
                       focalPoint:focalPoint
-                 backgroundColor:backgroundColor
               creativeInstanceId:creativeInstanceId
                             logo:logo
-                         viewBox:viewBox];
+      shouldMetricsFallbackToP3A:shouldMetricsFallbackToP3A];
 }
 
 @end

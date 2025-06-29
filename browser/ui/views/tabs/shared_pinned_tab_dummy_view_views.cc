@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/browser/ui/tabs/shared_pinned_tab_dummy_view.h"
@@ -39,7 +40,7 @@ std::unique_ptr<SharedPinnedTabDummyView> SharedPinnedTabDummyView::Create(
   // Note that SharedPinnedTabDummyView is owned by the client, not by a view
   // tree. This is invariant of WebView::SetCrashedOverlayView, which we're
   // using to attach this view to web view.
-  view->set_owned_by_client();
+  view->set_owned_by_client(views::View::OwnedByClientPassKey());
 
   return view;
 }
@@ -57,7 +58,7 @@ SharedPinnedTabDummyViewViews::SharedPinnedTabDummyViewViews(
       ->SetOrientation(views::LayoutOrientation::kVertical)
       .SetCrossAxisAlignment(views::LayoutAlignment::kCenter)
       .SetMainAxisAlignment(views::LayoutAlignment::kCenter);
-  SetBackground(views::CreateThemedSolidBackground(
+  SetBackground(views::CreateSolidBackground(
       kColorBraveSharedPinnedTabDummyViewBackground));
 
   constexpr auto kTitleFontSize = 22;
@@ -71,7 +72,7 @@ SharedPinnedTabDummyViewViews::SharedPinnedTabDummyViewViews(
 
   views::Builder<SharedPinnedTabDummyViewViews>(this)
       .AddChild(views::Builder<views::View>()
-                    .SetBorder(views::CreateThemedRoundedRectBorder(
+                    .SetBorder(views::CreateRoundedRectBorder(
                         kThumbnailBorderThickness, kThumbnailRadius,
                         kColorBraveSharedPinnedTabDummyViewThumbnailBorder))
                     .SetPreferredSize(kThumbnailSize)
@@ -88,7 +89,7 @@ SharedPinnedTabDummyViewViews::SharedPinnedTabDummyViewViews(
                             .DeriveWithSizeDelta(kTitleFontSize -
                                                  gfx::FontList().GetFontSize())
                             .DeriveWithWeight(gfx::Font::Weight::SEMIBOLD))
-                    .SetEnabledColorId(kColorBraveSharedPinnedTabDummyViewTitle)
+                    .SetEnabledColor(kColorBraveSharedPinnedTabDummyViewTitle)
                     .SetProperty(views::kMarginsKey, gfx::Insets().set_top(40)))
       .AddChild(
           views::Builder<views::Label>()
@@ -97,7 +98,7 @@ SharedPinnedTabDummyViewViews::SharedPinnedTabDummyViewViews(
                   IDS_SHARED_PINNED_TABS_DUMMY_TAB_VIEW_DESCRIPTION))
               .SetFontList(gfx::FontList().DeriveWithSizeDelta(
                   kDescriptionFontSize - gfx::FontList().GetFontSize()))
-              .SetEnabledColorId(kColorBraveSharedPinnedTabDummyViewDescription)
+              .SetEnabledColor(kColorBraveSharedPinnedTabDummyViewDescription)
               .SetProperty(views::kMarginsKey, gfx::Insets().set_top(8)))
       .BuildChildren();
 

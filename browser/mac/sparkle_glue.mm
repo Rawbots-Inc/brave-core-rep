@@ -5,14 +5,17 @@
 
 #import "brave/browser/mac/sparkle_glue.h"
 
-#include <string>
 #include <sys/mount.h>
 #include <sys/stat.h>
+
+#include <string>
 
 #include "base/apple/bundle_locations.h"
 #include "base/apple/foundation_util.h"
 #import "base/apple/scoped_nsautorelease_pool.h"
+#include "base/check.h"
 #include "base/command_line.h"
+#include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/strings/sys_string_conversions.h"
 #include "base/system/sys_info.h"

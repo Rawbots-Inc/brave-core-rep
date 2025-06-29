@@ -1,8 +1,8 @@
 diff --git a/chrome/browser/ui/browser.cc b/chrome/browser/ui/browser.cc
-index 3d0ffcbb38c234b97fe8df33e34eab5386bd59b8..57f3ea6f9e33aef1fc9f6aec3818263d3a709da6 100644
+index 8c5e577eb89cf1ee85e76fea6385f7a18a60143b..1371973b470fc370d51f93cb86875434d8a27a44 100644
 --- a/chrome/browser/ui/browser.cc
 +++ b/chrome/browser/ui/browser.cc
-@@ -555,6 +555,7 @@ Browser* Browser::Create(const CreateParams& params) {
+@@ -619,6 +619,7 @@ Browser* Browser::Create(const CreateParams& params) {
    // not possible, e.g. using the wrong profile or during shutdown. The caller
    // should handle this; see e.g. crbug.com/1141608 and crbug.com/1261628.
    CHECK_EQ(CreationStatus::kOk, GetCreationStatusForProfile(params.profile));
@@ -10,7 +10,7 @@ index 3d0ffcbb38c234b97fe8df33e34eab5386bd59b8..57f3ea6f9e33aef1fc9f6aec3818263d
    return new Browser(params);
  }
  
-@@ -565,7 +566,7 @@ Browser::Browser(const CreateParams& params)
+@@ -629,7 +630,7 @@ Browser::Browser(const CreateParams& params)
        window_(nullptr),
        tab_strip_model_delegate_(
            std::make_unique<chrome::BrowserTabStripModelDelegate>(this)),
@@ -19,3 +19,11 @@ index 3d0ffcbb38c234b97fe8df33e34eab5386bd59b8..57f3ea6f9e33aef1fc9f6aec3818263d
            tab_strip_model_delegate_.get(),
            params.profile,
            params.are_tab_groups_enabled ? TabGroupModelFactory::GetInstance()
+@@ -3852,6 +3853,7 @@ bool Browser::ShouldShowBookmarkBar() const {
+   if (!active_tab || !active_tab->GetContents()) {
+     return false;
+   }
++  BRAVE_BROWSER_SHOULD_SHOW_BOOKMARK_BAR
+ 
+   bookmarks::BookmarkModel* bookmark_model =
+       BookmarkModelFactory::GetForBrowserContext(

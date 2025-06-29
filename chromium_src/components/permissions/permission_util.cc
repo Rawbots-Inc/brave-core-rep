@@ -10,6 +10,26 @@
 
 #define PermissionUtil PermissionUtil_ChromiumImpl
 
+// Since we don't do UMA just reuse an existing UMA type instead of adding one.
+#define BRAVE_GET_UMA_VALUE_FOR_REQUEST_TYPE         \
+  case RequestType::kWidevine:                       \
+  case RequestType::kBraveEthereum:                  \
+  case RequestType::kBraveSolana:                    \
+  case RequestType::kBraveCardano:                   \
+  case RequestType::kBraveGoogleSignInPermission:    \
+  case RequestType::kBraveLocalhostAccessPermission: \
+  case RequestType::kBraveOpenAIChat:                \
+    return RequestTypeForUma::PERMISSION_VR;
+
+// These requests may be batched together, so we must handle them explicitly as
+// GetUmaValueForRequests expects only a few specific request types to be
+// batched
+#define BRAVE_GET_UMA_VALUE_FOR_REQUESTS             \
+  if (request_type >= RequestType::kBraveMinValue && \
+      request_type <= RequestType::kBraveMaxValue) { \
+    return GetUmaValueForRequestType(request_type);  \
+  }
+
 #define PERMISSION_UTIL_PERMISSION_TYPE_TO_CONTENT_SETTINGS_TYPE \
   case PermissionType::BRAVE_ADS:                                \
     return ContentSettingsType::BRAVE_ADS;                       \
@@ -38,10 +58,14 @@
   case PermissionType::BRAVE_LOCALHOST_ACCESS:                   \
     return ContentSettingsType::BRAVE_LOCALHOST_ACCESS;          \
   case PermissionType::BRAVE_OPEN_AI_CHAT:                       \
-    return ContentSettingsType::BRAVE_OPEN_AI_CHAT;
+    return ContentSettingsType::BRAVE_OPEN_AI_CHAT;              \
+  case PermissionType::BRAVE_CARDANO:                            \
+    return ContentSettingsType::BRAVE_CARDANO;
 
 #include "src/components/permissions/permission_util.cc"
 #undef PermissionUtil
+#undef BRAVE_GET_UMA_VALUE_FOR_REQUEST_TYPE
+#undef BRAVE_GET_UMA_VALUE_FOR_REQUESTS
 #undef PERMISSION_UTIL_PERMISSION_TYPE_TO_CONTENT_SETTINGS_TYPE
 
 namespace permissions {
@@ -60,6 +84,8 @@ std::string PermissionUtil::GetPermissionString(
       return "BraveLocalhostAccessPermission";
     case ContentSettingsType::BRAVE_OPEN_AI_CHAT:
       return "BraveOpenAIChatPermission";
+    case ContentSettingsType::BRAVE_CARDANO:
+      return "BraveCardano";
     default:
       return PermissionUtil_ChromiumImpl::GetPermissionString(content_type);
   }
@@ -69,7 +95,8 @@ std::string PermissionUtil::GetPermissionString(
 bool PermissionUtil::GetPermissionType(ContentSettingsType type,
                                        blink::PermissionType* out) {
   if (type == ContentSettingsType::BRAVE_ETHEREUM ||
-      type == ContentSettingsType::BRAVE_SOLANA) {
+      type == ContentSettingsType::BRAVE_SOLANA ||
+      type == ContentSettingsType::BRAVE_CARDANO) {
     *out = PermissionType::WINDOW_MANAGEMENT;
     return true;
   }
@@ -94,6 +121,7 @@ bool PermissionUtil::IsPermission(ContentSettingsType type) {
   switch (type) {
     case ContentSettingsType::BRAVE_ETHEREUM:
     case ContentSettingsType::BRAVE_SOLANA:
+    case ContentSettingsType::BRAVE_CARDANO:
     case ContentSettingsType::BRAVE_GOOGLE_SIGN_IN:
     case ContentSettingsType::BRAVE_LOCALHOST_ACCESS:
     case ContentSettingsType::BRAVE_OPEN_AI_CHAT:
@@ -134,6 +162,8 @@ PermissionType PermissionUtil::ContentSettingsTypeToPermissionType(
       return PermissionType::BRAVE_LOCALHOST_ACCESS;
     case ContentSettingsType::BRAVE_OPEN_AI_CHAT:
       return PermissionType::BRAVE_OPEN_AI_CHAT;
+    case ContentSettingsType::BRAVE_CARDANO:
+      return PermissionType::BRAVE_CARDANO;
     default:
       return PermissionUtil_ChromiumImpl::ContentSettingsTypeToPermissionType(
           permission);
@@ -145,7 +175,8 @@ GURL PermissionUtil::GetCanonicalOrigin(ContentSettingsType permission,
                                         const GURL& embedding_origin) {
   // Use requesting_origin which will have ethereum or solana address info.
   if (permission == ContentSettingsType::BRAVE_ETHEREUM ||
-      permission == ContentSettingsType::BRAVE_SOLANA) {
+      permission == ContentSettingsType::BRAVE_SOLANA ||
+      permission == ContentSettingsType::BRAVE_CARDANO) {
     return requesting_origin;
   }
 

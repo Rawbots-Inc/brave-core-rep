@@ -18,6 +18,7 @@
 #include "base/test/metrics/histogram_tester.h"
 #include "base/test/task_environment.h"
 #include "base/time/time.h"
+#include "brave/components/ai_chat/core/common/pref_names.h"
 #include "components/grit/brave_components_strings.h"
 #include "components/prefs/testing_pref_service.h"
 #include "content/public/test/browser_task_environment.h"
@@ -34,8 +35,13 @@ class AIChatMetricsUnitTest : public testing::Test {
   void SetUp() override {
     auto* registry = local_state_.registry();
     AIChatMetrics::RegisterPrefs(registry);
+    profile_prefs_.registry()->RegisterBooleanPref(
+        prefs::kBraveAIChatTabOrganizationEnabled, false);
+    profile_prefs_.registry()->RegisterTimePref(prefs::kLastAcceptedDisclaimer,
+                                                base::Time::Now());
     task_environment_.FastForwardBy(base::Days(30));
-    ai_chat_metrics_ = std::make_unique<AIChatMetrics>(&local_state_);
+    ai_chat_metrics_ =
+        std::make_unique<AIChatMetrics>(&local_state_, &profile_prefs_);
   }
 
   void RecordPrompts(std::string id, size_t prompt_count) {
@@ -101,6 +107,7 @@ class AIChatMetricsUnitTest : public testing::Test {
   bool is_premium_ = false;
   content::BrowserTaskEnvironment task_environment_;
   TestingPrefServiceSimple local_state_;
+  TestingPrefServiceSimple profile_prefs_;
   base::HistogramTester histogram_tester_;
   std::unique_ptr<AIChatMetrics> ai_chat_metrics_;
 };
@@ -465,6 +472,8 @@ TEST_F(AIChatMetricsUnitTest, ChatHistory) {
 TEST_F(AIChatMetricsUnitTest, ChatDuration) {
   ai_chat_metrics_->RecordEnabled(true, false, GetPremiumCallback());
 
+  task_environment_.FastForwardBy(base::Seconds(30));
+
   RecordPrompts("chat1", 1);
   task_environment_.FastForwardBy(base::Seconds(5));
   histogram_tester_.ExpectUniqueSample(kMaxChatDurationHistogramName, 0, 1);
@@ -494,10 +503,19 @@ TEST_F(AIChatMetricsUnitTest, ChatDuration) {
   histogram_tester_.ExpectTotalCount(kMaxChatDurationHistogramName, 4);
 
   task_environment_.FastForwardBy(base::Days(7));
-  histogram_tester_.ExpectTotalCount(kMaxChatDurationHistogramName, 10);
+  auto total_count =
+      histogram_tester_.GetTotalCountsForPrefix(kMaxChatDurationHistogramName)
+          .begin()
+          ->second;
+  EXPECT_GE(total_count, 10);
+  EXPECT_LE(total_count, 11);
 
   task_environment_.FastForwardBy(base::Days(7));
-  histogram_tester_.ExpectTotalCount(kMaxChatDurationHistogramName, 10);
+  EXPECT_EQ(
+      histogram_tester_.GetTotalCountsForPrefix(kMaxChatDurationHistogramName)
+          .begin()
+          ->second,
+      total_count);
 }
 
 TEST_F(AIChatMetricsUnitTest, FirstChatPrompts) {

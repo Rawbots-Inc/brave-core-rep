@@ -4,6 +4,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import Shared
+import Web
 import WebKit
 
 private let messageOpenInSafari = "openInSafari"
@@ -18,7 +19,7 @@ extension ErrorPageHelper: TabContentScript {
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -46,7 +47,7 @@ extension ErrorPageHelper: TabContentScript {
       {
         let origin = "\(host):\(originalURL.port ?? 443)"
         addCertificate(cert, forOrigin: origin)
-        message.webView?.replaceLocation(with: originalURL)
+        tab.replaceLocation(with: originalURL)
         // webview.reload will not change the error URL back to the original URL
       }
     default:

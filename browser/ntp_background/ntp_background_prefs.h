@@ -7,11 +7,11 @@
 #define BRAVE_BROWSER_NTP_BACKGROUND_NTP_BACKGROUND_PREFS_H_
 
 #include <string>
+#include <variant>
 #include <vector>
 
+#include "base/memory/raw_ptr.h"
 #include "base/values.h"
-#include "third_party/abseil-cpp/absl/types/variant.h"
-#include "url/gurl.h"
 
 namespace user_prefs {
 class PrefRegistrySyncable;

@@ -42,7 +42,7 @@ TextClassificationResource::~TextClassificationResource() {
 void TextClassificationResource::ClassifyPage(const std::string& text,
                                               ClassifyPageCallback callback) {
   if (!IsLoaded()) {
-    BLOG(1, "Failed to process text classification as resource not loaded");
+    BLOG(0, "Failed to process text classification as resource not loaded");
     return std::move(callback).Run(/*probabilities=*/{});
   }
 
@@ -97,11 +97,10 @@ void TextClassificationResource::LoadCallback(
                                      << result.error() << ")");
   }
 
-  BLOG(1, "Successfully loaded "
-              << kTextClassificationResourceId << " "
-              << (/*is_neural*/ result.value() ? "neural" : "linear")
-              << " text classification resource version "
-              << kTextClassificationResourceVersion.Get());
+  BLOG(1, "Successfully loaded " << kTextClassificationResourceId << " "
+                                 << (result.value() ? "neural" : "linear")
+                                 << " text classification resource version "
+                                 << kTextClassificationResourceVersion.Get());
 }
 
 void TextClassificationResource::MaybeUnload() {
@@ -115,11 +114,6 @@ void TextClassificationResource::Unload() {
                       << " text classification resource");
 
   text_processing_pipeline_.reset();
-}
-
-void TextClassificationResource::OnNotifyLocaleDidChange(
-    const std::string& /*locale*/) {
-  MaybeLoad();
 }
 
 void TextClassificationResource::OnNotifyPrefDidChange(

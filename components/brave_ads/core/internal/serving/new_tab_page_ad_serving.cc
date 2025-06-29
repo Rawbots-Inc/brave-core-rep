@@ -80,7 +80,7 @@ void NewTabPageAdServing::GetAdEventsCallback(
     bool success,
     const AdEventList& ad_events) {
   if (!success) {
-    BLOG(1, "New tab page ad not served: Failed to get ad events");
+    BLOG(0, "New tab page ad not served: Failed to get ad events");
     return FailedToServeAd(std::move(callback));
   }
 
@@ -135,7 +135,7 @@ void NewTabPageAdServing::GetEligibleAds(
 void NewTabPageAdServing::GetEligibleAdsCallback(
     MaybeServeNewTabPageAdCallback callback,
     uint64_t trace_id,
-    const CreativeNewTabPageAdList& creative_ads) const {
+    CreativeNewTabPageAdList creative_ads) const {
   TRACE_EVENT_NESTABLE_ASYNC_END1(
       kTraceEventCategory, "NewTabPageAdServing::GetEligibleAds",
       TRACE_ID_WITH_SCOPE("NewTabPageAdServing", trace_id), "creative_ads",
@@ -160,7 +160,7 @@ void NewTabPageAdServing::ServeAd(
     const NewTabPageAdInfo& ad,
     MaybeServeNewTabPageAdCallback callback) const {
   if (!ad.IsValid()) {
-    BLOG(1, "New tab page ad not served: Invalid ad");
+    BLOG(0, "New tab page ad not served: Invalid ad");
     return FailedToServeAd(std::move(callback));
   }
 

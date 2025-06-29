@@ -5,10 +5,9 @@
 
 #include "brave/components/brave_wallet/browser/brave_wallet_prefs.h"
 
-#include <string>
 #include <utility>
-#include <vector>
 
+#include "base/check.h"
 #include "base/values.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_service.h"
@@ -21,10 +20,10 @@
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "brave/components/brave_wallet/common/pref_names.h"
 #include "brave/components/p3a_utils/feature_usage.h"
+#include "components/pref_registry/pref_registry_syncable.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
 #include "components/prefs/scoped_user_pref_update.h"
-#include "components/sync_preferences/pref_service_syncable.h"
 
 namespace brave_wallet {
 
@@ -248,6 +247,13 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterDictionaryPref(kBraveWalletMnemonic);
   registry->RegisterBooleanPref(kBraveWalletLegacyEthSeedFormat, false);
   registry->RegisterBooleanPref(kBraveWalletMnemonicBackedUp, false);
+
+  // Register Deprecated CryptoWallet prefs
+  // We can eventually remove these. Code removed 05/2025
+  registry->RegisterIntegerPref(kERCPrefVersionDeprecated, 0);
+  registry->RegisterStringPref(kERCAES256GCMSivNonceDeprecated, "");
+  registry->RegisterStringPref(kERCEncryptedSeedDeprecated, "");
+  registry->RegisterBooleanPref(kERCOptedIntoCryptoWalletsDeprecated, false);
 }
 
 void RegisterLocalStatePrefsForMigration(PrefRegistrySimple* registry) {}
@@ -309,6 +315,16 @@ void ClearBraveWalletServicePrefs(PrefService* prefs) {
   prefs->ClearPref(kBraveWalletEthAllowancesCache);
 }
 
+void MigrateCryptoWalletsPrefToBraveWallet(PrefService* prefs) {
+  int value = prefs->GetInteger(kDefaultEthereumWallet);
+  if (value ==
+      static_cast<int>(mojom::DefaultWallet::CryptoWalletsDeprecated)) {
+    prefs->SetInteger(
+        kDefaultEthereumWallet,
+        static_cast<int>(mojom::DefaultWallet::BraveWalletPreferExtension));
+  }
+}
+
 void MigrateObsoleteProfilePrefs(PrefService* prefs) {
   ClearDeprecatedProfilePrefsMigrationFlags(prefs);
 
@@ -332,6 +348,9 @@ void MigrateObsoleteProfilePrefs(PrefService* prefs) {
 
   // Deprecated 02/2025
   prefs->ClearPref(kBraveWalletTransactions);
+
+  // CryptoWallets Removed 05/2025
+  MigrateCryptoWalletsPrefToBraveWallet(prefs);
 }
 
 }  // namespace brave_wallet

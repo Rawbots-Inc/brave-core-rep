@@ -16,7 +16,7 @@ namespace brave_ads {
 
 namespace {
 
-constexpr char kTokenIssuersAsJson[] = R"(
+constexpr char kTokenIssuersAsJson[] = R"JSON(
   [
     {
       "name": "confirmations",
@@ -44,7 +44,7 @@ constexpr char kTokenIssuersAsJson[] = R"(
         }
       ]
     }
-  ])";
+  ])JSON";
 
 }  // namespace
 
@@ -74,20 +74,16 @@ TEST_F(BraveAdsTokenIssuerValueUtilTest, TokenIssuersFromValue) {
   const base::Value::List list = base::test::ParseJsonList(kTokenIssuersAsJson);
 
   // Act
-  const std::optional<TokenIssuerList> token_issuers =
-      TokenIssuersFromValue(list);
+  std::optional<TokenIssuerList> token_issuers = TokenIssuersFromValue(list);
 
   // Assert
   EXPECT_EQ(test::BuildTokenIssuers(), token_issuers);
 }
 
 TEST_F(BraveAdsTokenIssuerValueUtilTest, EmptyTokenIssuersFromValue) {
-  // Arrange
-  const base::Value::List list = base::test::ParseJsonList("[]");
-
   // Act
   const std::optional<TokenIssuerList> token_issuers =
-      TokenIssuersFromValue(list);
+      TokenIssuersFromValue({});
 
   // Assert
   EXPECT_THAT(*token_issuers, ::testing::IsEmpty());

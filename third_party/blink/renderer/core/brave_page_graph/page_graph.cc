@@ -19,15 +19,19 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "base/base64.h"
-#include "base/dcheck_is_on.h"
+#include "base/check.h"
 #include "base/debug/dump_without_crashing.h"
 #include "base/debug/stack_trace.h"
 #include "base/json/json_string_value_serializer.h"
+#include "base/logging.h"
 #include "base/no_destructor.h"
 #include "base/notreached.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/values.h"
 #include "brave/components/brave_page_graph/common/features.h"
 #include "brave/components/brave_shields/core/common/brave_shield_constants.h"
@@ -134,7 +138,6 @@
 #include "third_party/blink/renderer/platform/wtf/casting.h"
 #include "third_party/blink/renderer/platform/wtf/text/base64.h"
 #include "third_party/blink/renderer/platform/wtf/text/wtf_string.h"
-#include "url/gurl.h"
 #include "v8/include/v8.h"
 
 using brave_page_graph::DocumentRequest;
@@ -194,7 +197,7 @@ namespace blink {
 
 namespace {
 
-constexpr char kPageGraphVersion[] = "0.7.3";
+constexpr char kPageGraphVersion[] = "0.7.5";
 constexpr char kPageGraphUrl[] =
     "https://github.com/brave/brave-browser/wiki/PageGraph";
 
@@ -322,6 +325,18 @@ static int GetListenerScriptId(blink::EventTarget* event_target,
   v8::Local<v8::Function> listener_function =
       GetInnermostFunction(maybe_listener_function.As<v8::Function>());
   return listener_function->ScriptId();
+}
+
+static void AssignSecurityOriginToNodeDOMRoot(
+    blink::Document* document,
+    brave_page_graph::NodeDOMRoot* node_domroot) {
+  if (document->GetExecutionContext()) {
+    const auto* security_origin =
+        document->GetExecutionContext()->GetSecurityOrigin();
+    if (security_origin) {
+      node_domroot->SetSecurityOrigin(security_origin->ToString());
+    }
+  }
 }
 
 }  // namespace
@@ -519,8 +534,10 @@ void PageGraph::DidCommitLoad(blink::LocalFrame* local_frame,
     return;
   }
 
-  To<NodeDOMRoot>(GetHTMLElementNode(blink::DOMNodeIds::IdForNode(document)))
-      ->SetURL(document->Url());
+  auto* node_domroot = To<NodeDOMRoot>(
+      GetHTMLElementNode(blink::DOMNodeIds::IdForNode(document)));
+  node_domroot->SetURL(document->Url());
+  AssignSecurityOriginToNodeDOMRoot(document, node_domroot);
 }
 
 void PageGraph::WillSendNavigationRequest(uint64_t identifier,
@@ -1207,13 +1224,13 @@ NodeHTML* PageGraph::GetHTMLNode(const DOMNodeId node_id) const {
 }
 
 NodeHTMLElement* PageGraph::GetHTMLElementNode(
-    absl::variant<blink::DOMNodeId, blink::Node*> node_var) {
+    std::variant<blink::DOMNodeId, blink::Node*> node_var) {
   blink::DOMNodeId node_id;
   blink::Node* node = nullptr;
-  if (absl::holds_alternative<blink::DOMNodeId>(node_var)) {
-    node_id = absl::get<blink::DOMNodeId>(node_var);
+  if (std::holds_alternative<blink::DOMNodeId>(node_var)) {
+    node_id = std::get<blink::DOMNodeId>(node_var);
   } else {
-    node = absl::get<blink::Node*>(node_var);
+    node = std::get<blink::Node*>(node_var);
     node_id = blink::DOMNodeIds::IdForNode(node);
   }
 
@@ -1231,7 +1248,7 @@ NodeHTMLElement* PageGraph::GetHTMLElementNode(
   // because the node is not fully constructed yet, we need to register it
   // preemptively at this point.
   if (!node) {
-    DCHECK(absl::holds_alternative<blink::DOMNodeId>(node_var));
+    DCHECK(std::holds_alternative<blink::DOMNodeId>(node_var));
     node = blink::DOMNodeIds::NodeForId(node_id);
     CHECK(node);
   }
@@ -1304,6 +1321,8 @@ void PageGraph::RegisterDocumentNodeCreated(blink::Document* document) {
   if (!source_url_ && url.IsValid() && url.ProtocolIsInHTTPFamily()) {
     source_url_ = url;
   }
+
+  AssignSecurityOriginToNodeDOMRoot(document, dom_root);
 
   auto execution_context_nodes_it =
       execution_context_nodes_.find(execution_context);

@@ -9,7 +9,6 @@ import("//brave/browser/brave_news/sources.gni")
 import("//brave/browser/brave_referrals/sources.gni")
 import("//brave/browser/brave_rewards/android/sources.gni")
 import("//brave/browser/brave_shields/sources.gni")
-import("//brave/browser/brave_stats/sources.gni")
 import("//brave/browser/brave_vpn/sources.gni")
 import("//brave/browser/brave_wallet/android/sources.gni")
 import("//brave/browser/brave_wallet/notifications/sources.gni")
@@ -18,7 +17,6 @@ import("//brave/browser/cosmetic_filters/sources.gni")
 import("//brave/browser/debounce/sources.gni")
 import("//brave/browser/download/sources.gni")
 import("//brave/browser/ephemeral_storage/sources.gni")
-import("//brave/browser/ethereum_remote_client/buildflags/buildflags.gni")
 import("//brave/browser/gcm_driver/sources.gni")
 import("//brave/browser/infobars/sources.gni")
 import("//brave/browser/misc_metrics/sources.gni")
@@ -47,11 +45,13 @@ import("//brave/components/ai_rewriter/common/buildflags/buildflags.gni")
 import("//brave/components/brave_education/buildflags.gni")
 import("//brave/components/brave_vpn/common/buildflags/buildflags.gni")
 import("//brave/components/brave_wayback_machine/buildflags/buildflags.gni")
-import("//brave/components/brave_webtorrent/browser/buildflags/buildflags.gni")
 import("//brave/components/commander/common/buildflags/buildflags.gni")
+import("//brave/components/containers/buildflags/buildflags.gni")
 import("//brave/components/tor/buildflags/buildflags.gni")
 import("//brave/components/web_discovery/buildflags/buildflags.gni")
+import("//chrome/browser/buildflags.gni")
 import("//extensions/buildflags/buildflags.gni")
+import("//printing/buildflags/buildflags.gni")
 
 brave_chrome_browser_visibility = [
   "//brave/browser/*",
@@ -126,11 +126,11 @@ brave_chrome_browser_deps = [
   "//brave/browser/brave_rewards:brave_rewards_impl",
   "//brave/browser/brave_rewards:util",
   "//brave/browser/brave_search",
+  "//brave/browser/brave_stats",
   "//brave/browser/brave_wallet",
   "//brave/browser/brave_wallet:brave_wallet_delegate",
   "//brave/browser/brave_wallet:tab_helper",
   "//brave/browser/component_updater",
-  "//brave/browser/ethereum_remote_client/buildflags",
   "//brave/browser/metrics/buildflags",
   "//brave/browser/misc_metrics",
   "//brave/browser/misc_metrics:misc_metrics_impl",
@@ -140,6 +140,7 @@ brave_chrome_browser_deps = [
   "//brave/browser/themes",
   "//brave/browser/ui",
   "//brave/browser/ui/webui/ads_internals",
+  "//brave/browser/ui/webui/brave_account",
   "//brave/common",
   "//brave/common:mojo_bindings",
   "//brave/components/ai_chat/content/browser",
@@ -173,6 +174,7 @@ brave_chrome_browser_deps = [
   "//brave/components/brave_sync:features",
   "//brave/components/brave_sync:network_time_helper",
   "//brave/components/brave_sync:prefs",
+  "//brave/components/brave_user_agent/browser",
   "//brave/components/brave_vpn/common/buildflags",
   "//brave/components/brave_vpn/common/mojom",
   "//brave/components/brave_wallet/browser",
@@ -181,9 +183,9 @@ brave_chrome_browser_deps = [
   "//brave/components/brave_wallet/common:mojom",
   "//brave/components/brave_wallet/common:pref_names",
   "//brave/components/brave_wayback_machine/buildflags",
-  "//brave/components/brave_webtorrent/browser/buildflags",
   "//brave/components/commander/common/buildflags",
   "//brave/components/constants",
+  "//brave/components/containers/buildflags",
   "//brave/components/cosmetic_filters/browser",
   "//brave/components/cosmetic_filters/common:mojom",
   "//brave/components/de_amp/browser",
@@ -191,6 +193,7 @@ brave_chrome_browser_deps = [
   "//brave/components/debounce/content/browser",
   "//brave/components/decentralized_dns/content",
   "//brave/components/decentralized_dns/core",
+  "//brave/components/email_aliases:features",
   "//brave/components/google_sign_in_permission",
   "//brave/components/https_upgrade_exceptions/browser",
   "//brave/components/ipfs",
@@ -204,6 +207,7 @@ brave_chrome_browser_deps = [
   "//brave/components/p3a",
   "//brave/components/p3a:buildflags",
   "//brave/components/p3a_utils",
+  "//brave/components/password_strength_meter:mojom",
   "//brave/components/playlist/common/buildflags",
   "//brave/components/privacy_sandbox",
   "//brave/components/psst/browser/content",
@@ -296,9 +300,12 @@ if (!is_android) {
     "//brave/browser/ui/webui/brave_new_tab_page_refresh:mojom",
     "//brave/browser/ui/webui/brave_news_internals",
     "//brave/browser/user_education:features",
+    "//brave/components/brave_account/mojom",
+    "//chrome/browser/regional_capabilities",
     "//components/feed:feature_list",
     "//components/feed/core/v2:feed_core_v2",
     "//components/feed/mojom:mojo_bindings",
+    "//components/regional_capabilities",
   ]
 }
 
@@ -309,6 +316,13 @@ if (enable_brave_education) {
 if (is_android) {
   brave_chrome_browser_sources += brave_browser_ai_chat_android_sources
   brave_chrome_browser_deps += brave_browser_ai_chat_android_deps
+}
+
+if (enable_containers) {
+  brave_chrome_browser_deps += [
+    "//brave/components/containers/core/browser",
+    "//brave/components/containers/core/common",
+  ]
 }
 
 if (enable_commander) {
@@ -381,13 +395,6 @@ if (enable_brave_vpn) {
   ]
 }
 
-if (ethereum_remote_client_enabled) {
-  brave_chrome_browser_deps += [
-    "//brave/browser/ethereum_remote_client",
-    "//brave/browser/ethereum_remote_client:browser",
-  ]
-}
-
 if (is_android) {
   brave_chrome_browser_sources += [
     "//brave/browser/android/brave_init_android.cc",
@@ -406,11 +413,11 @@ if (is_android) {
 
   brave_chrome_browser_deps += [
     "//brave/browser/android:android_browser_process",
-    "//brave/browser/android:tab_features",
-    "//brave/browser/android/background_video",
-    "//brave/browser/android/background_video:features",
+    "//brave/browser/android:tabs_impl",
     "//brave/browser/android/preferences",
     "//brave/browser/android/safe_browsing:buildflags",
+    "//brave/browser/android/youtube_script_injector",
+    "//brave/browser/android/youtube_script_injector:features",
     "//brave/browser/brave_ads/android",
     "//brave/browser/download/android:jni_headers",
     "//brave/browser/ntp_background/android",
@@ -452,11 +459,6 @@ if (enable_extensions) {
     "//extensions/browser",
     "//extensions/common:common_constants",
   ]
-
-  if (enable_brave_webtorrent) {
-    brave_chrome_browser_deps +=
-        [ "//brave/components/brave_webtorrent/browser" ]
-  }
 }
 
 if (enable_brave_wayback_machine) {
@@ -494,6 +496,7 @@ if (is_win) {
   ]
 
   brave_chrome_browser_deps += [
+    "//brave/components/windows_recall",
     "//chrome/install_static:install_static_util",
     "//chrome/installer/util:with_no_strings",
   ]
@@ -536,7 +539,6 @@ brave_chrome_browser_sources += brave_browser_autocomplete_sources
 brave_chrome_browser_sources += brave_browser_brave_news_sources
 brave_chrome_browser_sources += brave_browser_brave_referrals_sources
 brave_chrome_browser_sources += brave_browser_brave_shields_sources
-brave_chrome_browser_sources += brave_browser_brave_stats_updater_sources
 brave_chrome_browser_sources += brave_browser_brave_vpn_sources
 brave_chrome_browser_sources += brave_browser_brave_wallet_sources
 brave_chrome_browser_sources += brave_browser_browsing_data_sources
@@ -567,7 +569,6 @@ brave_chrome_browser_deps += brave_browser_autocomplete_deps
 brave_chrome_browser_deps += brave_browser_brave_news_deps
 brave_chrome_browser_deps += brave_browser_brave_referrals_deps
 brave_chrome_browser_deps += brave_browser_brave_shields_deps
-brave_chrome_browser_deps += brave_browser_brave_stats_updater_deps
 brave_chrome_browser_deps += brave_browser_brave_vpn_deps
 brave_chrome_browser_deps += brave_browser_brave_wallet_deps
 brave_chrome_browser_deps += brave_browser_browsing_data_deps
@@ -604,7 +605,15 @@ brave_chrome_browser_allow_circular_includes_from = [
   "//brave/browser/ui",
   "//brave/browser/brave_ads:impl",
   "//brave/browser/brave_ads/creatives/search_result_ad",
+  "//brave/browser/brave_stats",
+  "//brave/browser/ntp_background",
 ]
+
+if (toolkit_views) {
+  brave_chrome_browser_deps += [ "//brave/browser/ui/sidebar" ]
+  brave_chrome_browser_allow_circular_includes_from +=
+      [ "//brave/browser/ui/sidebar" ]
+}
 
 # https://github.com/brave/brave-browser/issues/41418
 if (enable_extensions) {
@@ -612,6 +621,15 @@ if (enable_extensions) {
       [ "//brave/browser/extensions:brave_prefs_util_impl" ]
   brave_chrome_browser_allow_circular_includes_from +=
       [ "//brave/browser/extensions:brave_prefs_util_impl" ]
+}
+
+if (enable_print_preview) {
+  brave_chrome_browser_deps += [
+    "//brave/browser/ai_chat:print_preview_extractor",
+    "//brave/browser/ai_chat:print_preview_extractor_internal",
+  ]
+  brave_chrome_browser_allow_circular_includes_from +=
+      [ "//brave/browser/ai_chat:print_preview_extractor_internal" ]
 }
 
 # https://github.com/brave/brave-browser/issues/41464
@@ -632,8 +650,8 @@ if (enable_widevine) {
 if (is_android) {
   brave_chrome_browser_allow_circular_includes_from += [
     "//brave/browser/android:android_browser_process",
+    "//brave/browser/android:tabs_impl",
     "//brave/browser/android/preferences",
-    "//brave/browser/android:tab_features",
   ]
 }
 
@@ -643,4 +661,8 @@ if (is_android) {
 if (!is_android) {
   brave_chrome_browser_allow_circular_includes_from +=
       [ "//brave/browser/ui/webui/brave_new_tab_page_refresh" ]
+}
+
+if (target_os == "mac") {
+  brave_chrome_browser_deps += [ "//brave/browser:mac_features" ]
 }

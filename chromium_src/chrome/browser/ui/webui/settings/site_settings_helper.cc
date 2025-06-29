@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "brave/components/brave_shields/core/common/brave_shield_constants.h"
+#include "brave/components/content_settings/core/browser/brave_content_settings_pref_provider.h"
+#include "components/content_settings/core/common/content_settings_pattern.h"
 
 #define HasRegisteredGroupName HasRegisteredGroupName_ChromiumImpl
 #define GetVisiblePermissionCategories \
@@ -51,7 +53,8 @@
   {ContentSettingsType::BRAVE_WEBCOMPAT_WEBGL2, nullptr}, \
   {ContentSettingsType::BRAVE_WEBCOMPAT_WEB_SOCKETS_POOL, nullptr}, \
   {ContentSettingsType::BRAVE_WEBCOMPAT_ALL, nullptr}, \
-  {ContentSettingsType::BRAVE_SHIELDS_METADATA, nullptr},
+  {ContentSettingsType::BRAVE_SHIELDS_METADATA, nullptr}, \
+  {ContentSettingsType::BRAVE_CARDANO, "cardano"},
 // clang-format on
 
 #define BRAVE_SITE_SETTINGS_HELPER_CONTENT_SETTINGS_TYPE_FROM_GROUP_NAME \
@@ -70,10 +73,25 @@
   case ProviderType::kRemoteListProvider:         \
     return "remote_list";
 
+#define BRAVE_GET_EXCEPTION_FOR_PAGE                                  \
+  BraveGetExceptionForPage(content_type, profile, incognito, pattern, \
+                           secondary_pattern, setting, exception);
+
 #define kNumSources     \
   kRemoteList:          \
   return "remote-list"; \
   case SiteSettingSource::kNumSources
+
+namespace {
+// Forward declaration.
+void BraveGetExceptionForPage(ContentSettingsType type,
+                              Profile* profile,
+                              bool incognito,
+                              const ContentSettingsPattern& pattern,
+                              const ContentSettingsPattern& secondary_pattern,
+                              const ContentSetting& setting,
+                              base::Value::Dict& exception);
+}  // namespace
 
 #include "src/chrome/browser/ui/webui/settings/site_settings_helper.cc"
 
@@ -85,6 +103,7 @@
 #undef BRAVE_SITE_SETTINGS_HELPER_CONTENT_SETTINGS_TYPE_TO_GROUP_NAME
 #undef GetVisiblePermissionCategories
 #undef HasRegisteredGroupName
+#undef BRAVE_GET_EXCEPTION_FOR_PAGE
 
 namespace site_settings {
 
@@ -104,6 +123,9 @@ bool HasRegisteredGroupName(ContentSettingsType type) {
   if (type == ContentSettingsType::BRAVE_SOLANA) {
     return true;
   }
+  if (type == ContentSettingsType::BRAVE_CARDANO) {
+    return true;
+  }
   if (type == ContentSettingsType::BRAVE_SHIELDS) {
     return true;
   }
@@ -120,6 +142,7 @@ std::vector<ContentSettingsType> GetVisiblePermissionCategories(
       ContentSettingsType::BRAVE_GOOGLE_SIGN_IN,
       ContentSettingsType::BRAVE_LOCALHOST_ACCESS,
       ContentSettingsType::BRAVE_OPEN_AI_CHAT,
+      // TODO(cypt4): Enable ContentSettingsType::BRAVE_CARDANO,
   };
 
   auto types = GetVisiblePermissionCategories_ChromiumImpl(origin, profile);
@@ -127,5 +150,44 @@ std::vector<ContentSettingsType> GetVisiblePermissionCategories(
   types.insert(std::end(types), std::begin(extra_types), std::end(extra_types));
   return types;
 }
-
 }  // namespace site_settings
+
+namespace {
+void BraveGetExceptionForPage(ContentSettingsType type,
+                              Profile* profile,
+                              bool incognito,
+                              const ContentSettingsPattern& pattern,
+                              const ContentSettingsPattern& secondary_pattern,
+                              const ContentSetting& setting,
+                              base::Value::Dict& exception) {
+  constexpr char kBraveCookieType[] = "braveCookieType";
+
+  // Update the RawSiteException.braveCookieType declaration in
+  // site_settings_prefs_browser_proxy.ts if you want to change or add values.
+  constexpr char kShieldsDown[] = "shields down";
+  constexpr char kShieldsSettings[] = "shields settings";
+  constexpr char kGoogleSignIn[] = "google sign-in";
+
+  if (type == ContentSettingsType::COOKIES) {
+    auto* map = HostContentSettingsMapFactory::GetForProfile(profile);
+    auto* provider = static_cast<content_settings::BravePrefProvider*>(
+        map->GetPrefProvider());
+    switch (provider->GetCookieType(pattern, secondary_pattern, setting,
+                                    incognito)) {
+      case content_settings::BravePrefProvider::CookieType::kRegularCookie:
+        break;
+      case content_settings::BravePrefProvider::CookieType::kShieldsDownCookie:
+        exception.Set(kBraveCookieType, kShieldsDown);
+        break;
+      case content_settings::BravePrefProvider::CookieType::
+          kCustomShieldsCookie:
+        exception.Set(kBraveCookieType, kShieldsSettings);
+        break;
+      case content_settings::BravePrefProvider::CookieType::kGoogleSignInCookie:
+        exception.Set(kBraveCookieType, kGoogleSignIn);
+        break;
+    }
+  }
+}
+
+}  // namespace

@@ -7,7 +7,6 @@ package org.chromium.chrome.browser.settings;
 
 import static org.chromium.base.ThreadUtils.runOnUiThread;
 
-import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Bundle;
@@ -28,7 +27,6 @@ import com.airbnb.lottie.LottieProperty;
 import com.airbnb.lottie.model.KeyPath;
 
 import org.chromium.base.BravePreferenceKeys;
-import org.chromium.base.ContextUtils;
 import org.chromium.base.ThreadUtils;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.ObservableSupplierImpl;
@@ -152,7 +150,7 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
             }
         }
 
-        if (BraveNewsUtils.getLocale() != null
+        if (!BraveNewsUtils.getLocale().isEmpty()
                 && BraveNewsUtils.getSuggestionsPublisherList().size() > 0) {
             mIsSuggestionAvailable = true;
         }
@@ -166,15 +164,18 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
     public void onResume() {
         super.onResume();
 
-        if (BraveNewsUtils.getLocale() != null && mSwitchShowNews.isChecked()) {
+        if (!BraveNewsUtils.getLocale().isEmpty() && mSwitchShowNews.isChecked()) {
             updateFollowerCount();
 
             if (!mIsSuggestionAvailable) {
-                PostTask.postTask(TaskTraits.BEST_EFFORT, () -> {
-                    if (mBraveNewsController != null) {
-                        BraveNewsUtils.getSuggestionsSources(mBraveNewsController, this);
-                    }
-                });
+                PostTask.postTask(
+                        TaskTraits.BEST_EFFORT,
+                        () -> {
+                            if (mBraveNewsController != null) {
+                                BraveNewsUtils.getSuggestionsSources(
+                                        mBraveNewsController, this, null);
+                            }
+                        });
             }
         }
     }
@@ -235,8 +236,8 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
             if (BraveNewsUtils.getChannelIcons().size() == 0) {
                 BraveNewsUtils.setChannelIcons();
             }
-            if (BraveNewsUtils.getLocale() == null && mBraveNewsController != null) {
-                BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, this);
+            if (BraveNewsUtils.getLocale().isEmpty() && mBraveNewsController != null) {
+                BraveNewsUtils.getBraveNewsSettingsData(mBraveNewsController, this, null);
             } else {
                 mTvSearch.setVisibility(View.VISIBLE);
                 mLayoutPopularSources.setVisibility(View.VISIBLE);
@@ -246,10 +247,8 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
             }
 
             BravePrefServiceBridge.getInstance().setNewsOptIn(true);
-            SharedPreferences.Editor sharedPreferencesEditor =
-                    ContextUtils.getAppSharedPreferences().edit();
-            sharedPreferencesEditor.putBoolean(BraveNewsPreferencesV2.PREF_SHOW_OPTIN, false);
-            sharedPreferencesEditor.apply();
+            ChromeSharedPreferences.getInstance()
+                    .writeBoolean(BraveNewsPreferencesV2.PREF_SHOW_OPTIN, false);
 
             if (mIsSuggestionAvailable) {
                 mLayoutSuggestions.setVisibility(View.VISIBLE);
@@ -288,9 +287,18 @@ public class BraveNewsPreferencesV2 extends BravePreferenceFragment
         }
 
         BraveNewsControllerFactory.getInstance()
-                .getBraveNewsController(this)
+                .getForProfile(getProfile(), this)
                 .then(
                         braveNewsController -> {
+                            // If there are future cases where this could be
+                            // null for the original profile we need to adjust
+                            // the UI to hide all brave news related prefs
+                            assert braveNewsController != null
+                                    : "The service should always be available "
+                                            + "for original profile";
+                            if (braveNewsController == null) {
+                                return;
+                            }
                             mBraveNewsController = braveNewsController;
                             if (action != null) {
                                 action.run();

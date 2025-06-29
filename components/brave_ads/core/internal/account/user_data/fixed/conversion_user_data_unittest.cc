@@ -36,20 +36,17 @@ TEST_F(BraveAdsConversionUserDataBuilderTest, BuildConversionUserData) {
   const ConversionInfo conversion =
       BuildConversion(ad_event, /*verifiable_conversion=*/std::nullopt);
 
-  // Act
-  const base::Value::Dict user_data = BuildConversionUserData(conversion);
-
-  // Assert
+  // Act & Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "conversion": [
                         {
                           "action": "view"
                         }
                       ]
-                    })"),
-            user_data);
+                    })JSON"),
+            BuildConversionUserData(conversion));
 }
 
 TEST_F(BraveAdsConversionUserDataBuilderTest,

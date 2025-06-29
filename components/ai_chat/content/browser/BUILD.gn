@@ -4,6 +4,7 @@
 # You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import("//brave/components/text_recognition/common/buildflags/buildflags.gni")
+import("//pdf/features.gni")
 
 static_library("browser") {
   sources = [
@@ -13,6 +14,8 @@ static_library("browser") {
     "ai_chat_tab_helper.h",
     "ai_chat_throttle.cc",
     "ai_chat_throttle.h",
+    "full_screenshotter.cc",
+    "full_screenshotter.h",
     "model_service_factory.cc",
     "model_service_factory.h",
     "page_content_fetcher.cc",
@@ -25,16 +28,19 @@ static_library("browser") {
     "//base",
     "//brave/components/ai_chat/core/browser",
     "//brave/components/ai_chat/core/common",
+    "//brave/components/ai_chat/core/common:common_impl",
     "//brave/components/ai_chat/core/common/mojom",
     "//brave/components/api_request_helper",
     "//brave/components/brave_stats/browser",
     "//brave/components/constants",
-    "//brave/components/l10n/common",
     "//brave/components/resources:strings_grit",
     "//brave/components/text_recognition/common/buildflags",
     "//components/favicon/content",
     "//components/favicon/core",
     "//components/keyed_service/content:content",
+    "//components/paint_preview/browser",
+    "//components/paint_preview/common",
+    "//components/paint_preview/public",
     "//components/prefs",
     "//components/strings:components_strings_grit",
     "//components/user_prefs",
@@ -45,8 +51,14 @@ static_library("browser") {
     "//services/network/public/cpp",
     "//services/service_manager/public/cpp",
     "//services/strings:strings_grit",
-    "//ui/accessibility:ax_base",
     "//ui/base",
     "//url",
   ]
+
+  if (enable_pdf) {
+    deps += [
+      "//components/pdf/browser",
+      "//pdf/mojom",
+    ]
+  }
 }

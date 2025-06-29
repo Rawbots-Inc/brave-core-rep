@@ -5,6 +5,7 @@
 
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
+#include "base/check.h"
 #include "base/time/time.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ai_chat/ai_chat_urls.h"
@@ -15,7 +16,6 @@
 #include "brave/components/constants/webui_url_constants.h"
 #include "chrome/android/chrome_jni_headers/BraveLeoUtils_jni.h"
 #include "content/public/browser/web_contents.h"
-#include "url/gurl.h"
 
 namespace ai_chat {
 
@@ -53,7 +53,7 @@ static void JNI_BraveLeoUtils_OpenLeoQuery(
       base::android::ConvertJavaStringToUTF8(query), std::nullopt /* prompt */,
       std::nullopt /* selected_text */, std::nullopt /* events */,
       base::Time::Now(), std::nullopt, std::nullopt /* uploaded images */,
-      false);
+      false, std::nullopt /* model_key */);
   conversation->SubmitHumanConversationEntry(std::move(turn));
 
   content::OpenURLParams params(

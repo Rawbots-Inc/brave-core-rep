@@ -1,11 +1,19 @@
 diff --git a/components/permissions/permission_request_manager.cc b/components/permissions/permission_request_manager.cc
-index 37aa2d24e7426d7b67c252c173ba5ad133091d15..aa23f3d4b8749d05857209205fe3e72e81190a11 100644
+index 417ad5e13f47268e66d61a0a49474eab11e3abc3..5ba6be990898f50d7d8701857b10f2930ed39798 100644
 --- a/components/permissions/permission_request_manager.cc
 +++ b/components/permissions/permission_request_manager.cc
-@@ -581,6 +581,7 @@ GURL PermissionRequestManager::GetRequestingOrigin() const {
+@@ -543,6 +543,7 @@ void PermissionRequestManager::OnVisibilityChanged(
+     content::Visibility visibility) {
+   bool tab_was_hidden = tab_is_hidden_;
+   tab_is_hidden_ = visibility == content::Visibility::HIDDEN;
++  BRAVE_PERMISSION_REQUEST_MANAGER_ON_VISIBILITY_CHANGED
+   if (tab_was_hidden == tab_is_hidden_) {
+     return;
+   }
+@@ -594,6 +595,7 @@ GURL PermissionRequestManager::GetRequestingOrigin() const {
    GURL origin = requests_.front()->requesting_origin();
    if (DCHECK_IS_ON()) {
-     for (permissions::PermissionRequest* request : requests_) {
+     for (const auto& request : requests_) {
 +      BRAVE_PERMISSION_REQUEST_MANAGER_GET_REQUESTING_ORIGIN
        DCHECK_EQ(origin, request->requesting_origin());
      }

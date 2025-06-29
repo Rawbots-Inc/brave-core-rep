@@ -11,6 +11,7 @@ import BraveShared
 import BraveShields
 import BraveStore
 import BraveWallet
+import BraveWidgetsModels
 import Combine
 import CoreSpotlight
 import Data
@@ -207,8 +208,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       && !Preferences.Search.yahooJPPhaseOneCompleted.value
     {
       // Not a new install. DSE has been set previously.
+      // Still need to insert Yahoo! JAPAN in the engine list during `InitialSearchEngines` initialization
+      // but not override the current DSE value
       Preferences.Search.shouldOverrideDSEForJapanRegion.value = false
-      Preferences.Search.yahooJPPhaseOneCompleted.value = true
+    } else if Preferences.Search.yahooJPPhaseOneCompleted.value {
+      Preferences.Search.shouldOverrideDSEForJapanRegion.value = false
     }
 
     Preferences.General.isFirstLaunch.value = false
@@ -221,6 +225,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       if Preferences.Search.defaultEngineName.value == nil {
         AppState.shared.profile.searchEngines.searchEngineSetup()
         Preferences.Search.yahooJPPhaseOneCompleted.value = true
+        Preferences.Search.yahooJPPhaseTwoCompleted.value = true
+      }
+      if !Preferences.Search.yahooJPPhaseOneCompleted.value {
+        // Upgrade from existed version which has a DSE set. Need to insert Yahoo! JAPAN into
+        // the correct position of the ordered search engines list
+        AppState.shared.profile.searchEngines.updateYahooJPOrderIfNeeded()
+        Preferences.Search.yahooJPPhaseOneCompleted.value = true
+      }
+      if !Preferences.Search.yahooJPPhaseTwoCompleted.value {
+        AppState.shared.profile.searchEngines.updateDSEToYahooJPIfNeeded()
+        Preferences.Search.yahooJPPhaseTwoCompleted.value = true
       }
     }
 
@@ -243,6 +258,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       Preferences.Search.shouldShowSuggestionsOptIn.value =
         !AppState.shared.profile.searchEngines.isBraveSearchDefaultRegion
+
+      if UIDevice.isIpad {
+        Preferences.General.toolbarShortcutButton.value = WidgetShortcut.bookmarks.rawValue
+      }
     }
 
     if Preferences.URP.referralLookupOutstanding.value == nil {
@@ -347,7 +366,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     // Clean up BraveCore
-    AppState.shared.braveCore.syncAPI.removeAllObservers()
+    AppState.shared.braveCore.profileController?.syncAPI.removeAllObservers()
 
     log.debug("Cleanly Terminated the Application")
   }
@@ -364,7 +383,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   }
 
   fileprivate func setUserAgent() {
-    let userAgent = UserAgent.userAgentForIdiom()
+    let userAgent = UserAgent.mobile
 
     // Set the favicon fetcher, and the image loader.
     // This only needs to be done once per runtime. Note that we use defaults here that are
@@ -464,12 +483,12 @@ extension AppDelegate {
     // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
 
     sceneSessions.forEach { session in
-      if let windowIdString = BrowserState.getWindowInfo(from: session).windowId,
+      if let windowIdString = BrowserState.getWindowId(from: session),
         let windowId = UUID(uuidString: windowIdString)
       {
         SessionWindow.delete(windowId: windowId)
       } else if let userActivity = session.scene?.userActivity,
-        let windowIdString = BrowserState.getWindowInfo(from: userActivity).windowId,
+        let windowIdString = BrowserState.getNewWindowInfo(from: userActivity).windowId,
         let windowId = UUID(uuidString: windowIdString)
       {
         SessionWindow.delete(windowId: windowId)

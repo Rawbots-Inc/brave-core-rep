@@ -8,23 +8,21 @@
 #include <memory>
 #include <string>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "base/memory/ptr_util.h"
 #include "base/no_destructor.h"
 #include "brave/browser/brave_ads/ads_service_factory.h"
 #include "brave/browser/brave_browser_features.h"
-#include "brave/browser/brave_browser_process.h"
 #include "brave/browser/brave_news/brave_news_controller_factory.h"
 #include "brave/browser/brave_rewards/rewards_util.h"
-#include "brave/browser/ethereum_remote_client/buildflags/buildflags.h"
+#include "brave/browser/ntp_background/view_counter_service_factory.h"
 #include "brave/browser/ui/webui/ads_internals/ads_internals_ui.h"
 #include "brave/browser/ui/webui/brave_rewards/rewards_page_ui.h"
 #include "brave/browser/ui/webui/brave_rewards/rewards_web_ui_utils.h"
 #include "brave/browser/ui/webui/brave_rewards_internals_ui.h"
-#include "brave/browser/ui/webui/brave_rewards_page_ui.h"
 #include "brave/browser/ui/webui/skus_internals_ui.h"
 #include "brave/components/ai_rewriter/common/buildflags/buildflags.h"
-#include "brave/components/brave_rewards/core/features.h"
 #include "brave/components/brave_wallet/common/common_utils.h"
 #include "brave/components/constants/pref_names.h"
 #include "brave/components/constants/webui_url_constants.h"
@@ -53,6 +51,7 @@
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "brave/components/commands/common/features.h"
+#include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
 #endif
 
 #if BUILDFLAG(IS_ANDROID)
@@ -63,9 +62,6 @@
 #endif
 
 #include "brave/browser/brave_vpn/vpn_utils.h"
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-#include "brave/browser/ui/webui/ethereum_remote_client/ethereum_remote_client_ui.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PLAYLIST_WEBUI)
 #include "brave/browser/ui/webui/playlist_ui.h"
@@ -106,16 +102,8 @@ WebUIController* NewWebUI(WebUI* web_ui, const GURL& url) {
   } else if (host == kWalletPageHost &&
              brave_wallet::IsAllowedForContext(profile)) {
     if (brave_wallet::IsNativeWalletEnabled()) {
-      auto default_wallet =
-          brave_wallet::GetDefaultEthereumWallet(profile->GetPrefs());
-      if (default_wallet == brave_wallet::mojom::DefaultWallet::CryptoWallets) {
-        return new EthereumRemoteClientUI(web_ui, url.host());
-      }
       return new WalletPageUI(web_ui);
     }
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-    return new EthereumRemoteClientUI(web_ui, url.host());
-#endif
 #endif  // !BUILDFLAG(OS_ANDROID)
   } else if (host == kRewardsPageHost &&
              // We don't want to check for supported profile type here because
@@ -127,11 +115,7 @@ WebUIController* NewWebUI(WebUI* web_ui, const GURL& url) {
              brave_rewards::IsSupported(
                  profile->GetPrefs(),
                  brave_rewards::IsSupportedOptions::kSkipRegionCheck)) {
-    if (base::FeatureList::IsEnabled(
-            brave_rewards::features::kNewRewardsUIFeature)) {
-      return new brave_rewards::RewardsPageUI(web_ui, url.host());
-    }
-    return new BraveRewardsPageUI(web_ui, url.host());
+    return new brave_rewards::RewardsPageUI(web_ui, url.host());
   } else if (host == kRewardsInternalsHost &&
              brave_rewards::IsSupportedForProfile(profile)) {
     return new BraveRewardsInternalsUI(web_ui, url.host());
@@ -161,9 +145,10 @@ WebUIController* NewWebUI(WebUI* web_ui, const GURL& url) {
     return new BraveNewTabUI(
         web_ui, url.host(),
         brave_ads::AdsServiceFactory::GetForProfile(profile),
-        g_browser_process->local_state(),
-        g_brave_browser_process->p3a_service(),
-        g_brave_browser_process->ntp_background_images_service());
+        ntp_background_images::ViewCounterServiceFactory::GetForProfile(
+            profile),
+        regional_capabilities::RegionalCapabilitiesServiceFactory::
+            GetForProfile(profile));
 #endif  // !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(ENABLE_TOR)
   } else if (host == kTorInternalsHost) {
@@ -225,7 +210,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
 #endif
       url.host_piece() == kRewardsPageHost ||
       url.host_piece() == kRewardsInternalsHost ||
-      url.host_piece() == kAdsInternalsHost) {
+      (url.host_piece() == kAdsInternalsHost &&
+       !profile->IsIncognitoProfile())) {
     return &NewWebUI;
   }
 

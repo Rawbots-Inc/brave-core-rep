@@ -9,10 +9,12 @@
 #include <optional>
 #include <utility>
 
+#include "base/check_op.h"
 #include "base/containers/map_util.h"
 #include "base/containers/to_vector.h"
 #include "base/no_destructor.h"
 #include "base/strings/strcat.h"
+#include "base/strings/string_util.h"
 #include "base/types/expected.h"
 #include "base/types/optional_util.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
@@ -73,6 +75,7 @@ constexpr char kZkSyncEra[] = "zksync-era";
 constexpr char kSolana[] = "solana";
 constexpr char kSolanaTestnet[] = "solana-testnet";
 constexpr char kSolanaDevnet[] = "solana-devnet";
+constexpr char kSimpleHashCdnHost[] = "cdn.simplehash.com";
 constexpr char kSimpleHashCdnBraveProxyHost[] =
     "simplehash.wallet-cdn.brave.com";
 
@@ -1131,10 +1134,14 @@ SimpleHashClient::ParseMetadatas(const base::Value::Dict& dict) {
     const std::string* image = nft->FindString("image_url");
     if (image) {
       GURL original_url(*image);
-      GURL::Replacements replacements;
-      replacements.SetHostStr(kSimpleHashCdnBraveProxyHost);
-      GURL proxy_url = original_url.ReplaceComponents(replacements);
-      nft_metadata->image = proxy_url.spec();
+      if (original_url.host() == kSimpleHashCdnHost) {
+        GURL::Replacements replacements;
+        replacements.SetHostStr(kSimpleHashCdnBraveProxyHost);
+        GURL proxy_url = original_url.ReplaceComponents(replacements);
+        nft_metadata->image = proxy_url.spec();
+      } else {
+        nft_metadata->image = *image;
+      }
     }
 
     // external_url

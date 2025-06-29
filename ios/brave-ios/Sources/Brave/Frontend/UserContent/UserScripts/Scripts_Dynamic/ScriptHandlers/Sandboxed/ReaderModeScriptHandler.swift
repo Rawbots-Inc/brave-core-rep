@@ -4,11 +4,9 @@
 
 import Foundation
 import Shared
-import SwiftyJSON
+import Web
 import WebKit
 import os.log
-
-let readerModeProfileKeyStyle = "readermode.style"
 
 enum ReaderModeMessageType: String {
   case stateChange = "ReaderModeStateChange"
@@ -119,10 +117,10 @@ struct ReaderModeStyle {
 
   /// Encode the style to a JSON dictionary that can be passed to ReaderMode.js
   func encode() -> String {
-    return JSON(
-      ["theme": theme.rawValue, "fontType": fontType.rawValue, "fontSize": fontSize.rawValue]
-        as [String: Any]
-    ).stringValue() ?? ""
+    guard let data = try? JSONSerialization.data(withJSONObject: encodeAsDictionary()) else {
+      return ""
+    }
+    return String(data: data, encoding: .utf8) ?? ""
   }
 
   /// Encode the style to a dictionary that can be stored in the profile
@@ -134,6 +132,15 @@ struct ReaderModeStyle {
     self.theme = theme
     self.fontType = fontType
     self.fontSize = fontSize
+  }
+
+  init?(encodedString: String) {
+    guard let data = encodedString.data(using: .utf8),
+      let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else {
+      return nil
+    }
+    self.init(dict: dict)
   }
 
   /// Initialize the style from a dictionary, taken from the profile. Returns nil if the object cannot be decoded.
@@ -212,32 +219,6 @@ struct ReadabilityResult {
     }
   }
 
-  /// Initialize from a JSON encoded string
-  init?(string: String) {
-    let object = JSON(parseJSON: string)
-    let domain = object["domain"].string
-    let url = object["url"].string
-    let content = object["content"].string
-    let documentLanguage = object["documentLanguage"].string
-    let title = object["title"].string
-    let credits = object["credits"].string
-    let direction = object["dir"].string
-    let cspMetaTags = object["cspMetaTags"].arrayObject as? [String]
-
-    if domain == nil || url == nil || content == nil || title == nil || credits == nil {
-      return nil
-    }
-
-    self.domain = domain!
-    self.url = url!
-    self.content = content!
-    self.documentLanguage = documentLanguage ?? ""
-    self.title = title!
-    self.credits = credits!
-    self.direction = direction ?? "auto"
-    self.cspMetaTags = cspMetaTags ?? []
-  }
-
   /// Encode to a dictionary, which can then for example be json encoded
   func encode() -> [String: Any] {
     return [
@@ -250,7 +231,8 @@ struct ReadabilityResult {
   /// Encode to a JSON encoded string
   func encode() -> String {
     let dict: [String: Any] = self.encode()
-    return JSON(dict).stringValue()!
+    guard let data = try? JSONSerialization.data(withJSONObject: dict) else { return "" }
+    return String(decoding: data, as: UTF8.self)
   }
 }
 
@@ -259,13 +241,16 @@ protocol ReaderModeScriptHandlerDelegate: AnyObject {
   func readerMode(
     _ readerMode: ReaderModeScriptHandler,
     didChangeReaderModeState state: ReaderModeState,
-    forTab tab: Tab
+    forTab tab: some TabState
   )
-  func readerMode(_ readerMode: ReaderModeScriptHandler, didDisplayReaderizedContentForTab tab: Tab)
+  func readerMode(
+    _ readerMode: ReaderModeScriptHandler,
+    didDisplayReaderizedContentForTab tab: some TabState
+  )
   func readerMode(
     _ readerMode: ReaderModeScriptHandler,
     didParseReadabilityResult readabilityResult: ReadabilityResult,
-    forTab tab: Tab
+    forTab tab: some TabState
   )
 }
 
@@ -283,24 +268,27 @@ class ReaderModeScriptHandler: TabContentScript {
   static let scriptSandbox: WKContentWorld = .defaultClient
   static let userScript: WKUserScript? = nil
 
-  fileprivate func handleReaderPageEvent(_ readerPageEvent: ReaderPageEvent, tab: Tab) {
+  fileprivate func handleReaderPageEvent(_ readerPageEvent: ReaderPageEvent, tab: some TabState) {
     switch readerPageEvent {
     case .pageShow:
       delegate?.readerMode(self, didDisplayReaderizedContentForTab: tab)
     }
   }
 
-  fileprivate func handleReaderModeStateChange(_ state: ReaderModeState, tab: Tab) {
+  fileprivate func handleReaderModeStateChange(_ state: ReaderModeState, tab: some TabState) {
     self.state = state
     delegate?.readerMode(self, didChangeReaderModeState: state, forTab: tab)
   }
 
-  fileprivate func handleReaderContentParsed(_ readabilityResult: ReadabilityResult, tab: Tab) {
+  fileprivate func handleReaderContentParsed(
+    _ readabilityResult: ReadabilityResult,
+    tab: some TabState
+  ) {
     delegate?.readerMode(self, didParseReadabilityResult: readabilityResult, forTab: tab)
   }
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -337,9 +325,9 @@ class ReaderModeScriptHandler: TabContentScript {
     }
   }
 
-  func setStyle(_ style: ReaderModeStyle, in tab: Tab) {
+  func setStyle(_ style: ReaderModeStyle, in tab: some TabState) {
     if state == ReaderModeState.active {
-      tab.webView?.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "\(readerModeNamespace).setStyle",
         args: [style.encode()],
         contentWorld: Self.scriptSandbox,
@@ -350,13 +338,9 @@ class ReaderModeScriptHandler: TabContentScript {
     }
   }
 
-  static func cache(for tab: Tab?) -> ReaderModeCache {
-    switch TabType.of(tab) {
-    case .regular:
-      return DiskReaderModeCache.sharedInstance
-    case .private:
-      return MemoryReaderModeCache.sharedInstance
-    }
+  static func cache(for tab: (any TabState)?) -> ReaderModeCache {
+    let isPrivate = tab?.isPrivate ?? false
+    return isPrivate ? MemoryReaderModeCache.sharedInstance : DiskReaderModeCache.sharedInstance
   }
 
 }

@@ -85,7 +85,6 @@
 <translation id="1118970888826017401">Omogoči podporo za obhod povezav za sledenje preusmeritve na najvišji ravni.</translation>
 <translation id="94154759592465111">Blokiraj skripte</translation>
 <translation id="7714773920987474116">Blokira JavaScript (lahko zlomi spletna mesta)</translation>
-<translation id="995782501881226248">YouTube</translation>
 <translation id="2233004324252915283">Blokirajte priporočeno vsebino YouTube</translation>
 <translation id="1005372663692637999">Blokira naslednje in končne elemente kartice na youtube.com.</translation>
 <translation id="5152595963250646670">Blokirajte moteče elemente YouTuba</translation>
@@ -98,7 +97,6 @@
 <translation id="5165042248369837294">Dovoli vdelane tvite s Twitterja</translation>
 <translation id="958971637207126733">Dovoli vdelane objave z LinkedIna</translation>
 <translation id="6302422639282249274">Upravljaj storitev Brave Rewards</translation>
-<translation id="2709516037105925701">Samodejno izpolnjevanje</translation>
 <translation id="8617525558807213034">Samodejno izpolnjevanje v zasebnih zavihkih</translation>
 <translation id="8685431198160039193">Shranjene informacije se lahko samodejno izpolnijo v zasebnih zavihkih</translation>
 <translation id="6583902294974160967">Podpora</translation>
@@ -110,14 +108,9 @@
 <translation id="7304425663107214334">Pokaži predloge brskalnika</translation>
 <translation id="8982438328166986164">Prikazuje predloge spletnih mest na podlagi vaših zaznamkov in zgodovine brskanja.</translation>
 <translation id="924029461438529367">Pokaži predloge za iskanje</translation>
-<translation id="1571106259128580884">Prikaži najbolj priljubljena spletna mesta</translation>
+<translation id="5989135139219497991">Prikaži top predloge</translation>
 <translation id="6285118765755298263">Indeksiraj druge iskalnike</translation>
 <translation id="919715748352669592">Samodejno indeksira spletna mesta, ki sledijo specifikacijam OpenSearch.</translation>
-<translation id="412411722208944922">Hitri spletni iskalniki</translation>
-<translation id="2836969042340015500">Hitri spletni iskalniki</translation>
-<translation id="9120455214794270250">Prikaži vrstico za hitro iskanje</translation>
-<translation id="1052991798173010693">Trenutno uporabljeni spletni iskalniki</translation>
-<translation id="335303688425891752">Z dolgim pritiskom spremenite vrstni red</translation>
 <translation id="9148058034647219655">Zapri</translation>
 <translation id="8047754398610073499">Blokiraj obvestila o soglasju za piškotke</translation>
 <translation id="2621893359845808115">Blokira pojavna okna spletnega mesta, ki vas prosijo, da sprejmete/zavrnete piškotke na njihovem spletnem mestu</translation>
@@ -233,7 +226,8 @@
 <translation id="2433507940547922241">Videz</translation>
 <translation id="9040069796107003510">Ikona Nagrad Brave</translation>
 <translation id="6333347122924254968">Pokaži ikono Brave Rewards v naslovni vrstici</translation>
-<translation id="8495235435594442882">Omogoči orodno vrstico na dnu</translation>
+<translation id="1215433243238902715">Omogoči spodnjo navigacijsko orodno vrstico</translation>
+<translation id="1422686363939271829">Ta nastavitev je onemogočena, če je izbran spodnji položaj naslovne vrstice.</translation>
 <translation id="6587448235155023666">Spremembe bodo začele veljati ob ponovnem zagonu brskalnika Brave</translation>
 <translation id="8701563696941209024">PONOVNO ZAŽENITE ZDAJ</translation>
 <translation id="834487290629916192">KASNEJE</translation>
@@ -247,9 +241,6 @@
 <translation id="2888496576732880897">Pomagajte rasti Brave Iskanju</translation>
 <translation id="7044431516245362795">Vključite se v projekt Web Discovery Project in pomagajte povečati indeks ter izboljšati rezultate iskanja. <ph name="LEARN_MORE_START"/>Več o tem.<ph name="LEARN_MORE_END"/></translation>
 <translation id="7818938154803162778">Seveda, pomagal bom</translation>
-<translation id="2877653791257935258">Vnesite ime spletnega mesta ali URL</translation>
-<translation id="5329830149661250028">Oglejte si razliko med Brave in Brave: Brez oglasov. Brez sledilnikov. Veliko hitrejše nalaganje strani.</translation>
-<translation id="3941792073703079607">Oglejte si razliko Brave: Blokirajte oglase. Shranite podatke. Predvajajte hitreje.</translation>
 <translation id="3545804467215833536">Tapnite za ogled Brave Shields</translation>
 <translation id="1724327820822194498">Oglejte si vso navlako, ki jih je Brave blokiral, na vsaki strani, s ščiti.</translation>
 <translation id="5386259141409498372"><ph name="BIG_TECH"/> in <ph name="TRACKER"/> drugi oglasi in sledilniki so blokirani</translation>
@@ -259,8 +250,6 @@
 <translation id="1377600615067678409">Zaenkrat preskoči</translation>
 <translation id="6165508094623778733">Preberite več</translation>
 <translation id="986879628471635371">Odpravljanje težav uvajalnega procesa</translation>
-<translation id="5808759341041733958">Izberi privzeti iskalnik</translation>
-<translation id="1331593888918588693">V nastavitvah aplikacije lahko kasneje kadar koli spremenite svoje želje.</translation>
 <translation id="5806601733251372221">Ščiti Brave</translation>
 <translation id="8537217141725709400">Prislužite si <ph name="TOKEN"/>s</translation>
 <translation id="3333887201479867589">Storitev Brave Rewards</translation>
@@ -278,9 +267,6 @@
 <translation id="4225265925807365011">Imam 24-besedno frazo za obnovitev</translation>
 <translation id="3570367516044491911">Nastavite kot privzeti brskalnik</translation>
 <translation id="6800338374677644736">Nastavi kot privzeti brskalnik</translation>
-<translation id="19715420010996093">Izberi brskalnik Brave in tapni 'Vedno'</translation>
-<translation id="3546439402724649282">Brskalnik Brave je že nastavljen kot privzeti brskalnik.</translation>
-<translation id="8389661903259423907">Privzeti brskalnik ste že nastavili. Privzeti brskalnik lahko spremenite v nastavitvah svoje aplikacije.</translation>
 <translation id="1545749641540134597">Skeniraj QR kodo</translation>
 <translation id="5317781812114905957">Navodila</translation>
 <translation id="8515319483805157233">Če želite iskati po kodi QR, postavite kodo QR na sredino okvirja.</translation>
@@ -329,7 +315,7 @@
 <translation id="859506441384380749">To kodo je ustvarila zastarela različica Brave, najprej nadgradite svojo drugo napravo</translation>
 <translation id="3132642509209154999">Ta koda je potekla. Ustvarite novo v drugi napravi in poskusite znova.</translation>
 <translation id="2859229680945501779">Ta koda ni veljavna. Preverite, ali sta ura in časovni pas na vaši napravi pravilno nastavljena.</translation>
-<translation id="3149880132460839085">Brave Sync</translation>
+<translation id="3149880132460839085">Brave Sinhronizacija</translation>
 <translation id="348794064910142198">Sinhronizacija Brave vam omogoča zasebno sinhronizacijo podatkov v zaznamkih med brskalniki Brave v različnih napravah.\n\nPreprosto skenirajte kodo iz verige sinhronizacije, ki ste jo ustvarili v drugi napravi. Ali pa ustvarite novo sinhronizacijsko verigo.</translation>
 <translation id="2614069607859982576">Z obstoječo sinhronizirano napravo odprite Brave nastavitve in se pomaknite do Nastavitve &gt; Sinhroniziraj. Izberite "Dodaj novo napravo" in skenirajte kodo QR, prikazano na zaslonu.</translation>
 <translation id="5241263629636958324">Kopirano v odložišče!</translation>
@@ -430,9 +416,12 @@ Ali ste prepričani, da želite to storiti?</translation>
 <translation id="8520059774736886747">Ustvarjalec <ph name="PUBLISHER_NAME"/> je nedavno preveril</translation>
 <translation id="1486343603936278248">žeton</translation>
 <translation id="7781069478569868053">Stran »Nov zavihek«</translation>
+<translation id="5927196110206824867">Sponzorirane slike v ozadju podpirajo poslanstvo družbe Brave, da gradi neodvisen in uporabniku prijazen splet. V nasprotju z velikimi tehnološkimi podjetji merimo uspešnost oglasov anonimno, da bi ohranili vašo zasebnost.</translation>
+<translation id="8748471354357836070">Več informacij/možnosti odjave</translation>
 <translation id="3171669670217312786">Slike ozadja</translation>
 <translation id="8522669544471808198">Prikaži slike ozadja</translation>
 <translation id="3870475560794762985">Prikaži sponzorirane slike</translation>
+<translation id="6937724381960478525">Preberite več o sponzoriranih slikah</translation>
 <translation id="8793108040181436796">Pripomočki</translation>
 <translation id="8643377320501056697">Prikaži najbolj priljubljena spletna mesta</translation>
 <translation id="7275773481201277457">Pokaži Braveove statistike</translation>
@@ -514,6 +503,7 @@ je v teku.
 <translation id="5299848999918506028">Hvala!</translation>
 <translation id="76550953340008122">Hvala, ker ste obvestili razvijalce Brave, da je s to spletno stranjo nekaj narobe. Potrudili se bomo, da to popravimo!</translation>
 <translation id="650318023204990401">Napredne nastavitve</translation>
+<translation id="7205939464631857223">Počisti vse blokirane elemente</translation>
 <translation id="5370478469168390143">Podatke shrani na spletu</translation>
 <translation id="1118508688433541158">Brskaj hitreje in blokiraj oglase s programom Brave</translation>
 <translation id="7427391215172269363">Vsak dan shranjujem podatke z brskanjem po spletu z Brave.</translation>
@@ -554,7 +544,6 @@ je v teku.
 <translation id="1945330434665345785">Z brskalnikom Brave ste v zadnjem tednu blokirali <ph name="COUNT"/> sledilnikov &amp; oglasov.</translation>
 <translation id="2883868922264431515">Zaslužite z ogledom oglasov, ki spoštujejo zasebnost, in podprite svoja najljubša spletna mesta.</translation>
 <translation id="7408493389591475748">Začnite z brskanjem, da lahko pridobite poročilo o zasebnosti</translation>
-<translation id="9080777565335515917">Za zasebno in varno brskanje nastavite Brave kot privzeti brskalnik.</translation>
 <translation id="1390943217516275883">Storitvi Brave omogoča prikaz vaših statistik zasebnosti</translation>
 <translation id="1763352720905582220">Pošilja tedenska poročila o zasebnosti</translation>
 <translation id="1811691435325545066">Počisti podatke o poročilih o zasebnosti</translation>
@@ -600,16 +589,6 @@ je v teku.
 <translation id="2977501775944575564">Vzporedno prenašanje</translation>
 <translation id="6224180438946945617">Omogočite vzporedni prenos in tako pospešite hitrost prenosa</translation>
 <translation id="8967385052772844086">Oglejte si celotno poročilo o zasebnosti</translation>
-<translation id="6864343534748973390">Najbolj priljubljeno</translation>
-<translation id="4608192160278975831">Zasebno in brez sledenja</translation>
-<translation id="7208522820527289601">Zasebno in brez sledenja, s sedežem v EU</translation>
-<translation id="1161008391729450974">Googlovi rezultati brez sledilcev</translation>
-<translation id="7320542277711359296">Drugi najbolj priljubljeni</translation>
-<translation id="8295049095570748497">Vodilni iskalnik v Rusiji</translation>
-<translation id="2642661895835126239">Sadi drevesa s sedežem v Berlinu</translation>
-<translation id="2422627462367776805">Južnokorejski spletni portal &amp; iskanje</translation>
-<translation id="177282784098234156">Zaseben, neodvisen, uporabnik je na prvem mestu</translation>
-<translation id="1410130669636877548">Nekateri iskalniki varujejo vašo zasebnost bolje kot drugi, ko iščete po spletu.</translation>
 <translation id="3479552764303398839">Ne zdaj</translation>
 <translation id="7138272885617540195">Dovoli odpiranje povezav aplikacij v aplikacijah izven Brave</translation>
 <translation id="4954512758656527938">Privzeta denarnica Ethereum</translation>
@@ -699,6 +678,7 @@ je v teku.
 <translation id="3952797765659730604">Vnesite, prilepite ali uvozite svojo datoteko niza zasebnega ključa ali JSON.</translation>
 <translation id="569068482611873351">Uvozi ...</translation>
 <translation id="4522570452068850558">Podrobnosti</translation>
+<translation id="3114681061018999547">Zaščita</translation>
 <translation id="3784455785234192852">Zakleni</translation>
 <translation id="4412698727486357573">Center za pomoč</translation>
 <translation id="8239147115686034860">Samodejno zakleni Brave denarnice</translation>
@@ -830,18 +810,6 @@ je v teku.
 <translation id="2199215899212542417">VRSTA FUNKCIJE: <ph name="FTYPE"/></translation>
 <translation id="4803003663447398145">Ni podatkov</translation>
 <translation id="1105525362447173583">Podpis transakcije Solana Dapp</translation>
-<translation id="9061799688859969073"><ph name="ACCOUNT_NAME"/> je poslal <ph name="CRYPTO_VALUE"/> <ph name="ASSET"/> ($<ph name="FIAT_VALUE"/>) - <ph name="DATE"/></translation>
-<translation id="1148985422232712046"><ph name="ACCOUNT_NAME"/> poslan <ph name="ASSET"/> #<ph name="ASSET_ID"/> - <ph name="DATE"/></translation>
-<translation id="2911329628253651823"><ph name="ACCOUNT_NAME"/> je potrjen za <ph name="ASSET"/> - <ph name="DATE"/></translation>
-<translation id="7400134344541309180">Odobreno neomejeno <ph name="ASSET"/> - <ph name="PROXY"/></translation>
-<translation id="2428770727194227378"><ph name="ACCOUNT_NAME"/> izvede menjavo - <ph name="DATE"/></translation>
-<translation id="2833661570529295305">Neodobreno</translation>
-<translation id="8034530868111548216">Potrjeno</translation>
-<translation id="6015436276085482001">Zavrnjeno</translation>
-<translation id="6666273175654835609">Potrjeno</translation>
-<translation id="2331676293859649642">Potrjeno</translation>
-<translation id="8214232307424031138">Podpisano</translation>
-<translation id="1165039591588034296">Napaka</translation>
 <translation id="2561824823738097741">Ali uporabljate najhitrejši spletni brskalnik?</translation>
 <translation id="2065971949051836200">3x hitrejši internet je že na vašem telefonu. Uporabite Brave za vse svoje brskanje po spletu.</translation>
 <translation id="2888278614497184977">Brave = 3x hitrejše brskanje po spletu</translation>
@@ -1052,7 +1020,7 @@ je v teku.
 <translation id="5888208462949095139">Iščite z <ph name="DEFAULT_SEARCH_ENGINE"/></translation>
 <translation id="5456039738087398178">Pripomoček za začetni zaslon</translation>
 <translation id="703185154752046151">Pripomoček, dodan na začetni zaslon</translation>
-<translation id="3290805388004282161">Preizkusite iskalni pripomoček Brave</translation>
+<translation id="4635094429202343515">Preizkusite pripomoček Brave Iskanje</translation>
 <translation id="4809681171446727314">Dostopajte do zasebnega, neodvisnega iskanja neposredno z domačega zaslona.</translation>
 <translation id="7751715172931488388">Dodajte pripomoček</translation>
 <translation id="7285167584112910782">Hitro dinamično iskanje Brave</translation>
@@ -1119,6 +1087,8 @@ je v teku.
 <translation id="1179407411385015942">Leo je pametni pomočnik, ki ga poganja AI, vgrajen neposredno v brskalnik</translation>
 <translation id="5781842473834867765">Shrani mojo zgodovino pogovorov</translation>
 <translation id="4109670531935487117">Prikaz predlogov za samodejno dokončanje v naslovni vrstici</translation>
+<translation id="4983005227524068187">Prikaži v vrstici hitrih iskalnikov</translation>
+<translation id="8514910864411336826">Omogoča bližnjico za zagon Lea iz vrstice za hitre iskalnike.</translation>
 <translation id="6106701981952170121">Izbriši vse podatke o pogovorih s storitvijo Leo AI</translation>
 <translation id="423600389315522551">Če ponastavite storitev Leo AI, se boste morali strinjati z uporabo funkcije Brave Leo AI v prihodnosti, prav tako pa bo izbrisana vaša zgodovina klepetov. Z brisanjem zgodovine klepetov boste izbrisali vse svoje prejšnje pogovore s funkcijo Brave Leo AI. Tega dejanja ni mogoče preklicati.</translation>
 <translation id="6742599753610126012">Izbriši zgodovino klepetov</translation>
@@ -1241,11 +1211,12 @@ je v teku.
 <translation id="6891382640886173702">Združi okna</translation>
 <translation id="2912247081180973411">Zapri okna</translation>
 <translation id="4010699428656610296">Združi druge zavihke v drugo okno Brave.</translation>
-<translation id="208634871997892083">Neprekinjeno vključen VPN</translation>
+<translation id="4306918392910017801">Samodejna ponovna povezava VPN</translation>
 <translation id="1599073346542156922">Kako vključiti:</translation>
 <translation id="7001163334415463127">1. Odprite nastavitve svoje naprave v razdelku z aplikacijami ali tapnite spodnji gumb.</translation>
 <translation id="887443138775437899">2. Poiščite Brave VPN in tapnite ikono za nastavitev na desni.</translation>
-<translation id="3776051499611941773">3. Premaknite gumb<ph name="ALWAYS_ON_TUTORIAL_START"/>Neprekinjeno vključen VPN<ph name="ALWAYS_ON_TUTORIAL_END"/> in ga tako omogočite.</translation>
+<translation id="7546805138087561624">3. Premaknite gumb<ph name="AUTO_RECONNECT_VPN_TUTORIAL_START"/>Neprekinjeno vključen VPN<ph name="AUTO_RECONNECT_VPN_TUTORIAL_END"/> in ga tako omogočite.</translation>
+<translation id="2446001600399646984">Upoštevajte, da zaradi omejitev sistema Android funkcija "Blokiraj povezave brez VPN" ne deluje po pričakovanjih. <ph name="LEARN_MORE_START"/>Več o tem.<ph name="LEARN_MORE_END"/></translation>
 <translation id="4776146737004271126">Odpri nastavitve za Android</translation>
 <translation id="2728518864712716830">Posodobitev je prenesena.</translation>
 <translation id="8403338849301491865">Seznam filtrov je bil uspešno posodobljen</translation>
@@ -1255,4 +1226,7 @@ je v teku.
 <translation id="2361906291514218784">Leo AI</translation>
 <translation id="7942415993090181327">Zgodovina klepetov</translation>
 <translation id="6859935199732075666">Prikaži napake Varnega brskanja</translation>
+<translation id="2735247450315842119">Omogočite posnetke zaslona v zasebnih zavihkih</translation>
+<translation id="8420414929552321089">Če je omogočeno, bodo zasebni zavihki vidni tudi, ko je odprtih več aplikacij.</translation>
+<translation id="7956713633345437162">Mobilni zaznamki</translation>
 </translationbundle>

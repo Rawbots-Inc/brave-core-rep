@@ -10,6 +10,7 @@ import { getLocale } from '$web-common/locale'
 import classnames from '$web-common/classnames'
 import { useUntrustedConversationContext } from '../../untrusted_conversation_context'
 import CopyButton from '../copy_button'
+import { RegenerateAnswerMenu } from '../regenerate_answer_menu'
 import styles from './style.module.scss'
 
 const statuses = ['liked', 'disliked', 'none'] as const
@@ -17,6 +18,7 @@ type RatingStatus = (typeof statuses)[number]
 
 interface ContextActionsAssistantProps {
   turnUuid?: string
+  turnModelKey?: string
   onEditAnswerClicked: () => void
   onCopyTextClicked: () => void
 }
@@ -28,17 +30,32 @@ export default function ContextActionsAssistant(
   const [currentRatingStatus, setCurrentRatingStatus] =
     React.useState<RatingStatus>('none')
 
-  const hasSentRating = currentRatingStatus !== 'none'
+  const [isRegenerateAnswerMenuOpen, setIsRegenerateAnswerMenuOpen] =
+    React.useState<boolean>(false)
 
   function handleLikeOrDislikeAnswer(status: RatingStatus) {
     if (!props.turnUuid) return
-    if (hasSentRating) return
     setCurrentRatingStatus(status)
     conversationContext.parentUiFrame?.rateMessage(
       props.turnUuid,
       status === 'liked'
     )
   }
+
+  function handleRegenerateAnswer(selectedModelKey: string) {
+    if (!props.turnUuid) {
+      return
+    }
+    conversationContext.conversationHandler?.regenerateAnswer(
+      props.turnUuid,
+      selectedModelKey
+    )
+  }
+
+  const leoModels = conversationContext.allModels.filter(
+    (model) => model.options.leoModelOptions &&
+      model.key !== 'chat-automatic'
+  )
 
   return (
     <div className={styles.actionsWrapper}>
@@ -48,7 +65,7 @@ export default function ContextActionsAssistant(
         fab
         size='small'
         kind='plain-faint'
-        title={getLocale('editButtonLabel')}
+        title={getLocale(S.CHAT_UI_EDIT_BUTTON_LABEL)}
         className={styles.button}
       >
         <Icon name='edit-pencil' />
@@ -58,7 +75,7 @@ export default function ContextActionsAssistant(
         fab
         size='small'
         kind='plain-faint'
-        title={getLocale('likeAnswerButtonLabel')}
+        title={getLocale(S.CHAT_UI_LIKE_ANSWER_BUTTON_LABEL)}
         className={styles.button}
       >
         <Icon
@@ -73,7 +90,7 @@ export default function ContextActionsAssistant(
         fab
         size='small'
         kind='plain-faint'
-        title={getLocale('dislikeAnswerButtonLabel')}
+        title={getLocale(S.CHAT_UI_DISMISS_BUTTON_LABEL)}
         className={styles.button}
       >
         <Icon
@@ -83,6 +100,16 @@ export default function ContextActionsAssistant(
           })}
         />
       </Button>
+      {props.turnModelKey &&(
+        <RegenerateAnswerMenu
+          isOpen={isRegenerateAnswerMenuOpen}
+          onOpen={() => setIsRegenerateAnswerMenuOpen(true)}
+          onClose={() => setIsRegenerateAnswerMenuOpen(false)}
+          onRegenerate={handleRegenerateAnswer}
+          leoModels={leoModels}
+          turnModelKey={props.turnModelKey}
+        />
+      )}
     </div>
   )
 }

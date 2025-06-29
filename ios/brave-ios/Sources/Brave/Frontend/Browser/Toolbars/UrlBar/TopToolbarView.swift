@@ -11,7 +11,9 @@ import DesignSystem
 import Preferences
 import Shared
 import SnapKit
+import SpeechRecognition
 import UIKit
+import Web
 
 protocol TopToolbarDelegate: AnyObject {
   func topToolbarDidPressTabs(_ topToolbar: TopToolbarView)
@@ -35,6 +37,7 @@ protocol TopToolbarDelegate: AnyObject {
   func topToolbarDidTapBraveRewardsButton(_ topToolbar: TopToolbarView)
   func topToolbarDidTapMenuButton(_ topToolbar: TopToolbarView)
   func topToolbarDidPressVoiceSearchButton(_ urlBar: TopToolbarView)
+  func topToolbarDidPressPasteAndGoButton(_ urlBar: TopToolbarView)
   func topToolbarDidPressStop(_ urlBar: TopToolbarView)
   func topToolbarDidPressReload(_ urlBar: TopToolbarView)
   func topToolbarDidPressQrCodeButton(_ urlBar: TopToolbarView)
@@ -68,7 +71,6 @@ class TopToolbarView: UIView, ToolbarProtocol {
   weak var tabToolbarDelegate: ToolbarDelegate?
 
   private var cancellables: Set<AnyCancellable> = []
-  private var privateModeCancellable: AnyCancellable?
   private let privateBrowsingManager: PrivateBrowsingManager
 
   private(set) var displayTabTraySwipeGestureRecognizer: UISwipeGestureRecognizer?
@@ -102,7 +104,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     }
   }
 
-  var secureContentState: TabSecureContentState {
+  var secureContentState: SecureContentState {
     get { return locationView.secureContentState }
     set { locationView.secureContentState = newValue }
   }
@@ -128,7 +130,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
   private var locationTextField: AutocompleteTextField?
 
   lazy var locationView = TabLocationView(
-    voiceSearchSupported: isVoiceSearchAvailable,
+    speechRecognizer: speechRecognizer,
     privateBrowsingManager: privateBrowsingManager
   ).then {
     $0.translatesAutoresizingMaskIntoConstraints = false
@@ -184,7 +186,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
         options: .displayInline,
         children: [
           UIAction(
-            title: "Hide Shortcut Button",
+            title: Strings.ShortcutButton.hideButtonTitle,
             image: UIImage(braveSystemNamed: "leo.eye.off"),
             attributes: .destructive,
             handler: { _ in
@@ -255,7 +257,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     $0.isAccessibilityElement = true
     $0.accessibilityLabel = Strings.quickActionScanQRCode
     $0.setImage(UIImage(braveSystemNamed: "leo.qr.code", compatibleWith: nil), for: .normal)
-    $0.tintColor = .braveLabel
+    $0.tintColor = UIColor(braveSystemName: .iconDefault)
     $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
     $0.setContentCompressionResistancePriority(.required, for: .horizontal)
     $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
@@ -268,8 +270,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     $0.isAccessibilityElement = true
     $0.accessibilityLabel = Strings.tabToolbarVoiceSearchButtonAccessibilityLabel
     $0.setImage(UIImage(braveSystemNamed: "leo.microphone", compatibleWith: nil), for: .normal)
-    $0.tintColor = .braveLabel
-    $0.isHidden = !isVoiceSearchAvailable
+    $0.tintColor = UIColor(braveSystemName: .iconDefault)
     $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
     $0.setContentCompressionResistancePriority(.required, for: .horizontal)
     $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
@@ -296,12 +297,36 @@ class TopToolbarView: UIView, ToolbarProtocol {
     return button
   }()
 
+  private lazy var pasteAndGoButton = ToolbarButton().then {
+    $0.accessibilityIdentifier = "TabToolbar.pasteAndGoButton"
+    $0.isAccessibilityElement = true
+    $0.accessibilityLabel = Strings.tabToolbarPasteAndGoButtonAccessibilityLabel
+    $0.setImage(UIImage(braveSystemNamed: "leo.clipboard", compatibleWith: nil), for: .normal)
+    $0.tintColor = UIColor(braveSystemName: .iconDefault)
+    $0.isHidden = !UIPasteboard.general.hasStrings && !UIPasteboard.general.hasURLs
+    $0.contentEdgeInsets = UIEdgeInsets(top: 0, left: 5, bottom: 0, right: 5)
+    $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+    $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+    $0.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+    $0.setContentHuggingPriority(.defaultHigh, for: .vertical)
+  }
+
   private lazy var locationBarOptionsStackView = UIStackView().then {
     $0.alignment = .center
     $0.isHidden = true
     $0.layoutMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 3)
     $0.isLayoutMarginsRelativeArrangement = true
     $0.insetsLayoutMarginsFromSafeArea = false
+  }
+
+  private lazy var searchImageView = UIImageView().then {
+    $0.image = UIImage(braveSystemNamed: "leo.search", compatibleWith: nil)
+    $0.contentMode = .scaleAspectFit
+    $0.tintColor = UIColor(braveSystemName: .iconDefault)
+    $0.setContentCompressionResistancePriority(.required, for: .horizontal)
+    $0.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+    $0.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+    $0.setContentHuggingPriority(.defaultHigh, for: .vertical)
   }
 
   lazy var locationContainer = UIView().then {
@@ -324,12 +349,12 @@ class TopToolbarView: UIView, ToolbarProtocol {
     $0.layer.shadowColor = UIColor.black.cgColor
   }
 
-  private var isVoiceSearchAvailable: Bool
+  private var speechRecognizer: SpeechRecognizer
 
   // MARK: Lifecycle
 
-  init(voiceSearchSupported: Bool, privateBrowsingManager: PrivateBrowsingManager) {
-    isVoiceSearchAvailable = voiceSearchSupported
+  init(speechRecognizer: SpeechRecognizer, privateBrowsingManager: PrivateBrowsingManager) {
+    self.speechRecognizer = speechRecognizer
     self.privateBrowsingManager = privateBrowsingManager
 
     super.init(frame: .zero)
@@ -389,7 +414,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     // Make sure we hide any views that shouldn't be showing in non-overlay mode.
     updateViewsForOverlayModeAndToolbarChanges()
 
-    privateModeCancellable = privateBrowsingManager
+    privateBrowsingManager
       .$isPrivateBrowsing
       .removeDuplicates()
       .receive(on: RunLoop.main)
@@ -402,6 +427,17 @@ class TopToolbarView: UIView, ToolbarProtocol {
           isBottomToolbar: false
         )
       })
+      .store(in: &cancellables)
+
+    speechRecognizer.objectWillChange
+      .receive(on: RunLoop.main)
+      .sink { [weak self] in
+        guard let self else { return }
+        updateLocationBarRightView(
+          showToolbarActions: locationView.urlDisplayLabel.text?.isEmpty == true
+        )
+      }
+      .store(in: &cancellables)
 
     updateURLBarButtonsVisibility()
     helper?.updateForTraitCollection(
@@ -434,6 +470,11 @@ class TopToolbarView: UIView, ToolbarProtocol {
     voiceSearchButton.addTarget(
       self,
       action: #selector(topToolbarDidPressVoiceSearchButton),
+      for: .touchUpInside
+    )
+    pasteAndGoButton.addTarget(
+      self,
+      action: #selector(topToolbarDidPressPasteAndGoButton),
       for: .touchUpInside
     )
 
@@ -535,12 +576,13 @@ class TopToolbarView: UIView, ToolbarProtocol {
   }
 
   private func updateColors() {
+    overrideUserInterfaceStyle = privateBrowsingManager.isPrivateBrowsing ? .dark : .unspecified
     let browserColors = privateBrowsingManager.browserColors
     backgroundColor = browserColors.chromeBackground
     locationTextField?.backgroundColor = browserColors.containerBackground
     locationTextField?.textColor = browserColors.textPrimary
     locationTextField?.attributedPlaceholder = makePlaceholder(colors: browserColors)
-    for button in [qrCodeButton, voiceSearchButton] {
+    for button in [qrCodeButton, voiceSearchButton, pasteAndGoButton] {
       button.primaryTintColor = browserColors.iconDefault
       button.disabledTintColor = browserColors.iconDisabled
       button.selectedTintColor = browserColors.iconActive
@@ -579,14 +621,14 @@ class TopToolbarView: UIView, ToolbarProtocol {
       }
     }
 
+    locationBarOptionsStackView.addArrangedSubview(pasteAndGoButton)
     if RecentSearchQRCodeScannerController.hasCameraSupport {
       locationBarOptionsStackView.addArrangedSubview(qrCodeButton)
     }
-    if isVoiceSearchAvailable {
-      locationBarOptionsStackView.addArrangedSubview(voiceSearchButton)
-    }
+    locationBarOptionsStackView.addArrangedSubview(voiceSearchButton)
+    voiceSearchButton.isHidden = !speechRecognizer.isVoiceSearchAvailable
 
-    let subviews = [locationTextField, locationBarOptionsStackView]
+    let subviews = [searchImageView, locationTextField, locationBarOptionsStackView]
     locationTextContentView = UIStackView(arrangedSubviews: subviews).then {
       $0.layoutMargins = UIEdgeInsets(top: 2, left: 8, bottom: 2, right: 0)
       $0.isLayoutMarginsRelativeArrangement = true
@@ -818,11 +860,13 @@ class TopToolbarView: UIView, ToolbarProtocol {
       qrCodeButton.isHidden = true
     }
 
-    if isVoiceSearchAvailable {
+    if speechRecognizer.isVoiceSearchAvailable {
       voiceSearchButton.isHidden = !showToolbarActions
     } else {
       voiceSearchButton.isHidden = true
     }
+
+    pasteAndGoButton.isHidden = !UIPasteboard.general.hasStrings && !UIPasteboard.general.hasURLs
   }
 
   /// Update the shields icon based on whether or not shields are enabled for this site
@@ -830,7 +874,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     // Default on
     var shieldIcon = "brave.logo"
     let shieldsOffIcon = "brave.logo.greyscale"
-    if let currentURL = currentURL {
+    if let currentURL = currentURL, currentURL.isWebPage(includeDataURIs: false) {
       let isPrivateBrowsing = privateBrowsingManager.isPrivateBrowsing
       let domain = Domain.getOrCreate(forUrl: currentURL, persistent: !isPrivateBrowsing)
       if domain.areAllShieldsOff {
@@ -872,6 +916,11 @@ class TopToolbarView: UIView, ToolbarProtocol {
   @objc func topToolbarDidPressVoiceSearchButton() {
     leaveOverlayMode(didCancel: true)
     delegate?.topToolbarDidPressVoiceSearchButton(self)
+  }
+
+  @objc func topToolbarDidPressPasteAndGoButton() {
+    delegate?.topToolbarDidPressPasteAndGoButton(self)
+    leaveOverlayMode(didCancel: true)
   }
 
   @objc private func swipedLocationView() {

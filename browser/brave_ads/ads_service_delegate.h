@@ -11,18 +11,15 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/memory/raw_ref.h"
-#include "base/values.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "components/prefs/pref_service.h"
-#include "components/search_engines/search_engine_choice/search_engine_choice_service.h"
 
+class NotificationDisplayService;
 class Profile;
 
 namespace brave_adaptive_captcha {
 class BraveAdaptiveCaptchaService;
-}
-
-class NotificationDisplayService;
+}  // namespace brave_adaptive_captcha
 
 namespace brave_ads {
 
@@ -44,12 +41,8 @@ class AdsServiceDelegate : public AdsService::Delegate {
 
   ~AdsServiceDelegate() override;
 
-  std::string GetDefaultSearchEngineName();
-
-  base::Value::Dict GetSkus() const;
-
   // AdsService::Delegate:
-  void InitNotificationHelper() override;
+  void MaybeInitNotificationHelper(base::OnceClosure callback) override;
   bool CanShowSystemNotificationsWhileBrowserIsBackgrounded() override;
   bool DoesSupportSystemNotifications() override;
   bool CanShowNotifications() override;
@@ -65,15 +58,13 @@ class AdsServiceDelegate : public AdsService::Delegate {
   void CloseNotificationAd(const std::string& id, bool is_custom) override;
   void OpenNewTabWithUrl(const GURL& url) override;
   bool IsFullScreenMode() override;
-
-  base::Value::Dict GetVirtualPrefs() override;
+  std::string GetVariationsCountryCode() override;
 
  private:
   NotificationDisplayService* GetNotificationDisplayService();
 
   const raw_ref<Profile> profile_;
-  const raw_ptr<PrefService> local_state_ = nullptr;  // Not owned.
-  search_engines::SearchEngineChoiceService search_engine_choice_service_;
+  const raw_ptr<PrefService> local_state_;  // Not owned.
   const raw_ref<brave_adaptive_captcha::BraveAdaptiveCaptchaService>
       adaptive_captcha_service_;
   std::unique_ptr<NotificationAdPlatformBridge>

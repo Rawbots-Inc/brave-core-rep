@@ -10,7 +10,10 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
+#include "base/logging.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/time/time.h"
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/color/brave_color_id.h"
@@ -34,6 +37,7 @@
 #include "brave/components/sidebar/browser/sidebar_item.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/exclusive_access/exclusive_access_manager.h"
 #include "chrome/browser/ui/exclusive_access/fullscreen_controller.h"
@@ -61,7 +65,6 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/view_utils.h"
 #include "ui/views/widget/widget.h"
-#include "url/gurl.h"
 
 namespace {
 
@@ -135,7 +138,7 @@ SidebarContainerView::~SidebarContainerView() = default;
 void SidebarContainerView::Init() {
   initialized_ = true;
 
-  sidebar_model_ = GetBraveBrowser()->sidebar_controller()->model();
+  sidebar_model_ = browser_->GetFeatures().sidebar_controller()->model();
   sidebar_model_observation_.Observe(sidebar_model_);
   browser_->tab_strip_model()->AddObserver(this);
 
@@ -451,8 +454,8 @@ void SidebarContainerView::OnActiveIndexChanged(
     std::optional<size_t> old_index,
     std::optional<size_t> new_index) {
   DVLOG(1) << "OnActiveIndexChanged: "
-           << (old_index ? std::to_string(*old_index) : "none") << " to "
-           << (new_index ? std::to_string(*new_index) : "none");
+           << (old_index ? base::NumberToString(*old_index) : "none") << " to "
+           << (new_index ? base::NumberToString(*new_index) : "none");
   if (new_index) {
     ShowSidebarAll();
   } else {
@@ -738,7 +741,7 @@ void SidebarContainerView::OnEntryShown(SidePanelEntry* entry) {
   // as well as Sidebar as there are other ways than Sidebar for SidePanel
   // items to be shown and hidden, e.g. toolbar button.
   DVLOG(1) << "Panel shown: " << SidePanelEntryIdToString(entry->key().id());
-  auto* controller = GetBraveBrowser()->sidebar_controller();
+  auto* controller = browser_->GetFeatures().sidebar_controller();
 
   // Handling if |entry| is managed one.
   for (const auto& item : sidebar_model_->GetAllSidebarItems()) {
@@ -770,7 +773,7 @@ void SidebarContainerView::OnEntryShown(SidePanelEntry* entry) {
 void SidebarContainerView::OnEntryHidden(SidePanelEntry* entry) {
   DVLOG(1) << "Panel hidden: " << SidePanelEntryIdToString(entry->key().id());
 
-  auto* controller = GetBraveBrowser()->sidebar_controller();
+  auto* controller = browser_->GetFeatures().sidebar_controller();
 
   // Handling if |entry| is managed one.
   for (const auto& item : sidebar_model_->GetAllSidebarItems()) {
@@ -822,7 +825,7 @@ void SidebarContainerView::OnTabWillBeRemoved(content::WebContents* contents,
 void SidebarContainerView::UpdateActiveItemState() {
   DVLOG(1) << "Update active item state";
 
-  auto* controller = GetBraveBrowser()->sidebar_controller();
+  auto* controller = browser_->GetFeatures().sidebar_controller();
   std::optional<sidebar::SidebarItem::BuiltInItemType> current_type;
   if (auto entry_id = side_panel_coordinator_->GetCurrentEntryId()) {
     current_type = sidebar::BuiltInItemTypeFromSidePanelId(*entry_id);

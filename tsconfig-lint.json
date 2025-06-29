@@ -2,7 +2,12 @@
   "extends": "./tsconfig",
   "include": [
     "./components/**/*",
-    "./chromium_src/**/*"
+    "./chromium_src/**/*",
+    "./build/commands/**/*",
+    "./.*.js",
+    "./.*.ts",
+    "./*.js",
+    "./*.ts"
   ],
   "exclude": []
 }

@@ -26,7 +26,7 @@
 #include "brave/components/brave_ads/core/internal/targeting/behavioral/anti_targeting/resource/anti_targeting_resource.h"
 #include "brave/components/brave_ads/core/internal/targeting/geographical/subdivision/subdivision_targeting.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_events_database_table.h"
-#include "brave/components/brave_ads/core/mojom/brave_ads.mojom-shared.h"
+#include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
 #include "brave/components/brave_ads/core/public/ad_units/inline_content_ad/inline_content_ad_info.h"
 #include "brave/components/brave_ads/core/public/ads_constants.h"
 
@@ -47,8 +47,7 @@ InlineContentAdServing::~InlineContentAdServing() {
 void InlineContentAdServing::MaybeServeAd(
     const std::string& dimensions,
     MaybeServeInlineContentAdCallback callback) {
-  const std::optional<TabInfo> tab =
-      TabManager::GetInstance().MaybeGetVisible();
+  std::optional<TabInfo> tab = TabManager::GetInstance().MaybeGetVisible();
   if (!tab) {
     BLOG(1, "Inline content ad not served: No visible tab found");
     return FailedToServeAd(dimensions, std::move(callback));
@@ -99,7 +98,7 @@ void InlineContentAdServing::GetAdEventsCallback(
     bool success,
     const AdEventList& ad_events) {
   if (!success) {
-    BLOG(1, "Inline content ad not served: Failed to get ad events");
+    BLOG(0, "Inline content ad not served: Failed to get ad events");
     return FailedToServeAd(dimensions, std::move(callback));
   }
 
@@ -163,7 +162,7 @@ void InlineContentAdServing::GetEligibleAdsCallback(
     const std::string& dimensions,
     MaybeServeInlineContentAdCallback callback,
     uint64_t trace_id,
-    const CreativeInlineContentAdList& creative_ads) const {
+    CreativeInlineContentAdList creative_ads) const {
   TRACE_EVENT_NESTABLE_ASYNC_END1(
       kTraceEventCategory, "InlineContentAdServing::GetEligibleAds",
       TRACE_ID_WITH_SCOPE("InlineContentAdServing", trace_id), "creative_ads",
@@ -190,7 +189,7 @@ void InlineContentAdServing::ServeAd(
     const InlineContentAdInfo& ad,
     MaybeServeInlineContentAdCallback callback) const {
   if (!ad.IsValid()) {
-    BLOG(1, "Inline content ad not served: Invalid ad");
+    BLOG(0, "Inline content ad not served: Invalid ad");
     return FailedToServeAd(ad.dimensions, std::move(callback));
   }
 

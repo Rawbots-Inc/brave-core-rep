@@ -3,9 +3,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "base/check.h"
 #include "base/command_line.h"
+#include "base/containers/to_vector.h"
 #include "base/files/file_util.h"
 #include "base/files/scoped_file.h"
+#include "base/logging.h"
 #include "base/path_service.h"
 #include "base/run_loop.h"
 #include "brave/components/constants/brave_paths.h"
@@ -47,10 +50,7 @@ std::vector<uint8_t> GetPublicKeyHash(const base::FilePath& pem_path) {
   std::vector<uint8_t> public_key;
   private_key->ExportPublicKey(&public_key);
 
-  std::vector<uint8_t> key_hash(crypto::kSHA256Length);
-  crypto::SHA256HashString(std::string(public_key.begin(), public_key.end()),
-                           key_hash.data(), key_hash.size());
-  return key_hash;
+  return base::ToVector(crypto::SHA256Hash(public_key));
 }
 
 }  // namespace
@@ -66,8 +66,9 @@ class InstallCrxFileWaiter : public extensions::InstallObserver {
   }
 
   void OnFinishCrxInstall(content::BrowserContext* context,
-                          const extensions::CrxInstaller& installer,
+                          const base::FilePath& source_file,
                           const std::string& extension_id,
+                          const Extension* extension,
                           bool success) override {
     did_install_extension_ = success;
     run_loop_.Quit();
@@ -90,10 +91,9 @@ class BraveCrxGenerationTest : public InProcessBrowserTest {
 
   bool InstallExtension(const base::FilePath& crx_path,
                         crx_file::VerifierFormat format) {
-    auto installer = CrxInstaller::CreateSilent(
-        ExtensionSystem::Get(browser()->profile())->extension_service());
+    auto installer = CrxInstaller::CreateSilent(browser()->profile());
     installer->set_allow_silent_install(true);
-    installer->set_install_cause(extension_misc::INSTALL_CAUSE_USER_DOWNLOAD);
+    installer->set_was_triggered_by_user_download();
     installer->set_creation_flags(Extension::FROM_WEBSTORE);
 
     InstallCrxFileWaiter waiter(browser()->profile());

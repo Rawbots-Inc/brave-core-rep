@@ -12,13 +12,12 @@
 #include "base/memory/raw_ptr.h"
 #include "url/gurl.h"
 
-namespace content {
-class WebContents;
-}
+class PrefService;
 
 class WidevinePermissionRequest : public permissions::PermissionRequest {
  public:
-  WidevinePermissionRequest(content::WebContents* web_contents,
+  WidevinePermissionRequest(PrefService* prefs,
+                            const GURL& requesting_origin,
                             bool for_restart);
 
   WidevinePermissionRequest(const WidevinePermissionRequest&) = delete;
@@ -41,14 +40,13 @@ class WidevinePermissionRequest : public permissions::PermissionRequest {
 #else
   std::u16string GetMessageTextFragment() const override;
 #endif
-  void PermissionDecided(ContentSetting result,
-                         bool is_one_time,
-                         bool is_final_decision);
-  void DeleteRequest();
+  void PermissionDecided(
+      ContentSetting content_setting,
+      bool is_one_time,
+      bool is_final_decision,
+      const permissions::PermissionRequestData& request_data);
 
-  // It's safe to use this raw |web_contents_| because this request is deleted
-  // by PermissionManager that is tied with this |web_contents_|.
-  raw_ptr<content::WebContents> web_contents_ = nullptr;
+  raw_ptr<PrefService> prefs_ = nullptr;
 
   // Only can be true on linux.
   // On linux, browser will use another permission request buble after finishing

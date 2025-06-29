@@ -26,8 +26,7 @@
     Get started
   </message>
 
-  <!-- <Brave Account> -->
-  <!-- Row: -->
+  <!-- <Brave Account Row> -->
   <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ROW_TITLE" translateable="false" desc="Title of the Brave Account row in the Get Started section">
     Sign in or create a Brave account
   </message>
@@ -40,113 +39,7 @@
   <message name="IDS_SETTINGS_BRAVE_ACCOUNT_MANAGE_ACCOUNT_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to their Brave Account settings">
     Manage account
   </message>
-
-  <!-- 'Entry' dialog: -->
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_TITLE" translateable="false" desc="Title for the dialog where the user can choose to create a Brave Account, or sign in">
-    Get started with your Brave account
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can choose to create a Brave Account, or sign in">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_CREATE_BRAVE_ACCOUNT_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the 'Create' dialog">
-    Create a Brave account
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ALREADY_HAVE_ACCOUNT_SIGN_IN_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the 'Sign In' dialog">
-    Already have an account? Sign in
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_SELF_CUSTODY_DESCRIPTION" translateable="false" desc="Description of the self-custody option which we provide for advanced users">
-    For advanced users, we also support self-custody of your Brave account keys for an extra layer of privacy. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_SELF_CUSTODY_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the self-custody settings">
-    Use self-custody
-  </message>
-
-  <!-- 'Create' dialog: -->
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_DIALOG_TITLE" translateable="false" desc="Title for the dialog where the user can create their Brave Account">
-    Create your account
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can create their Brave Account">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_ERROR_MESSAGE" translateable="false" desc="Error message for when the user tries to use a @bravealias.com email address when creating their Brave Account">
-    You can't use @bravealias.com addresses for creating Brave accounts. Please try again with a different domain.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_PASSWORD_INPUT_LABEL" translateable="false" desc="Label for the 'Create a password' input field">
-    Create a password
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_WEAK" translateable="false" desc="The password strength meter's 'weak' state">
-    Weak
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_MEDIUM" translateable="false" desc="The password strength meter's 'medium' state">
-    Medium
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_STRONG" translateable="false" desc="The password strength meter's 'strong' state">
-    Strong
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_LABEL" translateable="false" desc="Label for the 'Confirm password' input field">
-    Confirm password
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_PLACEHOLDER" translateable="false" desc="Placeholder for the 'Confirm password' input field">
-    Confirm your password
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_ERROR_MESSAGE" translateable="false" desc="Message for a failed password confirmation">
-    Passwords don't match
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_SUCCESS_MESSAGE" translateable="false" desc="Message for a successful password confirmation">
-    Passwords match
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CONSENT_CHECKBOX_LABEL" translateable="false" desc="Label for the checkbox where the user consents to the Terms of service and Privacy agreement">
-    I have read and accept the <ph name="BEGIN_LINK_1">&lt;a target="_blank" href="$1"&gt;</ph>Terms of service<ph name="END_LINK_1">&lt;/a&gt;</ph> and <ph name="BEGIN_LINK_2">&lt;a target="_blank" href="$2"&gt;</ph>Privacy agreement<ph name="END_LINK_2">&lt;/a&gt;</ph>.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_ACCOUNT_BUTTON_LABEL" translateable="false" desc="Label for the button that submits the 'Create' dialog">
-    Create account
-  </message>
-
-  <!-- 'Sign In' dialog: -->
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_DIALOG_TITLE" translateable="false" desc="Title for the dialog where the user can sign in to their Brave Account">
-    Sign in to your account
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can sign in to their Brave Account">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_INPUT_LABEL" translateable="false" desc="Label for the 'Password' input field">
-    Password
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the 'Forgot Password' dialog">
-    Forgot your password?
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_BUTTON_LABEL" translateable="false" desc="Label for the button that submits the 'Sign In' dialog">
-    Sign in
-  </message>
-
-  <!-- 'Forgot Password' dialog: -->
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_DIALOG_TITLE" translateable="false" desc="Title for the dialog where the user can reset their Brave Account password">
-    Forgot your password?
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can reset their Brave Account password">
-    Confirm your Brave account email and we'll email you a link to reset your password. The link will only be valid for 30 minutes.
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_ALERT_MESSAGE" translateable="false" desc="Alert message explaining that if the user resets their password without having an active login, all their data will be deleted">
-    [Explain that if they reset their password without having an active login, all the user data will be deleted]
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_CANCEL_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user back to the 'Sign In' dialog">
-    Cancel
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_RESET_PASSWORD_BUTTON_LABEL" translateable="false" desc="Label for the button that submits the 'Forgot Password' dialog">
-    Reset your password
-  </message>
-
-  <!-- Common: -->
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_LABEL" translateable="false" desc="Label for the 'Email address' input field">
-    Email address
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_PLACEHOLDER" translateable="false" desc="Placeholder for the 'Email address' input field">
-    Enter your email address
-  </message>
-  <message name="IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_INPUT_PLACEHOLDER" translateable="false" desc="Placeholder for the 'Create a password'/'Password' input fields">
-    Enter your password
-  </message>
-  <!-- </Brave Account> -->
+  <!-- </Brave Account Row> -->
 
   <!-- Settings / Get started / Profile name and icon -->
   <message name="IDS_SETTINGS_BRAVE_EDIT_PROFILE" desc="Title to edit the profile user name and picture">
@@ -159,6 +52,12 @@
   </message>
   <message name="IDS_SETTINGS_IMPORT_PAYMENTS_CHECKBOX" desc="Checkbox for importing payments info">
     Payment methods
+  </message>
+  <message name="IDS_EXTENSIONS_IMPORTER_LOCK_TITLE" desc="Dialog title for importer lock dialog">
+    Import profile still in use
+  </message>
+  <message name="IDS_EXTENSIONS_IMPORTER_LOCK_TEXT" desc="The message to be displayed in the importer-lock dialog">
+    To import extensions or other settings, please first close the browser you're importing from.
   </message>
 
   <!-- Settings / Appearance -->
@@ -189,6 +88,12 @@
       Always show toolbar in full screen
     </message>
   </if>
+  <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_THEMES_GALLERY_URL" translateable="false">
+    https://chrome.google.com/webstore?hl=[GRITLANGCODE]&amp;category=theme
+  </message>
+  <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_OPEN_WEB_STORE" desc="Sub-label about choosing something from the Chrome Web Store.">
+    Open Web Store
+  </message>
   <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_GET_MORE_THEMES" desc="The label for opening theme web store">
     Get more themes
   </message>
@@ -204,6 +109,38 @@
   <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_CONTENT_SECTION" desc="The label for section containing settings related to content">
     Content
   </message>
+  <if expr="enable_containers">
+    <message name="IDS_SETTINGS_CONTAINERS_SECTION_LABEL" desc="The label for section containing settings related to containers" formatter_data="webui=Containers">
+      Containers
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_SECTION_DESCRIPTION" desc="The description for section containing settings related to containers" formatter_data="webui=Containers">
+      Organize your browsing with containers. <ph name="BEGIN_LINK">&lt;a target="_blank" href="#"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_ADD_CONTAINER_LABEL" desc="The label for dialog title for adding a container" formatter_data="webui=Containers">
+      Add new container
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_EDIT_CONTAINER_LABEL" desc="The label for dialog title for editing a container" formatter_data="webui=Containers">
+      Edit container
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_DELETE_CONTAINER_LABEL" desc="The label for dialog title for deleting a container" formatter_data="webui=Containers">
+      Delete container
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_DELETE_CONTAINER_DESCRIPTION" desc="The description for dialog title for deleting a container" formatter_data="webui=Containers">
+      Are you sure you want to delete container <ph name="CONTAINER_NAME">"$1"<ex>"Work"</ex></ph>? This will remove all the data associated with it.
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_CONTAINER_NAME_LABEL" desc="The label for container name input field" formatter_data="webui=Containers">
+      Name
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_CONTAINER_NAME_PLACEHOLDER" desc="The placeholder for container name input field" formatter_data="webui=Containers">
+      Give your container a name like Work or Personal
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_ERROR_TEMPLATE" desc="The error message template for container operations" formatter_data="webui=Containers">
+      Error: <ph name="ERROR_MESSAGE">$1<ex>Container is not found</ex></ph>
+    </message>
+    <message name="IDS_SETTINGS_CONTAINERS_ERROR_NOT_FOUND" desc="The error if container is not found" formatter_data="webui=Containers">
+      Container is not found
+    </message>
+  </if>
   <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_TABS_SHOW_VERTICAL_TABS" desc="The label for showing tabs vertically">
     Use vertical tabs
   </message>
@@ -252,8 +189,8 @@
   <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_SHOW_AUTOCOMPLETE_IN_ADDRESS_BAR" desc="The label for settings switch controlling the showing of autocomplete in address bar">
     Show autocomplete suggestions in address bar
   </message>
-  <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_TOP_SITES" desc="The label for settings checkbox controlling whether or not top sites show up in autocomplete">
-    Top sites
+  <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_TOP_SUGGESTIONS" desc="The label for settings checkbox controlling whether or not top suggestions show up in autocomplete">
+    Top Suggestions
   </message>
   <message name="IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_HISTORY" desc="The label for settings checkbox controlling whether or not browsing history shows up in autocomplete">
     Browsing History
@@ -594,7 +531,7 @@
   </message>
   <message name="IDS_BRAVE_ADBLOCK_ADD_CUSTOM_SCRIPTLET_DIALOG_TITLE" desc="A title for the add custom scriptlet dialog">
     Add new scriptlet
-  </message>  
+  </message>
   <message name="IDS_BRAVE_ADBLOCK_EDIT_CUSTOM_SCRIPTLET_DIALOG_TITLE" desc="A title for the edit custom scriptlet dialog">
     Edit scriptlet
   </message>
@@ -663,8 +600,17 @@
 
 
   <!-- Settings / Privacy and security -->
+  <message name="IDS_SETTINGS_COOKIE_CONTROLLED_BY_SHIELDS_HEADER_TEXT" desc="Text for the header explaining some cookies controlled by Shields settings.">
+    Some cookie settings are controlled by Brave Shields. You can see them &lt;a href="/content/braveShields"&gt;here&lt;/a&gt;.
+  </message>
   <message name="IDS_SETTINGS_BRAVE_BLOCK_COOKIES_LINK_ROW_LABEL" desc="This text is the label of a page. Here, it serves as a button that opens the new page.">
     Block cookies
+  </message>
+  <message name="IDS_SETTINGS_COOKIE_CONTROLLED_BY_SHIELDS_TOOLTIP_TEXT" desc="Text for the tooltip explaining cookies generated by Shields settings.">
+    This setting is controlled by Brave Shields.
+  </message>
+  <message name="IDS_SETTINGS_COOKIE_CONTROLLED_BY_GOOGLE_SIGN_IN_TOOLTIP_TEXT" desc="Text for the tooltip explaining cookies generated by Google Sign-in settings.">
+    This setting is controlled by Google Sign-in.
   </message>
   <!-- WebRTC Policy Setting -->
   <message name="IDS_SETTINGS_WEBRTC_POLICY_LABEL" desc="WebRTC policy setting label">
@@ -712,6 +658,14 @@
     </message>
     <message name="IDS_SETTINGS_REQUEST_OTR_NEVER" desc="Select value">
       Never
+    </message>
+  </if>
+  <if expr="is_win">
+    <message name="IDS_SETTINGS_WINDOWS_RECALL_DISABLED_LABEL" desc="Windows Recall setting label">
+      Block Microsoft Recall
+    </message>
+    <message name="IDS_SETTINGS_WINDOWS_RECALL_DISABLED_SUBLABEL" desc="Windows Recall setting sub-label">
+      Block the Recall feature on Microsoft Windows computers from automatically taking screenshots of any open Brave tabs.
     </message>
   </if>
   <!-- Data collection -->
@@ -1238,9 +1192,6 @@
   <message name="IDS_SETTINGS_ONION_ONLY_IN_TOR_WINDOWS_DESC" desc="">
     Onion services won't be available outside of Tor windows.
   </message>
-  <message name="IDS_SETTINGS_WEBTORRENT_ENABLED_DESC" desc="The description for WebTorrent switch in settings">
-    Uses WebTorrent to display torrents directly in the browser. Supports torrent files and magnet links.
-  </message>
   <message name="IDS_SETTINGS_ENABLE_WIDEVINE_DESC" desc="Text fragment for enabling widevine component. 'Widevine' is the name of a plugin and should not be translated.">
     Use Widevine digital rights management (DRM) component to view protected streaming video and other content in the browser.
   </message>
@@ -1249,6 +1200,9 @@
   </message>
   <message name="IDS_SETTINGS_MANAGE_EXTENSIONS_V2_SUBLABEL" desc="The sub label of manage v2 extensions link in settings">
     The following Manifest V2 extensions will be removed from the Chrome Web Store, but are still supported in Brave. Toggle to download and install, or to uninstall.
+  </message>
+  <message name="IDS_SETTINGS_MANAGE_EXTENSIONS_V2_WARN" desc="The warning message in v2 extensions in settings.">
+    Brave hosts these Manifest V2 extensions on Brave servers, but does not review or verify their content, security, or behavior. Please see each extension's official page for help. Read Brave's plans for Manifest V2 <ph name="BEGIN_LINK">&lt;a target="_blank" rel="noreferrer" href="$1"&gt;</ph>here<ph name="END_LINK">&lt;/a&gt;</ph>.
   </message>
   <message name="IDS_SETTINGS_MANAGE_EXTENSIONS_V2_TOAST_CONFIRM" desc="The label of the error toast button in settings">
     Close
@@ -1306,9 +1260,6 @@
   <message name="IDS_BRAVE_WALLET_WEB3_PROVIDER_NONE" desc="Select control value for which web3 provider to use">
     Extensions (no fallback)
   </message>
-  <message name="IDS_BRAVE_WALLET_WEB3_PROVIDER_CRYPTO_WALLETS_DEPRECATED" desc="Select control value for which web3 provider to use">
-    Crypto Wallets (Deprecated)
-  </message>
   <message name="IDS_BRAVE_WALLET_WEB3_PROVIDER_BRAVE_PREFER_EXTENSIONS" desc="Select control value for which web3 provider to use">
     Extensions (Brave Wallet fallback)
   </message>
@@ -1348,11 +1299,23 @@
   <message name="IDS_SETTINGS_WALLET_RESET_TRANSACTION_INFO_DESC" desc="Reset wallet transactions description">
     Clearing transactions may be useful for developers or when clearing state on a local server
   </message>
-  <message name="IDS_SETTINGS_WALLET_RESET" desc="Reset wallet settings item text">
-    Reset and clear wallet data
+  <message name="IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_INFO" desc="Reset zcash sync state settings item text">
+    Reset Zcash sync state
+  </message>
+  <message name="IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_DESC" desc="Reset zcash sync state settings item description text">
+    Resets Zcash sync progress for all shielded accounts
+  </message>
+  <message name="IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_CONFIRMATION" desc="Reset Zcash sync state confirmation message text">
+    Are you sure you want to reset Zcash sync state? Sync progress for all shielded accounts will be dropped. Type "<ph name="CONFIRMATION_PHRASE">$1<ex>Yes</ex></ph>" to confirm.
+  </message>
+  <message name="IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_CONFIRMED" desc="Reset Zcash sync state confirmed message text">
+    Your sync state for Zcash accounts was reset.
   </message>
   <message name="IDS_SETTINGS_WALLET_RESET_TRANSACTION_INFO_CONFIRMATION" desc="Reset wallet settings confirmation for resetting transaction info message text">
     Are you sure you want to reset all of your wallet transaction and nonce information? This option is mostly used by developers running a local test server. Type "<ph name="CONFIRMATION_PHRASE">$1<ex>Yes</ex></ph>" to confirm.
+  </message>
+  <message name="IDS_SETTINGS_WALLET_RESET" desc="Reset wallet settings item text">
+    Reset and clear wallet data
   </message>
   <message name="IDS_SETTINGS_WALLET_RESET_CONFIRMATION" desc="Reset wallet settings confirmation message text">
     Are you sure you want to reset your wallet? If your wallet is not backed up, resetting will cause you to lose all account data (including any associated funds). Type "<ph name="CONFIRMATION_PHRASE">$1<ex>Yes</ex></ph>" to confirm.
@@ -1517,6 +1480,12 @@
   <message name="IDS_SETTINGS_LEO_ASSISTANT_SHOW_IN_CONTEXT_MENU_DESC" desc="The description for settings option to show Leo in context menu">
     Leo will appear in the context menu when you right-click on a website. This will send context from the current web page to Leo.
   </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_TAB_ORGANIZATION_LABEL" desc="The text for settings option to enable tab focus mode">
+    Tab Focus Mode
+  </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_TAB_ORGANIZATION_DESC" desc="The description for settings option to enable tab focus mode">
+    Enable tab organization in Tab Search page. When opened, this will automatically send the titles and origins of all non-private tabs to Leo to classify them. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
+  </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_SHOW_SUGGESTED_PROMPTS_LABEL" desc="The text for settings option">
     Show suggested prompts in the conversation
   </message>
@@ -1543,6 +1512,15 @@ Leo AI. This action can't be undone.
   </message>
   <message name="IDS_SETTINGS_AI_CHAT_CLEAR_HISTORY_DATA_SUBLABEL" desc="Label description for checkbox to select AI assistant conversations for deletion when deleting browser data">
     Chat history
+  </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_LABEL" desc="Label for the about Leo assistant section">
+    About Leo AI
+  </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_DESC_1" desc="Description for the about Leo assistant section">
+    Brave Leo provides privacy-first AI chat and other AI-powered interfaces in the browser. Leo never learns from your data or uses it for model training. All requests are proxied through an anonymizing server.
+  </message>
+  <message name="IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_DESC_2" desc="Description for learning more about Leo privacy policy">
+    Read more about how Brave protects your use of AI in Leo's privacy policy. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_MODEL_SELECTION_LABEL" desc="Label for selecting default model">
     Default model for new conversations
@@ -1651,6 +1629,17 @@ Leo AI. This action can't be undone.
   </message>
   <message name="IDS_SETTINGS_LEO_ASSISTANT_TOKENS_COUNT" desc="A label for the (estimated) number of tokens in the system prompt">
     ≈<ph name="TOKENS_COUNT">$1<ex>175</ex></ph> tokens
+  </message>
+
+  <!-- Settings / Survey Panelist -->
+  <message name="IDS_SETTINGS_SURVEY_PANELIST" desc="Title for an item in the 'Survey Panelist' section of Brave Settings">
+    Survey Panelist
+  </message>
+  <message name="IDS_SETTINGS_SURVEY_PANELIST_LABEL" desc="The text for settings option to enable survey panelist">
+    Allow Brave surveys
+  </message>
+  <message name="IDS_SETTINGS_SURVEY_PANELIST_DESC" desc="The description for settings option to enable survey panelist">
+    Allows Brave to show links to private surveys in the new tab page. Surveys help us build better features and measure the effectiveness of browser-based ad campaigns. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
   </message>
 
   <!-- Settings / Playlist -->

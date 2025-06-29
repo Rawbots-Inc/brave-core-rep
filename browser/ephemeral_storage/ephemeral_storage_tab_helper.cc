@@ -5,6 +5,7 @@
 
 #include "brave/browser/ephemeral_storage/ephemeral_storage_tab_helper.h"
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "brave/browser/ephemeral_storage/ephemeral_storage_service_factory.h"
 #include "brave/components/brave_shields/content/browser/brave_shields_util.h"
@@ -125,7 +126,8 @@ void EphemeralStorageTabHelper::CreateEphemeralStorageAreasForDomainAndURL(
   auto* site_instance = web_contents()->GetSiteInstance();
 
   tld_ephemeral_lifetime_ = TLDEphemeralLifetime::GetOrCreate(
-      browser_context, new_domain, site_instance->GetStoragePartitionConfig());
+      {browser_context, new_domain,
+       site_instance->GetStoragePartitionConfig()});
 }
 
 void EphemeralStorageTabHelper::CreateProvisionalTLDEphemeralLifetime(
@@ -145,8 +147,8 @@ void EphemeralStorageTabHelper::CreateProvisionalTLDEphemeralLifetime(
 
   provisional_tld_ephemeral_lifetimes_.emplace(
       TLDEphemeralLifetime::GetOrCreate(
-          browser_context, new_domain,
-          site_instance->GetStoragePartitionConfig()));
+          {browser_context, new_domain,
+           site_instance->GetStoragePartitionConfig()}));
 }
 
 void EphemeralStorageTabHelper::UpdateShieldsState(const GURL& url) {

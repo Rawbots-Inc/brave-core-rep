@@ -5,6 +5,7 @@
 
 #include "base/android/build_info.h"
 #include "base/files/file_util.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/test_file_util.h"
 #include "base/types/cxx23_to_underlying.h"
@@ -56,10 +57,6 @@ class BravePasswordManagerAndroidUtilTest : public testing::Test {
              ".", syncer::DataTypeToStableLowerCaseString(syncer::PASSWORDS)}),
         false);
     pref_service_.registry()->RegisterBooleanPref(
-        password_manager::prefs::
-            kUserAcknowledgedLocalPasswordsMigrationWarning,
-        false);
-    pref_service_.registry()->RegisterBooleanPref(
         password_manager::prefs::kSettingsMigratedToUPMLocal, false);
 
     base::WriteFile(login_db_directory_.Append(
@@ -90,9 +87,6 @@ TEST_F(BravePasswordManagerAndroidUtilTest,
   pref_service()->SetInteger(kPasswordsUseUPMLocalAndSeparateStores,
                              base::to_underlying(kOn));
   pref_service()->SetBoolean(
-      password_manager::prefs::kUserAcknowledgedLocalPasswordsMigrationWarning,
-      true);
-  pref_service()->SetBoolean(
       password_manager::prefs::kEmptyProfileStoreLoginDatabase, false);
 
   // Creating the login data files for testing.
@@ -115,7 +109,8 @@ TEST_F(BravePasswordManagerAndroidUtilTest,
   EXPECT_TRUE(PathExists(profile_db_journal_path));
   EXPECT_TRUE(PathExists(account_db_journal_path));
 
-  SetUsesSplitStoresAndUPMForLocal(pref_service(), login_db_directory());
+  SetUsesSplitStoresAndUPMForLocal(pref_service(), login_db_directory(),
+                                   nullptr);
 
   // Pref should be kOff, as we want keep using profile store instead of the
   // account store, so the paswords will be synced from Android to Desktop

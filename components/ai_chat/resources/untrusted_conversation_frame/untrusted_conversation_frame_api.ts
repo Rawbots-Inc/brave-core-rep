@@ -6,11 +6,13 @@
 import { loadTimeData } from '$web-common/loadTimeData'
 import API from '../common/api'
 import * as Mojom from '../common/mojom'
+import { updateConversationHistory } from '../common/conversation_history_utils'
 
 // Global state for this UI
 export type ConversationEntriesUIState = Mojom.ConversationEntriesState & {
   conversationHistory: Mojom.ConversationTurn[]
   isMobile: boolean
+  associatedContent: Mojom.AssociatedContent[]
 }
 
 // Default state before initial API call
@@ -18,10 +20,14 @@ export const defaultConversationEntriesUIState: ConversationEntriesUIState = {
   conversationHistory: [],
   isGenerating: false,
   isLeoModel: true,
+  allModels: [],
+  currentModelKey: '',
   contentUsedPercentage: undefined,
-  isContentRefined: false,
+  trimmedTokens: BigInt(0),
+  totalTokens: BigInt(0),
   canSubmitUserEntries: false,
-  isMobile: loadTimeData.getBoolean('isMobile')
+  isMobile: loadTimeData.getBoolean('isMobile'),
+  associatedContent: []
 }
 
 // Define how to get the initial data and update the state from events
@@ -58,11 +64,29 @@ export default class UntrustedConversationFrameAPI extends API<ConversationEntri
       conversationHistory
     })
     this.conversationObserver.onConversationHistoryUpdate.addListener(
-      async () => this.setPartialState(await this.conversationHandler.getConversationHistory())
+      async (entry?: Mojom.ConversationTurn) => {
+        if (entry) {
+          // Use the shared utility function to update the history
+          const updatedHistory =
+            updateConversationHistory(this.state.conversationHistory, entry)
+          this.setPartialState({
+            conversationHistory: updatedHistory
+          })
+        } else {
+          // When no entry is provided, fetch the full history
+          const { conversationHistory } =
+            await this.conversationHandler.getConversationHistory()
+          this.setPartialState({ conversationHistory })
+        }
+      }
     )
 
     this.conversationObserver.onEntriesUIStateChanged.addListener((state: Mojom.ConversationEntriesState) => {
       this.setPartialState(state)
+    })
+
+    this.conversationObserver.associatedContentChanged.addListener((content: Mojom.AssociatedContent[]) => {
+      this.setPartialState({ associatedContent: content })
     })
 
     // Set up communication with the parent frame

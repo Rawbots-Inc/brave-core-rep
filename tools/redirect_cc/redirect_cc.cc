@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 
+#include "base/check.h"
 #include "base/containers/contains.h"
 #include "base/containers/span.h"
 #include "base/files/file_path.h"
@@ -15,7 +16,6 @@
 #include "base/process/launch.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_split.h"
-#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
 
@@ -27,15 +27,16 @@
 #include "base/environment.h"
 #endif  // defined(REDIRECT_CC_AS_REWRAPPER)
 
-const base::FilePath::StringPieceType kIncludeFlag = FILE_PATH_LITERAL("-I");
-const base::FilePath::StringPieceType kBraveChromiumSrc =
+const base::FilePath::StringViewType kIncludeQuotedFlag =
+    FILE_PATH_LITERAL("-iquote");
+const base::FilePath::StringViewType kBraveChromiumSrc =
     FILE_PATH_LITERAL("brave/chromium_src");
-const base::FilePath::StringPieceType kGen = FILE_PATH_LITERAL("gen");
-const base::FilePath::StringPieceType kCompileFileFlags[] = {
+const base::FilePath::StringViewType kGen = FILE_PATH_LITERAL("gen");
+const base::FilePath::StringViewType kCompileFileFlags[] = {
     FILE_PATH_LITERAL("-c"),
     FILE_PATH_LITERAL("/c"),
 };
-const base::FilePath::StringPieceType kShowIncludesFlag =
+const base::FilePath::StringViewType kShowIncludesFlag =
     FILE_PATH_LITERAL("/showIncludes");
 
 class RedirectCC {
@@ -56,11 +57,8 @@ class RedirectCC {
         .Append(UTF8ToFilePathString(BUILDFLAG(REAL_REWRAPPER)))
         .value();
 #else   // defined(REDIRECT_CC_AS_REWRAPPER)
-    std::string cc_wrapper;
-    std::unique_ptr<base::Environment> env(base::Environment::Create());
-    if (env->HasVar("CC_WRAPPER")) {
-      CHECK(env->GetVar("CC_WRAPPER", &cc_wrapper));
-    }
+    auto env = base::Environment::Create();
+    std::string cc_wrapper = env->GetVar("CC_WRAPPER").value_or(std::string());
 
     if (!cc_wrapper.empty()) {
       *first_compiler_arg_idx = 1;
@@ -95,10 +93,10 @@ class RedirectCC {
 
     // Find directories to work with first.
     for (const auto* arg : args_.subspan(first_compiler_arg_idx)) {
-      base::FilePath::StringPieceType arg_piece(arg);
-      if (arg_piece.starts_with(kIncludeFlag) &&
+      base::FilePath::StringViewType arg_piece(arg);
+      if (arg_piece.starts_with(kIncludeQuotedFlag) &&
           arg_piece.ends_with(kBraveChromiumSrc)) {
-        arg_piece.remove_prefix(kIncludeFlag.size());
+        arg_piece.remove_prefix(kIncludeQuotedFlag.size());
         brave_chromium_src_dir = base::FilePath::StringType(arg_piece);
         arg_piece.remove_suffix(kBraveChromiumSrc.size());
         chromium_src_dir_with_slash = base::FilePath::StringType(arg_piece);
@@ -125,7 +123,7 @@ class RedirectCC {
 
     for (size_t arg_idx = first_compiler_arg_idx; arg_idx < args_.size();
          ++arg_idx) {
-      const base::FilePath::StringPieceType arg_piece = args_[arg_idx];
+      const base::FilePath::StringViewType arg_piece = args_[arg_idx];
       if (!compile_file_found && base::Contains(kCompileFileFlags, arg_piece)) {
         compile_file_found = true;
         if (arg_idx + 1 >= args_.size()) {
@@ -135,12 +133,12 @@ class RedirectCC {
 
         // Trim a file path to look for a similar file in
         // brave/chromium_src.
-        base::FilePath::StringPieceType path_cc = args_[arg_idx + 1];
+        base::FilePath::StringViewType path_cc = args_[arg_idx + 1];
         if (!path_cc.empty() && path_cc[0] == arg_piece[0]) {
           // That's not a file path, but another compiler parameter. This syntax
           // is used by asm compiler. We can safely ignore this, becaused we
           // don't redirect asm files.
-          path_cc = base::FilePath::StringPieceType();
+          path_cc = base::FilePath::StringViewType();
         } else if (path_cc.starts_with(chromium_src_dir_with_slash)) {
           // Most common case - a file is located directly in src/...
           path_cc.remove_prefix(chromium_src_dir_with_slash.size());
@@ -162,7 +160,7 @@ class RedirectCC {
             path_cc.remove_prefix(path_cc_parts[1].size() + 1);
           } else {
             LOG(WARNING) << "unhandled path: " << path_cc;
-            path_cc = base::FilePath::StringPieceType();
+            path_cc = base::FilePath::StringViewType();
           }
         }
 
@@ -284,8 +282,8 @@ class RedirectCC {
     for (const auto& arg : argv) {
       const auto& space_separator =
           cmd_line.empty()
-              ? base::FilePath::StringPieceType()
-              : base::FilePath::StringPieceType(FILE_PATH_LITERAL(" "));
+              ? base::FilePath::StringViewType()
+              : base::FilePath::StringViewType(FILE_PATH_LITERAL(" "));
       const auto& arg_to_append =
           QuoteForCommandLineToArgvW(arg, &quotted_arg) ? quotted_arg : arg;
       base::StrAppend(&cmd_line, {space_separator, arg_to_append});

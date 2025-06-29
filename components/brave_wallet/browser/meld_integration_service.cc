@@ -12,13 +12,12 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/containers/flat_map.h"
 #include "base/environment.h"
 #include "base/functional/bind.h"
 #include "base/json/json_writer.h"
-#include "base/logging.h"
 #include "base/no_destructor.h"
-#include "base/strings/stringprintf.h"
 #include "base/task/thread_pool.h"
 #include "base/values.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"

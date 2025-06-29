@@ -6,9 +6,11 @@
 #include "brave/browser/brave_tab_helpers.h"
 
 #include <memory>
+#include <utility>
 
 #include "base/command_line.h"
 #include "base/feature_list.h"
+#include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ai_chat/ai_chat_utils.h"
@@ -23,7 +25,6 @@
 #include "brave/browser/misc_metrics/page_metrics_tab_helper.h"
 #include "brave/browser/misc_metrics/process_misc_metrics.h"
 #include "brave/browser/ntp_background/ntp_tab_helper.h"
-#include "brave/browser/ui/bookmark/brave_bookmark_tab_helper.h"
 #include "brave/browser/ui/brave_ui_features.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
 #include "brave/components/brave_perf_predictor/browser/perf_predictor_tab_helper.h"
@@ -47,7 +48,7 @@
 #include "third_party/widevine/cdm/buildflags.h"
 
 #if BUILDFLAG(IS_ANDROID)
-#include "brave/browser/android/background_video/background_video_playback_tab_helper.h"
+#include "brave/browser/android/youtube_script_injector/youtube_script_injector_tab_helper.h"
 #endif
 
 #if !BUILDFLAG(IS_ANDROID)
@@ -61,7 +62,9 @@
 #endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
-#include "brave/browser/ui/ai_chat/print_preview_extractor.h"
+#include "brave/browser/ai_chat/print_preview_extractor.h"
+#include "brave/browser/ai_chat/print_preview_extractor_internal.h"
+#include "chrome/browser/ui/webui/print_preview/print_preview_ui.h"
 #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 
 #if BUILDFLAG(ENABLE_WIDEVINE)
@@ -107,10 +110,9 @@ void AttachTabHelpers(content::WebContents* web_contents) {
   brave_shields::BraveShieldsWebContentsObserver::CreateForWebContents(
       web_contents);
 #if BUILDFLAG(IS_ANDROID)
-  BackgroundVideoPlaybackTabHelper::CreateForWebContents(web_contents);
+  YouTubeScriptInjectorTabHelper::CreateForWebContents(web_contents);
 #else
   // Add tab helpers here unless they are intended for android too
-  BraveBookmarkTabHelper::CreateForWebContents(web_contents);
   brave_shields::BraveShieldsTabHelper::CreateForWebContents(web_contents);
   ThumbnailTabHelper::CreateForWebContents(web_contents);
   BraveGeolocationPermissionTabHelper::CreateForWebContents(web_contents);
@@ -129,7 +131,31 @@ void AttachTabHelpers(content::WebContents* web_contents) {
     ai_chat::AIChatTabHelper::CreateForWebContents(
         web_contents,
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
-        std::make_unique<ai_chat::PrintPreviewExtractor>(web_contents)
+        std::make_unique<ai_chat::PrintPreviewExtractor>(
+            web_contents,
+            base::BindRepeating(
+                [](content::WebContents* web_contents, bool is_pdf,
+                   ai_chat::PrintPreviewExtractor::Extractor::CallbackVariant&&
+                       variant)
+                    -> std::unique_ptr<
+                        ai_chat::PrintPreviewExtractor::Extractor> {
+                  return std::make_unique<
+                      ai_chat::PrintPreviewExtractorInternal>(
+                      web_contents,
+                      Profile::FromBrowserContext(
+                          web_contents->GetBrowserContext()),
+                      is_pdf, std::move(variant),
+                      base::BindRepeating(
+                          []() -> base::IDMap<
+                                   printing::mojom::PrintPreviewUI*>& {
+                            return printing::PrintPreviewUI::
+                                GetPrintPreviewUIIdMap();
+                          }),
+                      base::BindRepeating([]() -> base::flat_map<int, int>& {
+                        return printing::PrintPreviewUI::
+                            GetPrintPreviewUIRequestIdMap();
+                      }));
+                }))
 #else
         nullptr
 #endif

@@ -56,6 +56,7 @@ constexpr auto kWebcompatNamesToType =
         {"language", BRAVE_WEBCOMPAT_LANGUAGE},
         {"media-devices", BRAVE_WEBCOMPAT_MEDIA_DEVICES},
         {"plugins", BRAVE_WEBCOMPAT_PLUGINS},
+        {"referrer", BRAVE_REFERRERS},
         {"screen", BRAVE_WEBCOMPAT_SCREEN},
         {"speech-synthesis", BRAVE_WEBCOMPAT_SPEECH_SYNTHESIS},
         {"usb-device-serial-number", BRAVE_WEBCOMPAT_USB_DEVICE_SERIAL_NUMBER},
@@ -189,8 +190,10 @@ void WebcompatExceptionsService::SetRules(
 }
 
 void WebcompatExceptionsService::SetRulesForTesting(
-  PatternsByWebcompatTypeMap patterns_by_webcompat_type) {
-    SetRules(std::move(patterns_by_webcompat_type));
+    const std::string& json_string) {
+  PatternsByWebcompatTypeMap patterns_by_webcompat_type;
+  ParseJsonRules(json_string, patterns_by_webcompat_type);
+  SetRules(patterns_by_webcompat_type);
 }
 
 // implementation of LocalDataFilesObserver

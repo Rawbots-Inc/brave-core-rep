@@ -5,13 +5,13 @@
 
 #include "brave/components/brave_wallet/browser/bitcoin/bitcoin_hd_keyring.h"
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <utility>
 
 #include "base/check.h"
 #include "base/containers/span.h"
-#include "base/notimplemented.h"
 #include "brave/components/brave_wallet/browser/internal/hd_key_common.h"
 #include "brave/components/brave_wallet/common/bitcoin_utils.h"
 #include "brave/components/brave_wallet/common/common_utils.h"

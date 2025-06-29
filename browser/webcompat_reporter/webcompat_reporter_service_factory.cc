@@ -8,6 +8,7 @@
 #include <memory>
 #include <utility>
 
+#include "base/check.h"
 #include "base/no_destructor.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/webcompat_reporter/webcompat_reporter_service_delegate.h"
@@ -31,11 +32,14 @@ WebcompatReporterServiceFactory::GetInstance() {
 
 // static
 mojo::PendingRemote<mojom::WebcompatReporterHandler>
-WebcompatReporterServiceFactory::GetHandlerForContext(
-    content::BrowserContext* context) {
-  return static_cast<WebcompatReporterService*>(
-             GetInstance()->GetServiceForBrowserContext(context, true))
-      ->MakeRemote();
+WebcompatReporterServiceFactory::GetRemoteForProfile(Profile* profile) {
+  auto* service = static_cast<WebcompatReporterService*>(
+      GetInstance()->GetServiceForBrowserContext(profile, true));
+  if (!service) {
+    return mojo::PendingRemote<mojom::WebcompatReporterHandler>();
+  }
+
+  return service->MakeRemote();
 }
 
 // static

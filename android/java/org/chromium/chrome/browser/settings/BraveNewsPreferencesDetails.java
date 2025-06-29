@@ -151,9 +151,18 @@ public class BraveNewsPreferencesDetails extends BravePreferenceFragment
         }
 
         BraveNewsControllerFactory.getInstance()
-                .getBraveNewsController(this)
+                .getForProfile(getProfile(), this)
                 .then(
                         braveNewsController -> {
+                            // If there are future cases where this could be
+                            // null for the original profile we need to adjust
+                            // the UI to hide all brave news related prefs
+                            assert braveNewsController != null
+                                    : "The service should always be available "
+                                            + "for original profile";
+                            if (braveNewsController == null) {
+                                return;
+                            }
                             mBraveNewsController = braveNewsController;
                             if (action != null) {
                                 action.run();

@@ -9,7 +9,6 @@
 #include <string>
 #include <utility>
 
-#include "base/notreached.h"
 #include "components/browsing_topics/common/common_types.h"
 #include "components/content_settings/core/browser/cookie_settings.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
@@ -27,11 +26,6 @@ BravePrivacySandboxSettings::BravePrivacySandboxSettings(
   // Register observers for the Privacy Sandbox.
   user_prefs_registrar_.Init(pref_service_);
   user_prefs_registrar_.Add(
-      prefs::kPrivacySandboxApisEnabled,
-      base::BindRepeating(
-          &BravePrivacySandboxSettings::OnPrivacySandboxPrefChanged,
-          base::Unretained(this)));
-  user_prefs_registrar_.Add(
       prefs::kPrivacySandboxRelatedWebsiteSetsEnabled,
       base::BindRepeating(
           &BravePrivacySandboxSettings::OnPrivacySandboxPrefChanged,
@@ -43,9 +37,6 @@ BravePrivacySandboxSettings::~BravePrivacySandboxSettings() = default;
 void BravePrivacySandboxSettings::OnPrivacySandboxPrefChanged() {
   // Make sure that Private Sandbox features remain disabled even if we manually
   // access the Pref service and try to change the preferences from there.
-  if (pref_service_->GetBoolean(prefs::kPrivacySandboxApisEnabled)) {
-    pref_service_->SetBoolean(prefs::kPrivacySandboxApisEnabled, false);
-  }
   if (pref_service_->GetBoolean(
           prefs::kPrivacySandboxRelatedWebsiteSetsEnabled)) {
     pref_service_->SetBoolean(prefs::kPrivacySandboxRelatedWebsiteSetsEnabled,

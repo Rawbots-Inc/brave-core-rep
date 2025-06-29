@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "base/location.h"
@@ -148,7 +149,7 @@ RefillConfirmationTokens::HandleRequestSignedTokensUrlResponse(
                                             /*should_retry=*/true));
   }
 
-  const std::optional<base::Value::Dict> dict =
+  std::optional<base::Value::Dict> dict =
       base::JSONReader::ReadDict(mojom_url_response.body);
   if (!dict) {
     return base::unexpected(std::make_tuple(
@@ -223,7 +224,7 @@ RefillConfirmationTokens::HandleGetSignedTokensUrlResponse(
                                             /*should_retry=*/true));
   }
 
-  const std::optional<base::Value::Dict> dict =
+  std::optional<base::Value::Dict> dict =
       base::JSONReader::ReadDict(mojom_url_response.body);
   if (!dict) {
     return base::unexpected(std::make_tuple(
@@ -239,7 +240,7 @@ RefillConfirmationTokens::HandleGetSignedTokensUrlResponse(
         false));
   }
 
-  const std::optional<cbr::PublicKey> public_key = ParsePublicKey(*dict);
+  std::optional<cbr::PublicKey> public_key = ParsePublicKey(*dict);
   if (!public_key.has_value()) {
     return base::unexpected(std::make_tuple("Failed to parse public key",
                                             /*should_retry=*/false));
@@ -252,7 +253,7 @@ RefillConfirmationTokens::HandleGetSignedTokensUrlResponse(
                         /*should_retry=*/true));
   }
 
-  const std::optional<cbr::UnblindedTokenList> unblinded_tokens =
+  std::optional<cbr::UnblindedTokenList> unblinded_tokens =
       ParseVerifyAndUnblindTokens(*dict, *tokens_, *blinded_tokens_,
                                   *public_key);
   if (!unblinded_tokens) {
@@ -268,7 +269,7 @@ RefillConfirmationTokens::HandleGetSignedTokensUrlResponse(
 
 void RefillConfirmationTokens::ParseAndRequireCaptcha(
     const base::Value::Dict& dict) const {
-  if (const std::optional<std::string> captcha_id = ParseCaptchaId(dict)) {
+  if (std::optional<std::string> captcha_id = ParseCaptchaId(dict)) {
     NotifyCaptchaRequiredToRefillConfirmationTokens(*captcha_id);
   }
 }

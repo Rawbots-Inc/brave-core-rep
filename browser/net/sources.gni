@@ -3,7 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import("//brave/components/brave_webtorrent/browser/buildflags/buildflags.gni")
 import("//brave/components/tor/buildflags/buildflags.gni")
 import("//build/config/features.gni")
 import("//extensions/buildflags/buildflags.gni")
@@ -56,9 +55,7 @@ brave_browser_net_deps = [
   "//brave/app:brave_generated_resources_grit",
   "//brave/browser:browser_process",
   "//brave/browser/brave_wallet",
-  "//brave/browser/net:geolocation",
   "//brave/browser/profiles:util",
-  "//brave/browser/safebrowsing",
   "//brave/common",
   "//brave/components/brave_ads/browser",
   "//brave/components/brave_component_updater/browser",
@@ -66,23 +63,23 @@ brave_browser_net_deps = [
   "//brave/components/brave_rewards/core",
   "//brave/components/brave_search/common",
   "//brave/components/brave_service_keys",
-  "//brave/components/brave_shields/adblock/rs:rust_lib",
-  "//brave/components/brave_shields/adblock/rs:rust_lib_cxx_generated_gen",
   "//brave/components/brave_shields/content/browser",
   "//brave/components/brave_shields/core/browser:browser",
   "//brave/components/brave_shields/core/common",
   "//brave/components/brave_wallet/browser",
   "//brave/components/brave_wallet/common",
   "//brave/components/brave_wallet/common:mojom",
-  "//brave/components/brave_webtorrent/browser/buildflags",
   "//brave/components/constants",
   "//brave/components/constants:brave_service_key_helper",
   "//brave/components/decentralized_dns/content",
   "//brave/components/decentralized_dns/core",
+  "//brave/components/geolocation",
   "//brave/components/localhost_permission",
   "//brave/components/query_filter",
+  "//brave/components/safebrowsing",
   "//brave/components/speech_to_text",
   "//brave/components/speech_to_text:buildflags",
+  "//brave/components/static_redirect_helper",
   "//brave/components/update_client:buildflags",
   "//brave/extensions:common",
   "//chrome/browser:browser_process",
@@ -108,16 +105,4 @@ brave_browser_net_deps = [
 
 if (enable_extensions) {
   brave_browser_net_deps += [ "//extensions/common:common_constants" ]
-}
-
-if (enable_brave_webtorrent) {
-  brave_browser_net_sources += [
-    "//brave/browser/net/brave_torrent_redirect_network_delegate_helper.cc",
-    "//brave/browser/net/brave_torrent_redirect_network_delegate_helper.h",
-  ]
-
-  brave_browser_net_deps += [
-    "//brave/components/brave_webtorrent/browser/",
-    "//extensions/browser",
-  ]
 }

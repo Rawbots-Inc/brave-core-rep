@@ -9,8 +9,7 @@
 #include <optional>
 #include <vector>
 
-#include "brave/browser/ui/views/sidebar/sidebar_item_view.h"
-#include "components/tab_groups/tab_group_id.h"
+#include "chrome/browser/ui/views/tabs/tab_strip_layout_types.h"
 
 namespace gfx {
 class Rect;
@@ -23,7 +22,6 @@ class TabStripController;
 class TabContainer;
 class TabSlotView;
 class TabStrip;
-struct TabLayoutConstants;
 
 namespace tabs {
 
@@ -34,21 +32,20 @@ inline constexpr int kMarginForVerticalTabContainers = kVerticalTabsSpacing;
 
 int GetTabCornerRadius(const Tab& tab);
 
-std::vector<gfx::Rect> CalculateVerticalTabBounds(
-    const TabLayoutConstants& layout_constants,
+std::pair<std::vector<gfx::Rect>, LayoutDomain> CalculateVerticalTabBounds(
     const std::vector<TabWidthConstraints>& tabs,
     std::optional<int> width,
     bool is_floating_mode);
 
 std::vector<gfx::Rect> CalculateBoundsForVerticalDraggedViews(
-    const std::vector<raw_ptr<TabSlotView, VectorExperimental>>& views,
+    const std::vector<TabSlotView*>& views,
     TabStrip* tab_strip);
 
 void UpdateInsertionIndexForVerticalTabs(
     const gfx::Rect& dragged_bounds,
     int first_dragged_tab_index,
     int num_dragged_tabs,
-    std::optional<tab_groups::TabGroupId> dragged_group,
+    bool dragged_groups,
     int candidate_index,
     TabStripController* tab_strip_controller,
     TabContainer* tab_container,

@@ -7,7 +7,9 @@
 
 #include <optional>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
+#include "base/logging.h"
 #include "brave/browser/brave_browser_features.h"
 #include "brave/browser/brave_stats/first_run_util.h"
 #include "brave/browser/day_zero_browser_ui_expt/pref_names.h"
@@ -20,6 +22,8 @@
 #include "components/prefs/pref_service.h"
 
 #if BUILDFLAG(IS_ANDROID)
+#include <string_view>
+
 #include "base/android/jni_android.h"
 #include "base/android/jni_string.h"
 #include "brave/build/android/jni_headers/DayZeroHelper_jni.h"
@@ -31,6 +35,15 @@ void DayZeroBrowserUIExptManager::RegisterLocalStatePrefs(
   registry->RegisterBooleanPref(kDayZeroExperimentTargetInstall, false);
 }
 
+std::optional<std::string> DayZeroBrowserUIExptManager::GetDayZeroVariant() {
+  std::optional<std::string> day_zero_variant;
+  if (base::FeatureList::IsEnabled(features::kBraveDayZeroExperiment)) {
+    day_zero_variant = features::kBraveDayZeroExperimentVariant.Get();
+  }
+
+  return day_zero_variant;
+}
+
 // static
 std::unique_ptr<DayZeroBrowserUIExptManager>
 DayZeroBrowserUIExptManager::Create(ProfileManager* profile_manager) {
@@ -38,21 +51,16 @@ DayZeroBrowserUIExptManager::Create(ProfileManager* profile_manager) {
     return nullptr;
   }
 
-  std::optional<std::string> day_zero_variant;
-  if (base::FeatureList::IsEnabled(features::kBraveDayZeroExperiment)) {
-    day_zero_variant = features::kBraveDayZeroExperimentVariant.Get();
+  std::optional<std::string> day_zero_variant = GetDayZeroVariant();
+  if (!day_zero_variant) {
+    VLOG(2) << __func__ << ": Day zero Expt variant is not available";
+    return nullptr;
   }
 
   CHECK(g_browser_process && g_browser_process->local_state());
   auto* local_state = g_browser_process->local_state();
   if (!day_zero_variant) {
     VLOG(2) << __func__ << ": Day zero Expt variant is not available";
-    local_state->SetBoolean(kDayZeroExperimentTargetInstall, false);
-    return nullptr;
-  }
-
-  if (day_zero_variant != "a") {
-    VLOG(2) << __func__ << ": Day zero Expt variant is not 'a'";
     local_state->SetBoolean(kDayZeroExperimentTargetInstall, false);
     return nullptr;
   }
@@ -113,17 +121,15 @@ void DayZeroBrowserUIExptManager::OnProfileManagerDestroying() {
 void DayZeroBrowserUIExptManager::SetForDayZeroBrowserUI(Profile* profile) {
   VLOG(2) << __func__ << " Update prefs for day zero expt.";
 #if BUILDFLAG(IS_ANDROID)
-  Java_DayZeroHelper_setDayZeroExptAndroid(
-      base::android::AttachCurrentThread(), false);
+  Java_DayZeroHelper_setDayZeroVariant(base::android::AttachCurrentThread(),
+                                       base::android::ConvertUTF8ToJavaString(
+                                           base::android::AttachCurrentThread(),
+                                           GetDayZeroVariant().value_or("")));
 #endif  // #BUILDFLAG(IS_ANDROID)
 }
 
 void DayZeroBrowserUIExptManager::ResetForDayZeroBrowserUI(Profile* profile) {
   VLOG(2) << __func__ << " Update prefs for day zero expt.";
-#if BUILDFLAG(IS_ANDROID)
-  Java_DayZeroHelper_setDayZeroExptAndroid(
-      base::android::AttachCurrentThread(), true);
-#endif  // #BUILDFLAG(IS_ANDROID)
 }
 
 void DayZeroBrowserUIExptManager::ResetBrowserUIStateForAllProfiles() {

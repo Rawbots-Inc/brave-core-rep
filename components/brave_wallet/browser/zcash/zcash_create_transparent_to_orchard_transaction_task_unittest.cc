@@ -12,6 +12,7 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool.h"
 #include "base/test/bind.h"
+#include "base/test/gmock_callback_support.h"
 #include "base/test/mock_callback.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/task_environment.h"
@@ -44,8 +45,6 @@ class MockZCashWalletService : public ZCashWalletService {
       : ZCashWalletService(zcash_data_path,
                            keyring_service,
                            std::move(zcash_rpc)) {}
-  MOCK_METHOD1(CreateTransactionTaskDone,
-               void(ZCashCreateTransparentToOrchardTransactionTask* task));
 
   MOCK_METHOD3(GetUtxos,
                void(const std::string& chain_id,
@@ -113,13 +112,10 @@ class ZCashCreateTransparentToOrchardTransactionTaskTest
     keyring_service_ =
         std::make_unique<KeyringService>(nullptr, &prefs_, &local_state_);
     keyring_service_->Reset();
-    keyring_service_->RestoreWallet(
-        "gallery equal segment repair outdoor bronze limb dawn daring main "
-        "burst "
-        "design palm demise develop exit cycle harbor motor runway turtle "
-        "quote "
-        "blast tail",
-        kTestWalletPassword, false, base::DoNothing());
+    keyring_service_->RestoreWallet(kMnemonicGalleryEqual, kTestWalletPassword,
+                                    false, base::DoNothing());
+
+    zcash_rpc_ = std::make_unique<MockZCashRPC>();
 
     zcash_wallet_service_ = std::make_unique<MockZCashWalletService>(
         db_path, *keyring_service_,
@@ -128,8 +124,6 @@ class ZCashCreateTransparentToOrchardTransactionTaskTest
     sync_state_ = base::SequenceBound<OrchardSyncState>(
         base::ThreadPool::CreateSequencedTaskRunner({base::MayBlock()}),
         db_path);
-
-    zcash_rpc_ = std::make_unique<MockZCashRPC>();
 
     account_id_ = AccountUtils(keyring_service_.get())
                       .EnsureAccount(mojom::KeyringId::kZCashMainnet, 0)
@@ -215,17 +209,17 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, TransactionCreated) {
   std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
       std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
           pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
-          std::nullopt, 100000u, callback.Get());
-
-  EXPECT_CALL(zcash_wallet_service(),
-              CreateTransactionTaskDone(testing::Eq(task.get())));
+          std::nullopt, 100000u);
 
   base::expected<ZCashTransaction, std::string> tx_result;
-  EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
+  EXPECT_CALL(callback, Run(_))
+      .WillOnce(::testing::DoAll(
+          SaveArg<0>(&tx_result),
+          base::test::RunOnceClosure(task_environment().QuitClosure())));
 
-  task->Start();
+  task->Start(callback.Get());
 
-  task_environment().RunUntilIdle();
+  task_environment().RunUntilQuit();
 
   EXPECT_TRUE(tx_result.has_value());
 
@@ -245,6 +239,72 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, TransactionCreated) {
 
   EXPECT_EQ(tx_result.value().transparent_part().outputs[0].address,
             addr->address_string);
+  EXPECT_EQ(tx_result.value().orchard_part().outputs[0].addr,
+            orchard_part.value());
+}
+
+TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest,
+       TransactionCreated_MaxAmount) {
+  ON_CALL(zcash_wallet_service(), GetUtxos(_, _, _))
+      .WillByDefault(
+          ::testing::Invoke([&](const std::string& chain_id,
+                                const mojom::AccountIdPtr& account_id,
+                                ZCashWalletService::GetUtxosCallback callback) {
+            ZCashWalletService::UtxoMap utxo_map;
+            utxo_map["60000"] = GetZCashUtxo(60000);
+            utxo_map["70000"] = GetZCashUtxo(70000);
+            utxo_map["80000"] = GetZCashUtxo(80000);
+            std::move(callback).Run(std::move(utxo_map));
+          }));
+
+  ON_CALL(zcash_wallet_service(), DiscoverNextUnusedAddress(_, _, _))
+      .WillByDefault(::testing::Invoke(
+          [&](const mojom::AccountIdPtr& account_id, bool change,
+              ZCashWalletService::DiscoverNextUnusedAddressCallback callback) {
+            auto id = mojom::ZCashKeyId::New(account_id->account_index, 1, 0);
+            auto addr = keyring_service().GetZCashAddress(account_id, *id);
+            std::move(callback).Run(std::move(addr));
+          }));
+
+  ON_CALL(mock_zcash_rpc(), GetLatestBlock(_, _))
+      .WillByDefault(
+          ::testing::Invoke([](const std::string& chain_id,
+                               ZCashRpc::GetLatestBlockCallback callback) {
+            std::move(callback).Run(
+                zcash::mojom::BlockID::New(1000u, std::vector<uint8_t>({})));
+          }));
+
+  base::MockCallback<ZCashWalletService::CreateTransactionCallback> callback;
+
+  auto orchard_part = GetOrchardRawBytes(kReceiverAddr, false);
+
+  std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
+      std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
+          pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
+          std::nullopt, kZCashFullAmount);
+
+  base::expected<ZCashTransaction, std::string> tx_result;
+  EXPECT_CALL(callback, Run(_))
+      .WillOnce(::testing::DoAll(
+          SaveArg<0>(&tx_result),
+          base::test::RunOnceClosure(task_environment().QuitClosure())));
+
+  task->Start(callback.Get());
+
+  task_environment().RunUntilQuit();
+
+  EXPECT_TRUE(tx_result.has_value());
+
+  EXPECT_EQ(tx_result.value().transparent_part().inputs.size(), 3u);
+  EXPECT_EQ(tx_result.value().transparent_part().outputs.size(), 0u);
+
+  EXPECT_EQ(tx_result.value().orchard_part().inputs.size(), 0u);
+  EXPECT_EQ(tx_result.value().orchard_part().outputs.size(), 1u);
+  EXPECT_EQ(tx_result.value().orchard_part().anchor_block_height.value(),
+            1000u);
+
+  EXPECT_EQ(tx_result.value().orchard_part().outputs[0].value, 185000u);
+
   EXPECT_EQ(tx_result.value().orchard_part().outputs[0].addr,
             orchard_part.value());
 }
@@ -286,17 +346,17 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, NotEnoughFunds) {
   std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
       std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
           pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
-          std::nullopt, 100000u, callback.Get());
-
-  EXPECT_CALL(zcash_wallet_service(),
-              CreateTransactionTaskDone(testing::Eq(task.get())));
+          std::nullopt, 100000u);
 
   base::expected<ZCashTransaction, std::string> tx_result;
-  EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
+  EXPECT_CALL(callback, Run(_))
+      .WillOnce(::testing::DoAll(
+          SaveArg<0>(&tx_result),
+          base::test::RunOnceClosure(task_environment().QuitClosure())));
 
-  task->Start();
+  task->Start(callback.Get());
 
-  task_environment().RunUntilIdle();
+  task_environment().RunUntilQuit();
 
   EXPECT_FALSE(tx_result.has_value());
 }
@@ -334,15 +394,12 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, UtxosError) {
   std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
       std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
           pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
-          std::nullopt, 100000u, callback.Get());
-
-  EXPECT_CALL(zcash_wallet_service(),
-              CreateTransactionTaskDone(testing::Eq(task.get())));
+          std::nullopt, 100000u);
 
   base::expected<ZCashTransaction, std::string> tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -384,15 +441,12 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, ChangeAddressError) {
   std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
       std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
           pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
-          std::nullopt, 100000u, callback.Get());
-
-  EXPECT_CALL(zcash_wallet_service(),
-              CreateTransactionTaskDone(testing::Eq(task.get())));
+          std::nullopt, 100000u);
 
   base::expected<ZCashTransaction, std::string> tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 
@@ -435,15 +489,12 @@ TEST_F(ZCashCreateTransparentToOrchardTransactionTaskTest, LatestBlockError) {
   std::unique_ptr<ZCashCreateTransparentToOrchardTransactionTask> task =
       std::make_unique<ZCashCreateTransparentToOrchardTransactionTask>(
           pass_key(), zcash_wallet_service(), action_context(), *orchard_part,
-          std::nullopt, 100000u, callback.Get());
-
-  EXPECT_CALL(zcash_wallet_service(),
-              CreateTransactionTaskDone(testing::Eq(task.get())));
+          std::nullopt, 100000u);
 
   base::expected<ZCashTransaction, std::string> tx_result;
   EXPECT_CALL(callback, Run(_)).WillOnce(SaveArg<0>(&tx_result));
 
-  task->Start();
+  task->Start(callback.Get());
 
   task_environment().RunUntilIdle();
 

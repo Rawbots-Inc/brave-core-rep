@@ -9,7 +9,11 @@ source_set("hd_key_common") {
   sources = [
     "hd_key_common.cc",
     "hd_key_common.h",
+    "secp256k1_signature.cc",
+    "secp256k1_signature.h",
   ]
+
+  deps = [ "//base" ]
 }
 
 source_set("hd_key") {
@@ -24,7 +28,7 @@ source_set("hd_key") {
 
   visibility = [
     "//brave/components/brave_wallet/browser:hd_keyring",
-    "//brave/components/brave_wallet/browser/test:brave_wallet_unit_tests",
+    "//brave/components/brave_wallet/browser:unit_tests",
   ]
 
   deps = [

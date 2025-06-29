@@ -4,7 +4,6 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "base/feature_list.h"
-#include "brave/browser/ethereum_remote_client/buildflags/buildflags.h"
 #include "brave/browser/metrics/buildflags/buildflags.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/brave_shields/core/common/features.h"
@@ -14,7 +13,6 @@
 #include "brave/components/brave_wallet/browser/pref_names.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
 #include "brave/components/brave_wayback_machine/buildflags/buildflags.h"
-#include "brave/components/brave_webtorrent/browser/buildflags/buildflags.h"
 #include "brave/components/constants/pref_names.h"
 #include "brave/components/ntp_background_images/buildflags/buildflags.h"
 #include "build/build_config.h"
@@ -35,10 +33,6 @@
 #include "components/spellcheck/browser/pref_names.h"
 #include "components/sync/base/pref_names.h"
 #include "content/public/test/browser_test.h"
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-#include "brave/browser/ethereum_remote_client/pref_names.h"
-#endif
 
 #if BUILDFLAG(ENABLE_BRAVE_WAYBACK_MACHINE)
 #include "brave/components/brave_wayback_machine/pref_names.h"
@@ -87,20 +81,12 @@ IN_PROC_BROWSER_TEST_F(BraveProfilePrefsBrowserTest, MiscBravePrefs) {
                 brave_shields::prefs::kReduceLanguageEnabled),
             base::FeatureList::IsEnabled(
                 brave_shields::features::kBraveReduceLanguage));
-#if BUILDFLAG(ENABLE_BRAVE_WEBTORRENT)
-  EXPECT_FALSE(chrome_test_utils::GetProfile(this)->GetPrefs()->GetBoolean(
-      kWebTorrentEnabled));
-#endif
 #if BUILDFLAG(ENABLE_BRAVE_WAYBACK_MACHINE)
   EXPECT_TRUE(chrome_test_utils::GetProfile(this)->GetPrefs()->GetBoolean(
       kBraveWaybackMachineEnabled));
 #endif
   EXPECT_TRUE(chrome_test_utils::GetProfile(this)->GetPrefs()->GetBoolean(
       brave_rewards::prefs::kShowLocationBarButton));
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-  EXPECT_FALSE(chrome_test_utils::GetProfile(this)->GetPrefs()->GetBoolean(
-      kERCOptedIntoCryptoWallets));
-#endif
   EXPECT_EQ(brave_wallet::GetDefaultEthereumWallet(
                 chrome_test_utils::GetProfile(this)->GetPrefs()),
             brave_wallet::mojom::DefaultWallet::BraveWalletPreferExtension);

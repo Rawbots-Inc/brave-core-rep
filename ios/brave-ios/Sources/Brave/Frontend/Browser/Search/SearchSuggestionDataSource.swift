@@ -9,6 +9,7 @@ import BraveUI
 import Foundation
 import Preferences
 import Shared
+import Web
 import os.log
 
 // MARK: - SearchSuggestionDataSourceDelegate
@@ -22,15 +23,14 @@ class SearchSuggestionDataSource {
   // MARK: SearchListSection
 
   enum SearchListSection: Int, CaseIterable {
-    case quickBar
     case searchSuggestionsOptIn
     case searchSuggestions
+    case braveSearchPromotion
     case findInPage
     case openTabsAndHistoryAndBookmarks
-    case aiChat
   }
 
-  let tabType: TabType
+  let isPrivate: Bool
   let maxSearchSuggestions = 5
   var suggestions = [String]()
   private let maxPeriodBraveSearchPromotion = 15
@@ -57,7 +57,7 @@ class SearchSuggestionDataSource {
   // Unless Default Search Engine is different than Quick Search Engine
   var hasQuickSearchEngines: Bool {
     let isDefaultEngineQuickEngine =
-      searchEngines?.defaultEngine(forType: tabType == .private ? .privateMode : .standard)?
+      searchEngines?.defaultEngine(forType: isPrivate ? .privateMode : .standard)?
       .engineID
       == quickSearchEngines.first?.engineID
 
@@ -68,35 +68,15 @@ class SearchSuggestionDataSource {
     return quickSearchEngines.count > 1
   }
 
-  var availableSections: [SearchListSection] {
-    var sections = [SearchListSection]()
-    sections.append(.quickBar)
-
-    if !tabType.isPrivate && searchEngines?.shouldShowSearchSuggestionsOptIn == true {
-      sections.append(.searchSuggestionsOptIn)
-    }
-
-    if !tabType.isPrivate && searchEngines?.shouldShowSearchSuggestions == true {
-      sections.append(.searchSuggestions)
-    }
-    sections.append(.findInPage)
-
-    if searchEngines?.shouldShowBrowserSuggestions == true {
-      sections.append(.openTabsAndHistoryAndBookmarks)
-    }
-
-    if !tabType.isPrivate && Preferences.AIChat.autocompleteSuggestionsEnabled.value
+  var isAIChatAvailable: Bool {
+    !isPrivate
+      && Preferences.AIChat.leoInQuickSearchBarEnabled.value
       && FeatureList.kAIChat.enabled
-    {
-      sections.append(.aiChat)
-    }
-
-    return sections
   }
 
   var braveSearchPromotionAvailable: Bool {
     guard Preferences.Review.launchCount.value > 1,
-      searchEngines?.defaultEngine(forType: tabType == .private ? .privateMode : .standard)?
+      searchEngines?.defaultEngine(forType: isPrivate ? .privateMode : .standard)?
         .shortName != OpenSearchEngine.EngineNames.brave,
       let braveSearchPromotionLaunchDate = Preferences.BraveSearch.braveSearchPromotionLaunchDate
         .value,
@@ -105,6 +85,10 @@ class SearchSuggestionDataSource {
       Preferences.BraveSearch.braveSearchPromotionCompletionState.value
         != BraveSearchPromotionState.maybeLaterSameSession.rawValue
     else {
+      return false
+    }
+
+    if let region = Locale.current.region?.identifier, region == "JP" {
       return false
     }
 
@@ -123,8 +107,8 @@ class SearchSuggestionDataSource {
 
   // MARK: - Initialization
 
-  init(forTabType tabType: TabType, searchEngines: SearchEngines?) {
-    self.tabType = tabType
+  init(isPrivate: Bool, searchEngines: SearchEngines?) {
+    self.isPrivate = isPrivate
     self.searchEngines = searchEngines
   }
 
@@ -189,11 +173,9 @@ class SearchSuggestionDataSource {
 
   func setupSearchClient() {
     // Show the default search engine first.
-    if !tabType.isPrivate,
+    if !isPrivate,
       let userAgent = SearchViewController.userAgent,
-      let engines = searchEngines?.defaultEngine(
-        forType: tabType == .private ? .privateMode : .standard
-      )
+      let engines = searchEngines?.defaultEngine(forType: .standard)
     {
       suggestClient = SearchSuggestClient(searchEngine: engines, userAgent: userAgent)
     }

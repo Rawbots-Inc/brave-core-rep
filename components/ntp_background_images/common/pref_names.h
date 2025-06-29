@@ -8,6 +8,10 @@
 
 namespace ntp_background_images::prefs {
 
+// Survey panelist.
+inline constexpr char kNewTabPageSponsoredImagesSurveyPanelist[] =
+    "brave.new_tab_page.sponsored_images.survey_panelist";
+
 // There are two categories in Branded wallpaper.
 // The one is sponsored images wallpaper and the other is super referral
 // wallpaper.
@@ -19,6 +23,8 @@ inline constexpr char kNewTabPageSuperReferralThemesOption[] =
     "brave.new_tab_page.super_referral_themes_option";
 inline constexpr char kNewTabPageShowBackgroundImage[] =
     "brave.new_tab_page.show_background_image";
+inline constexpr char kNewTabTakeoverInfobarRemainingDisplayCount[] =
+    "brave.new_tab_page.new_tab_takeover_infobar_remaining_display_count";
 
 // Local prefs
 inline constexpr char kNewTabPageCachedSuperReferralComponentInfo[] =

@@ -25,7 +25,7 @@ import * as WalletActions from '../../../../common/actions/wallet_actions'
 // Components
 import {
   // eslint-disable-next-line import/no-named-default
-  default as BraveCoreThemeProvider
+  default as BraveCoreThemeProvider,
 } from '../../../../../common/BraveCoreThemeProvider'
 import { FundWalletScreen } from '../../fund-wallet/fund_wallet_v2'
 
@@ -41,7 +41,7 @@ export function AndroidFundWalletApp() {
           dark={walletDarkTheme}
           light={walletLightTheme}
         >
-          <FundWalletScreen isAndroid={true} />
+          <FundWalletScreen />
         </BraveCoreThemeProvider>
       </BrowserRouter>
     </Provider>

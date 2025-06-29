@@ -5,17 +5,14 @@
 
 #include "brave/components/ai_chat/core/browser/associated_content_driver.h"
 
-#include <ios>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "base/check.h"
-#include "base/containers/flat_map.h"
 #include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/logging.h"
@@ -66,27 +63,7 @@ AssociatedContentDriver::AssociatedContentDriver(
     scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory)
     : url_loader_factory_(url_loader_factory) {}
 
-AssociatedContentDriver::~AssociatedContentDriver() {
-  DisassociateWithConversations();
-}
-
-void AssociatedContentDriver::AddRelatedConversation(
-    ConversationHandler* conversation) {
-  associated_conversations_.insert(conversation);
-}
-
-void AssociatedContentDriver::OnRelatedConversationDisassociated(
-    ConversationHandler* conversation) {
-  associated_conversations_.erase(conversation);
-}
-
-void AssociatedContentDriver::AddObserver(Observer* observer) {
-  observers_.AddObserver(observer);
-}
-
-void AssociatedContentDriver::RemoveObserver(Observer* observer) {
-  observers_.RemoveObserver(observer);
-}
+AssociatedContentDriver::~AssociatedContentDriver() = default;
 
 int AssociatedContentDriver::GetContentId() const {
   return current_navigation_id_;
@@ -100,8 +77,7 @@ std::u16string AssociatedContentDriver::GetTitle() const {
   return GetPageTitle();
 }
 
-void AssociatedContentDriver::GetContent(
-    ConversationHandler::GetPageContentCallback callback) {
+void AssociatedContentDriver::GetContent(GetPageContentCallback callback) {
   // Determine whether we're adding our callback to the queue or the
   // we need to call GetPageContent.
   bool is_page_text_fetch_in_progress =
@@ -131,7 +107,7 @@ void AssociatedContentDriver::GetContent(
 }
 
 void AssociatedContentDriver::OnExistingGeneratePageContentComplete(
-    ConversationHandler::GetPageContentCallback callback,
+    GetPageContentCallback callback,
     int64_t navigation_id) {
   if (navigation_id != current_navigation_id_) {
     return;
@@ -172,16 +148,16 @@ void AssociatedContentDriver::OnGeneratePageContentComplete(
   on_page_text_fetch_complete_ = nullptr;
 }
 
-std::string_view AssociatedContentDriver::GetCachedTextContent() {
+std::string_view AssociatedContentDriver::GetCachedTextContent() const {
   return cached_text_content_;
 }
 
-bool AssociatedContentDriver::GetCachedIsVideo() {
+bool AssociatedContentDriver::GetCachedIsVideo() const {
   return is_video_;
 }
 
 void AssociatedContentDriver::GetStagedEntriesFromContent(
-    ConversationHandler::GetStagedEntriesCallback callback) {
+    GetStagedEntriesCallback callback) {
   // At the moment we only know about staged entries from:
   // - Brave Search results page
   if (!IsBraveSearchSERP(GetPageURL())) {
@@ -195,7 +171,7 @@ void AssociatedContentDriver::GetStagedEntriesFromContent(
 }
 
 void AssociatedContentDriver::OnSearchSummarizerKeyFetched(
-    ConversationHandler::GetStagedEntriesCallback callback,
+    GetStagedEntriesCallback callback,
     int64_t navigation_id,
     const std::optional<std::string>& key) {
   if (!key || key->empty() || navigation_id != current_navigation_id_) {
@@ -227,7 +203,7 @@ void AssociatedContentDriver::OnSearchSummarizerKeyFetched(
 }
 
 void AssociatedContentDriver::OnSearchQuerySummaryFetched(
-    ConversationHandler::GetStagedEntriesCallback callback,
+    GetStagedEntriesCallback callback,
     int64_t navigation_id,
     api_request_helper::APIRequestResult result) {
   if (!result.Is2XXResponseCode() || navigation_id != current_navigation_id_) {
@@ -267,42 +243,15 @@ AssociatedContentDriver::ParseSearchQuerySummaryResponse(
   return entries;
 }
 
-void AssociatedContentDriver::OnTitleChanged() {
-  for (auto& conversation : associated_conversations_) {
-    conversation->OnAssociatedContentTitleChanged();
-  }
-}
-
 void AssociatedContentDriver::OnNewPage(int64_t navigation_id) {
-  // This instance will now be used for different content so existing
-  // conversations need to be disassociated.
-  DisassociateWithConversations();
-
-  // Tell the observer how to find the next conversation
-  for (auto& observer : observers_) {
-    observer.OnAssociatedContentNavigated(navigation_id);
-  }
-
   // Reset state for next navigated Page
-  associated_conversations_.clear();
   current_navigation_id_ = navigation_id;
   cached_text_content_.clear();
   content_invalidation_token_.clear();
   is_video_ = false;
   api_request_helper_.reset();
-  ConversationHandler::AssociatedContentDelegate::OnNewPage(navigation_id);
-}
 
-void AssociatedContentDriver::DisassociateWithConversations() {
-  // Iterator might be invalidated by destruction, so copy the items
-  std::vector<ConversationHandler*> conversations{
-      associated_conversations_.begin(), associated_conversations_.end()};
-  for (auto& conversation : conversations) {
-    if (conversation) {
-      conversation->OnAssociatedContentDestroyed(cached_text_content_,
-                                                 is_video_);
-    }
-  }
+  AssociatedContentDelegate::OnNewPage(navigation_id);
 }
 
 }  // namespace ai_chat

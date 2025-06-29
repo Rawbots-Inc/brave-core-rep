@@ -6,11 +6,13 @@
 #include "base/run_loop.h"
 #include "base/test/gmock_callback_support.h"
 #include "base/test/mock_callback.h"
+#include "base/test/scoped_feature_list.h"
 #include "base/time/time.h"
 #include "brave/components/brave_ads/core/internal/catalog/catalog_url_request_builder_util.h"
 #include "brave/components/brave_ads/core/internal/common/test/mock_test_util.h"
 #include "brave/components/brave_ads/core/internal/common/test/test_base.h"
 #include "brave/components/brave_ads/core/internal/creatives/notification_ads/notification_ad_manager.h"
+#include "brave/components/brave_ads/core/internal/serving/notification_ad_serving_feature.h"
 #include "brave/components/brave_ads/core/internal/serving/notification_ad_serving_util.h"
 #include "brave/components/brave_ads/core/internal/serving/permission_rules/permission_rules_test_util.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_info.h"
@@ -41,11 +43,12 @@ class BraveAdsNotificationAdIntegrationTest : public test::TestBase {
 
 TEST_F(BraveAdsNotificationAdIntegrationTest, ServeAd) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   test::ForcePermissionRules();
 
   // Act & Assert
-  EXPECT_CALL(ads_client_mock_, RecordP2AEvents);
-
   base::RunLoop run_loop;
   EXPECT_CALL(ads_client_mock_, ShowNotificationAd)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
@@ -56,9 +59,11 @@ TEST_F(BraveAdsNotificationAdIntegrationTest, ServeAd) {
 
 TEST_F(BraveAdsNotificationAdIntegrationTest,
        DoNotServeIfPermissionRulesAreDenied) {
-  // Act & Assert
-  EXPECT_CALL(ads_client_mock_, RecordP2AEvents).Times(0);
+  // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
 
+  // Act & Assert
   EXPECT_CALL(ads_client_mock_, ShowNotificationAd).Times(0);
 
   ServeAd();
@@ -66,12 +71,19 @@ TEST_F(BraveAdsNotificationAdIntegrationTest,
 
 TEST_F(BraveAdsNotificationAdIntegrationTest,
        ShouldNotServeAtRegularIntervals) {
+  // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   // Act & Assert
   EXPECT_FALSE(ShouldServeAdsAtRegularIntervals());
 }
 
 TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerViewedEvent) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   test::ForcePermissionRules();
 
   base::RunLoop run_loop;
@@ -103,6 +115,9 @@ TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerViewedEvent) {
 
 TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerClickedEvent) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   test::ForcePermissionRules();
 
   base::RunLoop run_loop;
@@ -137,6 +152,9 @@ TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerClickedEvent) {
 
 TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerDismissedEvent) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   test::ForcePermissionRules();
 
   base::RunLoop run_loop;
@@ -168,6 +186,9 @@ TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerDismissedEvent) {
 
 TEST_F(BraveAdsNotificationAdIntegrationTest, TriggerTimedOutEvent) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      {kNotificationAdServingFeature});
+
   test::ForcePermissionRules();
 
   base::RunLoop run_loop;

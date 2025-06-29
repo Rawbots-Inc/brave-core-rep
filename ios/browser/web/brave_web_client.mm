@@ -5,11 +5,11 @@
 
 #import "brave/ios/browser/web/brave_web_client.h"
 
-#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/ios/ns_error_util.h"
 #include "base/strings/sys_string_conversions.h"
 #include "brave/components/constants/url_constants.h"
+#include "brave/ios/browser/api/web_view/brave_web_view.h"
 #include "brave/ios/browser/web/brave_web_main_parts.h"
 #import "components/translate/ios/browser/translate_java_script_feature.h"
 #include "ios/chrome/browser/shared/model/url/chrome_url_constants.h"
@@ -47,13 +47,17 @@ void BraveWebClient::AddAdditionalSchemes(Schemes* schemes) const {
 
   schemes->standard_schemes.push_back(kBraveUIScheme);
   schemes->secure_schemes.push_back(kBraveUIScheme);
+
+  schemes->standard_schemes.push_back(kChromeUIUntrustedScheme);
+  schemes->secure_schemes.push_back(kChromeUIUntrustedScheme);
 }
 
 bool BraveWebClient::IsAppSpecificURL(const GURL& url) const {
   // temporarily add `internal://` scheme handling until those pages can be
   // ported to WebUI
   return ChromeWebClient::IsAppSpecificURL(url) ||
-         url.SchemeIs(kBraveUIScheme) || url.SchemeIs("internal");
+         url.SchemeIs(kBraveUIScheme) ||
+         url.SchemeIs(kChromeUIUntrustedScheme) || url.SchemeIs("internal");
 }
 
 bool WillHandleBraveURLRedirect(GURL* url, web::BrowserState* browser_state) {
@@ -92,4 +96,25 @@ bool BraveWebClient::EnableWebInspector(
 
 void BraveWebClient::SetLegacyUserAgent(const std::string& user_agent) {
   legacy_user_agent_ = user_agent;
+}
+
+bool BraveWebClient::IsInsecureFormWarningEnabled(
+    web::BrowserState* browser_state) const {
+  // TODO: Remove when brave/brave-browser#46667 is implemented
+  return false;
+}
+
+void BraveWebClient::BuildEditMenu(web::WebState* web_state,
+                                   id<UIMenuBuilder> builder) const {
+  BraveWebView* webView =
+      static_cast<BraveWebView*>([BraveWebView webViewForWebState:web_state]);
+  if (!webView) {
+    return;
+  }
+  id<BraveWebViewUIDelegate> uiDelegate = webView.UIDelegate;
+
+  if ([uiDelegate respondsToSelector:@selector(webView:
+                                         buildEditMenuWithBuilder:)]) {
+    return [uiDelegate webView:webView buildEditMenuWithBuilder:builder];
+  }
 }

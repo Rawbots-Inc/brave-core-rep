@@ -6,6 +6,7 @@
 import BraveShields
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -41,7 +42,7 @@ class SiteStateListenerScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -49,11 +50,6 @@ class SiteStateListenerScriptHandler: TabContentScript {
 
     if !verifyMessage(message: message) {
       assertionFailure("Missing required security token.")
-      return
-    }
-
-    guard let webView = tab.webView else {
-      assertionFailure("Should have a tab set")
       return
     }
 
@@ -68,7 +64,9 @@ class SiteStateListenerScriptHandler: TabContentScript {
       Task { @MainActor in
         if let pageData = tab.currentPageData {
           let domain = pageData.domain(persistent: !tab.isPrivate)
-          guard domain.globalBlockAdsAndTrackingLevel.isEnabled else {
+          guard domain.globalBlockAdsAndTrackingLevel.isEnabled,
+            pageData.mainFrameURL.isWebPage(includeDataURIs: false)
+          else {
             return
           }
 
@@ -79,8 +77,8 @@ class SiteStateListenerScriptHandler: TabContentScript {
 
           var cachedStandardSelectors: Set<String> = .init()
           var cachedAggressiveSelectors: Set<String> = .init()
-          if let url = tab.url,
-            let (standard, aggressive) = tab.contentBlocker.cachedSelectors(for: url)
+          if let url = tab.visibleURL,
+            let (standard, aggressive) = tab.contentBlocker?.cachedSelectors(for: url)
           {
             cachedStandardSelectors = standard
             cachedAggressiveSelectors = aggressive
@@ -103,7 +101,7 @@ class SiteStateListenerScriptHandler: TabContentScript {
             for: .contentCosmetic(setup, proceduralActions: proceduralActions)
           )
 
-          try await webView.evaluateSafeJavaScriptThrowing(
+          try await tab.evaluateJavaScript(
             functionName: script.source,
             frame: message.frameInfo,
             contentWorld: CosmeticFiltersScriptHandler.scriptSandbox,

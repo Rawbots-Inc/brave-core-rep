@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+#include "base/check.h"
 #include "brave/browser/ai_chat/ai_chat_urls.h"
 #include "brave/browser/ui/webui/ai_chat/ai_chat_ui.h"
 #include "brave/components/ai_chat/core/browser/utils.h"
@@ -49,10 +50,10 @@ void RegisterContextualSidePanel(SidePanelRegistry* registry,
       Profile::FromBrowserContext(context)->IsRegularProfile()) {
     // If |registry| already has it, it's no-op.
     registry->Register(std::make_unique<SidePanelEntry>(
-        SidePanelEntry::Id::kChatUI,
-        base::BindRepeating(
-            &CreateAIChatSidePanelWebView,
-            Profile::FromBrowserContext(context)->GetWeakPtr())));
+        SidePanelEntry::Key(SidePanelEntry::Id::kChatUI),
+        base::BindRepeating(&CreateAIChatSidePanelWebView,
+                            Profile::FromBrowserContext(context)->GetWeakPtr()),
+        SidePanelEntry::kSidePanelDefaultContentWidth));
   }
 }
 

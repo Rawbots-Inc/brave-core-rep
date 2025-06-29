@@ -9,6 +9,21 @@ import Foundation
 import OrderedCollections
 import Shared
 import Storage
+import Web
+
+public struct Site: Hashable {
+  public enum SiteType {
+    case unknown, bookmark, history, tab
+  }
+  public var url: String
+  public var title: String
+  public var siteType: SiteType = .unknown
+  public var tabID: String?
+  public var dateAdded: Date?
+  var tileURL: URL {
+    return URL(string: url)?.domainURL ?? URL(string: "about:blank")!
+  }
+}
 
 class FrequencyQuery {
 
@@ -32,9 +47,7 @@ class FrequencyQuery {
 
   @MainActor
   private func fetchOpenTabs(containing query: String) async -> [Site] {
-    let startTime = Date()
-    let openTabSites = try? fetchSitesFromTabs(tabManager.tabsForCurrentMode(for: query))
-    return openTabSites ?? []
+    return (try? fetchSitesFromTabs(tabManager.tabsForCurrentMode(for: query))) ?? []
   }
 
   @MainActor
@@ -48,7 +61,12 @@ class FrequencyQuery {
 
         continuation.resume(
           returning: sites.map {
-            Site(url: $0.url ?? "", title: $0.title ?? "", siteType: .bookmark)
+            Site(
+              url: $0.url ?? "",
+              title: $0.title ?? "",
+              siteType: .bookmark,
+              dateAdded: $0.bookmarkNode.dateAdded
+            )
           }
         )
       }
@@ -66,7 +84,12 @@ class FrequencyQuery {
 
         continuation.resume(
           returning: sites.map {
-            Site(url: $0.url.absoluteString, title: $0.title ?? "", siteType: .history)
+            Site(
+              url: $0.url.absoluteString,
+              title: $0.title ?? "",
+              siteType: .history,
+              dateAdded: $0.dateAdded
+            )
           }
         )
       }
@@ -78,7 +101,7 @@ class FrequencyQuery {
     task?.cancel()
     historyCancellable = nil
 
-    task = Task.delayed(bySeconds: 0.5) { @MainActor [weak self] in
+    task = Task { @MainActor [weak self] in
       guard let self = self else { return }
 
       try Task.checkCancellation()
@@ -97,7 +120,7 @@ class FrequencyQuery {
     }
   }
 
-  private func fetchSitesFromTabs(_ tabs: [Tab]) throws -> [Site] {
+  private func fetchSitesFromTabs(_ tabs: [any TabState]) throws -> [Site] {
     var tabList = [Site]()
     tabList.reserveCapacity(tabs.count)
 
@@ -106,7 +129,7 @@ class FrequencyQuery {
     }
 
     for tab in tabs {
-      if let url = tab.url, url.isWebPage(), !(InternalURL(url)?.isAboutHomeURL ?? false) {
+      if let url = tab.visibleURL, url.isWebPage(), !(InternalURL(url)?.isAboutHomeURL ?? false) {
         if selectedTab.id == tab.id {
           continue
         }
@@ -116,7 +139,8 @@ class FrequencyQuery {
             url: url.absoluteString,
             title: tab.displayTitle,
             siteType: .tab,
-            tabID: tab.id.uuidString
+            tabID: tab.id.uuidString,
+            dateAdded: tab.lastActiveTime
           )
         )
       }

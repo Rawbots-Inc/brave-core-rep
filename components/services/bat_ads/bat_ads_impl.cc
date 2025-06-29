@@ -20,7 +20,7 @@
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_value_util.h"
 #include "brave/components/brave_ads/core/public/ads.h"
 #include "brave/components/brave_ads/core/public/ads_constants.h"
-#include "brave/components/brave_ads/core/public/ads_observer_interface.h"
+#include "brave/components/brave_ads/core/public/ads_observer.h"
 #include "brave/components/services/bat_ads/bat_ads_client_mojo_bridge.h"
 #include "brave/components/services/bat_ads/bat_ads_observer.h"
 
@@ -71,7 +71,7 @@ BatAdsImpl::~BatAdsImpl() = default;
 
 void BatAdsImpl::AddBatAdsObserver(mojo::PendingRemote<mojom::BatAdsObserver>
                                        bat_ads_observer_pending_remote) {
-  std::unique_ptr<brave_ads::AdsObserverInterface> ads_observer =
+  std::unique_ptr<brave_ads::AdsObserver> ads_observer =
       std::make_unique<BatAdsObserver>(
           std::move(bat_ads_observer_pending_remote));
   GetAds()->AddObserver(std::move(ads_observer));
@@ -133,11 +133,10 @@ void BatAdsImpl::TriggerNotificationAdEvent(
                                        std::move(callback));
 }
 
-void BatAdsImpl::ParseAndSaveCreativeNewTabPageAds(
+void BatAdsImpl::ParseAndSaveNewTabPageAds(
     base::Value::Dict data,
-    ParseAndSaveCreativeNewTabPageAdsCallback callback) {
-  GetAds()->ParseAndSaveCreativeNewTabPageAds(std::move(data),
-                                              std::move(callback));
+    ParseAndSaveNewTabPageAdsCallback callback) {
+  GetAds()->ParseAndSaveNewTabPageAds(std::move(data), std::move(callback));
 }
 
 void BatAdsImpl::MaybeServeNewTabPageAd(
@@ -160,11 +159,13 @@ void BatAdsImpl::MaybeServeNewTabPageAd(
 void BatAdsImpl::TriggerNewTabPageAdEvent(
     const std::string& placement_id,
     const std::string& creative_instance_id,
+    bool should_metrics_fallback_to_p3a,
     brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type,
     TriggerNewTabPageAdEventCallback callback) {
   CHECK(brave_ads::mojom::IsKnownEnumValue(mojom_ad_event_type));
 
   GetAds()->TriggerNewTabPageAdEvent(placement_id, creative_instance_id,
+                                     should_metrics_fallback_to_p3a,
                                      mojom_ad_event_type, std::move(callback));
 }
 

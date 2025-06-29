@@ -8,6 +8,7 @@
 #include <optional>
 #include <utility>
 
+#include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
 #include "brave/components/brave_wallet/common/hex_utils.h"
 #include "brave/components/json/json_helper.h"
@@ -207,10 +208,9 @@ namespace ankr {
 
 namespace {
 
-std::optional<std::string> GetChainIdFromAnkrBlockchain(
-    const std::string& blockchain) {
-  auto& blockchains = GetAnkrBlockchains();
-  for (const auto& entry : blockchains) {
+std::optional<std::string_view> GetChainIdFromAnkrBlockchain(
+    std::string_view blockchain) {
+  for (const auto& entry : kAnkrBlockchains) {
     if (entry.second == blockchain) {
       return entry.first;
     }

@@ -6,26 +6,39 @@
 package org.chromium.chrome.browser.settings;
 
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.view.View;
 
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.PreferenceCategory;
 
+import org.chromium.base.Callback;
+import org.chromium.base.Log;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.ObservableSupplierImpl;
+import org.chromium.build.annotations.NullMarked;
+import org.chromium.build.annotations.Nullable;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.BraveRelaunchUtils;
+import org.chromium.chrome.browser.app.BraveActivity;
 import org.chromium.chrome.browser.ntp.NtpUtil;
 import org.chromium.chrome.browser.ntp_background_images.NTPBackgroundImagesBridge;
 import org.chromium.chrome.browser.preferences.BravePref;
 import org.chromium.chrome.browser.profiles.ProfileManager;
+import org.chromium.chrome.browser.util.TabUtils;
 import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
+import org.chromium.components.browser_ui.settings.ClickableSpansTextMessagePreference;
 import org.chromium.components.browser_ui.settings.SettingsUtils;
 import org.chromium.components.user_prefs.UserPrefs;
+import org.chromium.ui.text.ChromeClickableSpan;
 
 /** Fragment to keep track of all the display related preferences. */
+@NullMarked
 public class BackgroundImagesPreferences extends BravePreferenceFragment
         implements OnPreferenceChangeListener {
+    private static final String TAG = "BackgroundImages";
+
     // deprecated preferences from browser-android-tabs
     public static final String PREF_SHOW_BACKGROUND_IMAGES = "show_background_images";
     public static final String PREF_SHOW_SPONSORED_IMAGES = "show_sponsored_images";
@@ -33,22 +46,28 @@ public class BackgroundImagesPreferences extends BravePreferenceFragment
     public static final String PREF_SHOW_BRAVE_STATS = "show_brave_stats";
     public static final String PREF_BACKGROUND_IMAGES_CATEGORY = "background_images";
 
+    public static final String PREF_SPONSORED_IMAGES_LEARN_MORE = "sponsored_images_learn_more";
+
+    public static final String NEW_TAB_TAKEOVER_LEARN_MORE_LINK_URL =
+            "https://support.brave.com/hc/en-us/articles/35182999599501";
+
     private ChromeSwitchPreference mShowBackgroundImagesPref;
     private ChromeSwitchPreference mShowSponsoredImagesPref;
     private ChromeSwitchPreference mShowBraveStatsPref;
     private ChromeSwitchPreference mShowTopSitesPref;
+    private ClickableSpansTextMessagePreference mLearnMorePreference;
 
     private final ObservableSupplierImpl<String> mPageTitle = new ObservableSupplierImpl<>();
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPageTitle.set(getString(R.string.prefs_new_tab_page));
         SettingsUtils.addPreferencesFromResource(this, R.xml.background_images_preferences);
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mShowBackgroundImagesPref =
                 (ChromeSwitchPreference) findPreference(PREF_SHOW_BACKGROUND_IMAGES);
@@ -71,10 +90,25 @@ public class BackgroundImagesPreferences extends BravePreferenceFragment
                                     BravePref.NEW_TAB_PAGE_SHOW_SPONSORED_IMAGES_BACKGROUND_IMAGE));
             mShowSponsoredImagesPref.setOnPreferenceChangeListener(this);
         }
+        mLearnMorePreference =
+                (ClickableSpansTextMessagePreference)
+                        findPreference(PREF_SPONSORED_IMAGES_LEARN_MORE);
+        if (mLearnMorePreference != null) {
+            ChromeClickableSpan chromeClickableSpan =
+                    new ChromeClickableSpan(
+                            getContext().getColor(R.color.brave_link),
+                            sponsoredImagesLearnMoreClickedCallback());
+            SpannableString spannableString =
+                    new SpannableString(
+                            getContext().getString(R.string.sponsored_images_learn_more));
+            spannableString.setSpan(chromeClickableSpan, 0, spannableString.length(), 0);
+            mLearnMorePreference.setSummary(spannableString);
+        }
         if (!NTPBackgroundImagesBridge.enableSponsoredImages()) {
             PreferenceCategory preferenceCategory =
                     (PreferenceCategory) findPreference(PREF_BACKGROUND_IMAGES_CATEGORY);
             preferenceCategory.removePreference(mShowSponsoredImagesPref);
+            preferenceCategory.removePreference(mLearnMorePreference);
         }
 
         mShowTopSitesPref = (ChromeSwitchPreference) findPreference(PREF_SHOW_TOP_SITES);
@@ -105,17 +139,29 @@ public class BackgroundImagesPreferences extends BravePreferenceFragment
             }
             UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
                     .setBoolean(BravePref.NEW_TAB_PAGE_SHOW_BACKGROUND_IMAGE, (boolean) newValue);
+            BraveRelaunchUtils.askForRelaunch(getActivity());
         } else if (PREF_SHOW_SPONSORED_IMAGES.equals(key)) {
             UserPrefs.get(ProfileManager.getLastUsedRegularProfile())
                     .setBoolean(
                             BravePref.NEW_TAB_PAGE_SHOW_SPONSORED_IMAGES_BACKGROUND_IMAGE,
                             (boolean) newValue);
+            BraveRelaunchUtils.askForRelaunch(getActivity());
         } else if (PREF_SHOW_TOP_SITES.equals(key)) {
             NtpUtil.setDisplayTopSites((boolean) newValue);
         } else if (PREF_SHOW_BRAVE_STATS.equals(key)) {
             NtpUtil.setDisplayBraveStats((boolean) newValue);
         }
-        BraveRelaunchUtils.askForRelaunch(getActivity());
         return true;
+    }
+
+    private Callback<View> sponsoredImagesLearnMoreClickedCallback() {
+        return (view) -> {
+            try {
+                TabUtils.openUrlInNewTab(false, NEW_TAB_TAKEOVER_LEARN_MORE_LINK_URL);
+                TabUtils.bringChromeTabbedActivityToTheTop(BraveActivity.getBraveActivity());
+            } catch (BraveActivity.BraveActivityNotFoundException e) {
+                Log.e(TAG, "sponsoredImagesLearnMoreClickedCallback" + e);
+            }
+        };
     }
 }

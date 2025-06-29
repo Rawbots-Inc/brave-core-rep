@@ -11,11 +11,10 @@ vendor/omaha/
 .gclient_*
 .tags*
 .cipd
-/.clang-format
+/chromium_src/.clang-format
 /.idea/
 /components/brave_new_tab_ui/data/LICENSE
 /components/brave_wallet/browser/zcash/rust/librustzcash/src/
-/components/brave_webtorrent/extension/out/
 /components/brave_rewards/resources/extension/brave_rewards/out/
 /components/third_party/adblock/LICENSE
 /components/third_party/local_data/LICENSE
@@ -32,7 +31,6 @@ patches/**/*.patchinfo
 /third_party/ethash/src
 /third_party/bitcoin-core/src
 /third_party/playlist_component/src
-/third_party/rapidjson/src
 /third_party/reclient_configs/src
 /third_party/rust/futures_retry/v0_5/crate
 /third_party/cryptography
@@ -57,10 +55,12 @@ npm-debug.log
 engflow.crt
 *.key
 !tools/crates/vendor/**/*.key
+!ui/webui/resources/wasm/vendor/**/*.key
 privkey.pem
 *~
 CMakeLists.txt
 !tools/crates/vendor/**/CMakeLists.txt
+!ui/webui/resources/wasm/vendor/**/CMakeLists.txt
 cmake-build-debug/
 coverage/
 /build/rustup/
@@ -78,6 +78,9 @@ xcuserdata
 
 # This is a temp file used by script/version_up.py
 .version_upgrade
+
+# A file that may be left behind in the CI after running presubmits
+.presubmit_results.json
 
 # buffer exclusion file generated locally during sync
 build/config/unsafe_buffers_paths.txt

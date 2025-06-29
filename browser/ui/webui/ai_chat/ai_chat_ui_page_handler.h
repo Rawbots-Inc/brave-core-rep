@@ -14,6 +14,8 @@
 #include "base/task/cancelable_task_tracker.h"
 #include "brave/browser/ai_chat/upload_file_helper.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
+#include "brave/components/ai_chat/core/browser/associated_content_driver.h"
+#include "brave/components/ai_chat/core/browser/conversation_handler.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
@@ -31,7 +33,8 @@ class FaviconService;
 
 namespace ai_chat {
 class AIChatUIPageHandler : public mojom::AIChatUIHandler,
-                            public AIChatTabHelper::Observer {
+                            public AssociatedContentDelegate::Observer,
+                            public UploadFileHelper::Observer {
  public:
   AIChatUIPageHandler(
       content::WebContents* owner_web_contents,
@@ -55,8 +58,11 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
   void ManagePremium() override;
   void HandleVoiceRecognition(const std::string& conversation_uuid) override;
   void ShowSoftKeyboard() override;
-  void UploadImage(const std::string& conversation_uuid,
+  void UploadImage(bool use_media_capture,
                    UploadImageCallback callback) override;
+  void GetPluralString(const std::string& key,
+                       int32_t count,
+                       GetPluralStringCallback callback) override;
   void CloseUI() override;
   void SetChatUI(mojo::PendingRemote<mojom::ChatUI> chat_ui,
                  SetChatUICallback callback) override;
@@ -66,6 +72,8 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
       override;
   void AssociateTab(mojom::TabDataPtr tab,
                     const std::string& conversation_uuid) override;
+  void DisassociateTab(mojom::TabDataPtr tab,
+                       const std::string& conversation_uuid) override;
   void NewConversation(
       mojo::PendingReceiver<mojom::ConversationHandler> receiver,
       mojo::PendingRemote<mojom::ConversationUI> conversation_ui_handler)
@@ -89,19 +97,25 @@ class AIChatUIPageHandler : public mojom::AIChatUIHandler,
 
   void HandleWebContentsDestroyed();
 
-  // AIChatTabHelper::Observer
-  void OnAssociatedContentNavigated(int new_navigation_id) override;
+  // AssociatedContentDelegate::Observer
+  void OnNavigated(AssociatedContentDelegate* delegate) override;
+
+  // UploadFileHelper::Observer
+  void OnFilesSelected() override;
 
   raw_ptr<AIChatTabHelper> active_chat_tab_helper_ = nullptr;
   raw_ptr<content::WebContents> owner_web_contents_ = nullptr;
   raw_ptr<Profile> profile_ = nullptr;
   raw_ptr<AIChatMetrics> ai_chat_metrics_;
 
-  base::ScopedObservation<AIChatTabHelper, AIChatTabHelper::Observer>
-      chat_tab_helper_observation_{this};
+  base::ScopedObservation<AssociatedContentDelegate,
+                          AssociatedContentDelegate::Observer>
+      associated_content_delegate_observation_{this};
   std::unique_ptr<ChatContextObserver> chat_context_observer_;
 
   std::unique_ptr<UploadFileHelper> upload_file_helper_;
+  base::ScopedObservation<UploadFileHelper, UploadFileHelper::Observer>
+      upload_file_helper_observation_{this};
 
   mojo::Receiver<ai_chat::mojom::AIChatUIHandler> receiver_;
   mojo::Remote<ai_chat::mojom::ChatUI> chat_ui_;

@@ -42,6 +42,12 @@ public struct AIChatView: View {
   private var feedbackToast: AIChatFeedbackToastType = .none
 
   @State
+  private var shouldShowFeedbackPrivacyWarningAlert = false
+
+  @State
+  private var feedbackPrivacyWarning: AIChatFeedbackInfo?
+
+  @State
   private var isShowingSlashTools = false
 
   @State
@@ -102,8 +108,10 @@ public struct AIChatView: View {
         },
         menuContent: {
           menuView
+            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
         }
       )
+      .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
 
       Color(braveSystemName: .dividerSubtle)
         .frame(height: 1.0)
@@ -339,7 +347,8 @@ public struct AIChatView: View {
           speechRecognizer: speechRecognizer,
           isShowingSlashTools: $isShowingSlashTools,
           slashToolsOption: $slashToolsOption,
-          focusedField: $focusedField
+          focusedField: $focusedField,
+          messageCount: model.conversationHistory.count
         ) { prompt in
           hasSeenIntro.value = true
 
@@ -374,6 +383,10 @@ public struct AIChatView: View {
         refreshCredentials: {
           openURL(.brave.braveLeoRefreshCredentials)
           dismiss()
+        },
+        openDirectCheckout: {
+          openURL(.brave.braveLeoCheckoutURL)
+          dismiss()
         }
       )
     }
@@ -382,6 +395,45 @@ public struct AIChatView: View {
         model: model,
         isModallyPresented: true
       )
+    }
+    .bravePopup(isPresented: $shouldShowFeedbackPrivacyWarningAlert) {
+      AIChatFeedbackPrivacyWarningView {
+        shouldShowFeedbackPrivacyWarningAlert = false
+        feedbackPrivacyWarning = nil
+      } onSend: {
+        Task { @MainActor in
+          shouldShowFeedbackPrivacyWarningAlert = false
+          guard let warning = feedbackPrivacyWarning else {
+            return
+          }
+
+          feedbackPrivacyWarning = nil
+
+          let ratingId = await model.rateConversation(
+            isLiked: warning.isLiked,
+            turnId: warning.turnId
+          )
+          if let ratingId = ratingId {
+            feedbackToast = .success(
+              isLiked: warning.isLiked,
+              onAddFeedback: {
+                customFeedbackInfo = AIChatFeedbackModelToast(
+                  turnId: warning.turnIndex,
+                  ratingId: ratingId
+                )
+              }
+            )
+          } else {
+            feedbackToast = .error(message: Strings.AIChat.rateAnswerActionErrorText)
+          }
+        }
+      } openURL: { url in
+        shouldShowFeedbackPrivacyWarningAlert = false
+        feedbackPrivacyWarning = nil
+        openURL(url)
+        dismiss()
+      }
+      .dynamicTypeSize(...DynamicTypeSize.accessibility2)
     }
     .task {
       await model.getInitialState()
@@ -506,14 +558,26 @@ public struct AIChatView: View {
         title: Strings.AIChat.responseContextMenuLikeAnswerTitle,
         icon: Image(braveSystemName: "leo.thumb.up"),
         onSelected: {
-          Task { @MainActor in
-            guard let turnId = turn.uuid else { return }
+          guard let turnId = turn.uuid else { return }
 
-            let ratingId = await model.rateConversation(isLiked: true, turnId: turnId)
-            if ratingId != nil {
-              feedbackToast = .success(isLiked: true)
-            } else {
-              feedbackToast = .error(message: Strings.AIChat.rateAnswerActionErrorText)
+          if Preferences.AIChat.showFeedbackPrivacyWarning.value {
+            feedbackPrivacyWarning = AIChatFeedbackInfo(
+              isLiked: true,
+              turnId: turnId,
+              turnIndex: turnIndex
+            )
+
+            Task.delayed(bySeconds: 1.0) { @MainActor in
+              shouldShowFeedbackPrivacyWarningAlert = true
+            }
+          } else {
+            Task { @MainActor in
+              let ratingId = await model.rateConversation(isLiked: true, turnId: turnId)
+              if ratingId != nil {
+                feedbackToast = .success(isLiked: true)
+              } else {
+                feedbackToast = .error(message: Strings.AIChat.rateAnswerActionErrorText)
+              }
             }
           }
         }
@@ -523,22 +587,34 @@ public struct AIChatView: View {
         title: Strings.AIChat.responseContextMenuDislikeAnswerTitle,
         icon: Image(braveSystemName: "leo.thumb.down"),
         onSelected: {
-          Task { @MainActor in
-            guard let turnId = turn.uuid else { return }
+          guard let turnId = turn.uuid else { return }
 
-            let ratingId = await model.rateConversation(isLiked: false, turnId: turnId)
-            if let ratingId = ratingId {
-              feedbackToast = .success(
-                isLiked: false,
-                onAddFeedback: {
-                  customFeedbackInfo = AIChatFeedbackModelToast(
-                    turnId: turnIndex,
-                    ratingId: ratingId
-                  )
-                }
-              )
-            } else {
-              feedbackToast = .error(message: Strings.AIChat.rateAnswerActionErrorText)
+          if Preferences.AIChat.showFeedbackPrivacyWarning.value {
+            feedbackPrivacyWarning = AIChatFeedbackInfo(
+              isLiked: false,
+              turnId: turnId,
+              turnIndex: turnIndex
+            )
+
+            Task.delayed(bySeconds: 1.0) { @MainActor in
+              shouldShowFeedbackPrivacyWarningAlert = true
+            }
+          } else {
+            Task { @MainActor in
+              let ratingId = await model.rateConversation(isLiked: false, turnId: turnId)
+              if let ratingId = ratingId {
+                feedbackToast = .success(
+                  isLiked: false,
+                  onAddFeedback: {
+                    customFeedbackInfo = AIChatFeedbackModelToast(
+                      turnId: turnIndex,
+                      ratingId: ratingId
+                    )
+                  }
+                )
+              } else {
+                feedbackToast = .error(message: Strings.AIChat.rateAnswerActionErrorText)
+              }
             }
           }
         }
@@ -597,6 +673,38 @@ public struct AIChatView: View {
       .padding()
     } else {
       switch model.apiError {
+      case .internalError:
+        AIChatGenericErrorView(title: Strings.AIChat.internalErrorViewTitle) {
+          if !model.conversationHistory.isEmpty {
+            model.retryLastRequest()
+          }
+        }
+        .padding()
+
+      case .invalidApiKey:
+        AIChatGenericErrorView(title: Strings.AIChat.invalidApiKeyErrorViewTitle) {
+          if !model.conversationHistory.isEmpty {
+            model.retryLastRequest()
+          }
+        }
+        .padding()
+
+      case .invalidEndpointUrl:
+        AIChatGenericErrorView(title: Strings.AIChat.invalidEndpointErrorViewTitle) {
+          if !model.conversationHistory.isEmpty {
+            model.retryLastRequest()
+          }
+        }
+        .padding()
+
+      case .serviceOverloaded:
+        AIChatGenericErrorView(title: Strings.AIChat.serviceOverloadedErrorViewTitle) {
+          if !model.conversationHistory.isEmpty {
+            model.retryLastRequest()
+          }
+        }
+        .padding()
+
       case .connectionIssue:
         AIChatNetworkErrorView {
           if !model.conversationHistory.isEmpty {
@@ -750,8 +858,9 @@ struct AIChatView_Preview: PreviewProvider {
                   events: nil,
                   createdTime: Date.now,
                   edits: nil,
-                  uploadedImages: nil,
-                  fromBraveSearchSerp: false
+                  uploadedFiles: nil,
+                  fromBraveSearchSerp: false,
+                  modelKey: nil
                 ),
               isEntryInProgress: false,
               lastEdited: nil,
@@ -805,7 +914,8 @@ struct AIChatView_Preview: PreviewProvider {
         speechRecognizer: SpeechRecognizer(),
         isShowingSlashTools: .constant(false),
         slashToolsOption: .constant(nil),
-        focusedField: $focusedField
+        focusedField: $focusedField,
+        messageCount: 0
       ) {
         print("Prompt Submitted: \($0)")
       }

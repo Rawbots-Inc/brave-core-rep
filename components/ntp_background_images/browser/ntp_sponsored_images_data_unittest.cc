@@ -10,7 +10,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/gfx/geometry/point.h"
-#include "ui/gfx/geometry/rect.h"
 #include "url/gurl.h"
 
 namespace ntp_background_images {
@@ -117,15 +116,12 @@ TEST(NTPSponsoredImagesDataTest, ParseSponsoredImageCampaign) {
   EXPECT_EQ(creative.creative_instance_id,
             "30244a36-561a-48f0-8d7a-780e9035c57a");
   EXPECT_EQ(creative.url,
-            GURL("chrome://branded-wallpaper/sponsored-images/"
+            GURL("chrome://branded-wallpaper/"
                  "30244a36-561a-48f0-8d7a-780e9035c57a/background-1.jpg"));
   EXPECT_EQ(creative.file_path,
             installed_dir.AppendASCII(
                 "30244a36-561a-48f0-8d7a-780e9035c57a/background-1.jpg"));
   EXPECT_EQ(creative.focal_point, gfx::Point(25, 50));
-  EXPECT_EQ(creative.background_color, "");
-  EXPECT_EQ(creative.condition_matchers, brave_ads::ConditionMatcherMap());
-  EXPECT_EQ(creative.viewbox, gfx::Rect{});
 
   EXPECT_EQ(creative.logo.company_name, "Image NTT Creative");
   EXPECT_EQ(creative.logo.alt_text, "Some content");
@@ -134,8 +130,8 @@ TEST(NTPSponsoredImagesDataTest, ParseSponsoredImageCampaign) {
             installed_dir.AppendASCII(
                 "30244a36-561a-48f0-8d7a-780e9035c57a/button-1.png"));
   EXPECT_EQ(creative.logo.image_url,
-            "chrome://branded-wallpaper/sponsored-images/"
-            "30244a36-561a-48f0-8d7a-780e9035c57a/button-1.png");
+            "chrome://branded-wallpaper/30244a36-561a-48f0-8d7a-780e9035c57a/"
+            "button-1.png");
 }
 
 TEST(NTPSponsoredImagesDataTest, ParseSponsoredRichMediaCampaign) {
@@ -160,9 +156,6 @@ TEST(NTPSponsoredImagesDataTest, ParseSponsoredRichMediaCampaign) {
             installed_dir.AppendASCII(
                 "39d78863-327d-4b64-9952-cd0e5e330eb6/index.html"));
   EXPECT_EQ(creative.focal_point, gfx::Point(0, 0));
-  EXPECT_EQ(creative.background_color, "");
-  EXPECT_EQ(creative.condition_matchers, brave_ads::ConditionMatcherMap());
-  EXPECT_EQ(creative.viewbox, std::nullopt);
 
   EXPECT_EQ(creative.logo.company_name, "Another Rich Media NTT Creative");
   EXPECT_EQ(creative.logo.alt_text, "Some more rich content");

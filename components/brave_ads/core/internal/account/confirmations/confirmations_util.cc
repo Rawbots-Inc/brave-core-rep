@@ -9,6 +9,7 @@
 #include <string>
 
 #include "base/base64url.h"
+#include "base/check.h"
 #include "base/json/json_reader.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/confirmation_info.h"
 #include "brave/components/brave_ads/core/internal/account/confirmations/payload/confirmation_payload_json_writer.h"
@@ -40,7 +41,7 @@ bool Verify(const ConfirmationInfo& confirmation) {
     return false;
   }
 
-  const std::optional<base::Value::Dict> dict =
+  std::optional<base::Value::Dict> dict =
       base::JSONReader::ReadDict(credential);
   if (!dict) {
     return false;

@@ -10,6 +10,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "base/memory/raw_ref.h"
@@ -26,8 +27,11 @@ namespace brave_wallet {
 // address.
 class ZCashCreateTransparentToOrchardTransactionTask {
  public:
+  using CreateTransactionCallback =
+      ZCashWalletService::CreateTransactionCallback;
+
   ZCashCreateTransparentToOrchardTransactionTask(
-      absl::variant<
+      std::variant<
           base::PassKey<
               class ZCashCreateTransparentToOrchardTransactionTaskTest>,
           base::PassKey<ZCashWalletService>> pass_key,
@@ -35,11 +39,10 @@ class ZCashCreateTransparentToOrchardTransactionTask {
       ZCashActionContext context,
       const OrchardAddrRawPart& receiver,
       std::optional<OrchardMemo> memo,
-      uint64_t amount,
-      ZCashWalletService::CreateTransactionCallback callback);
+      uint64_t amount);
   ~ZCashCreateTransparentToOrchardTransactionTask();
 
-  void Start();
+  void Start(CreateTransactionCallback callback);
 
  private:
   void ScheduleWorkOnTask();
@@ -65,8 +68,6 @@ class ZCashCreateTransparentToOrchardTransactionTask {
   OrchardAddrRawPart receiver_;
   std::optional<OrchardMemo> memo_;
   uint64_t amount_;
-
-  bool started_ = false;
 
   std::optional<std::string> error_;
 

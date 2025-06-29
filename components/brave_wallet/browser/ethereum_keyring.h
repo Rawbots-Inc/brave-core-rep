@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "base/containers/span.h"
+#include "base/gtest_prod_util.h"
 #include "brave/components/brave_wallet/browser/secp256k1_hd_keyring.h"
 #include "brave/components/brave_wallet/common/brave_wallet_types.h"
 
@@ -32,7 +33,7 @@ class EthereumKeyring : public Secp256k1HDKeyring {
   // signature: The 64 byte signature + v parameter (0 chain id assumed)
   static std::optional<std::string> RecoverAddress(
       base::span<const uint8_t> message,
-      base::span<const uint8_t> signature);
+      base::span<const uint8_t> eth_signature);
 
   std::optional<std::vector<uint8_t>> SignMessage(
       const std::string& address,

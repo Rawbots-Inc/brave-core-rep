@@ -16,6 +16,7 @@
 #include "ios/chrome/browser/bookmarks/model/bookmark_undo_service_factory.h"
 #include "ios/chrome/browser/bookmarks/model/local_or_syncable_bookmark_sync_service_factory.h"
 #include "ios/chrome/browser/browsing_data/model/browsing_data_remover_factory.h"
+#include "ios/chrome/browser/commerce/model/shopping_service_factory.h"
 #include "ios/chrome/browser/consent_auditor/model/consent_auditor_factory.h"
 #include "ios/chrome/browser/content_settings/model/host_content_settings_map_factory.h"
 #include "ios/chrome/browser/credential_provider/model/credential_provider_buildflags.h"
@@ -36,7 +37,7 @@
 #include "ios/chrome/browser/language/model/url_language_histogram_factory.h"
 #include "ios/chrome/browser/metrics/model/google_groups_manager_factory.h"
 #include "ios/chrome/browser/optimization_guide/model/optimization_guide_service_factory.h"
-#include "ios/chrome/browser/page_info/about_this_site_service_factory.h"
+#include "ios/chrome/browser/page_info/model/about_this_site_service_factory.h"
 #include "ios/chrome/browser/passwords/model/ios_chrome_account_password_store_factory.h"
 #include "ios/chrome/browser/passwords/model/ios_chrome_bulk_leak_check_service_factory.h"
 #include "ios/chrome/browser/passwords/model/ios_chrome_password_receiver_service_factory.h"
@@ -53,10 +54,13 @@
 #include "ios/chrome/browser/reading_list/model/reading_list_model_factory.h"
 #include "ios/chrome/browser/safe_browsing/model/safe_browsing_client_factory.h"
 #include "ios/chrome/browser/safe_browsing/model/safe_browsing_metrics_collector_factory.h"
+#include "ios/chrome/browser/saved_tab_groups/model/tab_group_service_factory.h"
 #include "ios/chrome/browser/saved_tab_groups/model/tab_group_sync_service_factory.h"
+#include "ios/chrome/browser/search_engines/model/template_url_prepopulate_data_resolver_factory.h"
 #include "ios/chrome/browser/search_engines/model/template_url_service_factory.h"
 #include "ios/chrome/browser/segmentation_platform/model/segmentation_platform_service_factory.h"
 #include "ios/chrome/browser/sessions/model/session_restoration_service_factory.h"
+#include "ios/chrome/browser/share_kit/model/share_kit_service_factory.h"
 #include "ios/chrome/browser/shared/model/browser/browser_list_factory.h"
 #include "ios/chrome/browser/signin/model/account_consistency_service_factory.h"
 #include "ios/chrome/browser/signin/model/account_reconcilor_factory.h"
@@ -84,6 +88,7 @@
 void EnsureProfileKeyedServiceFactoriesBuilt() {
   autofill::AutofillLogRouterFactory::GetInstance();
   autofill::PersonalDataManagerFactory::GetInstance();
+  commerce::ShoppingServiceFactory::GetInstance();
   data_sharing::DataSharingServiceFactory::GetInstance();
   ios::AccountBookmarkSyncServiceFactory::GetInstance();
   ios::AccountConsistencyServiceFactory::GetInstance();
@@ -96,6 +101,7 @@ void EnsureProfileKeyedServiceFactoriesBuilt() {
   ios::HostContentSettingsMapFactory::GetInstance();
   ios::LocalOrSyncableBookmarkSyncServiceFactory::GetInstance();
   ios::PasswordManagerLogRouterFactory::GetInstance();
+  ios::TemplateURLPrepopulateDataResolverFactory::GetInstance();
   ios::TemplateURLServiceFactory::GetInstance();
   ios::TopSitesFactory::GetInstance();
   ios::WebDataServiceFactory::GetInstance();
@@ -140,7 +146,9 @@ void EnsureProfileKeyedServiceFactoriesBuilt() {
   PowerBookmarkServiceFactory::GetInstance();
   PushNotificationProfileServiceFactory::GetInstance();
   SupervisedUserServiceFactory::GetInstance();
+  ShareKitServiceFactory::GetInstance();
   SyncServiceFactory::GetInstance();
+  TabGroupServiceFactory::GetInstance();
   UnifiedConsentServiceFactory::GetInstance();
   ReadingListModelFactory::GetInstance();
   SafeBrowsingClientFactory::GetInstance();

@@ -27,6 +27,8 @@ import org.chromium.chrome.R;
 import org.chromium.chrome.browser.ActivityTabProvider;
 import org.chromium.chrome.browser.app.BraveActivity;
 import org.chromium.chrome.browser.app.ChromeActivity;
+import org.chromium.chrome.browser.bookmarks.BookmarkManagerOpener;
+import org.chromium.chrome.browser.bookmarks.BookmarkManagerOpenerImpl;
 import org.chromium.chrome.browser.bookmarks.BookmarkModel;
 import org.chromium.chrome.browser.compositor.CompositorViewHolder;
 import org.chromium.chrome.browser.compositor.layouts.LayoutManagerImpl;
@@ -64,20 +66,22 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
     private LayoutStateProvider.LayoutStateObserver mLayoutStateObserver;
     private LayoutStateProvider mLayoutStateProvider;
 
-    private ObservableSupplierImpl<OnClickListener> mShareButtonListenerSupplier =
+    private final ObservableSupplierImpl<OnClickListener> mShareButtonListenerSupplier =
             new ObservableSupplierImpl<>();
-    private CallbackController mCallbackController = new CallbackController();
+    private final CallbackController mCallbackController = new CallbackController();
     ObservableSupplier<AppMenuButtonHelper> mMenuButtonHelperSupplier;
-    private Runnable mOriginalHomeButtonRunnable;
+    private final Runnable mOriginalHomeButtonRunnable;
     private final BraveScrollingBottomViewResourceFrameLayout mScrollingBottomView;
     private HomeButton mHomeButton;
     private BookmarksButton mBookmarksButton;
     private BottomToolbarNewTabButton mNewTabButton;
-    private View mBottomContainerTopShadow;
+    private final View mBottomContainerTopShadow;
     private boolean mBookmarkButtonFilled;
-    private ObservableSupplier<BookmarkModel> mBookmarkModelSupplier;
-    private LocationBarModel mLocationBarModel;
-    private HomepageManager mHomepageManager;
+    private final ObservableSupplier<BookmarkModel> mBookmarkModelSupplier;
+    private final LocationBarModel mLocationBarModel;
+    private final HomepageManager mHomepageManager;
+    private final BookmarkManagerOpener mBookmarkManagerOpener;
+    private boolean mIsInTabSwitcherMode;
 
     private final Context mContext = ContextUtils.getApplicationContext();
 
@@ -127,6 +131,7 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
 
         mBookmarkModelSupplier = bookmarkModelSupplier;
         mLocationBarModel = locationBarModel;
+        mBookmarkManagerOpener = new BookmarkManagerOpenerImpl();
     }
 
     /**
@@ -195,7 +200,7 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
                         @Override
                         public void onStartedShowing(@LayoutType int layoutType) {
                             if (layoutType != LayoutType.TAB_SWITCHER) return;
-
+                            mIsInTabSwitcherMode = true;
                             BrowsingModeBottomToolbarCoordinator browsingModeCoordinator =
                                     (BrowsingModeBottomToolbarCoordinator) mBrowsingModeCoordinator;
                             browsingModeCoordinator.getSearchAccelerator().setVisibility(View.GONE);
@@ -226,7 +231,7 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
                         @Override
                         public void onStartedHiding(@LayoutType int layoutType) {
                             if (layoutType != LayoutType.TAB_SWITCHER) return;
-
+                            mIsInTabSwitcherMode = false;
                             BrowsingModeBottomToolbarCoordinator browsingModeCoordinator =
                                     (BrowsingModeBottomToolbarCoordinator) mBrowsingModeCoordinator;
                             browsingModeCoordinator
@@ -357,7 +362,7 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
 
         } else if (v == mBookmarksButton) {
             TabUtils.showBookmarkTabPopupMenu(
-                    mContext, v, mBookmarkModelSupplier, mLocationBarModel);
+                    mContext, v, mBookmarkModelSupplier, mLocationBarModel, mBookmarkManagerOpener);
             return true;
         } else if (v == mNewTabButton) {
             TabUtils.showTabPopupMenu(mContext, v);
@@ -377,5 +382,9 @@ class BottomToolbarCoordinator implements View.OnLongClickListener {
             mHomeButton.setImageDrawable(
                     ContextCompat.getDrawable(mContext, R.drawable.btn_toolbar_home));
         }
+    }
+
+    public boolean isInTabSwitcherMode() {
+        return mIsInTabSwitcherMode;
     }
 }

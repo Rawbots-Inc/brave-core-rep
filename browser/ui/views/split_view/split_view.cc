@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/types/to_address.h"
 #include "brave/browser/ui/brave_browser.h"
 #include "brave/browser/ui/color/brave_color_id.h"
@@ -21,6 +23,7 @@
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/exclusive_access/exclusive_access_manager.h"
 #include "chrome/browser/ui/exclusive_access/fullscreen_controller.h"
 #include "chrome/browser/ui/ui_features.h"
@@ -86,8 +89,7 @@ SplitView::SplitView(Browser& browser,
     : browser_(browser),
       contents_container_(contents_container),
       contents_web_view_(contents_web_view) {
-  CHECK(base::FeatureList::IsEnabled(tabs::features::kBraveSplitView));
-  SplitViewBrowserData::CreateForBrowser(base::to_address(browser_));
+  CHECK(tabs::features::IsBraveSplitViewEnabled());
 
   // Re-parent the |contents_container| to this view.
   AddChildView(
@@ -99,10 +101,16 @@ SplitView::SplitView(Browser& browser,
 
   secondary_devtools_web_view_ = secondary_contents_container_->AddChildView(
       std::make_unique<views::WebView>(browser_->profile()));
+  secondary_contents_scrim_view_ = secondary_contents_container_->AddChildView(
+      std::make_unique<ScrimView>());
   secondary_contents_web_view_ = secondary_contents_container_->AddChildView(
       std::make_unique<ActivatableContentsWebView>(browser_->profile()));
   secondary_contents_scrim_view_ = secondary_contents_container_->AddChildView(
       std::make_unique<ScrimView>());
+
+  secondary_lens_overlay_view_ = secondary_contents_container_->AddChildView(
+      std::make_unique<views::View>());
+  secondary_lens_overlay_view_->SetVisible(false);
 
   split_view_separator_ = AddChildView(
       std::make_unique<SplitViewSeparator>(base::to_address(browser_)));
@@ -118,9 +126,10 @@ SplitView::SplitView(Browser& browser,
 
   secondary_contents_container_->SetLayoutManager(
       std::make_unique<BraveContentsLayoutManager>(
-          secondary_devtools_web_view_, secondary_contents_web_view_,
-          secondary_contents_scrim_view_, nullptr, nullptr,
-          secondary_reader_mode_toolbar_));
+          secondary_devtools_web_view_, secondary_contents_scrim_view_,
+          secondary_contents_web_view_, secondary_lens_overlay_view_,
+          secondary_contents_scrim_view_, /*border_view*/ nullptr,
+          /*watermark_view*/ nullptr, secondary_reader_mode_toolbar_));
 #endif
 
   SetLayoutManager(std::make_unique<SplitViewLayoutManager>(
@@ -128,7 +137,8 @@ SplitView::SplitView(Browser& browser,
       split_view_separator_));
 
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
+  CHECK(split_view_browser_data);
   split_view_observation_.Observe(split_view_browser_data);
 }
 
@@ -136,7 +146,7 @@ SplitView::~SplitView() = default;
 
 bool SplitView::IsSplitViewActive() const {
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   return split_view_browser_data->GetTile(GetActiveTabHandle()).has_value();
 }
 
@@ -251,8 +261,9 @@ void SplitView::Layout(PassKey key) {
 void SplitView::AddedToWidget() {
   widget_observation_.Observe(GetWidget());
 
-  secondary_location_bar_ = std::make_unique<SplitViewLocationBar>(
-      browser_->profile()->GetPrefs(), this);
+  secondary_location_bar_ =
+      std::make_unique<SplitViewLocationBar>(browser_->profile()->GetPrefs());
+  secondary_location_bar_->SetParentWebView(secondary_contents_container_);
   secondary_location_bar_widget_ = std::make_unique<views::Widget>();
 
   secondary_location_bar_widget_->Init(
@@ -318,8 +329,8 @@ bool SplitView::IsWebContentsTiled(content::WebContents* contents) const {
   }
   const auto tab_handle =
       browser_->tab_strip_model()->GetTabAtIndex(tab_index)->GetHandle();
-  return SplitViewBrowserData::FromBrowser(base::to_address(browser_))
-      ->IsTabTiled(tab_handle);
+  return browser_->GetFeatures().split_view_browser_data()->IsTabTiled(
+      tab_handle);
 }
 
 void SplitView::UpdateSplitViewSizeDelta(content::WebContents* old_contents,
@@ -334,7 +345,7 @@ void SplitView::UpdateSplitViewSizeDelta(content::WebContents* old_contents,
   }
 
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   auto get_tab_handle = [this, &get_index_of](content::WebContents* contents) {
     return browser_->tab_strip_model()
         ->GetTabAtIndex(get_index_of(contents))
@@ -366,7 +377,7 @@ void SplitView::UpdateSplitViewSizeDelta(content::WebContents* old_contents,
 
 void SplitView::UpdateContentsWebViewVisual() {
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   if (!split_view_browser_data) {
     return;
   }
@@ -377,7 +388,7 @@ void SplitView::UpdateContentsWebViewVisual() {
 
 void SplitView::UpdateContentsWebViewBorder() {
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   if (!split_view_browser_data) {
     return;
   }
@@ -408,7 +419,7 @@ void SplitView::UpdateContentsWebViewBorder() {
             ? BraveContentsViewUtil::kBorderRadius + kBorderThickness
             : 0;
     // Use same color for active focus border.
-    contents_container_->SetBorder(views::CreateThemedRoundedRectBorder(
+    contents_container_->SetBorder(views::CreateRoundedRectBorder(
         kBorderThickness, kRadius, kColorBraveSplitViewActiveWebViewBorder));
 
     BraveContentsLayoutManager::GetLayoutManagerForView(contents_container_)
@@ -451,7 +462,7 @@ void SplitView::UpdateSecondaryContentsWebViewVisibility() {
 #endif
 
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   DCHECK(split_view_browser_data);
 
   auto active_tab_handle = GetActiveTabHandle();
@@ -529,7 +540,7 @@ void SplitView::OnReaderModeToolbarActivate(ReaderModeToolbarView* toolbar) {
 void SplitView::UpdateSecondaryReaderModeToolbarVisibility() {
   auto active_tab_handle = GetActiveTabHandle();
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   if (auto tile = split_view_browser_data->GetTile(active_tab_handle)) {
     if (tile->first == active_tab_handle) {
       secondary_reader_mode_toolbar_->SetVisible(IsTabDistilled(tile->second));
@@ -552,7 +563,7 @@ void SplitView::UpdateSecondaryReaderModeToolbar() {
   ReaderModeToolbarView* primary_toolbar = browser_view->reader_mode_toolbar();
 
   auto* split_view_browser_data =
-      SplitViewBrowserData::FromBrowser(base::to_address(browser_));
+      browser_->GetFeatures().split_view_browser_data();
   if (split_view_browser_data &&
       split_view_browser_data->IsTabTiled(GetActiveTabHandle())) {
     // We need to swap the WebContents of the toolbars because, when the active

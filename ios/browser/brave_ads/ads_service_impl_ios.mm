@@ -20,8 +20,11 @@
 #include "base/notimplemented.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/thread_pool.h"
+#include "brave/components/brave_ads/core/browser/service/new_tab_page_ad_prefetcher.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
+#include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_info.h"
 #include "brave/components/brave_ads/core/public/ads.h"
+#include "brave/components/brave_ads/core/public/ads_callback.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client.h"
 #include "brave/components/brave_ads/core/public/ads_constants.h"
 #include "brave/components/brave_ads/core/public/flags/flags_util.h"
@@ -42,7 +45,9 @@ AdsServiceImplIOS::AdsServiceImplIOS(PrefService* prefs)
       prefs_(prefs),
       file_task_runner_(base::ThreadPool::CreateSequencedTaskRunner(
           {base::MayBlock(), base::TaskPriority::USER_VISIBLE,
-           base::TaskShutdownBehavior::BLOCK_SHUTDOWN})) {
+           base::TaskShutdownBehavior::BLOCK_SHUTDOWN})),
+      new_tab_page_ad_prefetcher_(
+          std::make_unique<NewTabPageAdPrefetcher>(/*ads_service=*/*this)) {
   CHECK(prefs_);
 }
 
@@ -196,40 +201,66 @@ void AdsServiceImplIOS::TriggerInlineContentAdEvent(
 }
 
 void AdsServiceImplIOS::PrefetchNewTabPageAd() {
-  // TODO(https://github.com/brave/brave-browser/issues/39703): Unify iOS new
-  // tab takeover ad serving
-  NOTIMPLEMENTED() << "Not used on iOS.";
+  if (!IsInitialized()) {
+    return;
+  }
+
+  new_tab_page_ad_prefetcher_->Prefetch();
 }
 
 std::optional<NewTabPageAdInfo>
 AdsServiceImplIOS::MaybeGetPrefetchedNewTabPageAd() {
-  // TODO(https://github.com/brave/brave-browser/issues/39703): Unify iOS new
-  // tab takeover ad serving
-  NOTIMPLEMENTED() << "Not used on iOS.";
-  return std::nullopt;
+  if (!IsInitialized()) {
+    return std::nullopt;
+  }
+
+  return new_tab_page_ad_prefetcher_->MaybeGetPrefetchedAd();
 }
 
 void AdsServiceImplIOS::OnFailedToPrefetchNewTabPageAd(
     const std::string& /*placement_id*/,
     const std::string& /*creative_instance_id*/) {
-  // TODO(https://github.com/brave/brave-browser/issues/39703): Unify iOS new
-  // tab takeover ad serving
-  NOTIMPLEMENTED() << "Not used on iOS.";
+  ResetNewTabPageAd();
+
+  PurgeOrphanedAdEventsForType(mojom::AdType::kNewTabPageAd,
+                               /*intentional*/ base::DoNothing());
 }
 
-void AdsServiceImplIOS::ParseAndSaveCreativeNewTabPageAds(
-    const base::Value::Dict& dict,
-    ParseAndSaveCreativeNewTabPageAdsCallback callback) {
+void AdsServiceImplIOS::ParseAndSaveNewTabPageAds(
+    base::Value::Dict dict,
+    ParseAndSaveNewTabPageAdsCallback callback) {
+  if (task_queue_.should_queue()) {
+    // TODO(https://github.com/brave/brave-browser/issues/44925): Transition
+    // task queue to ads service layer. API calls are fired before the ads
+    // service is initialized, we will follow up with a cross platform solution.
+    return task_queue_.Add(base::BindOnce(
+        &AdsServiceImplIOS::ParseAndSaveNewTabPageAds,
+        weak_ptr_factory_.GetWeakPtr(), std::move(dict), std::move(callback)));
+  }
+
   if (!IsInitialized()) {
     return std::move(callback).Run(/*success*/ false);
   }
 
-  ads_->ParseAndSaveCreativeNewTabPageAds(dict.Clone(), std::move(callback));
+  ads_->ParseAndSaveNewTabPageAds(
+      std::move(dict),
+      base::BindOnce(&AdsServiceImplIOS::OnParseAndSaveNewTabPageAdsCallback,
+                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
+}
+
+void AdsServiceImplIOS::MaybeServeNewTabPageAd(
+    MaybeServeNewTabPageAdCallback callback) {
+  if (!IsInitialized()) {
+    return std::move(callback).Run(/*ad=*/std::nullopt);
+  }
+
+  ads_->MaybeServeNewTabPageAd(std::move(callback));
 }
 
 void AdsServiceImplIOS::TriggerNewTabPageAdEvent(
     const std::string& placement_id,
     const std::string& creative_instance_id,
+    bool should_metrics_fallback_to_p3a,
     mojom::NewTabPageAdEventType mojom_ad_event_type,
     TriggerAdEventCallback callback) {
   CHECK(mojom::IsKnownEnumValue(mojom_ad_event_type));
@@ -239,6 +270,7 @@ void AdsServiceImplIOS::TriggerNewTabPageAdEvent(
   }
 
   ads_->TriggerNewTabPageAdEvent(placement_id, creative_instance_id,
+                                 should_metrics_fallback_to_p3a,
                                  mojom_ad_event_type, std::move(callback));
 }
 
@@ -442,6 +474,8 @@ void AdsServiceImplIOS::NotifyDidSolveAdaptiveCaptcha() {
 ///////////////////////////////////////////////////////////////////////////////
 
 void AdsServiceImplIOS::Shutdown() {
+  ResetNewTabPageAd();
+
   ads_.reset();
 }
 
@@ -466,6 +500,8 @@ void AdsServiceImplIOS::InitializeAdsCallback(InitializeCallback callback,
   if (!success) {
     Shutdown();
   }
+
+  task_queue_.FlushAndStopQueueing();
 
   std::move(callback).Run(success);
 }
@@ -504,6 +540,36 @@ void AdsServiceImplIOS::ClearAdsData(ClearDataCallback callback, bool success) {
 
 void AdsServiceImplIOS::ClearAdsDataCallback(ClearDataCallback callback) {
   InitializeAds(std::move(callback));
+}
+
+void AdsServiceImplIOS::RefetchNewTabPageAd() {
+  ResetNewTabPageAd();
+
+  PurgeOrphanedAdEventsForType(
+      mojom::AdType::kNewTabPageAd,
+      base::BindOnce(&AdsServiceImplIOS::RefetchNewTabPageAdCallback,
+                     weak_ptr_factory_.GetWeakPtr()));
+}
+
+void AdsServiceImplIOS::RefetchNewTabPageAdCallback(bool success) {
+  if (success) {
+    new_tab_page_ad_prefetcher_->Prefetch();
+  }
+}
+
+void AdsServiceImplIOS::ResetNewTabPageAd() {
+  new_tab_page_ad_prefetcher_ =
+      std::make_unique<NewTabPageAdPrefetcher>(/*ads_service=*/*this);
+}
+
+void AdsServiceImplIOS::OnParseAndSaveNewTabPageAdsCallback(
+    ParseAndSaveNewTabPageAdsCallback callback,
+    bool success) {
+  if (success) {
+    PrefetchNewTabPageAd();
+  }
+
+  std::move(callback).Run(success);
 }
 
 }  // namespace brave_ads

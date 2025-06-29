@@ -7,34 +7,34 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/browser_window.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 
 namespace brave_rewards {
 
-RewardsPanelCoordinator::RewardsPanelCoordinator(Browser* browser)
-    : BrowserUserData<RewardsPanelCoordinator>(*browser) {}
+RewardsPanelCoordinator::RewardsPanelCoordinator(
+    BrowserWindowInterface* browser_window_interface)
+    : browser_window_interface_(browser_window_interface) {
+  CHECK(browser_window_interface_);
+}
 
 RewardsPanelCoordinator::~RewardsPanelCoordinator() = default;
 
 bool RewardsPanelCoordinator::IsRewardsPanelURLForTesting(const GURL& url) {
-  return url.host() == kBraveRewardsPanelHost;
+  return url.host() == kRewardsPageTopHost;
 }
 
 bool RewardsPanelCoordinator::OpenRewardsPanel() {
-  return OpenWithArgs(
-      mojom::RewardsPanelArgs(mojom::RewardsPanelView::kDefault, ""));
-}
+  if (browser_window_interface_->IsMinimized()) {
+    browser_window_interface_->ActivateWindow();
+  }
 
-bool RewardsPanelCoordinator::ShowRewardsSetup() {
-  return OpenWithArgs(
-      mojom::RewardsPanelArgs(mojom::RewardsPanelView::kRewardsSetup, ""));
-}
+  for (auto& observer : observers_) {
+    observer.OnRewardsPanelRequested();
+  }
 
-bool RewardsPanelCoordinator::ShowAdaptiveCaptcha() {
-  return OpenWithArgs(
-      mojom::RewardsPanelArgs(mojom::RewardsPanelView::kAdaptiveCaptcha, ""));
+  return !observers_.empty();
 }
 
 void RewardsPanelCoordinator::AddObserver(Observer* observer) {
@@ -44,21 +44,5 @@ void RewardsPanelCoordinator::AddObserver(Observer* observer) {
 void RewardsPanelCoordinator::RemoveObserver(Observer* observer) {
   observers_.RemoveObserver(observer);
 }
-
-bool RewardsPanelCoordinator::OpenWithArgs(mojom::RewardsPanelArgs&& args) {
-  if (GetBrowser().window()->IsMinimized()) {
-    GetBrowser().window()->Restore();
-  }
-
-  panel_args_ = std::move(args);
-
-  for (auto& observer : observers_) {
-    observer.OnRewardsPanelRequested(panel_args_);
-  }
-
-  return !observers_.empty();
-}
-
-BROWSER_USER_DATA_KEY_IMPL(RewardsPanelCoordinator);
 
 }  // namespace brave_rewards

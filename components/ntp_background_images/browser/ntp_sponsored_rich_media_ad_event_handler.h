@@ -6,7 +6,6 @@
 #ifndef BRAVE_COMPONENTS_NTP_BACKGROUND_IMAGES_BROWSER_NTP_SPONSORED_RICH_MEDIA_AD_EVENT_HANDLER_H_
 #define BRAVE_COMPONENTS_NTP_BACKGROUND_IMAGES_BROWSER_NTP_SPONSORED_RICH_MEDIA_AD_EVENT_HANDLER_H_
 
-#include <memory>
 #include <string>
 
 #include "brave/components/ntp_background_images/browser/mojom/ntp_background_images.mojom.h"
@@ -23,9 +22,8 @@ class NTPP3AHelper;
 class NTPSponsoredRichMediaAdEventHandler
     : public mojom::SponsoredRichMediaAdEventHandler {
  public:
-  NTPSponsoredRichMediaAdEventHandler(
-      brave_ads::AdsService* ads_service,
-      std::unique_ptr<NTPP3AHelper> ntp_p3a_helper);
+  NTPSponsoredRichMediaAdEventHandler(brave_ads::AdsService* ads_service,
+                                      NTPP3AHelper* ntp_p3a_helper);
 
   NTPSponsoredRichMediaAdEventHandler(
       const NTPSponsoredRichMediaAdEventHandler&) = delete;
@@ -38,24 +36,19 @@ class NTPSponsoredRichMediaAdEventHandler
                 pending_receiver);
 
   // mojom::SponsoredRichMediaAdEventHandler:
-  void ReportRichMediaAdEvent(
+  void MaybeReportRichMediaAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type) override;
 
  private:
-  void MaybeTriggerNewTabPageAdEvent(
-      const std::string& placement_id,
-      const std::string& creative_instance_id,
-      brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type);
-
-  void MaybeRecordNewTabPageAdEvent(
-      const std::string& creative_instance_id,
-      brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type);
+  bool ShouldReportNewTabPageAdEvent(
+      brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type) const;
 
   const raw_ptr<brave_ads::AdsService> ads_service_ = nullptr;  // Not owned.
 
-  std::unique_ptr<NTPP3AHelper> ntp_p3a_helper_;
+  const raw_ptr<NTPP3AHelper> ntp_p3a_helper_ = nullptr;  // Not owned.
 
   mojo::Receiver<mojom::SponsoredRichMediaAdEventHandler> receiver_{this};
 };

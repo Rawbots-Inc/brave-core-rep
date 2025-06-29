@@ -9,8 +9,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/functional/bind.h"
 #include "base/json/json_writer.h"
+#include "base/logging.h"
 #include "base/memory/weak_ptr.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/sys_string_conversions.h"
@@ -102,8 +105,6 @@ bool BraveSyncWorker::RequestSync() {
   if (!sync_service_observer_.IsObservingSource(sync_service)) {
     sync_service_observer_.AddObservation(sync_service);
   }
-
-  sync_service->SetSyncFeatureRequested();
 
   return true;
 }
@@ -287,8 +288,6 @@ bool BraveSyncWorker::SetSetupComplete() {
   if (!sync_service) {
     return false;
   }
-
-  sync_service->SetSyncFeatureRequested();
 
   if (!sync_service->GetUserSettings()->IsInitialSyncFeatureSetupComplete()) {
     sync_service->GetUserSettings()->SetInitialSyncFeatureSetupComplete(

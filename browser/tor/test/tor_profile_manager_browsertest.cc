@@ -7,7 +7,6 @@
 
 #include "base/path_service.h"
 #include "base/process/launch.h"
-#include "base/strings/utf_string_conversions.h"
 #include "base/test/bind.h"
 #include "base/threading/thread_restrictions.h"
 #include "brave/browser/brave_ads/ads_service_factory.h"
@@ -40,8 +39,8 @@
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/extensions/extension_browsertest.h"
-#include "chrome/browser/extensions/extension_service.h"
 #include "extensions/browser/extension_prefs.h"
+#include "extensions/browser/extension_registrar.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/browser/extension_util.h"
 #include "extensions/common/extension_id.h"
@@ -390,7 +389,8 @@ IN_PROC_BROWSER_TEST_F(TorProfileManagerTest, NavigateToURLEvents) {
   EXPECT_CALL(delegate, NavigationStateChanged(testing::_, testing::_))
       .Times(testing::AnyNumber());
   EXPECT_CALL(delegate, NavigationStateChanged(web_contents,
-                                               content::INVALIDATE_TYPE_URL));
+                                               content::INVALIDATE_TYPE_URL))
+      .Times(testing::AnyNumber());
   web_contents->SetDelegate(&delegate);
 
   content::WaitForLoadStop(
@@ -399,7 +399,8 @@ IN_PROC_BROWSER_TEST_F(TorProfileManagerTest, NavigateToURLEvents) {
             url);
 
   EXPECT_CALL(delegate, NavigationStateChanged(web_contents,
-                                               content::INVALIDATE_TYPE_ALL));
+                                               content::INVALIDATE_TYPE_ALL))
+      .Times(testing::AnyNumber());
   // Tor connected
   GetTorLauncherFactory()->NotifyObservers(
       base::BindLambdaForTesting([](TorLauncherObserver& observer) {
@@ -472,7 +473,7 @@ IN_PROC_BROWSER_TEST_F(TorProfileManagerExtensionTest,
       id, extensions::ExtensionRegistry::EVERYTHING));
 
   // Component extension should always be allowed
-  extension_service()->UnloadExtension(
+  extension_registrar()->RemoveExtension(
       extension->id(), extensions::UnloadedExtensionReason::UNINSTALL);
   const extensions::Extension* component_extension =
       LoadExtensionAsComponent(extension_path());

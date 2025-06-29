@@ -26,7 +26,7 @@ export const SearchBar = (props: Props) => {
     value,
     useWithFilter,
     disabled,
-    isV2
+    isV2,
   } = props
   return (
     <StyledWrapper
@@ -38,6 +38,7 @@ export const SearchBar = (props: Props) => {
         name='search'
       />
       <SearchInput
+        data-key='search-input'
         autoFocus={autoFocus}
         value={value}
         placeholder={placeholder}

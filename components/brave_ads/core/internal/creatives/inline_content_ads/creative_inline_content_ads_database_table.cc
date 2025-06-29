@@ -16,7 +16,7 @@
 #include "base/location.h"
 #include "base/strings/string_util.h"
 #include "base/time/time.h"
-#include "brave/components/brave_ads/core/internal/common/containers/container_util.h"
+#include "brave/components/brave_ads/core/internal/common/algorithm/split_vector_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_column_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_statement_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_table_util.h"
@@ -199,10 +199,10 @@ void GetForSegmentsAndDimensionsCallback(
                                    /*creative_ads=*/{});
   }
 
-  const CreativeInlineContentAdList creative_ads =
+  CreativeInlineContentAdList creative_ads =
       GetCreativeAdsFromResponse(std::move(mojom_db_transaction_result));
 
-  std::move(callback).Run(/*success=*/true, segments, creative_ads);
+  std::move(callback).Run(/*success=*/true, segments, std::move(creative_ads));
 }
 
 void GetForDimensionsCallback(
@@ -213,10 +213,10 @@ void GetForDimensionsCallback(
     return std::move(callback).Run(/*success=*/false, /*creative_ads=*/{});
   }
 
-  const CreativeInlineContentAdList creative_ads =
+  CreativeInlineContentAdList creative_ads =
       GetCreativeAdsFromResponse(std::move(mojom_db_transaction_result));
 
-  std::move(callback).Run(/*success=*/true, creative_ads);
+  std::move(callback).Run(/*success=*/true, std::move(creative_ads));
 }
 
 void GetAllCallback(
@@ -228,12 +228,12 @@ void GetAllCallback(
                                    /*creative_ads=*/{});
   }
 
-  const CreativeInlineContentAdList creative_ads =
+  CreativeInlineContentAdList creative_ads =
       GetCreativeAdsFromResponse(std::move(mojom_db_transaction_result));
 
   const SegmentList segments = GetSegments(creative_ads);
 
-  std::move(callback).Run(/*success=*/true, segments, creative_ads);
+  std::move(callback).Run(/*success=*/true, segments, std::move(creative_ads));
 }
 
 }  // namespace
@@ -558,7 +558,7 @@ void CreativeInlineContentAds::MigrateToV48(
   // downloading the catalog post-migration. However, after this migration, we
   // should not drop the table as it will store catalog and non-catalog ad units
   // and maintain relationships with other tables.
-  DropTable(mojom_db_transaction, GetTableName());
+  DropTable(mojom_db_transaction, "creative_inline_content_ads");
   Create(mojom_db_transaction);
 }
 

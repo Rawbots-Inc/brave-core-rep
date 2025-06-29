@@ -6,6 +6,7 @@
 import Data
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -30,7 +31,7 @@ class URLPartinessScriptHandler: TabContentScript {
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {

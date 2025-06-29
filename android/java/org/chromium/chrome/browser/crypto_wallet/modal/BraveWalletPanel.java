@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.lifecycle.Observer;
 
+import org.chromium.base.BraveUrlConstants;
 import org.chromium.base.Log;
 import org.chromium.base.SysUtils;
 import org.chromium.brave_wallet.mojom.AccountInfo;
@@ -54,8 +55,9 @@ import org.chromium.chrome.browser.crypto_wallet.util.AssetsPricesHelper;
 import org.chromium.chrome.browser.crypto_wallet.util.BalanceHelper;
 import org.chromium.chrome.browser.crypto_wallet.util.Utils;
 import org.chromium.chrome.browser.crypto_wallet.util.WalletUtils;
+import org.chromium.chrome.browser.custom_layout.popup_window_tooltip.PopupWindowTooltip.OnDismissListener;
+import org.chromium.chrome.browser.toolbar.bottom.BottomToolbarConfiguration;
 import org.chromium.chrome.browser.util.ConfigurationUtils;
-import org.chromium.components.embedder_support.util.BraveUrlConstants;
 import org.chromium.components.embedder_support.util.UrlConstants;
 import org.chromium.ui.base.DeviceFormFactor;
 import org.chromium.url.GURL;
@@ -271,18 +273,26 @@ public class BraveWalletPanel implements DialogInterface {
         return true;
     }
 
-    public void showLikePopDownMenu() {
+    public void showLikeMenu() {
         mPopupWindow.setTouchable(true);
         mPopupWindow.setFocusable(true);
         mPopupWindow.setOutsideTouchable(true);
 
-        mPopupWindow.setAnimationStyle(R.style.EndIconMenuAnim);
+        mPopupWindow.setAnimationStyle(
+                BottomToolbarConfiguration.isToolbarTopAnchored()
+                        ? R.style.EndIconMenuAnim
+                        : R.style.EndIconMenuAnimBottom);
 
         if (SysUtils.isLowEndDevice()) {
             mPopupWindow.setAnimationStyle(0);
         }
 
-        mPopupWindow.showAsDropDown(mAnchorViewHost, 0, 0);
+        int yOffset = 0;
+        if (BottomToolbarConfiguration.isToolbarBottomAnchored()) {
+            mPopupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            yOffset = (mPopupView.getMeasuredHeight() + mAnchorViewHost.getHeight()) * -1;
+        }
+        mPopupWindow.showAsDropDown(mAnchorViewHost, 0, yOffset);
     }
 
     @Override
@@ -419,6 +429,14 @@ public class BraveWalletPanel implements DialogInterface {
     private void setUpViews() {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         mPopupView = (ViewGroup) inflater.inflate(R.layout.brave_wallet_panel_layout, null);
+        if (BottomToolbarConfiguration.isToolbarBottomAnchored()) {
+            // Remove bottom padding if present
+            mPopupView.setPadding(
+                    mPopupView.getPaddingLeft(),
+                    mPopupView.getPaddingTop(),
+                    mPopupView.getPaddingRight(),
+                    0);
+        }
 
         int deviceWidth = ConfigurationUtils.getDisplayMetrics(mActivity).get("width");
         boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(mActivity);

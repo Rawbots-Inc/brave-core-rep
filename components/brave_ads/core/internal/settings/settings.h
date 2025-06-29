@@ -9,6 +9,7 @@
 namespace brave_ads {
 
 bool UserHasJoinedBraveRewards();
+bool UserHasJoinedBraveRewardsAndConnectedWallet();
 
 bool UserHasOptedInToBraveNewsAds();
 
@@ -18,6 +19,8 @@ bool UserHasOptedInToNotificationAds();
 int GetMaximumNotificationAdsPerHour();
 
 bool UserHasOptedInToSearchResultAds();
+
+bool UserHasOptedInToSurveyPanelist();
 
 }  // namespace brave_ads
 

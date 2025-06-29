@@ -10,6 +10,8 @@
 #include <utility>
 #include <vector>
 
+#include "base/notreached.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
 #include "base/strings/string_util.h"
 #include "chrome/browser/extensions/api/identity/identity_api.h"

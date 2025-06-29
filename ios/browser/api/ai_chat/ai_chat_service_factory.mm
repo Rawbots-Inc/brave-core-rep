@@ -38,8 +38,14 @@ AIChatServiceFactory::AIChatServiceFactory()
                                     ProfileSelection::kRedirectedInIncognito,
                                     ServiceCreation::kCreateLazily,
                                     TestingCreation::kNoServiceForTests),
+      // NOTE: Currently, there are no iOS AIChat metrics that depend on profile
+      // prefs, so passing nullptr is acceptable here.
+      // If this constraint changes, the following issue
+      // must be addressed first:
+      // https://github.com/brave/brave-browser/issues/45459
       ai_chat_metrics_(std::make_unique<AIChatMetrics>(
-          GetApplicationContext()->GetLocalState())) {}
+          GetApplicationContext()->GetLocalState(),
+          nullptr)) {}
 
 AIChatServiceFactory::~AIChatServiceFactory() {}
 
@@ -62,9 +68,9 @@ std::unique_ptr<KeyedService> AIChatServiceFactory::BuildServiceInstanceFor(
       std::move(skus_service_getter), GetApplicationContext()->GetLocalState());
   ModelService* model_service = ModelServiceFactory::GetForProfile(profile);
   return std::make_unique<AIChatService>(
-      model_service, std::move(credential_manager),
-      user_prefs::UserPrefs::Get(context), ai_chat_metrics_.get(),
-      GetApplicationContext()->GetOSCryptAsync(),
+      model_service, nullptr /* tab_tracker_service */,
+      std::move(credential_manager), user_prefs::UserPrefs::Get(context),
+      ai_chat_metrics_.get(), GetApplicationContext()->GetOSCryptAsync(),
       context->GetSharedURLLoaderFactory(),
       version_info::GetChannelString(::GetChannel()), profile->GetStatePath());
 }

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <memory>
 
+#include "base/check.h"
 #include "base/files/file_path.h"
 #include "base/path_service.h"
 #include "base/strings/stringprintf.h"
@@ -14,12 +15,12 @@
 #include "base/test/scoped_feature_list.h"
 #include "brave/components/constants/brave_paths.h"
 #include "brave/components/constants/brave_services_key.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/translate/core/common/brave_translate_features.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
 #include "chrome/browser/translate/translate_test_utils.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/translate/translate_bubble_controller.h"
 #include "chrome/browser/ui/views/translate/translate_bubble_view.h"
@@ -43,7 +44,7 @@
 #include "services/network/public/cpp/network_switches.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#include "url/gurl.h"
+#include "ui/base/l10n/l10n_util.h"
 
 using ::testing::_;
 using ::testing::MockFunction;
@@ -219,9 +220,9 @@ class BraveTranslateBrowserTest : public InProcessBrowserTest {
   }
 
   content::EvalJsResult EvalTranslateJs(const std::string& script) {
-    return content::EvalJs(
-        browser()->tab_strip_model()->GetActiveWebContents(), script.c_str(),
-        content::EXECUTE_SCRIPT_DEFAULT_OPTIONS, ISOLATED_WORLD_ID_TRANSLATE);
+    return content::EvalJs(browser()->tab_strip_model()->GetActiveWebContents(),
+                           script, content::EXECUTE_SCRIPT_DEFAULT_OPTIONS,
+                           ISOLATED_WORLD_ID_TRANSLATE);
   }
 
   ::testing::AssertionResult HasNoBadFlagsInfobar() {
@@ -260,16 +261,17 @@ IN_PROC_BROWSER_TEST_F(BraveTranslateBrowserTest, InternalTranslation) {
 
   SetupTestScriptExpectations();
 
-  auto* bubble = TranslateBubbleController::FromWebContents(
-                     browser()->tab_strip_model()->GetActiveWebContents())
+  auto* bubble = browser()
+                     ->GetFeatures()
+                     .translate_bubble_controller()
                      ->GetTranslateBubble();
   ASSERT_TRUE(bubble);
 
   // Check that the we see the translation bubble (not about the extension
   // installation).
-  ASSERT_EQ(bubble->GetWindowTitle(),
-            brave_l10n::GetLocalizedResourceUTF16String(
-                IDS_TRANSLATE_BUBBLE_BEFORE_TRANSLATE_TITLE));
+  ASSERT_EQ(
+      bubble->GetWindowTitle(),
+      l10n_util::GetStringUTF16(IDS_TRANSLATE_BUBBLE_BEFORE_TRANSLATE_TITLE));
 
   // Translate the page. Note: the event onTranslateElementLoad() is
   // called from main.js (see SetupTestScriptExpectations()).
@@ -324,15 +326,16 @@ IN_PROC_BROWSER_TEST_F(BraveTranslateBrowserTest, NoAutoTranslate) {
       browser(), embedded_test_server()->GetURL("/espanol_page.html")));
   WaitUntilLanguageDetermined();
 
-  auto* bubble = TranslateBubbleController::FromWebContents(
-                     browser()->tab_strip_model()->GetActiveWebContents())
+  auto* bubble = browser()
+                     ->GetFeatures()
+                     .translate_bubble_controller()
                      ->GetTranslateBubble();
   ASSERT_TRUE(bubble);
 
   // Check that the we see BEFORE translation bubble (not in-progress bubble).
-  ASSERT_EQ(bubble->GetWindowTitle(),
-            brave_l10n::GetLocalizedResourceUTF16String(
-                IDS_TRANSLATE_BUBBLE_BEFORE_TRANSLATE_TITLE));
+  ASSERT_EQ(
+      bubble->GetWindowTitle(),
+      l10n_util::GetStringUTF16(IDS_TRANSLATE_BUBBLE_BEFORE_TRANSLATE_TITLE));
 }
 
 class BraveTranslateBrowserGoogleRedirectTest

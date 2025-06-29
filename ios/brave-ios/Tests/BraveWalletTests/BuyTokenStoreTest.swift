@@ -19,7 +19,8 @@ class BuyTokenStoreTests: XCTestCase {
     BraveWallet.TestBlockchainRegistry, BraveWallet.TestKeyringService,
     BraveWallet.TestJsonRpcService, BraveWallet.TestBraveWalletService,
     BraveWallet.TestAssetRatioService,
-    BraveWallet.TestBitcoinWalletService
+    BraveWallet.TestBitcoinWalletService,
+    BraveWallet.TestZCashWalletService
   ) {
     let mockTokenList: [BraveWallet.BlockchainToken] = [
       .init(
@@ -179,10 +180,13 @@ class BuyTokenStoreTests: XCTestCase {
 
     let bitcoinWalletService = BraveWallet.TestBitcoinWalletService()
 
+    let zcashWalletService = BraveWallet.TestZCashWalletService()
+
     return (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     )
   }
 
@@ -190,7 +194,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices()
     var store = BuyTokenStore(
       blockchainRegistry: blockchainRegistry,
@@ -199,6 +204,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
     XCTAssertNil(store.selectedBuyToken)
@@ -210,6 +216,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: .previewToken
     )
 
@@ -226,7 +233,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices()
     rpcService._network = { coin, origin, completion in
       completion(selectedNetwork)
@@ -246,6 +254,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: .mockSolToken  // not on mainnet
     )
     await store.updateInfo()
@@ -259,7 +268,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices(selectedNetwork: .mockSepolia)
     let store = BuyTokenStore(
       blockchainRegistry: blockchainRegistry,
@@ -268,6 +278,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
 
@@ -288,7 +299,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices(selectedNetwork: .mockMainnet)
     let store = BuyTokenStore(
       blockchainRegistry: blockchainRegistry,
@@ -297,6 +309,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
 
@@ -318,7 +331,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       _, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices()
     let blockchainRegistry = BraveWallet.TestBlockchainRegistry()
     blockchainRegistry._buyTokens = {
@@ -345,24 +359,23 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
 
     await store.updateInfo()
 
-    XCTAssertEqual(store.orderedSupportedBuyOptions.count, isTestRunningInUSRegion ? 4 : 3)
+    XCTAssertEqual(store.orderedSupportedBuyOptions.count, isTestRunningInUSRegion ? 3 : 2)
     XCTAssertNotNil(store.orderedSupportedBuyOptions.first)
     XCTAssertEqual(store.orderedSupportedBuyOptions.first, .sardine)
-    XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 1])
-    XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 1], .transak)
     if isTestRunningInUSRegion {
-      XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 2])
-      XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 2], .stripe)
-      XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 3])
-      XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 3], .coinbase)
-    } else {
+      XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 1])
+      XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 1], .stripe)
       XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 2])
       XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 2], .coinbase)
+    } else {
+      XCTAssertNotNil(store.orderedSupportedBuyOptions[safe: 1])
+      XCTAssertEqual(store.orderedSupportedBuyOptions[safe: 1], .coinbase)
     }
   }
 
@@ -372,7 +385,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       _, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices(selectedNetwork: selectedNetwork)
     let blockchainRegistry = BraveWallet.TestBlockchainRegistry()
     blockchainRegistry._buyTokens = {
@@ -399,6 +413,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
 
@@ -415,7 +430,8 @@ class BuyTokenStoreTests: XCTestCase {
     let (
       blockchainRegistry, keyringService,
       rpcService, walletService,
-      assetRatioService, bitcoinWalletService
+      assetRatioService, bitcoinWalletService,
+      zcashWalletService
     ) = setupServices()
     blockchainRegistry._onRampCurrencies = {
       $0([.mockUSD, .mockCAD, .mockGBP, .mockEuro])
@@ -428,6 +444,7 @@ class BuyTokenStoreTests: XCTestCase {
       walletService: walletService,
       assetRatioService: assetRatioService,
       bitcoinWalletService: bitcoinWalletService,
+      zcashWalletService: zcashWalletService,
       prefilledToken: nil
     )
     await store.updateInfo()
@@ -436,25 +453,22 @@ class BuyTokenStoreTests: XCTestCase {
     store.selectedCurrency = .mockUSD
     // some providers are only available in the US. Check ourselves instead of swizzling `regionCode` / `region`.
     if isTestRunningInUSRegion {
-      XCTAssertEqual(store.supportedProviders.count, 4)
+      XCTAssertEqual(store.supportedProviders.count, 3)
       XCTAssertEqual(
         store.supportedProviders,
         [
           BraveWallet.OnRampProvider.sardine,
-          BraveWallet.OnRampProvider.transak,
           BraveWallet.OnRampProvider.stripe,
           BraveWallet.OnRampProvider.coinbase,
         ]
       )
     } else {
       // stripe only supported in en-us locale
-      XCTAssertEqual(store.supportedProviders.count, 4)
+      XCTAssertEqual(store.supportedProviders.count, 2)
       XCTAssertEqual(
         store.supportedProviders,
         [
-          BraveWallet.OnRampProvider.ramp,
           BraveWallet.OnRampProvider.sardine,
-          BraveWallet.OnRampProvider.transak,
           BraveWallet.OnRampProvider.coinbase,
         ]
       )
@@ -462,12 +476,11 @@ class BuyTokenStoreTests: XCTestCase {
 
     // Test CAD. Ramp, Sardine, Transak, Coinbase are supported. Stripe unsupported.
     store.selectedCurrency = .mockCAD
-    XCTAssertEqual(store.supportedProviders.count, 3)
+    XCTAssertEqual(store.supportedProviders.count, 2)
     XCTAssertEqual(
       store.supportedProviders,
       [
         BraveWallet.OnRampProvider.sardine,
-        BraveWallet.OnRampProvider.transak,
         BraveWallet.OnRampProvider.coinbase,
       ]
     )

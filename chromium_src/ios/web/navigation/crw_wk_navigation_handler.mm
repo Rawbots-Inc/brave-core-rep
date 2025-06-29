@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 
+#include "ios/web/common/user_agent.h"
+
 namespace web {
 class WebState;
 }
@@ -15,6 +17,9 @@ class WebState;
 namespace brave {
 bool ShouldBlockUniversalLinks(web::WebState* webState, NSURLRequest* request);
 bool ShouldBlockJavaScript(web::WebState* webState, NSURLRequest* request);
+NSString* GetUserAgentForRequest(web::WebState* webState,
+                                 web::UserAgentType userAgentType,
+                                 NSURLRequest* request);
 }  // namespace brave
 
 #include "src/ios/web/navigation/crw_wk_navigation_handler.mm"
@@ -40,6 +45,32 @@ bool ShouldBlockJavaScript(web::WebState* webState, NSURLRequest* request);
           // Only ever update it to false
           preferences.allowsContentJavaScript = false;
         }
+
+        if (@available(iOS 18, *)) {
+        } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+          // In prior versions of iOS,
+          // `WKWebpagePreferences.allowsContentJavaScript` does not work
+          // correctly in all cases:
+          // https://github.com/brave/brave-ios/issues/8585
+          webView.configuration.preferences.javaScriptEnabled =
+              preferences.allowsContentJavaScript;
+#pragma clang diagnostic pop
+        }
+
+        const web::UserAgentType userAgentType =
+            [self userAgentForNavigationAction:action webView:webView];
+        if (userAgentType != web::UserAgentType::NONE) {
+          NSString* userAgent = brave::GetUserAgentForRequest(
+              static_cast<web::WebState*>(self.webStateImpl), userAgentType,
+              action.request);
+          if (userAgent &&
+              ![webView.customUserAgent isEqualToString:userAgent]) {
+            webView.customUserAgent = userAgent;
+          }
+        }
+
         if (policy == WKNavigationActionPolicyAllow) {
           // Check if we want to explicitly block universal links
           bool forceBlockUniversalLinks = brave::ShouldBlockUniversalLinks(

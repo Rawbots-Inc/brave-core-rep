@@ -7,6 +7,8 @@
 
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/extend.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_transaction_utils.h"
 #include "brave/components/brave_wallet/common/zcash_utils.h"
@@ -17,16 +19,16 @@ namespace brave_wallet {
 
 // CreateTransparentTransactionTask
 ZCashCreateTransparentTransactionTask::ZCashCreateTransparentTransactionTask(
-    base::PassKey<ZCashWalletService> pass_key,
+    std::variant<base::PassKey<ZCashWalletService>,
+                 base::PassKey<class ZCashCreateTransparentTransactionTaskTest>>
+        pass_key,
     ZCashWalletService& zcash_wallet_service,
     ZCashActionContext context,
     const std::string& address_to,
-    uint64_t amount,
-    CreateTransactionCallback callback)
+    uint64_t amount)
     : zcash_wallet_service_(zcash_wallet_service),
       context_(std::move(context)),
-      amount_(amount),
-      callback_(std::move(callback)) {
+      amount_(amount) {
   transaction_.set_to(address_to);
   transaction_.set_amount(amount);
 }
@@ -34,9 +36,10 @@ ZCashCreateTransparentTransactionTask::ZCashCreateTransparentTransactionTask(
 ZCashCreateTransparentTransactionTask::
     ~ZCashCreateTransparentTransactionTask() = default;
 
-void ZCashCreateTransparentTransactionTask::Start() {
-  DCHECK(!started_);
-  started_ = true;
+void ZCashCreateTransparentTransactionTask::Start(
+    CreateTransactionCallback callback) {
+  DCHECK(!callback_);
+  callback_ = std::move(callback);
   ScheduleWorkOnTask();
 }
 
@@ -54,12 +57,11 @@ void ZCashCreateTransparentTransactionTask::WorkOnTask() {
 
   if (error_) {
     std::move(callback_).Run(base::unexpected(*error_));
-    zcash_wallet_service_->CreateTransactionTaskDone(this);
     return;
   }
 
   if (!chain_height_) {
-    zcash_wallet_service_->zcash_rpc().GetLatestBlock(
+    context_.zcash_rpc->GetLatestBlock(
         context_.chain_id,
         base::BindOnce(&ZCashCreateTransparentTransactionTask::OnGetChainHeight,
                        weak_ptr_factory_.GetWeakPtr()));
@@ -75,7 +77,7 @@ void ZCashCreateTransparentTransactionTask::WorkOnTask() {
     return;
   }
 
-  if (utxo_map_.empty()) {
+  if (!utxo_map_) {
     zcash_wallet_service_->GetUtxos(
         context_.chain_id, context_.account_id.Clone(),
         base::BindOnce(&ZCashCreateTransparentTransactionTask::OnGetUtxos,
@@ -87,16 +89,23 @@ void ZCashCreateTransparentTransactionTask::WorkOnTask() {
   // https://github.com/bitcoin/bitcoin/blob/v24.0/src/wallet/spend.cpp#L739-L747
   transaction_.set_locktime(chain_height_.value());
 
-  auto pick_inputs_result = PickZCashTransparentInputs(utxo_map_, amount_, 0);
+  auto pick_inputs_result = PickZCashTransparentInputs(*utxo_map_, amount_, 0);
   if (!pick_inputs_result) {
     // TODO(cypt4) : switch to IDS_BRAVE_WALLET_INSUFFICIENT_BALANCE when ready
     SetError(l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
     WorkOnTask();
     return;
   }
-  transaction_.set_fee(pick_inputs_result->fee);
+
   base::Extend(transaction_.transparent_part().inputs,
                pick_inputs_result->inputs);
+  base::CheckedNumeric<uint32_t> value =
+      base::CheckSub(transaction_.TotalInputsAmount(),
+                     pick_inputs_result->fee + pick_inputs_result->change);
+  transaction_.set_fee(pick_inputs_result->fee);
+  // value is calculated from the PickZCashTransparentInputs result
+  // and it shouldn't be less than 0.
+  transaction_.set_amount(value.ValueOrDie());
 
   if (!PrepareOutputs()) {
     SetError(l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
@@ -108,7 +117,6 @@ void ZCashCreateTransparentTransactionTask::WorkOnTask() {
             transaction_.transparent_part().outputs.size());
 
   std::move(callback_).Run(base::ok(std::move(transaction_)));
-  zcash_wallet_service_->CreateTransactionTaskDone(this);
 }
 
 void ZCashCreateTransparentTransactionTask::OnGetChainHeight(

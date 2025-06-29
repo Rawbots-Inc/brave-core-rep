@@ -16,7 +16,8 @@
 #include "base/test/mock_callback.h"
 #include "base/test/task_environment.h"
 #include "base/test/values_test_util.h"
-#include "brave/components/brave_ads/browser/ads_service_mock.h"
+#include "base/time/time.h"
+#include "brave/components/brave_ads/core/browser/service/ads_service_mock.h"
 #include "brave/components/brave_ads/core/public/ad_units/new_tab_page_ad/new_tab_page_ad_info.h"
 #include "brave/components/brave_referrals/browser/brave_referrals_service.h"
 #include "brave/components/brave_referrals/common/pref_names.h"
@@ -31,12 +32,20 @@
 #include "brave/components/ntp_background_images/browser/view_counter_model.h"
 #include "brave/components/ntp_background_images/buildflags/buildflags.h"
 #include "brave/components/ntp_background_images/common/pref_names.h"
+#include "brave/components/ntp_background_images/common/view_counter_pref_registry.h"
+#include "brave/components/ntp_background_images/common/view_counter_theme_option_type.h"
 #include "build/build_config.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/content_settings/core/common/content_settings_types.h"
+#include "components/metrics/metrics_pref_names.h"
+#include "components/metrics/metrics_service.h"
 #include "components/prefs/testing_pref_service.h"
 #include "components/sync_preferences/testing_pref_service_syncable.h"
 #include "testing/gtest/include/gtest/gtest.h"
+
+#if !BUILDFLAG(IS_LINUX)
+#include "base/test/scoped_feature_list.h"
+#endif  // !BUILDFLAG(IS_LINUX)
 
 #if BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
 #include "brave/components/ntp_background_images/browser/brave_ntp_custom_background_service.h"
@@ -59,16 +68,16 @@ constexpr char kSponsoredImageCampaignsJson[] = R"(
       "campaigns": [
         {
           "version": 1,
-          "campaignId": "65933e82-6b21-440b-9956-c0f675ca7435",
+          "campaignId": "fb7ee174-5430-4fb9-8e97-29bf14e8d828",
           "creativeSets": [
             {
               "creativeSetId": "6690ad47-d0af-4dbb-a2dd-c7a678b2b83b",
               "creatives": [
                 {
-                  "creativeInstanceId": "30244a36-561a-48f0-8d7a-780e9035c57a",
-                  "companyName": "Image NTT Creative",
-                  "alt": "Some content",
-                  "targetUrl": "https://basicattentiontoken.org",
+                  "creativeInstanceId": "c0d61af3-3b85-4af4-a3cc-cf1b3dd40e70",
+                  "companyName": "Technikke",
+                  "alt": "Technikke: For music lovers.",
+                  "targetUrl": "https://brave.com",
                   "wallpaper": {
                     "type": "image",
                     "relativeUrl": "30244a36-561a-48f0-8d7a-780e9035c57a/background-1.jpg",
@@ -96,16 +105,16 @@ constexpr char kSponsoredRichMediaCampaignsJson[] = R"(
       "campaigns": [
         {
           "version": 1,
-          "campaignId": "c27a3fae-ee9e-48a2-b3a7-f4675744e6ec",
+          "campaignId": "fb7ee174-5430-4fb9-8e97-29bf14e8d828",
           "creativeSets": [
             {
               "creativeSetId": "a245e3b9-2df4-47f5-aaab-67b61c528b6f",
               "creatives": [
                 {
-                  "creativeInstanceId": "39d78863-327d-4b64-9952-cd0e5e330eb6",
-                  "alt": "Some more rich content",
-                  "companyName": "Another Rich Media NTT Creative",
-                  "targetUrl": "https://basicattentiontoken.org",
+                  "creativeInstanceId": "c0d61af3-3b85-4af4-a3cc-cf1b3dd40e70",
+                  "companyName": "Technikke",
+                  "alt": "Technikke: For music lovers.",
+                  "targetUrl": "https://brave.com",
                   "wallpaper": {
                     "type": "richMedia",
                     "relativeUrl": "39d78863-327d-4b64-9952-cd0e5e330eb6/index.html"
@@ -179,21 +188,31 @@ class ViewCounterServiceTest : public testing::Test {
   ~ViewCounterServiceTest() override = default;
 
   void SetUp() override {
+#if !BUILDFLAG(IS_LINUX)
+    scoped_feature_list_.InitAndEnableFeature(
+        features::kBraveNTPSuperReferralWallpaper);
+#endif  // !BUILDFLAG(IS_LINUX)
+
     brave_rewards::RegisterProfilePrefs(prefs_.registry());
-    ViewCounterService::RegisterProfilePrefs(prefs_.registry());
+    RegisterProfilePrefs(prefs_.registry());
     HostContentSettingsMap::RegisterProfilePrefs(prefs_.registry());
 
     brave::RegisterPrefsForBraveReferralsService(local_state_.registry());
     NTPBackgroundImagesService::RegisterLocalStatePrefs(
         local_state_.registry());
-    ViewCounterService::RegisterLocalStatePrefs(local_state_.registry());
+    RegisterLocalStatePrefs(local_state_.registry());
+    metrics::MetricsService::RegisterPrefs(local_state_.registry());
+
+    local_state_.SetInt64(metrics::prefs::kInstallDate,
+                          base::Time::Now().InSecondsFSinceUnixEpoch());
 
     host_content_settings_map_ = new HostContentSettingsMap(
         &prefs_, /* is_off_the_record=*/false, /*store_last_modified=*/false,
         /*restore_session=*/false, /*should_record_metrics=*/false);
 
     background_images_service_ = std::make_unique<NTPBackgroundImagesService>(
-        /*component_updater_service=*/nullptr, &local_state_);
+        /*variations_service=*/nullptr, /*component_updater_service=*/nullptr,
+        &local_state_);
 
     BraveNTPCustomBackgroundService* custom_background_service = nullptr;
 
@@ -295,16 +314,17 @@ class ViewCounterServiceTest : public testing::Test {
   }
 
   void SetSuperReferralVisibility(bool should_show) {
+    const ThemesOption themes_option =
+        should_show ? ThemesOption::kSuperReferral : ThemesOption::kDefault;
     prefs_.SetInteger(prefs::kNewTabPageSuperReferralThemesOption,
-                      should_show ? ViewCounterService::SUPER_REFERRAL
-                                  : ViewCounterService::DEFAULT);
+                      static_cast<int>(themes_option));
   }
 
   void SetBackgroundImagesVisibility(bool should_show) {
     prefs_.SetBoolean(prefs::kNewTabPageShowBackgroundImage, should_show);
   }
 
-  void MockImagesData() {
+  void MockBackgroundImagesService() {
     SetSponsoredImagesVisibility(true);
     MockSponsoredImagesData(WallpaperType::kImage, /*super_referral=*/false);
     EXPECT_TRUE(view_counter_service_->CanShowSponsoredImages());
@@ -325,7 +345,7 @@ class ViewCounterServiceTest : public testing::Test {
     EXPECT_TRUE(view_counter_service_->CanShowBackgroundImages());
   }
 
-  brave_ads::NewTabPageAdInfo CreateNewTabPageAdInfo() {
+  brave_ads::NewTabPageAdInfo BuildNewTabPageAd() {
     brave_ads::NewTabPageAdInfo ad;
     ad.placement_id = kPlacementdId;
     ad.campaign_id = kCampaignId;
@@ -333,7 +353,6 @@ class ViewCounterServiceTest : public testing::Test {
     ad.company_name = kCompanyName;
     ad.alt = kAltText;
     ad.target_url = GURL(kTargetUrl);
-
     return ad;
   }
 
@@ -356,15 +375,69 @@ class ViewCounterServiceTest : public testing::Test {
     return view_counter_service_->GetCurrentWallpaperForDisplay();
   }
 
-  bool AdInfoMatchesSponsoredImage(const brave_ads::NewTabPageAdInfo& ad,
-                                   size_t campaign_index,
-                                   size_t creative_index) {
-    return background_images_service_->sponsored_images_data_
-        ->AdInfoMatchesSponsoredImage(ad, campaign_index, creative_index);
+  void VerifyGetCurrentBrandedWallpaperExpectation() {
+    EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd)
+        .Times(GetInitialCountToBrandedWallpaper());
+    const brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
+    ON_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
+        .WillByDefault(::testing::Return(ad));
+    EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
+
+    const std::optional<base::Value::Dict> wallpaper =
+        CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper();
+    ASSERT_TRUE(wallpaper);
+
+    const std::string* url = wallpaper->FindString(kWallpaperURLKey);
+    ASSERT_TRUE(url);
+
+    const std::string* placement_id = wallpaper->FindString(kWallpaperIDKey);
+    ASSERT_TRUE(placement_id);
+
+    const std::string* creative_instance_id =
+        wallpaper->FindString(kCreativeInstanceIDKey);
+    ASSERT_TRUE(creative_instance_id);
+
+    const std::string* target_url =
+        wallpaper->FindStringByDottedPath(kLogoDestinationURLPath);
+    ASSERT_TRUE(target_url);
+
+    base::MockCallback<GetCurrentBrandedWallpaperCallback> callback;
+    EXPECT_CALL(callback, Run(::testing::Optional(GURL(*url)),
+                              ::testing::Optional(*placement_id),
+                              ::testing::Optional(*creative_instance_id),
+                              /*should_metrics_fallback_to_p3a=*/false,
+                              ::testing::Optional(GURL(*target_url))));
+    view_counter_service_->GetCurrentBrandedWallpaper(callback.Get());
+  }
+
+  void VerifyDoNotGetCurrentBrandedWallpaperExpectation() {
+    EXPECT_EQ(base::test::ParseJsonDict(R"JSON(
+      {
+        "author": "Brave",
+        "isBackground": true,
+        "link": "https://brave.com/",
+        "random": true,
+        "type": "brave",
+        "wallpaperImagePath": "wallpaper1.jpg",
+        "wallpaperImageUrl": "chrome://background-wallpaper/wallpaper1.jpg"
+      })JSON"),
+              CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper());
+
+    base::MockCallback<GetCurrentBrandedWallpaperCallback> callback;
+    EXPECT_CALL(
+        callback,
+        Run(::testing::Eq(std::nullopt), ::testing::Eq(std::nullopt),
+            ::testing::Eq(std::nullopt), false, ::testing::Eq(std::nullopt)));
+    view_counter_service_->GetCurrentBrandedWallpaper(callback.Get());
   }
 
  protected:
-  base::test::TaskEnvironment task_environment_;
+  base::test::TaskEnvironment task_environment_{
+      base::test::TaskEnvironment::TimeSource::MOCK_TIME};
+
+#if !BUILDFLAG(IS_LINUX)
+  base::test::ScopedFeatureList scoped_feature_list_;
+#endif  // !BUILDFLAG(IS_LINUX)
 
   TestingPrefServiceSimple local_state_;
   sync_preferences::TestingPrefServiceSyncable prefs_;
@@ -379,7 +452,7 @@ class ViewCounterServiceTest : public testing::Test {
       custom_background_service_delegate_mock_ = nullptr;
 #endif  // BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
 
-  brave_ads::AdsServiceMock ads_service_mock_{/*delegate=*/nullptr};
+  brave_ads::AdsServiceMock ads_service_mock_;
 
   std::unique_ptr<ViewCounterService> view_counter_service_;
 };
@@ -594,85 +667,6 @@ TEST_F(ViewCounterServiceTest, GetCurrentWallpaper) {
 #endif  // BUILDFLAG(ENABLE_CUSTOM_BACKGROUND)
 }
 
-TEST_F(ViewCounterServiceTest, GetNewTabTakeoverWallpaperForNonRewardsUser) {
-  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, false);
-
-  MockImagesData();
-
-  const ::testing::InSequence s;
-  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd).Times(0);
-  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
-  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd).Times(0);
-
-  EXPECT_TRUE(CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper());
-}
-
-TEST_F(ViewCounterServiceTest, DoNotGetNewTabTakeoverWallpaperForRewardsUser) {
-  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
-
-  MockImagesData();
-
-  const ::testing::InSequence s;
-  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd)
-      .Times(GetInitialCountToBrandedWallpaper());
-  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
-  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
-      .WillOnce(::testing::Return(/*ad*/ std::nullopt));
-
-  EXPECT_EQ(base::test::ParseJsonDict(R"JSON(
-      {
-        "author": "Brave",
-        "isBackground": true,
-        "link": "https://brave.com/",
-        "random": true,
-        "type": "brave",
-        "wallpaperImagePath": "wallpaper1.jpg",
-        "wallpaperImageUrl": "chrome://background-wallpaper/wallpaper1.jpg"
-      })JSON"),
-            CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper());
-}
-
-TEST_F(ViewCounterServiceTest, GetNewTabTakeoverWallpaperForRewardsUser) {
-  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
-
-  MockImagesData();
-
-  brave_ads::NewTabPageAdInfo ad = CreateNewTabPageAdInfo();
-  EXPECT_TRUE(AdInfoMatchesSponsoredImage(ad, /*campaign_index=*/0,
-                                          /*creative_index=*/1));
-
-  const ::testing::InSequence s;
-  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd)
-      .Times(GetInitialCountToBrandedWallpaper());
-  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
-  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
-      .WillOnce(::testing::Return(ad));
-
-  EXPECT_EQ(base::test::ParseJsonDict(R"JSON(
-      {
-        "campaignId": "fb7ee174-5430-4fb9-8e97-29bf14e8d828",
-        "conditionMatchers": [],
-        "creativeInstanceId": "c0d61af3-3b85-4af4-a3cc-cf1b3dd40e70",
-        "isBackground": false,
-        "isSponsored": true,
-        "logo": {
-            "alt": "Technikke: For music lovers.",
-            "companyName": "Technikke",
-            "destinationUrl": "https://brave.com",
-            "image": "",
-            "imagePath": "logo_image.png"
-        },
-        "themeName": "",
-        "type": "image",
-        "wallpaperFocalPointX": 5233,
-        "wallpaperFocalPointY": 3464,
-        "wallpaperId": "326eb47b-467b-46ab-ac1b-5f5de780b344",
-        "wallpaperImagePath": "wallpaper2.jpg",
-        "wallpaperImageUrl": ""
-      })JSON"),
-            CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper());
-}
-
 TEST_F(
     ViewCounterServiceTest,
     AllowNewTabTakeoverWithRichMediaIfJavaScriptContentSettingIsSetToAllowed) {
@@ -681,13 +675,14 @@ TEST_F(
   host_content_settings_map_->SetDefaultContentSetting(
       ContentSettingsType::JAVASCRIPT, CONTENT_SETTING_ALLOW);
 
-  MockBackgroundImagesData();
-  ASSERT_TRUE(view_counter_service_->CanShowBackgroundImages());
-
   background_images_service_->OnGetSponsoredComponentJsonData(
       /*is_super_referral=*/false, kSponsoredRichMediaCampaignsJson);
   ASSERT_TRUE(view_counter_service_->CanShowSponsoredImages());
 
+  const brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
+  ON_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
+      .WillByDefault(::testing::Return(ad));
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
   EXPECT_TRUE(view_counter_service_->GetCurrentBrandedWallpaper());
 }
 
@@ -699,30 +694,32 @@ TEST_F(
   host_content_settings_map_->SetDefaultContentSetting(
       ContentSettingsType::JAVASCRIPT, CONTENT_SETTING_BLOCK);
 
-  MockBackgroundImagesData();
-  ASSERT_TRUE(view_counter_service_->CanShowBackgroundImages());
-
   background_images_service_->OnGetSponsoredComponentJsonData(
       /*is_super_referral=*/false, kSponsoredRichMediaCampaignsJson);
   ASSERT_FALSE(view_counter_service_->CanShowSponsoredImages());
 
+  const brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
+  ON_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
+      .WillByDefault(::testing::Return(ad));
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
   EXPECT_FALSE(view_counter_service_->GetCurrentBrandedWallpaper());
 }
 
 TEST_F(ViewCounterServiceTest,
-       AllowNewTabTakeOverWithImageIfJavaScriptContentSettingIsSetToAllowed) {
+       AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToAllowed) {
   prefs_.SetBoolean(brave_rewards::prefs::kEnabled, false);
 
   host_content_settings_map_->SetDefaultContentSetting(
       ContentSettingsType::JAVASCRIPT, CONTENT_SETTING_ALLOW);
 
-  MockBackgroundImagesData();
-  ASSERT_TRUE(view_counter_service_->CanShowBackgroundImages());
-
   background_images_service_->OnGetSponsoredComponentJsonData(
       /*is_super_referral=*/false, kSponsoredImageCampaignsJson);
   ASSERT_TRUE(view_counter_service_->CanShowSponsoredImages());
 
+  const brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
+  ON_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
+      .WillByDefault(::testing::Return(ad));
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
   EXPECT_TRUE(view_counter_service_->GetCurrentBrandedWallpaper());
 }
 
@@ -733,93 +730,114 @@ TEST_F(ViewCounterServiceTest,
   host_content_settings_map_->SetDefaultContentSetting(
       ContentSettingsType::JAVASCRIPT, CONTENT_SETTING_BLOCK);
 
-  MockBackgroundImagesData();
-  ASSERT_TRUE(view_counter_service_->CanShowBackgroundImages());
-
   background_images_service_->OnGetSponsoredComponentJsonData(
       /*is_super_referral=*/false, kSponsoredImageCampaignsJson);
   ASSERT_TRUE(view_counter_service_->CanShowSponsoredImages());
 
+  const brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
+  ON_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
+      .WillByDefault(::testing::Return(ad));
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
   EXPECT_TRUE(view_counter_service_->GetCurrentBrandedWallpaper());
 }
 
-TEST_F(ViewCounterServiceTest, WrongSponsoredImageAdServedForRewardsUser) {
+TEST_F(ViewCounterServiceTest,
+       DoNotGetNewTabTakeoverWallpaperForMissingCreativeInstanceId) {
   prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
 
-  MockImagesData();
+  MockBackgroundImagesService();
 
-  brave_ads::NewTabPageAdInfo ad = CreateNewTabPageAdInfo();
+  brave_ads::NewTabPageAdInfo ad = BuildNewTabPageAd();
   ad.creative_instance_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx";
-  EXPECT_FALSE(AdInfoMatchesSponsoredImage(ad, /*campaign_index=*/0,
-                                           /*creative_index=*/1));
 
   EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd)
       .Times(GetInitialCountToBrandedWallpaper());
-  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd);
   EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd)
       .WillOnce(::testing::Return(ad));
-
-  EXPECT_EQ(base::test::ParseJsonDict(R"JSON(
-      {
-        "author": "Brave",
-        "isBackground": true,
-        "link": "https://brave.com/",
-        "random": true,
-        "type": "brave",
-        "wallpaperImagePath": "wallpaper1.jpg",
-        "wallpaperImageUrl": "chrome://background-wallpaper/wallpaper1.jpg"
-      })JSON"),
-            CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper());
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd);
+  VerifyDoNotGetCurrentBrandedWallpaperExpectation();
 }
 
-TEST_F(ViewCounterServiceTest, GetNewTabTakeoverWallpaper) {
+TEST_F(ViewCounterServiceTest,
+       GetNewTabTakeoverWallpaperOutsideGracePeriodForNonRewardsUser) {
   prefs_.SetBoolean(brave_rewards::prefs::kEnabled, false);
 
-  MockImagesData();
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+  task_environment_.AdvanceClock(base::Minutes(1));
 
-  const std::optional<base::Value::Dict> wallpaper =
-      CycleThroughPageViewsAndMaybeGetNewTabTakeoverWallpaper();
-  ASSERT_TRUE(wallpaper);
-
-  const std::string* url = wallpaper->FindString(kWallpaperURLKey);
-  ASSERT_TRUE(url);
-
-  const std::string* placement_id = wallpaper->FindString(kWallpaperIDKey);
-  ASSERT_TRUE(placement_id);
-
-  const std::string* creative_instance_id =
-      wallpaper->FindString(kCreativeInstanceIDKey);
-  ASSERT_TRUE(creative_instance_id);
-
-  const std::string* target_url =
-      wallpaper->FindStringByDottedPath(kLogoDestinationURLPath);
-  ASSERT_TRUE(target_url);
-
-  base::MockCallback<base::OnceCallback<void(
-      const std::optional<GURL>&, const std::optional<std::string>&,
-      const std::optional<std::string>&, const std::optional<GURL>&)>>
-      callback;
-  EXPECT_CALL(callback, Run(::testing::Optional(GURL(*url)),
-                            ::testing::Optional(*placement_id),
-                            ::testing::Optional(*creative_instance_id),
-                            ::testing::Optional(GURL(*target_url))));
-
-  view_counter_service_->GetCurrentBrandedWallpaper(callback.Get());
+  VerifyGetCurrentBrandedWallpaperExpectation();
 }
 
-TEST_F(ViewCounterServiceTest, DoNotGetNewTabTakeoverWallpaper) {
+TEST_F(ViewCounterServiceTest,
+       DoNotGetNewTabTakeoverWallpaperOnCuspOfGracePeriodForNonRewardsUser) {
   prefs_.SetBoolean(brave_rewards::prefs::kEnabled, false);
 
-  MockImagesData();
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+  task_environment_.AdvanceClock(base::Seconds(59));
 
-  base::MockCallback<base::OnceCallback<void(
-      const std::optional<GURL>&, const std::optional<std::string>&,
-      const std::optional<std::string>&, const std::optional<GURL>&)>>
-      callback;
-  EXPECT_CALL(callback,
-              Run(::testing::Eq(std::nullopt), ::testing::Eq(std::nullopt),
-                  ::testing::Eq(std::nullopt), ::testing::Eq(std::nullopt)));
-  view_counter_service_->GetCurrentBrandedWallpaper(callback.Get());
+  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
+  VerifyDoNotGetCurrentBrandedWallpaperExpectation();
+}
+
+TEST_F(ViewCounterServiceTest,
+       DoNotGetNewTabTakeoverWallpaperWithinGracePeriodForNonRewardsUser) {
+  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, false);
+
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+
+  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
+  VerifyDoNotGetCurrentBrandedWallpaperExpectation();
+}
+
+TEST_F(ViewCounterServiceTest,
+       GetNewTabTakeoverWallpaperOutsideGracePeriodForRewardsUser) {
+  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
+
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+  task_environment_.AdvanceClock(base::Minutes(1));
+
+  VerifyGetCurrentBrandedWallpaperExpectation();
+}
+
+TEST_F(ViewCounterServiceTest,
+       DoNotGetNewTabTakeoverWallpaperOnCuspOfGracePeriodForRewardsUser) {
+  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
+
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+  task_environment_.AdvanceClock(base::Seconds(59));
+
+  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
+  VerifyDoNotGetCurrentBrandedWallpaperExpectation();
+}
+
+TEST_F(ViewCounterServiceTest,
+       DoNotGetNewTabTakeoverWallpaperWithinGracePeriodForRewardsUser) {
+  prefs_.SetBoolean(brave_rewards::prefs::kEnabled, true);
+
+  MockBackgroundImagesService();
+  background_images_service_->sponsored_images_data_->grace_period =
+      base::Minutes(1);
+
+  EXPECT_CALL(ads_service_mock_, PrefetchNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, MaybeGetPrefetchedNewTabPageAd).Times(0);
+  EXPECT_CALL(ads_service_mock_, OnFailedToPrefetchNewTabPageAd).Times(0);
+  VerifyDoNotGetCurrentBrandedWallpaperExpectation();
 }
 
 }  // namespace ntp_background_images

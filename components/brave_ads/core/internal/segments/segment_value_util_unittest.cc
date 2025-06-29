@@ -16,12 +16,12 @@ namespace brave_ads {
 namespace {
 
 constexpr char kSegmentsAsJson[] =
-    R"(
+    R"JSON(
         [
           "technology & computing",
           "personal finance-banking",
           "food & drink-restaurants"
-        ])";
+        ])JSON";
 
 }  // namespace
 
@@ -58,14 +58,8 @@ TEST(BraveAdsSegmentValueUtilTest, SegmentsFromValue) {
 }
 
 TEST(BraveAdsSegmentValueUtilTest, EmptySegmentsFromValue) {
-  // Arrange
-  const base::Value::List list = base::test::ParseJsonList("[]");
-
-  // Act
-  const SegmentList segments = SegmentsFromValue(list);
-
-  // Assert
-  EXPECT_THAT(segments, ::testing::IsEmpty());
+  // Act & Assert
+  EXPECT_THAT(SegmentsFromValue({}), ::testing::IsEmpty());
 }
 
 }  // namespace brave_ads

@@ -52,8 +52,8 @@ class LoadingDesktopBrave(perf_benchmark.PerfBenchmark):
     return BraveLoadingDesktopStorySet(startup_delay=True)
 
   def CreateCoreTimelineBasedMeasurementOptions(self):
-    return CreateCoreTBMOptions(
-        ['braveGeneralUmaMetric', 'braveNavigationMetric'])
+    metrics = ['braveNavigationMetric']
+    return CreateCoreTBMOptions(metrics)
 
   def WillRunStory(self, _story):
     time.sleep(10)
@@ -68,7 +68,7 @@ class LoadingDesktopBrave(perf_benchmark.PerfBenchmark):
                 component='Blink>Loader',
                 documentation_url='https://bit.ly/loading-benchmarks')
 class LoadingDesktopBraveStartup(perf_benchmark.PerfBenchmark):
-  """ A benchmark measuring loading performance of desktop sites. """
+  """ A benchmark measuring loading startup performance of desktop sites. """
   SUPPORTED_PLATFORM_TAGS = [platforms.DESKTOP]
   SUPPORTED_PLATFORMS = [story.expectations.ALL_DESKTOP]
 
@@ -76,8 +76,9 @@ class LoadingDesktopBraveStartup(perf_benchmark.PerfBenchmark):
     return BraveLoadingDesktopStorySet(startup_delay=False)
 
   def CreateCoreTimelineBasedMeasurementOptions(self):
-    return CreateCoreTBMOptions(
-        ['braveGeneralUmaMetric', 'braveStartupUmaMetric'])
+    metrics = []
+    metrics.extend(['braveGeneralUmaMetric', 'braveStartupUmaMetric'])
+    return CreateCoreTBMOptions(metrics)
 
   @classmethod
   def Name(cls):

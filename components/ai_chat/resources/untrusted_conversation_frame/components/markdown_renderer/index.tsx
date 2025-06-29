@@ -6,15 +6,15 @@
 import * as React from 'react'
 import Markdown from 'react-markdown'
 import type { Root, Element as HastElement } from 'hast'
-
+import { Url } from 'gen/url/mojom/url.mojom.m.js'
+import Label from '@brave/leo/react/label'
 import { visit } from 'unist-util-visit'
 
 import styles from './style.module.scss'
 import CaretSVG from '../svg/caret'
-
-const removeReasoning = (text: string) => {
-  return text.includes('<think>') ? text.split('</think>')[1] : text
-}
+import {
+  useUntrustedConversationContext //
+} from '../../untrusted_conversation_context'
 
 const CodeBlock = React.lazy(async () => ({
   default: (await import('../code_block')).default.Block
@@ -52,7 +52,10 @@ const allowedElements = [
 
   // Line elements
   'br',
-  'hr'
+  'hr',
+
+  // Hyperlinks
+  'a'
 ]
 
 interface CursorDecoratorProps {
@@ -76,9 +79,78 @@ function CursorDecorator(props: CursorDecoratorProps) {
   )
 }
 
+interface RenderLinkProps {
+  a: React.ComponentProps<'a'>
+  allowedLinks?: string[]
+  disableLinkRestrictions?: boolean
+}
+
+export function RenderLink(props: RenderLinkProps) {
+  const { a, allowedLinks, disableLinkRestrictions} = props
+  const { href, children } = a
+
+  // Context
+  const context = useUntrustedConversationContext()
+
+  // Computed
+  const isHttps = href?.toLowerCase().startsWith('https://')
+  const isLinkAllowed = isHttps && (disableLinkRestrictions ||
+    (allowedLinks?.some((link) => href?.startsWith(link)) ?? false))
+
+  const handleLinkClicked = React.useCallback(() => {
+    if (href && isLinkAllowed) {
+      const mojomUrl = new Url()
+      mojomUrl.url = href
+      context.parentUiFrame?.userRequestedOpenGeneratedUrl(mojomUrl)
+    }
+  }, [context, href])
+
+  if (!isLinkAllowed) {
+    return <span>{children}</span>
+  }
+
+  const isCitation = typeof children === 'string' && /^\d+$/.test(children)
+
+  if (isCitation) {
+    return (
+      <Label>
+        <a
+          // While we preventDefault, we still need to pass the href
+          // here so we can continue to show link previews.
+          href={href}
+          className={styles.citation}
+          onClick={(e) => {
+            e.preventDefault()
+            handleLinkClicked()
+          }}
+        >
+          {children}
+        </a>
+      </Label>
+    )
+  }
+
+  return (
+    <a
+      // While we preventDefault, we still need to pass the href
+      // here so we can continue to show link previews.
+      href={href}
+      className={styles.conversationLink}
+      onClick={(e) => {
+        e.preventDefault()
+        handleLinkClicked()
+      }}
+    >
+      {children}
+    </a>
+  )
+}
+
 interface MarkdownRendererProps {
   text: string
   shouldShowTextCursor: boolean
+  allowedLinks?: string[]
+  disableLinkRestrictions?: boolean
 }
 
 export default function MarkdownRenderer(mainProps: MarkdownRendererProps) {
@@ -110,7 +182,7 @@ export default function MarkdownRenderer(mainProps: MarkdownRendererProps) {
         // if the component is allowed to show the text cursor.
         rehypePlugins={mainProps.shouldShowTextCursor ? [plugin] : undefined}
         unwrapDisallowed={true}
-        children={removeReasoning(mainProps.text)}
+        children={mainProps.text}
         components={{
           p: (props) => (
             <CursorDecorator
@@ -145,7 +217,14 @@ export default function MarkdownRenderer(mainProps: MarkdownRendererProps) {
                 <CodeInline code={String(children)} />
               </React.Suspense>
             )
-          }
+          },
+          a: (props: any) => (
+            <RenderLink
+              a={props}
+              allowedLinks={mainProps.allowedLinks}
+              disableLinkRestrictions={mainProps.disableLinkRestrictions}
+            />
+          )
         }}
       />
     </div>

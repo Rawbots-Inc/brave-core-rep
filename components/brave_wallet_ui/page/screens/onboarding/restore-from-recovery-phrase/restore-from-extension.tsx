@@ -12,9 +12,8 @@ import { getLocale } from '../../../../../common/locale'
 import {
   useCheckExternalWalletPasswordMutation,
   useGetWalletsToImportQuery,
-  useImportFromCryptoWalletsMutation,
   useImportFromMetaMaskMutation,
-  useReportOnboardingActionMutation
+  useReportOnboardingActionMutation,
 } from '../../../../common/slices/api.slice'
 
 // types
@@ -24,33 +23,33 @@ import { BraveWallet, WalletRoutes } from '../../../../constants/types'
 import {
   VerticalSpace,
   ErrorText,
-  Row
+  Row,
 } from '../../../../components/shared/style'
 import { ContinueButton, NextButtonRow } from '../onboarding.style'
 import { InputLabel } from './restore-from-recovery-phrase.style'
 
 // components
 import {
-  LoadingSkeleton //
+  LoadingSkeleton, //
 } from '../../../../components/shared/loading-skeleton/index'
 import {
-  PasswordInput //
+  PasswordInput, //
 } from '../../../../components/shared/password-input/password-input-v2'
 import {
   NewPasswordInput,
-  NewPasswordValues
+  NewPasswordValues,
 } from '../../../../components/shared/password-input/new-password-input'
 import {
-  OnboardingCreatingWallet //
+  OnboardingCreatingWallet, //
 } from '../creating_wallet/onboarding_creating_wallet'
 import {
-  OnboardingContentLayout //
+  OnboardingContentLayout, //
 } from '../components/onboarding_content_layout/content_layout'
 
 type RestoreFromExtensionSteps = 'newPassword' | 'currentPassword'
 
 interface Props {
-  restoreFrom: 'metamask' | 'legacy'
+  restoreFrom: 'metamask'
 }
 
 export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
@@ -67,25 +66,16 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     useCheckExternalWalletPasswordMutation()
 
   const [
-    importFromCryptoWallets,
-    {
-      data: importFromLegacyWalletResult,
-      isLoading: isImportingFromLegacyExtension
-    }
-  ] = useImportFromCryptoWalletsMutation()
-
-  const [
     importFromMetaMask,
     {
       data: importFromMetaMaskResult,
-      isLoading: isImportingFromMetaMaskExtension
-    }
+      isLoading: isImportingFromMetaMaskExtension,
+    },
   ] = useImportFromMetaMaskMutation()
 
   // computed from mutations
   const isCreatingWallet =
-    (restoreFrom === 'legacy' && isImportingFromLegacyExtension) ||
-    (restoreFrom === 'metamask' && isImportingFromMetaMaskExtension)
+    restoreFrom === 'metamask' && isImportingFromMetaMaskExtension
 
   // state
   const [isPasswordValid, setIsPasswordValid] = React.useState(false)
@@ -96,18 +86,13 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     React.useState<RestoreFromExtensionSteps>('currentPassword')
 
   const importWalletError =
-    extensionPasswordError ||
-    (restoreFrom === 'metamask' && importFromMetaMaskResult?.errorMessage) ||
-    (restoreFrom === 'legacy' && importFromLegacyWalletResult?.errorMessage)
-
+    extensionPasswordError
+    || (restoreFrom === 'metamask' && importFromMetaMaskResult?.errorMessage)
   // methods
   const checkImportPassword = React.useCallback(async () => {
     const results = await checkExtensionPassword({
-      walletType:
-        restoreFrom === 'metamask'
-          ? BraveWallet.ExternalWalletType.MetaMask
-          : BraveWallet.ExternalWalletType.CryptoWallets,
-      password: extensionPassword
+      walletType: BraveWallet.ExternalWalletType.MetaMask,
+      password: extensionPassword,
     }).unwrap()
     if (results.errorMessage) {
       setExtensionPasswordError(results.errorMessage)
@@ -115,7 +100,7 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
       setExtensionPasswordError('')
       setCurrentStep('newPassword')
     }
-  }, [checkExtensionPassword, extensionPassword, restoreFrom])
+  }, [checkExtensionPassword, extensionPassword])
 
   const restoreWallet = React.useCallback(async () => {
     if (!isPasswordValid) {
@@ -125,16 +110,7 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     if (restoreFrom === 'metamask') {
       await importFromMetaMask({
         password: extensionPassword,
-        newPassword: password
-      }).unwrap()
-      history.push(WalletRoutes.OnboardingComplete)
-      return
-    }
-
-    if (restoreFrom === 'legacy') {
-      await importFromCryptoWallets({
-        password: extensionPassword,
-        newPassword: password
+        newPassword: password,
       }).unwrap()
       history.push(WalletRoutes.OnboardingComplete)
     }
@@ -145,7 +121,6 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     extensionPassword,
     password,
     history,
-    importFromCryptoWallets
   ])
 
   const handlePasswordChange = React.useCallback(
@@ -153,7 +128,7 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
       setPassword(password)
       setIsPasswordValid(isValid)
     },
-    []
+    [],
   )
 
   const onContinueClicked = React.useCallback(async () => {
@@ -169,7 +144,7 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     extensionPassword,
     isPasswordValid,
     restoreWallet,
-    checkImportPassword
+    checkImportPassword,
   ])
 
   const handleKeyDown = React.useCallback(
@@ -178,7 +153,7 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
         onContinueClicked()
       }
     },
-    [onContinueClicked]
+    [onContinueClicked],
   )
 
   // memos
@@ -186,26 +161,22 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
     switch (currentStep) {
       case 'currentPassword':
         return {
-          title:
-            restoreFrom === 'metamask'
-              ? getLocale('braveWalletMetaMaskExtensionDetected')
-              : getLocale('braveWalletCryptoWalletsDetected'),
-          description:
-            restoreFrom === 'metamask'
-              ? getLocale('braveWalletMetaMaskExtensionImportDescription')
-              : getLocale('braveWalletImportBraveLegacyDescription')
+          title: getLocale('braveWalletMetaMaskExtensionDetected'),
+          description: getLocale(
+            'braveWalletMetaMaskExtensionImportDescription',
+          ),
         }
 
       case 'newPassword':
         return {
           title: getLocale('braveWalletCreatePasswordTitle'),
-          description: getLocale('braveWalletCreatePasswordDescription')
+          description: getLocale('braveWalletCreatePasswordDescription'),
         }
 
       default:
         return { title: '', description: '' }
     }
-  }, [currentStep, restoreFrom])
+  }, [currentStep])
 
   // effects
   React.useEffect(() => {
@@ -258,11 +229,9 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
             error={importWalletError || ''}
             hasError={!!importWalletError}
             onKeyDown={handleKeyDown}
-            placeholder={
-              restoreFrom === 'metamask'
-                ? getLocale('braveWalletMetaMaskPasswordInputPlaceholder')
-                : getLocale('braveWalletImportBraveLegacyInput')
-            }
+            placeholder={getLocale(
+              'braveWalletMetaMaskPasswordInputPlaceholder',
+            )}
             name='extensionPassword'
           />
 
@@ -293,9 +262,9 @@ export const OnboardingRestoreFromExtension = ({ restoreFrom }: Props) => {
           <ContinueButton
             onClick={onContinueClicked}
             isDisabled={
-              isCheckingImportPassword ||
-              (currentStep === 'currentPassword' && !extensionPassword) ||
-              (currentStep === 'newPassword' && !isPasswordValid)
+              isCheckingImportPassword
+              || (currentStep === 'currentPassword' && !extensionPassword)
+              || (currentStep === 'newPassword' && !isPasswordValid)
             }
             isLoading={isCheckingImportPassword}
           >

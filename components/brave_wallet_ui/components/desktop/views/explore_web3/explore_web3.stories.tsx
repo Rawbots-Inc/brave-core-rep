@@ -10,14 +10,14 @@ import { getLocale } from '../../../../../common/locale'
 
 // components
 import {
-  WalletPageStory //
+  WalletPageStory, //
 } from '../../../../stories/wrappers/wallet-page-story-wrapper'
 import WalletPageWrapper from '../../wallet-page-wrapper/wallet-page-wrapper'
 import { PageTitleHeader } from '../../card-headers/page-title-header'
 import { ExploreWeb3View } from './explore_web3'
 
 // styles
-import { StyledWrapper } from '../crypto/style'
+import { DefaultPageWrapper } from '../../../shared/style'
 
 export const _ExploreWeb3View = {
   render: () => {
@@ -29,13 +29,13 @@ export const _ExploreWeb3View = {
             <PageTitleHeader title={getLocale('braveWalletTopNavExplore')} />
           }
         >
-          <StyledWrapper>
+          <DefaultPageWrapper>
             <ExploreWeb3View />
-          </StyledWrapper>
+          </DefaultPageWrapper>
         </WalletPageWrapper>
       </WalletPageStory>
     )
-  }
+  },
 }
 
 export default { component: ExploreWeb3View }

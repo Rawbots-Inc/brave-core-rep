@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
+#include "base/containers/flat_set.h"
 #include "base/functional/callback.h"
+#include "base/values.h"
 #include "brave/components/brave_ads/core/internal/database/database_table_interface.h"
 #include "brave/components/brave_ads/core/internal/user_engagement/ad_events/ad_event_info.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
@@ -21,12 +23,25 @@ class TimeDelta;
 
 namespace brave_ads::database::table {
 
+using IsFirstTimeCallback =
+    base::OnceCallback<void(bool success, bool is_first_time)>;
+
 using GetAdEventsCallback =
     base::OnceCallback<void(bool success, const AdEventList& ad_events)>;
+using GetAdEventVirtualPrefsCallback =
+    base::OnceCallback<void(base::Value::Dict virtual_prefs)>;
 
 class AdEvents final : public TableInterface {
  public:
   void RecordEvent(const AdEventInfo& ad_event, ResultCallback callback);
+
+  // Should be called after recording the ad event. The callback takes two
+  // arguments - `success` is set to `true` if successful otherwise `false`.
+  // `is_first_time` is set to `true` if the ad event has only one entry
+  // otherwise `false`.
+  void IsFirstTime(const std::string& campaign_id,
+                   mojom::ConfirmationType confirmation_type,
+                   IsFirstTimeCallback callback) const;
 
   void GetAll(GetAdEventsCallback callback) const;
 
@@ -34,12 +49,16 @@ class AdEvents final : public TableInterface {
            mojom::ConfirmationType mojom_confirmation_type,
            base::TimeDelta time_window,
            GetAdEventsCallback callback) const;
+  void GetVirtualPrefs(const base::flat_set<std::string>& ids,
+                       GetAdEventVirtualPrefsCallback callback) const;
 
   void GetUnexpired(GetAdEventsCallback callback) const;
   void GetUnexpired(mojom::AdType mojom_ad_type,
                     GetAdEventsCallback callback) const;
 
   void PurgeExpired(ResultCallback callback) const;
+
+  void PurgeForAdType(mojom::AdType ad_type, ResultCallback callback) const;
 
   void PurgeOrphaned(mojom::AdType mojom_ad_type,
                      ResultCallback callback) const;

@@ -12,6 +12,7 @@ import { EarningCard } from './earning_card'
 import { PayoutAccountCard } from './payout_account_card'
 import { BenefitsCard } from './benefits_card'
 import { RecurringContributionCard } from './recurring_contribution_card'
+import { TopPromoCard } from './top_promo_card'
 
 import { style } from './home_view.style'
 
@@ -41,11 +42,12 @@ export function HomeView() {
   return (
     <div data-css-scope={style.scope}>
       <ContributeCard />
+      <TopPromoCard />
       <EarningCard />
       <PayoutAccountCard />
       <BenefitsCard />
       {
-        !embedder.isBubble && <>
+        !embedder.isAutoResizeBubble && <>
           <RecurringContributionCard />
         </>
       }

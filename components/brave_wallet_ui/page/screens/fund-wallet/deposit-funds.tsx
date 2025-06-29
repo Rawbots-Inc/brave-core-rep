@@ -6,10 +6,17 @@
 import * as React from 'react'
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { Redirect, Route, Switch, useHistory, useParams } from 'react-router'
+import ControlItem from '@brave/leo/react/controlItem'
 
 // Selectors
-import { useSafeUISelector } from '../../../common/hooks/use-safe-selector'
-import { UISelectors } from '../../../common/selectors'
+import {
+  useSafeUISelector,
+  useSafeWalletSelector,
+} from '../../../common/hooks/use-safe-selector'
+import {
+  UISelectors,
+  WalletSelectors, //
+} from '../../../common/selectors'
 
 // utils
 import { getLocale } from '../../../../common/locale'
@@ -17,11 +24,11 @@ import { makeNetworkAsset } from '../../../options/asset-options'
 import {
   getAssetIdKey,
   sortNativeAndAndBatAssetsToTop,
-  tokenNameToNftCollectionName
+  tokenNameToNftCollectionName,
 } from '../../../utils/asset-utils'
 import {
   makeDepositFundsAccountRoute,
-  makeDepositFundsRoute
+  makeDepositFundsRoute,
 } from '../../../utils/routes-utils'
 import { networkSupportsAccount } from '../../../utils/network-utils'
 
@@ -30,7 +37,8 @@ import {
   BraveWallet,
   NetworkFilterType,
   SupportedTestNetworks,
-  WalletRoutes
+  WalletRoutes,
+  zcashAddressOptionType,
 } from '../../../constants/types'
 
 // options
@@ -41,12 +49,13 @@ import { useCopyToClipboard } from '../../../common/hooks/use-copy-to-clipboard'
 import {
   useGetNetworkQuery,
   useGetQrCodeImageQuery,
-  useGetVisibleNetworksQuery
+  useGetVisibleNetworksQuery,
+  useGetZCashAccountInfoQuery,
 } from '../../../common/slices/api.slice'
 import {
   useAccountsQuery,
   useGetCombinedTokensListQuery,
-  useReceiveAddressQuery
+  useReceiveAddressQuery,
 } from '../../../common/slices/api.slice.extra'
 import { useDebouncedCallback } from '../swap/hooks/useDebouncedCallback'
 
@@ -57,11 +66,10 @@ import {
   HorizontalSpace,
   LoadingIcon,
   Row,
-  LeoSquaredButton
+  LeoSquaredButton,
 } from '../../../components/shared/style'
 import { Description, Title } from '../onboarding/onboarding.style'
 import {
-  AddressText,
   AddressTextLabel,
   TokenListWrapper,
   QRCodeContainer,
@@ -69,19 +77,24 @@ import {
   ScrollContainer,
   SearchWrapper,
   SelectAssetWrapper,
-  SearchAndDropdownWrapper
+  SearchAndDropdownWrapper,
 } from './fund-wallet.style'
 import {
-  LoadingRing //
+  LoadingRing, //
 } from '../../../components/extension/add-suggested-token-panel/style'
 import {
-  FilterTokenRow //
+  FilterTokenRow, //
 } from '../../../components/desktop/views/portfolio/style'
+import {
+  ControlsWrapper,
+  SegmentedControl,
+  AddressText,
+} from './deposit-funds.style'
 
 // components
 import {
   RenderTokenFunc,
-  VirtualizedTokensList
+  VirtualizedTokensList,
 } from '../../../components/desktop/views/portfolio/components/token-lists/virtualized-tokens-list'
 import SearchBar from '../../../components/shared/search-bar/index'
 import SelectAccountItem from '../../../components/shared/select-account-item/index'
@@ -91,27 +104,41 @@ import { CopiedToClipboardConfirmation } from '../../../components/desktop/copie
 import CreateAccountTab from '../../../components/buy-send-swap/create-account/index'
 import SelectHeader from '../../../components/buy-send-swap/select-header/index'
 import {
-  NetworkFilterSelector //
+  NetworkFilterSelector, //
 } from '../../../components/desktop/network-filter-selector'
 import {
-  WalletPageWrapper //
+  WalletPageWrapper, //
 } from '../../../components/desktop/wallet-page-wrapper/wallet-page-wrapper'
 import {
-  PageTitleHeader //
+  PageTitleHeader, //
 } from '../../../components/desktop/card-headers/page-title-header'
 import { Skeleton } from '../../../components/shared/loading-skeleton/styles'
 
-interface Props {
-  isAndroid?: boolean
-}
+const zcashAddressOptions: zcashAddressOptionType[] = [
+  {
+    addressType: 'unified',
+    label: 'braveWalletUnified',
+  },
+  {
+    addressType: 'shielded',
+    label: 'braveWalletShielded',
+  },
+  {
+    addressType: 'transparent',
+    label: 'braveWalletTransparent',
+  },
+]
 
 interface Params {
   assetId: string
 }
 
-export const DepositFundsScreen = ({ isAndroid }: Props) => {
+export const DepositFundsScreen = () => {
   // routing
   const history = useHistory()
+
+  // Selectors
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
 
   // render
   return (
@@ -171,29 +198,29 @@ function AssetSelection() {
 
   // state
   const [searchValue, setSearchValue] = React.useState<string>(
-    searchParam ?? ''
+    searchParam ?? '',
   )
   const [selectedNetworkFilter, setSelectedNetworkFilter] =
     React.useState<NetworkFilterType>(
       chainIdParam && coinTypeParam !== null
         ? {
             chainId: chainIdParam,
-            coin: Number(coinTypeParam)
+            coin: Number(coinTypeParam),
           }
-        : AllNetworksOption
+        : AllNetworksOption,
     )
 
   // queries
   const { data: selectedNetworkFromFilter = AllNetworksOption } =
     useGetNetworkQuery(
-      !selectedNetworkFilter ||
-        selectedNetworkFilter.chainId === AllNetworksOption.chainId
+      !selectedNetworkFilter
+        || selectedNetworkFilter.chainId === AllNetworksOption.chainId
         ? skipToken
-        : selectedNetworkFilter
+        : selectedNetworkFilter,
     )
   const { data: combinedTokensList } = useGetCombinedTokensListQuery()
   const selectedAsset = combinedTokensList.find(
-    (token) => getAssetIdKey(token) === selectedDepositAssetId
+    (token) => getAssetIdKey(token) === selectedDepositAssetId,
   )
 
   const { data: visibleNetworks = [] } = useGetVisibleNetworksQuery()
@@ -206,7 +233,7 @@ function AssetSelection() {
     mainnetNetworkAssetsList,
     testnetAssetsList,
     mainnetNetworkAssetsListIds,
-    testnetAssetsListIds
+    testnetAssetsListIds,
   } = React.useMemo(() => {
     const mainnets = []
     const testnets = []
@@ -233,7 +260,7 @@ function AssetSelection() {
       mainnetNetworkAssetsList,
       testnetAssetsList,
       mainnetNetworkAssetsListIds,
-      testnetAssetsListIds
+      testnetAssetsListIds,
     }
   }, [visibleNetworks])
 
@@ -244,18 +271,18 @@ function AssetSelection() {
     const nftCollectionAssetsIds: string[] = []
     for (const token of combinedTokensList) {
       if (
-        token.isNft &&
-        !nftCollectionAssets.find(
+        token.isNft
+        && !nftCollectionAssets.find(
           (t) =>
-            t.contractAddress === token.contractAddress &&
-            t.symbol === token.symbol
+            t.contractAddress === token.contractAddress
+            && t.symbol === token.symbol,
         )
       ) {
         const collectionToken = {
           ...token,
           tokenId: '',
           // Remove the token id from the token name
-          name: tokenNameToNftCollectionName(token)
+          name: tokenNameToNftCollectionName(token),
         }
         nftCollectionAssets.push(collectionToken)
         nftCollectionAssetsIds.push(getAssetIdKey(collectionToken))
@@ -269,34 +296,34 @@ function AssetSelection() {
     return combinedTokensList.filter((t) => {
       const id = getAssetIdKey(t)
       return (
-        !mainnetNetworkAssetsListIds.includes(id) &&
-        !testnetAssetsListIds.includes(id) &&
-        !nftCollectionAssetsIds.includes(id)
+        !mainnetNetworkAssetsListIds.includes(id)
+        && !testnetAssetsListIds.includes(id)
+        && !nftCollectionAssetsIds.includes(id)
       )
     })
   }, [
     combinedTokensList,
     mainnetNetworkAssetsListIds,
     testnetAssetsListIds,
-    nftCollectionAssetsIds
+    nftCollectionAssetsIds,
   ])
 
   const fullAssetsList: BraveWallet.BlockchainToken[] = React.useMemo(() => {
     // separate BAT from other tokens in the list so they can be placed higher
     // in the list
     const sortedFungibleAssets = sortNativeAndAndBatAssetsToTop(
-      tokensList
+      tokensList,
     ).filter((token) => token.contractAddress && !token.tokenId)
     return mainnetNetworkAssetsList.concat(
       sortedFungibleAssets,
       testnetAssetsList,
-      nftCollectionAssets
+      nftCollectionAssets,
     )
   }, [
     mainnetNetworkAssetsList,
     tokensList,
     nftCollectionAssets,
-    testnetAssetsList
+    testnetAssetsList,
   ])
 
   const assetsForFilteredNetwork = React.useMemo(() => {
@@ -304,7 +331,7 @@ function AssetSelection() {
       selectedNetworkFilter.chainId === AllNetworksOption.chainId
         ? fullAssetsList
         : fullAssetsList.filter(
-            ({ chainId }) => selectedNetworkFilter.chainId === chainId
+            ({ chainId }) => selectedNetworkFilter.chainId === chainId,
           )
 
     return assets
@@ -317,8 +344,8 @@ function AssetSelection() {
     return assetsForFilteredNetwork.filter((asset) => {
       const searchValueLower = searchValue.toLowerCase()
       return (
-        asset.name.toLowerCase().includes(searchValueLower) ||
-        asset.symbol.toLowerCase().includes(searchValueLower)
+        asset.name.toLowerCase().includes(searchValueLower)
+        || asset.symbol.toLowerCase().includes(searchValueLower)
       )
     })
   }, [searchValue, assetsForFilteredNetwork])
@@ -329,7 +356,7 @@ function AssetSelection() {
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchValue(event.target.value)
     },
-    []
+    [],
   )
 
   const nextStep = React.useCallback(() => {
@@ -344,9 +371,9 @@ function AssetSelection() {
       makeDepositFundsRoute(selectedDepositAssetId, {
         // save latest search-box value (if it matches selection name or symbol)
         searchText:
-          searchValue &&
-          (selectedAsset?.name.toLowerCase().startsWith(searchValueLower) ||
-            selectedAsset?.symbol.toLowerCase().startsWith(searchValueLower))
+          searchValue
+          && (selectedAsset?.name.toLowerCase().startsWith(searchValueLower)
+            || selectedAsset?.symbol.toLowerCase().startsWith(searchValueLower))
             ? searchValue
             : undefined,
         // saving network filter (if it matches selection)
@@ -356,10 +383,10 @@ function AssetSelection() {
             : AllNetworksOption.chainId,
         coinType:
           selectedAsset?.coin === selectedNetworkFilter.coin
-            ? selectedNetworkFilter.coin.toString() ||
-              AllNetworksOption.coin.toString()
-            : AllNetworksOption.coin.toString()
-      })
+            ? selectedNetworkFilter.coin.toString()
+              || AllNetworksOption.coin.toString()
+            : AllNetworksOption.coin.toString(),
+      }),
     )
 
     history.push(makeDepositFundsAccountRoute(selectedDepositAssetId))
@@ -368,7 +395,7 @@ function AssetSelection() {
     searchValue,
     history,
     selectedAsset,
-    selectedNetworkFilter
+    selectedNetworkFilter,
   ])
 
   const renderToken = React.useCallback<
@@ -385,7 +412,7 @@ function AssetSelection() {
         />
       )
     },
-    [history]
+    [history],
   )
 
   // render
@@ -461,19 +488,24 @@ function DepositAccount() {
   const history = useHistory()
   const { assetId: selectedDepositAssetId } = useParams<Params>()
 
+  // redux
+  const isZCashShieldedTransactionsEnabled = useSafeWalletSelector(
+    WalletSelectors.isZCashShieldedTransactionsEnabled,
+  )
+
   // queries
   const { accounts } = useAccountsQuery()
   const { data: combinedTokensList } = useGetCombinedTokensListQuery()
   const selectedAsset = combinedTokensList.find(
-    (token) => getAssetIdKey(token) === selectedDepositAssetId
+    (token) => getAssetIdKey(token) === selectedDepositAssetId,
   )
   const { data: selectedAssetNetwork } = useGetNetworkQuery(
-    selectedAsset ?? skipToken
+    selectedAsset ?? skipToken,
   )
   const accountsForSelectedAssetCoinType = React.useMemo(() => {
     return selectedAssetNetwork
       ? accounts.filter((a) =>
-          networkSupportsAccount(selectedAssetNetwork, a.accountId)
+          networkSupportsAccount(selectedAssetNetwork, a.accountId),
         )
       : []
   }, [selectedAssetNetwork, accounts])
@@ -488,10 +520,17 @@ function DepositAccount() {
     BraveWallet.AccountInfo | undefined
   >(accountsForSelectedAssetCoinType[0])
   const { receiveAddress, isFetchingAddress } = useReceiveAddressQuery(
-    selectedAccount?.accountId
+    selectedAccount?.accountId,
   )
-  const { data: qrCode, isFetching: isLoadingQrCode } = useGetQrCodeImageQuery(
-    receiveAddress || skipToken
+  const [selectedZCashAddressOption, setSelectedZCashAddressOption] =
+    React.useState<string>('shielded')
+
+  // queries
+  const { data: zcashAccountInfo } = useGetZCashAccountInfoQuery(
+    isZCashShieldedTransactionsEnabled
+      && selectedAccount?.accountId.coin === BraveWallet.CoinType.ZEC
+      ? selectedAccount?.accountId
+      : skipToken,
   )
 
   // custom hooks
@@ -512,21 +551,8 @@ function DepositAccount() {
   }, [accountSearchText, accountsForSelectedAssetCoinType])
 
   const depositTitleText: string = React.useMemo(() => {
-    const isNativeAsset =
-      selectedAsset?.coin === BraveWallet.CoinType.ETH &&
-      !selectedAsset?.isErc20 &&
-      !selectedAsset?.isErc721
-    const isFil = selectedAsset?.coin === BraveWallet.CoinType.FIL
     const isSolOrSpl = selectedAsset?.coin === BraveWallet.CoinType.SOL
     const isErc = selectedAsset?.isErc20 || selectedAsset?.isErc721
-
-    // EVM native network (gas) assets & Filecoin
-    if (isNativeAsset || isFil) {
-      return getLocale('braveWalletDepositX').replace(
-        '$1',
-        selectedAsset.symbol
-      )
-    }
 
     // ERC-based tokens
     if (isErc) {
@@ -538,22 +564,53 @@ function DepositAccount() {
       return getLocale('braveWalletDepositSolSplTokens')
     }
 
-    return ''
+    return getLocale('braveWalletDepositX').replace(
+      '$1',
+      selectedAsset?.symbol ?? '',
+    )
   }, [selectedAsset])
+
+  const address = React.useMemo(() => {
+    if (
+      isZCashShieldedTransactionsEnabled
+      && selectedAccount?.accountId.coin === BraveWallet.CoinType.ZEC
+      && zcashAccountInfo?.accountShieldBirthday
+    ) {
+      switch (selectedZCashAddressOption) {
+        case 'unified':
+          return zcashAccountInfo.unifiedAddress
+        case 'shielded':
+          return zcashAccountInfo.orchardAddress
+        default:
+          return zcashAccountInfo.nextTransparentReceiveAddress.addressString
+      }
+    }
+    return receiveAddress
+  }, [
+    isZCashShieldedTransactionsEnabled,
+    selectedAccount,
+    receiveAddress,
+    zcashAccountInfo,
+    selectedZCashAddressOption,
+  ])
+
+  const { data: qrCode, isFetching: isLoadingQrCode } = useGetQrCodeImageQuery(
+    address || skipToken,
+  )
 
   // methods
   const openAccountSearch = React.useCallback(
     () => setShowAccountSearch(true),
-    []
+    [],
   )
   const closeAccountSearch = React.useCallback(
     () => setShowAccountSearch(false),
-    []
+    [],
   )
   const _onSearchTextChanged = React.useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) =>
       setAccountSearchText(e.target.value),
-    []
+    [],
   )
   const onSearchTextChanged = useDebouncedCallback(_onSearchTextChanged, 250)
 
@@ -563,7 +620,7 @@ function DepositAccount() {
       setSelectedAccount(account)
       resetCopyState()
     },
-    [closeAccountSearch, resetCopyState]
+    [closeAccountSearch, resetCopyState],
   )
 
   const copyAddressToClipboard = React.useCallback(() => {
@@ -577,7 +634,7 @@ function DepositAccount() {
         copyAddressToClipboard()
       }
     },
-    [copyAddressToClipboard]
+    [copyAddressToClipboard],
   )
 
   // effects
@@ -645,7 +702,7 @@ function DepositAccount() {
           <Description>
             {getLocale('braveWalletDepositOnlySendOnXNetwork').replace(
               '$1',
-              selectedAssetNetwork.chainName
+              selectedAssetNetwork.chainName,
             )}
           </Description>
         )}
@@ -664,16 +721,43 @@ function DepositAccount() {
         <HorizontalSpace space={'45%'} />
       </Row>
 
+      {zcashAccountInfo && zcashAccountInfo.accountShieldBirthday && (
+        <ControlsWrapper width='unset'>
+          <SegmentedControl
+            value={selectedZCashAddressOption}
+            onChange={({ value }) => {
+              if (value) {
+                setSelectedZCashAddressOption(value)
+              }
+            }}
+          >
+            {zcashAddressOptions.map((option) => (
+              <ControlItem
+                key={option.addressType}
+                value={option.addressType}
+              >
+                {getLocale(option.label)}
+              </ControlItem>
+            ))}
+          </SegmentedControl>
+        </ControlsWrapper>
+      )}
+
       <Column gap={'4px'}>
         <AddressTextLabel>
           {getLocale('braveWalletAddress')}
           {':'}
         </AddressTextLabel>
 
-        {receiveAddress && !isFetchingAddress ? (
+        {address && !isFetchingAddress ? (
           <>
             <Row gap={'12px'}>
-              <AddressText>{receiveAddress}</AddressText>
+              <AddressText
+                textSize='14px'
+                textColor='secondary'
+              >
+                {address}
+              </AddressText>
               <CopyButton
                 iconColor={'interactive05'}
                 onKeyPress={onCopyKeyPress}
@@ -692,7 +776,7 @@ function DepositAccount() {
 
         <Row>
           <QRCodeContainer>
-            {isLoadingQrCode || !receiveAddress || isFetchingAddress ? (
+            {isLoadingQrCode || !address || isFetchingAddress ? (
               <LoadingRing />
             ) : (
               <QRCodeImage src={qrCode} />

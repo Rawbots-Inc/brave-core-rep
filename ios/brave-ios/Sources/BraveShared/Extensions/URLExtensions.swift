@@ -187,24 +187,24 @@ extension URL {
   }
 
   public var strippingBlobURLAuth: URL {
-    if self.scheme == "blob",
-      var components = URLComponents(url: self, resolvingAgainstBaseURL: true)
-    {
-      components.scheme = nil
+    guard self.scheme == "blob" else { return self }
 
-      if let newURL = components.url {
-        if var newComponents = URLComponents(url: newURL, resolvingAgainstBaseURL: true) {
-          newComponents.user = nil
-          newComponents.password = nil
-          newComponents.scheme = newURL.scheme
+    let blobURLString = self.absoluteString.dropFirst("blob:".count)
 
-          if let url = newComponents.url, let result = URL(string: "blob:\(url.absoluteString)") {
-            return result
-          }
-        }
-      }
+    guard let innerURL = URL(string: String(blobURLString)),
+      var components = URLComponents(url: innerURL, resolvingAgainstBaseURL: true)
+    else {
+      return self
     }
-    return self
+
+    components.user = nil
+    components.password = nil
+
+    guard let cleanedInnerURL = components.url else {
+      return self
+    }
+
+    return URL(string: "blob:\(cleanedInnerURL.absoluteString)") ?? self
   }
 
   /// Matches what `window.origin` would return in javascript.
@@ -214,6 +214,81 @@ extension URL {
     components.port = self.port
     components.host = self.host
     return components.url ?? self
+  }
+
+  /// Returns the base domain from a given hostname unless URL is IPV6 or does not
+  /// contain a `.`. The base domain name is defined as the public domain suffix
+  /// with the base private domain attached to the front. For example, for the
+  /// URL www.bbc.co.uk, the base domain would be bbc.co.uk. The base domain
+  /// includes the public suffix (co.uk) + one level down (bbc).
+  /// - returns The base domain string for the given host name.
+  public var baseDomain: String? {
+    guard !isIPv6, let host = host else { return nil }
+
+    // If this is just a hostname and not a FQDN, use the entire hostname.
+    if !host.contains(".") {
+      return host
+    }
+
+    let registry = (self as NSURL).domainAndRegistry
+    if !registry.isEmpty {
+      return registry
+    }
+
+    // fallback to host if domainAndRegistry is empty
+    return host
+  }
+
+  /// Returns the second level domain (SLD) of a url. It removes any subdomain/TLD
+  ///
+  /// E.g., https://m.foo.com/bar/baz?noo=abc#123  => foo
+  public var hostSLD: String {
+    guard let publicSuffix = self.publicSuffix, let baseDomain = self.baseDomain else {
+      return self.normalizedHost() ?? self.absoluteString
+    }
+    return baseDomain.replacingOccurrences(of: ".\(publicSuffix)", with: "")
+  }
+
+  // Check if the website is supporting showing Add To playlist toast
+  public var isPlaylistSupportedSiteURL: Bool {
+    let urlHost = self.host ?? self.hostSLD
+
+    var siteList = Set<String>([
+      "youtube.com", "vimeo.com", "twitch.tv",
+      "soundcloud.com", "dailymotion.com", "udemy.com",
+      "floatplane.com", "newness.com", "ted.com",
+      "pandora.tv", "watchnebula.com", "pbs.org",
+      "curiositystream.com", "soccer-douga.com", "bitchute.com",
+      "rumble.com", "gorf.tv", "odysee.com", "brighteon.com",
+      "lbry.tv", "luminarypodcasts.com", "marthastewart.com",
+      "bbcgoodfood.com", "bt.com", "skysports.com", "sky.co.nz",
+      "kayosports.com.au", "listennotes.com", "vid.puffyan.us",
+      "twitter.com", "x.com",
+    ])
+
+    /// Additional sites for Japanese locale
+    if Locale.current.region?.identifier == "JP" {
+      let japanList = Set<String>([
+        "nicovideo.jp", "video.fc2.com", "musicpv.jp",
+        "openrec.tv", "mirrativ.com", "mildom.com",
+        "twitcasting.tv", "creators.yahoo.co.jp",
+        "jp.voicetube.com", "openclassrooms.com",
+        "udacity.com", "coursera.org", "edx.org",
+        "3mcompany.jp", "eikoh-lms.com", "eikoh-http.akamaized.net",
+        "asuka-academy.com", "chugakujuken.com", "ic0.tv",
+        "aoi-zemi.com", "prog-8.com", "jmooc.jp", "schoo.jp",
+        "nlp.netlearning.co.jp", "gacco.org", "dic.okedou.app",
+        "okedou.app", "sports.yahoo.co.jp", "soccer.skyperfectv.co.jp",
+      ])
+      siteList.formUnion(japanList)
+    }
+
+    return siteList.contains(where: urlHost.contains)
+  }
+
+  public var isPlaylistBlockedSiteURL: Bool {
+    let urlHost = self.host ?? self.hostSLD
+    return urlHost == "talk.brave.com"
   }
 
   /// Returns true if we should show Shred option for the given URL.

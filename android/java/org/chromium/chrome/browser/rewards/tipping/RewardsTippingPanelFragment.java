@@ -1,11 +1,12 @@
-/**
- * Copyright (c) 2023 The Brave Authors. All rights reserved.
+/* Copyright (c) 2023 The Brave Authors. All rights reserved.
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+ * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 package org.chromium.chrome.browser.rewards.tipping;
+
+import static org.chromium.build.NullUtil.assumeNonNull;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Resources;
@@ -25,8 +26,6 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -36,6 +35,8 @@ import org.json.JSONException;
 import org.chromium.base.Log;
 import org.chromium.brave_rewards.mojom.PublisherStatus;
 import org.chromium.brave_rewards.mojom.WalletStatus;
+import org.chromium.build.annotations.NullMarked;
+import org.chromium.build.annotations.Nullable;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.BraveRewardsBalance;
 import org.chromium.chrome.browser.BraveRewardsExternalWallet;
@@ -53,14 +54,16 @@ import org.chromium.ui.text.ChromeClickableSpan;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
+@NullMarked
 public class RewardsTippingPanelFragment extends Fragment implements BraveRewardsObserver {
     public static final String TAG_FRAGMENT = "tipping_panel_tag";
     private static final String TAG = "TippingPanelFragment";
 
     private BraveRewardsNativeWorker mBraveRewardsNativeWorker;
-    private String mWalletType = BraveRewardsNativeWorker.getInstance().getExternalWalletType();
+    private final String mWalletType =
+            BraveRewardsNativeWorker.getInstance().getExternalWalletType();
 
-    private TextView mRadioTipAmount[] = new TextView[4];
+    private final TextView mRadioTipAmount[] = new TextView[4];
     private double[] mTipChoices;
     private TextView mCurrency1TextView;
     private TextView mCurrency2TextView;
@@ -81,14 +84,14 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
     private Button mWeb3WalletButton;
     private int mCurrentTabId = -1;
     private double mBalance;
-    private String mWeb3Url;
+    private @Nullable String mWeb3Url;
 
     private boolean mIsLogoutState;
     private double mAmountSelected;
 
     private double mRate;
     private boolean mIsBatCurrency;
-    private BraveRewardsExternalWallet mExternalWallet;
+    private @Nullable BraveRewardsExternalWallet mExternalWallet;
     private ProgressBar mTipProgressBar;
     private ProgressBar mFetchBalanceProgressBar;
 
@@ -118,10 +121,13 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(
+            LayoutInflater inflater,
+            @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        final View view = LayoutInflater.from(getContext())
-                                  .inflate(R.layout.brave_rewards_tippingpanel_fragment_base, null);
+        final View view =
+                LayoutInflater.from(getContext())
+                        .inflate(R.layout.brave_rewards_tippingpanel_fragment_base, null);
         mIsTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(getActivity());
         if (getArguments() != null) {
             mCurrentTabId = getArguments().getInt(RewardsTippingBannerActivity.TAB_ID_EXTRA);
@@ -333,8 +339,7 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
         SpannableString textSpannableString = new SpannableString(textSpanned.toString());
         ChromeClickableSpan monthlyContributionClickableSpan =
                 new ChromeClickableSpan(
-                        getActivity(),
-                        R.color.monthly_contributions_text_color,
+                        getActivity().getColor(R.color.monthly_contributions_text_color),
                         (textView) -> {
                             TabUtils.openUrlInNewTab(
                                     false, BraveActivity.BRAVE_REWARDS_SETTINGS_MONTHLY_URL);
@@ -353,8 +358,10 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
 
     @SuppressLint("SetTextI18n")
     private void setLogoutStateMessage() {
+        assumeNonNull(mExternalWallet);
         String logoutWarningMessage =
-                String.format(getString(R.string.logged_out_of_custodian_description),
+                String.format(
+                        getString(R.string.logged_out_of_custodian_description),
                         getWalletStringFromType(mExternalWallet.getType()));
         if (!TextUtils.isEmpty(mWeb3Url)) {
             logoutWarningMessage += getString(R.string.still_receive_contributions_from_web3);
@@ -412,8 +419,10 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
     private void web3ButtonClick() {
         mWeb3WalletButton.setOnClickListener(
                 v -> {
-                    TabUtils.openUrlInNewTab(false, mWeb3Url);
-                    dismissRewardsPanel();
+                    if (mWeb3Url != null && !mWeb3Url.isEmpty()) {
+                        TabUtils.openUrlInNewTab(false, mWeb3Url);
+                        dismissRewardsPanel();
+                    }
                 });
     }
 
@@ -457,30 +466,31 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
         });
     }
 
-    private TextWatcher mTextChangeListener = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    private final TextWatcher mTextChangeListener =
+            new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
-        @SuppressLint("SetTextI18n")
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-            if (TextUtils.isEmpty(s)) s = "0";
-            Double batValue = getBatValue(s.toString(), mIsBatCurrency);
-            Double usdValue = mRate * batValue;
+                @SuppressLint("SetTextI18n")
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if (TextUtils.isEmpty(s)) s = "0";
+                    Double batValue = getBatValue(s.toString(), mIsBatCurrency);
+                    Double usdValue = mRate * batValue;
 
-            if (mIsBatCurrency) {
-                mCurrency2ValueTextView.setText(String.valueOf(roundExchangeUp(usdValue)));
-            } else {
-                mCurrency2ValueTextView.setText(String.valueOf(batValue));
-            }
+                    if (mIsBatCurrency) {
+                        mCurrency2ValueTextView.setText(String.valueOf(roundExchangeUp(usdValue)));
+                    } else {
+                        mCurrency2ValueTextView.setText(String.valueOf(batValue));
+                    }
 
-            mAmountSelected = selectedAmount();
-            checkEnoughFund();
-        }
+                    mAmountSelected = selectedAmount();
+                    checkEnoughFund();
+                }
 
-        @Override
-        public void afterTextChanged(Editable s) {}
-    };
+                @Override
+                public void afterTextChanged(Editable s) {}
+            };
 
     private void init(View view) {
         mCurrency1TextView = view.findViewById(R.id.currency1);
@@ -602,53 +612,54 @@ public class RewardsTippingPanelFragment extends Fragment implements BraveReward
         }
     }
 
-    private View.OnClickListener mRadioClicker = view -> {
-        if (mFetchBalanceProgressBar.getVisibility() == View.VISIBLE) {
-            return;
-        }
-        mCurrency1ValueEditTextView.removeTextChangedListener(mTextChangeListener);
+    private final View.OnClickListener mRadioClicker =
+            view -> {
+                if (mFetchBalanceProgressBar.getVisibility() == View.VISIBLE) {
+                    return;
+                }
+                mCurrency1ValueEditTextView.removeTextChangedListener(mTextChangeListener);
 
-        TextView tb_pressed = (TextView) view;
-        if (!tb_pressed.isSelected()) {
-            tb_pressed.setSelected(true);
-        }
+                TextView tb_pressed = (TextView) view;
+                if (!tb_pressed.isSelected()) {
+                    tb_pressed.setSelected(true);
+                }
 
-        int id = view.getId();
-        if (id == R.id.tipChoiceCustom) {
-            mCurrency1ValueEditTextView.requestFocus();
-            mCurrency1ValueTextView.setVisibility(View.INVISIBLE);
-            mCurrency1ValueEditTextView.setVisibility(View.VISIBLE);
-        } else {
-            mCurrency1ValueTextView.setVisibility(View.VISIBLE);
-            mCurrency1ValueEditTextView.setVisibility(View.INVISIBLE);
-            mCurrency1ValueTextView.setInputType(InputType.TYPE_NULL);
-            String s = ((TextView) view).getText().toString();
+                int id = view.getId();
+                if (id == R.id.tipChoiceCustom) {
+                    mCurrency1ValueEditTextView.requestFocus();
+                    mCurrency1ValueTextView.setVisibility(View.INVISIBLE);
+                    mCurrency1ValueEditTextView.setVisibility(View.VISIBLE);
+                } else {
+                    mCurrency1ValueTextView.setVisibility(View.VISIBLE);
+                    mCurrency1ValueEditTextView.setVisibility(View.INVISIBLE);
+                    mCurrency1ValueTextView.setInputType(InputType.TYPE_NULL);
+                    String s = ((TextView) view).getText().toString();
 
-            Double batValue = getBatValue(s, true);
-            Double usdValue = mRate * batValue;
-            String usdValueString = String.valueOf(roundExchangeUp(usdValue));
+                    Double batValue = getBatValue(s, true);
+                    Double usdValue = mRate * batValue;
+                    String usdValueString = String.valueOf(roundExchangeUp(usdValue));
 
-            if (mIsBatCurrency) {
-                mCurrency1ValueTextView.setText(s);
-                mCurrency1ValueEditTextView.setText(s);
-                mCurrency2ValueTextView.setText(usdValueString);
-            } else {
-                mCurrency1ValueTextView.setText(usdValueString);
-                mCurrency1ValueEditTextView.setText(usdValueString);
-                mCurrency2ValueTextView.setText(s);
-            }
-        }
-        for (TextView tb : mRadioTipAmount) {
-            if (tb.getId() == id) {
-                continue;
-            }
-            tb.setSelected(false);
-        }
-        mAmountSelected = selectedAmount();
+                    if (mIsBatCurrency) {
+                        mCurrency1ValueTextView.setText(s);
+                        mCurrency1ValueEditTextView.setText(s);
+                        mCurrency2ValueTextView.setText(usdValueString);
+                    } else {
+                        mCurrency1ValueTextView.setText(usdValueString);
+                        mCurrency1ValueEditTextView.setText(usdValueString);
+                        mCurrency2ValueTextView.setText(s);
+                    }
+                }
+                for (TextView tb : mRadioTipAmount) {
+                    if (tb.getId() == id) {
+                        continue;
+                    }
+                    tb.setSelected(false);
+                }
+                mAmountSelected = selectedAmount();
 
-        checkEnoughFund();
-        mCurrency1ValueEditTextView.addTextChangedListener(mTextChangeListener);
-    };
+                checkEnoughFund();
+                mCurrency1ValueEditTextView.addTextChangedListener(mTextChangeListener);
+            };
 
     private double selectedAmount() {
         double amount = 0.0;

@@ -8,16 +8,16 @@ assert(is_win || is_mac || is_linux || is_chromeos || is_android)
 # Note: Target names in this file should match those upstream where possible.
 
 source_set("tabs_public") {
-  sources = [ "public/tab_features.h" ]
+  sources = [ "public/brave_tab_features.h" ]
 
   public_deps = [ "//chrome/browser/ui/tabs:tabs_public" ]
 }
 
 if (!is_android) {
   source_set("impl") {
-    public_deps = [ "//chrome/browser:browser_public_dependencies" ]
+    visibility = [ "//chrome/browser" ]
 
-    sources = [ "tab_features.cc" ]
+    sources = [ "brave_tab_features.cc" ]
 
     deps = [
       ":tabs_public",
@@ -27,4 +27,25 @@ if (!is_android) {
       "//chrome/browser/ui/tabs:impl",
     ]
   }
+}
+
+source_set("split_view") {
+  sources = [
+    "split_view_browser_data.cc",
+    "split_view_browser_data.h",
+    "split_view_browser_data_observer.h",
+    "split_view_tab_strip_model_adapter.cc",
+    "split_view_tab_strip_model_adapter.h",
+  ]
+
+  deps = [
+    "//base",
+    "//brave/browser:browser_process",
+    "//brave/browser/misc_metrics",
+    "//brave/browser/ui:brave_tab_features",
+    "//brave/components/misc_metrics",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tab_model",
+    "//chrome/browser/ui/tabs:tab_strip",
+  ]
 }

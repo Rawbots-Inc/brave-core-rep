@@ -25,7 +25,7 @@ import { useSafeUISelector } from '../../../common/hooks/use-safe-selector'
 import {
   HeaderTitle,
   MenuButton,
-  MenuButtonIcon
+  MenuButtonIcon,
 } from './shared-card-headers.style'
 import { Row } from '../../shared/style'
 
@@ -37,7 +37,10 @@ export const PortfolioOverviewHeader = () => {
   const history = useHistory()
 
   return isPanel ? (
-    <DefaultPanelHeader title={getLocale('braveWalletTopNavPortfolio')} />
+    <DefaultPanelHeader
+      expandRoute={WalletRoutes.PortfolioAssets}
+      title={getLocale('braveWalletTopNavPortfolio')}
+    />
   ) : (
     <Row
       padding='24px 0px'

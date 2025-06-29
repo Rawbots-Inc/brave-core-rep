@@ -6,6 +6,7 @@
 import BraveCore
 import BraveShared
 import Foundation
+import Web
 import WebKit
 import os.log
 
@@ -58,8 +59,20 @@ class EthereumProviderScriptHandler: TabContentScript {
     }
   }
 
+  private struct SendPayload {
+    var method: String
+    var params: MojoBase.Value?
+    init?(payload: String) {
+      guard let jsonValue = MojoBase.Value(jsonString: payload)?.dictionaryValue,
+        let method = jsonValue["method"]?.stringValue
+      else { return nil }
+      self.method = method
+      self.params = jsonValue["params"]  // can be undefined in JS
+    }
+  }
+
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -100,7 +113,7 @@ class EthereumProviderScriptHandler: TabContentScript {
     ) {
       Task { @MainActor in
         if updateJSProperties {
-          await tab.updateEthereumProperties()
+          await tab.browserData?.updateEthereumProperties()
         }
 
         if reject {
@@ -129,17 +142,6 @@ class EthereumProviderScriptHandler: TabContentScript {
       }
       provider.sendAsync(input: requestPayload, completion: handleResponse)
     case .send:
-      struct SendPayload {
-        var method: String
-        var params: MojoBase.Value?
-        init?(payload: String) {
-          guard let jsonValue = MojoBase.Value(jsonString: payload)?.dictionaryValue,
-            let method = jsonValue["method"]?.stringValue
-          else { return nil }
-          self.method = method
-          self.params = jsonValue["params"]  // can be undefined in JS
-        }
-      }
       guard let sendPayload = SendPayload(payload: body.args) else {
         replyHandler(nil, "Invalid args")
         return

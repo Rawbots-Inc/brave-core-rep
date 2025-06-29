@@ -6,6 +6,7 @@
 import Foundation
 import Preferences
 import Shared
+import Web
 import WebKit
 
 public class DarkReaderScriptHandler: TabContentScript {
@@ -40,7 +41,7 @@ public class DarkReaderScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -48,15 +49,15 @@ public class DarkReaderScriptHandler: TabContentScript {
   }
 
   /// Enables DarkReader
-  static func enable(for webView: WKWebView) {
+  static func enable(for tab: some TabState) {
     // This is needed to ensure that CORS fetches work correctly, otherwise you get this error:
     // "Embedded Dark Reader cannot access a cross-origin resource"
-    webView.evaluateSafeJavaScript(
+    tab.evaluateJavaScript(
       functionName: "DarkReader.setFetchMethod(window.fetch)",
       contentWorld: Self.scriptSandbox,
       asFunction: false
     )
-    webView.evaluateSafeJavaScript(
+    tab.evaluateJavaScript(
       functionName: "DarkReader.enable",
       args: configuration.isEmpty ? [] : [configuration],
       contentWorld: Self.scriptSandbox
@@ -64,8 +65,8 @@ public class DarkReaderScriptHandler: TabContentScript {
   }
 
   /// Disables DarkReader
-  static func disable(for webView: WKWebView) {
-    webView.evaluateSafeJavaScript(
+  static func disable(for tab: some TabState) {
+    tab.evaluateJavaScript(
       functionName: "DarkReader.disable",
       args: [],
       contentWorld: Self.scriptSandbox
@@ -73,22 +74,22 @@ public class DarkReaderScriptHandler: TabContentScript {
   }
 
   /// - Parameter enabled - If true, automatically listens for system's dark-mode vs. light-mode. If false, disables listening.
-  static func auto(enabled: Bool = true, for webView: WKWebView) {
+  static func auto(enabled: Bool = true, for tab: some TabState) {
     if enabled {
       // This is needed to ensure that CORS fetches work correctly, otherwise you get this error:
       // "Embedded Dark Reader cannot access a cross-origin resource"
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "DarkReader.setFetchMethod(window.fetch)",
         contentWorld: Self.scriptSandbox,
         asFunction: false
       )
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "DarkReader.auto",
         args: configuration.isEmpty ? [] : [configuration],
         contentWorld: Self.scriptSandbox
       )
     } else {
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "DarkReader.auto",
         args: [false],
         contentWorld: Self.scriptSandbox

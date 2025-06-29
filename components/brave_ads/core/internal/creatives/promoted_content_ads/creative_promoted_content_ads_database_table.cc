@@ -16,7 +16,7 @@
 #include "base/location.h"
 #include "base/strings/string_util.h"
 #include "base/time/time.h"
-#include "brave/components/brave_ads/core/internal/common/containers/container_util.h"
+#include "brave/components/brave_ads/core/internal/common/algorithm/split_vector_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_column_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_statement_util.h"
 #include "brave/components/brave_ads/core/internal/common/database/database_table_util.h"
@@ -465,7 +465,7 @@ void CreativePromotedContentAds::MigrateToV48(
   // downloading the catalog post-migration. However, after this migration, we
   // should not drop the table as it will store catalog and non-catalog ad units
   // and maintain relationships with other tables.
-  DropTable(mojom_db_transaction, GetTableName());
+  DropTable(mojom_db_transaction, "creative_promoted_content_ads");
   Create(mojom_db_transaction);
 }
 

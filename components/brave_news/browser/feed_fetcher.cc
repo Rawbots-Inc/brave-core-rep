@@ -12,12 +12,14 @@
 #include <tuple>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "base/barrier_callback.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback_forward.h"
 #include "base/location.h"
+#include "base/logging.h"
 #include "base/memory/weak_ptr.h"
 #include "base/task/thread_pool.h"
 #include "base/values.h"
@@ -170,7 +172,7 @@ void FeedFetcher::OnFetchFeedFetchedPublishers(
               result.key = publisher_id;
 
               if (auto* feed =
-                      absl::get_if<DirectFeedResult>(&response.result)) {
+                      std::get_if<DirectFeedResult>(&response.result)) {
                 std::ranges::transform(
                     feed->articles, std::back_inserter(result.items),
                     [](auto& article) {

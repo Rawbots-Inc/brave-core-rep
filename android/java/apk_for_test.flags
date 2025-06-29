@@ -29,9 +29,6 @@
 
 -keep class org.chromium.chrome.browser.bookmarks.BookmarkBridge {
     *** mNativeBookmarkBridge;
-    *** extensiveBookmarkChangesBeginning(...);
-    *** extensiveBookmarkChangesEnded(...);
-    *** createBookmarkItem(...);
     <init>(...);
 }
 
@@ -51,6 +48,7 @@
     *** mMvTilesContainerLayout;
     *** mLogoCoordinator;
     *** mInitialTileNum;
+    *** mProfile;
     *** insertSiteSectionView(...);
     *** setSearchProviderTopMargin(...);
     *** setSearchProviderBottomMargin(...);
@@ -157,6 +155,9 @@
     *** mReadAloudControllerSupplier;
     *** mTopUiThemeColorProvider;
     *** mCurrentOrientation;
+    *** mInitializedWithNative;
+    *** mTabGroupUiOneshotSupplier;
+    *** mUndoBarThrottle;
     *** onOrientationChange(...);
     *** updateBookmarkButtonStatus(...);
     *** updateReloadState(...);
@@ -202,7 +203,6 @@
 
 -keep class org.chromium.chrome.browser.bookmarks.BookmarkUtils {
     *** addOrEditBookmark(...);
-    *** showBookmarkManagerOnPhone(...);
     *** isSpecialFolder(...);
 }
 
@@ -229,6 +229,15 @@
 }
 
 -keep class org.chromium.chrome.browser.app.bookmarks.BraveBookmarkActivity {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.customtabs.CustomTabActivity {
+    *** mIsEnterAnimationCompleted;
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.customtabs.FullScreenCustomTabActivity {
     public <init>(...);
 }
 
@@ -283,7 +292,6 @@
 
 -keep class org.chromium.chrome.browser.toolbar.bottom.BottomControlsMediator {
     <init>(...);
-    *** mBottomControlsHeight;
     *** mModel;
     *** mBottomControlsStacker;
 }
@@ -350,7 +358,11 @@
 
 -keep class org.chromium.chrome.browser.search_engines.settings.BraveBaseSearchEngineAdapter
 
--keep class org.chromium.chrome.browser.ChromeTabbedActivity
+-keep class org.chromium.components.browser_ui.util.motion.MotionEventInfo
+
+-keep class org.chromium.chrome.browser.ChromeTabbedActivity {
+    boolean onMenuOrKeyboardAction(int, boolean, org.chromium.components.browser_ui.util.motion.MotionEventInfo);
+}
 
 -keep class org.chromium.chrome.browser.app.BraveActivity
 
@@ -425,9 +437,12 @@
     public <init>(...);
 }
 
--keep class org.chromium.components.browser_ui.site_settings.ContentSettingsResources$ResourceItem {
-    public <init>(...);
-}
+# Rules for inner class constructor match
+-keepattributes InnerClasses, EnclosingMethod
+-keep class org.chromium.components.browser_ui.site_settings.ContentSettingsResources**
+-keep class org.chromium.components.browser_ui.site_settings.BraveContentSettingsResources**
+-keepclassmembers class org.chromium.components.browser_ui.site_settings.BraveContentSettingsResources** { *; }
+-keepclassmembers class org.chromium.components.browser_ui.site_settings.ContentSettingsResources** { *; }
 
 -keep class org.chromium.components.browser_ui.site_settings.WebsitePermissionsFetcher {
     *** getPermissionsType(...);
@@ -530,6 +545,9 @@
 }
 
 -keep class org.chromium.chrome.browser.contextmenu.BraveChromeContextMenuPopulator {
+    *** mItemDelegate;
+    *** mParams;
+    *** getProfile(...);
     public <init>(...);
 }
 
@@ -562,7 +580,7 @@
     *** mIsLocationBarFocusedFromNtpScroll;
     *** mContext;
     *** mBrandedColorScheme;
-    *** mAssistantVoiceSearchServiceSupplier;
+    *** mTemplateUrlServiceSupplier;
     <init>(...);
     *** updateButtonVisibility(...);
     *** onPrimaryColorChanged(...);
@@ -764,16 +782,6 @@
     public <init>(...);
 }
 
--keep class org.chromium.chrome.browser.SwipeRefreshHandler {
-    public <init>(...);
-}
-
--keep class org.chromium.chrome.browser.BraveSwipeRefreshHandler {
-    public <init>(...);
-    *** mSwipeType;
-    *** mTab;
-}
-
 -keep class org.chromium.chrome.browser.identity_disc.IdentityDiscController {
     public <init>(...);
     *** calculateButtonData(...);
@@ -844,16 +852,6 @@
 
 -keep class org.chromium.chrome.browser.omnibox.suggestions.editurl.BraveEditUrlSuggestionProcessorBase
 
--keep class org.chromium.chrome.browser.password_manager.settings.ExportFlow {
-    public <init>(...);
-    *** runSharePasswordsIntent(...);
-    *** runCreateFileOnDiskIntent(...);
-}
-
--keep class org.chromium.chrome.browser.password_manager.settings.BraveExportFlow {
-    public <init>(...);
-}
-
 -keep class org.chromium.chrome.browser.suggestions.tile.MostVisitedTilesLayout
 
 -keep class org.chromium.chrome.browser.suggestions.tile.BraveMostVisitedTilesLayoutBase
@@ -892,13 +890,10 @@
     public <init>(...);
 }
 
--keep class org.chromium.chrome.browser.undo_tab_close_snackbar.UndoBarController {
-    *** showUndoBar(...);
-}
-
 -keep class org.chromium.chrome.browser.tabbed_mode.TabbedNavigationBarColorController {
     *** mContext;
     *** mTabModelSelector;
+    *** mActiveTab;
 }
 
 -keep class org.chromium.chrome.browser.tabbed_mode.BraveTabbedNavigationBarColorControllerBase
@@ -924,5 +919,86 @@
     *** mTabController;
     *** mMinimizationManagerHolder;
     *** mCustomTabFeatureOverridesManager;
+    *** getAppHeaderCoordinator(...);
+    *** getBrowserServicesThemeColorProvider(...);
     public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.media.FullscreenVideoPictureInPictureController {
+    *** mDismissPending;
+}
+
+-keep class org.chromium.chrome.browser.media.BraveFullscreenVideoPictureInPictureController
+
+-keep class org.chromium.chrome.browser.fullscreen.FullscreenHtmlApiHandlerBase
+
+-keep class org.chromium.chrome.browser.fullscreen.BraveFullscreenHtmlApiHandlerBase
+
+-keep class org.chromium.chrome.browser.fullscreen.FullscreenHtmlApiHandlerCompat {
+    public <init>(...);
+}
+-keep class org.chromium.chrome.browser.fullscreen.BraveFullscreenHtmlApiHandlerCompat {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.fullscreen.FullscreenHtmlApiHandlerLegacy {
+    public <init>(...);
+}
+-keep class org.chromium.chrome.browser.fullscreen.BraveFullscreenHtmlApiHandlerLegacy {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.toolbar.ToolbarPositionController {
+    *** calculateStateTransition(...);
+}
+
+-keep class org.chromium.chrome.browser.toolbar.BraveToolbarPositionController {
+    *** calculateStateTransition(...);
+}
+
+-keep class org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidgetProvider {
+    *** setWidgetEnabled(...);
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidgetProvider$QuickActionSearchWidgetProviderDino {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.quickactionsearchwidget.QuickActionSearchWidgetProvider$QuickActionSearchWidgetProviderSearch {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.quickactionsearchwidget.BraveQuickActionSearchWidgetProvider {
+    public <init>(...);
+}
+
+-keep class org.chromium.chrome.browser.suggestions.tile.TilesLinearLayout { *; }
+
+-keep class org.chromium.chrome.browser.homepage.settings.RadioButtonGroupHomepagePreference {
+    *** onCheckedChanged(...);
+    *** getPreferenceValue(...);
+    *** setupPreferenceValues(...);
+    *** onTextChanged(...);
+    *** getCustomUriRadioButton(...);
+    *** getChromeNtpRadioButton(...);
+}
+
+-keep class org.chromium.chrome.browser.homepage.settings.BraveRadioButtonGroupHomepagePreference
+
+-keep class org.chromium.chrome.browser.tab_group_sync.StartupHelper {
+    *** handleUnsavedLocalTabGroups(...);
+}
+
+-keep class org.chromium.chrome.browser.tab_group_sync.BraveStartupHelper {
+    *** handleUnsavedLocalTabGroups(...);
+}
+
+-keep class org.chromium.chrome.browser.infobar.InfoBarContainerView {
+    <init>(...);
+    *** mEdgeToEdgeSupplier;
+}
+
+-keep class org.chromium.chrome.browser.infobar.BraveInfoBarContainerView {
+    <init>(...);
 }

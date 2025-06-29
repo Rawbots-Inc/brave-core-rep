@@ -7,8 +7,12 @@
 
 #include <optional>
 #include <utility>
+#include <variant>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/functional/bind.h"
+#include "base/notreached.h"
 #include "brave/components/body_sniffer/body_sniffer_throttle.h"
 #include "mojo/public/cpp/bindings/self_owned_receiver.h"
 #include "net/http/http_request_headers.h"
@@ -83,7 +87,7 @@ void BodySnifferURLLoader::Start(
     return;
   }
 
-  if (auto* producer = absl::get_if<BodyProducerPtr>(&handler_)) {
+  if (auto* producer = std::get_if<BodyProducerPtr>(&handler_)) {
     buffered_body_ = (*producer)->TakeContent();
   }
 
@@ -229,8 +233,8 @@ void BodySnifferURLLoader::OnBodyReadable(MojoResult) {
 
   auto overall_action = BodyHandler::Action::kNone;
 
-  CHECK(absl::holds_alternative<BodyHandlersPtr>(handler_));
-  auto& body_handlers = absl::get<BodyHandlersPtr>(handler_);
+  CHECK(std::holds_alternative<BodyHandlersPtr>(handler_));
+  auto& body_handlers = std::get<BodyHandlersPtr>(handler_);
 
   for (auto& handler : body_handlers) {
     const auto action =
@@ -299,7 +303,7 @@ void BodySnifferURLLoader::CompleteSniffing(bool remove_first,
   DCHECK_EQ(State::kSniffing, state_);
   DCHECK(buffered_body_.empty());
 
-  if (auto* body_handlers = absl::get_if<BodyHandlersPtr>(&handler_)) {
+  if (auto* body_handlers = std::get_if<BodyHandlersPtr>(&handler_)) {
     if (remove_first && !body_handlers->empty()) {
       complete_handlers_.push_back(std::move(*body_handlers->begin()));
       body_handlers->erase(body_handlers->begin());
@@ -325,7 +329,7 @@ void BodySnifferURLLoader::CompleteSniffing(bool remove_first,
     Abort();
     return;
   }
-  if (auto* producer = absl::get_if<BodyProducerPtr>(&handler_)) {
+  if (auto* producer = std::get_if<BodyProducerPtr>(&handler_)) {
     (*producer)->OnBeforeSending();
   }
 
@@ -362,7 +366,7 @@ void BodySnifferURLLoader::CompleteSending() {
   body_consumer_handle_.reset();
   body_producer_handle_.reset();
 
-  if (auto* producer = absl::get_if<BodyProducerPtr>(&handler_)) {
+  if (auto* producer = std::get_if<BodyProducerPtr>(&handler_)) {
     (*producer)->OnComplete();
   }
 

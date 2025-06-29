@@ -13,23 +13,24 @@ import { PageSelectors } from '../../selectors'
 
 // components
 import {
-  BackupEnterPassword //
+  BackupEnterPassword, //
 } from './backup-enter-password/backup-enter-password'
 import {
-  BackupRecoveryPhrase //
+  BackupRecoveryPhrase, //
 } from './backup-recovery-phrase/backup-recovery-phrase'
 import {
-  RecoveryPhraseExplainer //
+  RecoveryPhraseExplainer, //
 } from './explain-recovery-phrase/explain-recovery-phrase'
 import {
-  VerifyRecoveryPhrase //
+  VerifyRecoveryPhrase, //
 } from './verify-recovery-phrase/verify_recovery_phrase'
+import { PageNotFound } from '../page_not_found/page_not_found'
 
 export const WALLET_BACKUP_STEPS = [
   WalletRoutes.Backup,
   WalletRoutes.BackupExplainRecoveryPhrase,
   WalletRoutes.BackupRecoveryPhrase,
-  WalletRoutes.BackupVerifyRecoveryPhrase
+  WalletRoutes.BackupVerifyRecoveryPhrase,
 ]
 
 export const BackupWalletRoutes = () => {
@@ -72,7 +73,9 @@ export const BackupWalletRoutes = () => {
           <VerifyRecoveryPhrase />
         </Route>
       )}
-
+      <Route path='*'>
+        <PageNotFound />
+      </Route>
       <Redirect to={WalletRoutes.Backup} />
     </Switch>
   )

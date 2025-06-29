@@ -17,8 +17,6 @@
 
 #if !BUILDFLAG(IS_ANDROID)
 #include "brave/browser/ui/webui/brave_rewards/rewards_page_top_ui.h"
-#include "brave/browser/ui/webui/brave_rewards/rewards_panel_ui.h"
-#include "brave/browser/ui/webui/brave_rewards/tip_panel_ui.h"
 #include "brave/browser/ui/webui/brave_settings_ui.h"
 #include "brave/browser/ui/webui/brave_shields/cookie_list_opt_in_ui.h"
 #include "brave/browser/ui/webui/brave_shields/shields_panel_ui.h"
@@ -30,6 +28,7 @@
 #include "brave/browser/ui/webui/new_tab_takeover/android/new_tab_takeover_ui_config.h"
 #endif  // !BUILDFLAG(IS_ANDROID)
 
+#include "brave/browser/ui/webui/brave_account/brave_account_ui.h"
 #include "brave/browser/ui/webui/brave_adblock_internals_ui.h"
 #include "brave/browser/ui/webui/brave_adblock_ui.h"
 
@@ -76,8 +75,6 @@ void RegisterChromeWebUIConfigs() {
 
 #if !BUILDFLAG(IS_ANDROID)
   map.AddWebUIConfig(std::make_unique<brave_rewards::RewardsPageTopUIConfig>());
-  map.AddWebUIConfig(std::make_unique<brave_rewards::RewardsPanelUIConfig>());
-  map.AddWebUIConfig(std::make_unique<brave_rewards::TipPanelUIConfig>());
   map.AddWebUIConfig(std::make_unique<BravePrivateNewTabUIConfig>());
   map.AddWebUIConfig(std::make_unique<BraveSettingsUIConfig>());
   map.AddWebUIConfig(std::make_unique<CookieListOptInUIConfig>());
@@ -89,6 +86,7 @@ void RegisterChromeWebUIConfigs() {
 #else   // !BUILDFLAG(IS_ANDROID)
   map.AddWebUIConfig(std::make_unique<NewTabTakeoverUIConfig>());
 #endif  // !BUILDFLAG(IS_ANDROID)
+  map.AddWebUIConfig(std::make_unique<BraveAccountUIConfig>());
   map.AddWebUIConfig(std::make_unique<BraveAdblockUIConfig>());
   map.AddWebUIConfig(std::make_unique<BraveAdblockInternalsUIConfig>());
 

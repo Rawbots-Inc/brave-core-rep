@@ -6,6 +6,8 @@
 #include "brave/components/sync/service/brave_sync_auth_manager.h"
 
 #include "base/base64.h"
+#include "base/check.h"
+#include "base/logging.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_sync/crypto/crypto.h"
@@ -25,11 +27,8 @@ std::string AppendBraveServiceKeyHeaderString() {
 
 BraveSyncAuthManager::BraveSyncAuthManager(
     signin::IdentityManager* identity_manager,
-    const AccountStateChangedCallback& account_state_changed,
-    const CredentialsChangedCallback& credentials_changed)
-    : SyncAuthManager(identity_manager,
-                      account_state_changed,
-                      credentials_changed) {}
+    SyncAuthManager::Delegate* delegate)
+    : SyncAuthManager(identity_manager, delegate) {}
 
 BraveSyncAuthManager::~BraveSyncAuthManager() = default;
 
@@ -123,13 +122,13 @@ std::string BraveSyncAuthManager::GenerateAccessToken(
 
 void BraveSyncAuthManager::OnNetworkTimeFetched(const base::Time& time) {
   std::string timestamp =
-      std::to_string(int64_t(time.InMillisecondsFSinceUnixEpoch()));
+      base::NumberToString(int64_t(time.InMillisecondsFSinceUnixEpoch()));
   if (public_key_.empty() || private_key_.empty()) {
     return;
   }
   access_token_ = GenerateAccessToken(timestamp);
   if (registered_for_auth_notifications_) {
-    credentials_changed_callback_.Run();
+    delegate_->SyncAuthCredentialsChanged();
   }
 }
 

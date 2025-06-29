@@ -10,9 +10,11 @@
 #include <utility>
 #include <vector>
 
+#include "base/base64.h"
+#include "base/check.h"
 #include "base/json/json_writer.h"
 #include "base/no_destructor.h"
-#include "base/strings/utf_string_conversions.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/uuid.h"
 #include "brave/components/brave_wallet/common/eth_request_helper.h"
 #include "brave/components/brave_wallet/common/hex_utils.h"
@@ -345,7 +347,7 @@ v8::Local<v8::Value> JSEthereumProvider::GetNetworkVersion(
   if (HexValueToUint256(chain_id_, &chain_id_uint256) &&
       chain_id_uint256 <= (uint256_t)std::numeric_limits<uint64_t>::max()) {
     uint64_t networkVersion = (uint64_t)chain_id_uint256;
-    return gin::StringToV8(isolate, std::to_string(networkVersion));
+    return gin::StringToV8(isolate, base::NumberToString(networkVersion));
   }
 
   return v8::Undefined(isolate);
@@ -791,7 +793,8 @@ void JSEthereumProvider::AnnounceProvider() {
 const std::string& JSEthereumProvider::GetBraveWalletImage() {
   if (!brave_wallet_image_) {
     brave_wallet_image_ =
-        LoadImageResourceAsDataUrl(IDR_BRAVE_WALLET_PROVIDER_ICON);
+        "data:image/png;base64," +
+        base::Base64Encode(LoadDataResource(IDR_BRAVE_WALLET_PROVIDER_ICON));
   }
   return brave_wallet_image_.value();
 }

@@ -1,8 +1,8 @@
 diff --git a/../third_party/rust/chromium_crates_io/BUILD.gn.hbs b/third_party/rust/chromium_crates_io/BUILD.gn.hbs
-index c52a7b360b8..1820b6664bc 100644
+index 157f9ca8d44..ea69ca6199d 100644
 --- a/../third_party/rust/chromium_crates_io/BUILD.gn.hbs
 +++ b/third_party/rust/chromium_crates_io/BUILD.gn.hbs
-@@ -53,14 +53,14 @@ cargo_crate("{{this.name}}") {
+@@ -63,14 +63,14 @@ cargo_crate("{{this.name}}") {
      ":lib",
      {{/if}}
      {{#each this.packages}}
@@ -19,7 +19,7 @@ index c52a7b360b8..1820b6664bc 100644
        {{/each}}
      ]
    }
-@@ -69,7 +69,7 @@ cargo_crate("{{this.name}}") {
+@@ -79,7 +79,7 @@ cargo_crate("{{this.name}}") {
    {{#if aliased_deps}}
    aliased_deps = {
      {{#each aliased_deps}}
@@ -28,7 +28,7 @@ index c52a7b360b8..1820b6664bc 100644
      {{/each}}
    }
    {{/if}}
-@@ -77,14 +77,14 @@ cargo_crate("{{this.name}}") {
+@@ -87,14 +87,14 @@ cargo_crate("{{this.name}}") {
    {{#if @first}}
    build_deps = [
      {{#each this.packages}}
@@ -45,48 +45,44 @@ index c52a7b360b8..1820b6664bc 100644
      {{/each}}
      ]
    }
-@@ -119,19 +119,33 @@ cargo_crate("{{this.name}}") {
-   ]
-   {{/with}}
+@@ -129,9 +129,36 @@ cargo_crate("{{this.name}}") {
+       ]
+     {{/if}}
    {{/if}}
--  {{#with extra_kv.configs_to_remove}}
--  {{#each this}}
--    library_configs -= [ "{{this}}" ]
--    executable_configs -= [ "{{this}}" ]
--    proc_macro_configs -= [ "{{this}}" ]
--  {{/each}}
--  {{/with}}
-+  {{#if (or rustenv extra_kv.rustenv)}}
 +  rustenv = [
-+    {{#each rustenv}}
-+    "{{this}}",
-+    {{/each}}
-+    {{#each extra_kv.rustenv}}
-+    "{{this}}",
-+    {{/each}}
++    {{#if rustenv}}
++      {{#each rustenv}}
++        "{{this}}",
++      {{/each}}
++    {{/if}}
++    {{#if extra_kv.rustenv}}
++      {{#each extra_kv.rustenv}}
++        "{{this}}",
++      {{/each}}
++    {{/if}}
 +  ]
-+  {{/if}}
-   rustflags = [
-     "--cap-lints=allow",  # Suppress all warnings in crates.io crates
-+  {{#if (or rustflags extra_kv.rustflags)}}
++  rustflags = [
++  {{#if rustflags}}
 +    {{#each rustflags}}
-+    "{{this}}",
-+    {{/each}}
-+    {{#each extra_kv.rustflags}}
-+    "{{this}}",
++      "{{this}}",
 +    {{/each}}
 +  {{/if}}
-   ]
++  {{#if extra_kv.rustflags}}
++    {{#each extra_kv.rustflags}}
++      "{{this}}",
++    {{/each}}
++  {{/if}}
++  ]
    {{#if output_dir}}
    output_dir = "{{output_dir}}"
    {{/if}}
 +  {{#if extra_kv.raw_gn}}
-+  {{extra_kv.raw_gn}}
++    {{extra_kv.raw_gn}}
 +  {{/if}}
    {{#if native_libs}}
    native_libs = [
    {{#each native_libs}}
-@@ -140,20 +154,6 @@ cargo_crate("{{this.name}}") {
+@@ -140,29 +167,13 @@ cargo_crate("{{this.name}}") {
    ]
    {{/if}}
    {{/with}}
@@ -101,9 +97,19 @@ index c52a7b360b8..1820b6664bc 100644
 -  # it from first-party code.
 -  visibility = [ "//third_party/rust/*" ]
 -  {{/if}}
--  {{#each detail.extra_kv.visibility}}
--  visibility += [ "{{this}}" ]
--  {{/each}}
+-  {{#if detail.extra_kv.visibility}}
+-    {{#each detail.extra_kv.visibility}}
+-      visibility += [ "{{this}}" ]
+-    {{/each}}
+-  {{/if}}
    {{#if gn_visibility.testonly}}
    testonly = true
    {{/if}}
+ 
+   {{#if detail.extra_kv.allow_unstable_features}}
+   # `gnrt_config.toml` for this crate specifies `allow_unstable_features`.
+-  rustflags = [
++  rustflags += [
+     {{#each detail.extra_kv.allow_unstable_features}}
+       "-Zallow-features={{this}}",
+     {{/each}}

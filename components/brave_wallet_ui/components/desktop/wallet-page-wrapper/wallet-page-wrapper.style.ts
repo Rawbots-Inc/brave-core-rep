@@ -13,6 +13,7 @@ import TopLayerDark from './assets/top_layer_dark.svg'
 import BottomLayerDark from './assets/bottom_layer_dark.svg'
 import LinesLight from './assets/portfolio_lines_background_light.svg'
 import LinesDark from './assets/portfolio_lines_background_dark.svg'
+import ConnectionDotsBackground from './assets/connection_dots_background.svg'
 
 // Shared Styles
 import { Row } from '../../shared/style'
@@ -117,8 +118,8 @@ export const ContainerCard = styled.div<{
     p.noBackground
       ? 'unset'
       : p.useDarkBackground
-      ? leo.color.page.background
-      : leo.color.container.background};
+        ? leo.color.page.background
+        : leo.color.container.background};
   border-radius: ${(p) => (p.hideCardHeader ? '24px' : '0px 0px 24px 24px')};
   box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.07);
   box-sizing: border-box;
@@ -146,8 +147,8 @@ export const ContainerCard = styled.div<{
       p.noBorderRadius
         ? '0px'
         : p.hideCardHeader || p.usePanelCard
-        ? '24px 24px 0px 0px'
-        : '0px'};
+          ? '24px 24px 0px 0px'
+          : '0px'};
   }
 `
 
@@ -298,5 +299,26 @@ export const PortfolioBackgroundWatermark = styled.div`
   left: 0px;
   @media (prefers-color-scheme: dark) {
     background-image: url(${LinesDark});
+  }
+`
+
+export const ConnectionBackgroundColor = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: ${leo.color.container.highlight};
+`
+
+export const ConnectionBackgroundWatermark = styled.div`
+  width: 100%;
+  height: 200px;
+  background-image: url(${ConnectionDotsBackground});
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  @media (prefers-color-scheme: dark) {
+    opacity: 0.6;
   }
 `

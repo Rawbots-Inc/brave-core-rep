@@ -62,9 +62,6 @@ public class BraveSkusManager {
     if !credential.isEmpty {
       switch credentialType {
       case .leo:
-        if let cookie = CredentialCookie.from(credential: credential, domain: domain) {
-          Preferences.AIChat.subscriptionExpirationDate.value = cookie.expirationDate
-        }
         break
       case .unknown:
         Logger.module.debug("[SkusManager] - Unknown Credentials")
@@ -99,9 +96,15 @@ public class BraveSkusManager {
         let credentialType = CredentialType.from(domain: domain)
         switch credentialType {
         case .leo:
+          if Preferences.AIChat.subscriptionOrderId.value == nil {
+            Preferences.AIChat.subscriptionOrderId.value = credentialSummary.orderId
+          }
+
           if Preferences.AIChat.subscriptionOrderId.value != nil {
             Logger.module.debug("[SkusManager] - Preparing Leo Credentials")
             _ = await prepareCredentialsPresentation(for: domain, path: "*")
+
+            Preferences.AIChat.subscriptionExpirationDate.value = credentialSummary.expiresAt
           }
         case .unknown:
           Logger.module.debug("[SkusManager] - Unknown Credentials")
@@ -170,13 +173,25 @@ private enum CredentialType {
   }
 }
 
-private struct CredentialSummary: Codable {
+private struct CredentialSummary {
   let expiresAt: Date?
   let active: Bool
   let remainingCredentialCount: Int
+  let product: BraveStoreProduct?
+  let orderId: String?
 
   static func from(data: Data) throws -> CredentialSummary {
-    return try jsonDecoder.decode(Self.self, from: data)
+    let summary = try jsonDecoder.decode(SkusCredentialSummary.self, from: data)
+    let orderId = summary.order.id
+    let expiresAt = summary.order.expiresAt
+    let product = summary.order.items.compactMap({ BraveStoreProduct(rawValue: $0.sku) }).first
+    return CredentialSummary(
+      expiresAt: expiresAt,
+      active: summary.active,
+      remainingCredentialCount: Int(summary.remainingCredentialCount),
+      product: product,
+      orderId: orderId
+    )
   }
 
   enum State {

@@ -8,7 +8,8 @@
 #include <utility>
 #include <vector>
 
-#include "base/strings/string_util.h"
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/strings/stringprintf.h"
 #include "brave/components/brave_rewards/core/engine/database/database.h"
 #include "brave/components/brave_rewards/core/engine/database/database_util.h"
@@ -48,6 +49,7 @@
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v4.h"
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v40.h"
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v41.h"
+#include "brave/components/brave_rewards/core/engine/database/migration/migration_v42.h"
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v5.h"
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v6.h"
 #include "brave/components/brave_rewards/core/engine/database/migration/migration_v7.h"
@@ -143,7 +145,8 @@ void DatabaseMigration::Start(uint32_t table_version, ResultCallback callback) {
                                           migration::v38,
                                           migration::v39,
                                           migration::v40,
-                                          migration::v41};
+                                          migration::v41,
+                                          migration::v42};
 
   DCHECK_LE(target_version, mappings.size());
 
@@ -203,7 +206,7 @@ void DatabaseMigration::RunDBTransactionCallback(
     if (migrated_version >= 29) {
       engine_->database()->SaveEventLog(
           log::kDatabaseMigrated,
-          base::StringPrintf("%d->%d", start_version, migrated_version));
+          base::StringPrintf("%d->%d", start_version - 1, migrated_version));
     }
 
     return std::move(callback).Run(mojom::Result::OK);

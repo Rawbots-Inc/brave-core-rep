@@ -27,7 +27,6 @@
 #include "net/http/http_request_headers.h"
 #include "net/traffic_annotation/network_traffic_annotation.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
-#include "url/gurl.h"
 
 namespace ai_chat {
 
@@ -136,8 +135,9 @@ void OAIAPIClient::PerformRequest(
 // completion (which could be an empty string), or an error. We aim to provide
 // more information to the user/UI when invalid payloads are received. That
 // effort is tracked here: https://github.com/brave/brave-browser/issues/43536
-void OAIAPIClient::OnQueryCompleted(GenerationCompletedCallback callback,
-                                    APIRequestResult result) {
+void OAIAPIClient::OnQueryCompleted(
+    GenerationCompletedCallback callback,
+    api_request_helper::APIRequestResult result) {
   const bool success = result.Is2XXResponseCode();
   // Handle successful request
   if (success) {
@@ -159,7 +159,10 @@ void OAIAPIClient::OnQueryCompleted(GenerationCompletedCallback callback,
     }
 
     // May be an empty string if part of SSE request, and payload was invalid.
-    std::move(callback).Run(base::ok(std::move(completion)));
+    auto event = mojom::ConversationEntryEvent::NewCompletionEvent(
+        mojom::CompletionEvent::New(completion));
+    std::move(callback).Run(base::ok(EngineConsumer::GenerationResultData(
+        std::move(event), std::nullopt /* model_key */)));
     return;
   }
 
@@ -215,7 +218,7 @@ void OAIAPIClient::OnQueryDataReceived(
     if (content) {
       auto event = mojom::ConversationEntryEvent::NewCompletionEvent(
           mojom::CompletionEvent::New(*content));
-      callback.Run(std::move(event));
+      callback.Run({std::move(event), std::nullopt /* model_key */});
     }
   }
 }

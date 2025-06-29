@@ -10,16 +10,14 @@ struct AIChatNetworkErrorView: View {
   var onRetryRequest: () -> Void
 
   var body: some View {
-    HStack(alignment: .top, spacing: 0.0) {
+    HStack(alignment: .top, spacing: 16.0) {
       Image(braveSystemName: "leo.warning.circle-filled")
         .foregroundStyle(Color(braveSystemName: .systemfeedbackErrorIcon))
-        .padding([.bottom, .trailing])
 
-      VStack(alignment: .leading, spacing: 0.0) {
+      VStack(alignment: .leading, spacing: 16.0) {
         Text(Strings.AIChat.networkErrorViewTitle)
           .font(.callout)
           .foregroundColor(Color(braveSystemName: .textPrimary))
-          .padding(.bottom)
 
         Button(
           action: {
@@ -38,8 +36,10 @@ struct AIChatNetworkErrorView: View {
       }
     }
     .padding()
-    .background(Color(braveSystemName: .systemfeedbackErrorBackground))
-    .clipShape(RoundedRectangle(cornerRadius: 8.0, style: .continuous))
+    .background(
+      Color(braveSystemName: .systemfeedbackErrorBackground),
+      in: .rect(cornerRadius: 8, style: .continuous)
+    )
   }
 }
 

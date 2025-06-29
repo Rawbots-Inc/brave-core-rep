@@ -11,14 +11,16 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/feature_list.h"
 #include "base/metrics/histogram_macros.h"
+#include "base/notreached.h"
 #include "base/strings/string_util.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/brave_shields/ad_block_pref_service_factory.h"
 #include "brave/browser/brave_shields/brave_shields_web_contents_observer.h"
 #include "brave/browser/net/url_context.h"
-#include "brave/components/brave_shields/adblock/rs/src/lib.rs.h"
 #include "brave/components/brave_shields/content/browser/ad_block_pref_service.h"
 #include "brave/components/brave_shields/content/browser/ad_block_service.h"
 #include "brave/components/brave_shields/core/common/brave_shield_constants.h"
@@ -200,7 +202,9 @@ EngineFlags ShouldBlockRequestOnTaskRunner(
           previous_result.did_match_important);
 
   bool has_valid_rewritten_url = false;
-  if (adblock_result.rewritten_url.has_value &&
+  // Note that `rewritten_url` results should only be used for the
+  // "user-facing" URL; never for the canonical one.
+  if (!canonical_url && adblock_result.rewritten_url.has_value &&
       GURL(std::string(adblock_result.rewritten_url.value)).is_valid() &&
       (ctx->method == "GET" || ctx->method == "HEAD" ||
        ctx->method == "OPTIONS")) {

@@ -11,11 +11,13 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include "base/functional/callback.h"
 #include "base/functional/callback_forward.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
+#include "brave/components/ai_chat/content/browser/full_screenshotter.h"
 #include "brave/components/ai_chat/core/browser/associated_content_driver.h"
 #include "brave/components/ai_chat/core/browser/conversation_handler.h"
 #include "brave/components/ai_chat/core/common/mojom/page_content_extractor.mojom.h"
@@ -24,23 +26,14 @@
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
-#include "mojo/public/cpp/bindings/associated_receiver.h"
-#include "mojo/public/cpp/bindings/pending_associated_receiver.h"
+#include "pdf/buildflags.h"
 #include "url/gurl.h"
 
-namespace gfx {
-class Image;
-}  // namespace gfx
-namespace mojo {
-template <typename T>
-class PendingAssociatedReceiver;
-}  // namespace mojo
-namespace ui {
-struct AXUpdatesAndEvents;
-}  // namespace ui
+#if BUILDFLAG(ENABLE_PDF)
+#include "pdf/mojom/pdf.mojom.h"
+#endif  // BUILDFLAG(ENABLE_PDF)
 
 namespace content {
-class ScopedAccessibilityMode;
 class NavigationEntry;
 class RenderFrameHost;
 class WebContents;
@@ -55,24 +48,25 @@ class AIChatMetrics;
 // Provides context to an AI Chat conversation in the form of the Tab's content
 class AIChatTabHelper : public content::WebContentsObserver,
                         public content::WebContentsUserData<AIChatTabHelper>,
-                        public mojom::PageContentExtractorHost,
                         public AssociatedContentDriver {
  public:
-  using GetPageContentCallback = ConversationHandler::GetPageContentCallback;
-
-  static void BindPageContentExtractorHost(
-      content::RenderFrameHost* rfh,
-      mojo::PendingAssociatedReceiver<mojom::PageContentExtractorHost>
-          receiver);
+  using GetPageContentCallback = GetPageContentCallback;
 
   // Delegate to extract print preview content
   class PrintPreviewExtractionDelegate {
    public:
-    using ExtractCallback = base::OnceCallback<void(std::string)>;
+    // Result is extracted text or error
+    using ExtractCallback =
+        base::OnceCallback<void(base::expected<std::string, std::string>)>;
+    // Result is image data of pdf pages or error
+    using CapturePdfCallback = base::OnceCallback<void(
+        base::expected<std::vector<std::vector<uint8_t>>, std::string>)>;
 
     virtual ~PrintPreviewExtractionDelegate() = default;
-    // Get the current text from the WebContents using Print Preview
-    virtual void Extract(bool is_pdf, ExtractCallback callback) = 0;
+    // Get the current text from the WebContents using Print Preview and OCR
+    virtual void Extract(ExtractCallback callback) = 0;
+    // Capture images of pdf without doing OCR
+    virtual void CapturePdf(CapturePdfCallback callback) = 0;
   };
 
   class PageContentFetcherDelegate {
@@ -104,7 +98,6 @@ class AIChatTabHelper : public content::WebContentsObserver,
   AIChatTabHelper& operator=(const AIChatTabHelper&) = delete;
   ~AIChatTabHelper() override;
 
-  void SetOnPDFA11yInfoLoadedCallbackForTesting(base::OnceClosure cb);
   void SetPageContentFetcherDelegateForTesting(
       std::unique_ptr<PageContentFetcherDelegate> delegate) {
     page_content_fetcher_delegate_ = std::move(delegate);
@@ -118,9 +111,6 @@ class AIChatTabHelper : public content::WebContentsObserver,
     return print_preview_extraction_delegate_.get();
   }
 
-  // mojom::PageContentExtractorHost
-  void OnInterceptedPageContentChanged() override;
-
   void GetOpenAIChatButtonNonce(
       mojom::PageContentExtractor::GetOpenAIChatButtonNonceCallback callback);
 
@@ -129,36 +119,17 @@ class AIChatTabHelper : public content::WebContentsObserver,
   friend class ::AIChatUIBrowserTest;
   friend class AIChatTabHelperUnitTest;
 
-  // To observe PDF InnerWebContents for "Finished loading PDF" event which
-  // means PDF content has been loaded to an accessibility tree.
-  class PDFA11yInfoLoadObserver : public content::WebContentsObserver {
-   public:
-    ~PDFA11yInfoLoadObserver() override;
-    explicit PDFA11yInfoLoadObserver(content::WebContents* web_contents,
-                                     AIChatTabHelper* helper);
-
-   private:
-    void AccessibilityEventReceived(
-        const ui::AXUpdatesAndEvents& details) override;
-    raw_ptr<AIChatTabHelper> helper_;
-  };
-
   // PrintPreviewExtractionDelegate is provided as it's implementation is
   // in a different layer.
   AIChatTabHelper(content::WebContents* web_contents,
                   std::unique_ptr<PrintPreviewExtractionDelegate>
                       print_preview_extraction_delegate);
 
-  void OnPDFA11yInfoLoaded();
-
   // content::WebContentsObserver
   void WebContentsDestroyed() override;
   void NavigationEntryCommitted(
       const content::LoadCommittedDetails& load_details) override;
   void TitleWasSet(content::NavigationEntry* entry) override;
-  void InnerWebContentsAttached(
-      content::WebContents* inner_web_contents,
-      content::RenderFrameHost* render_frame_host) override;
   void DidFinishLoad(content::RenderFrameHost* render_frame_host,
                      const GURL& validated_url) override;
 
@@ -178,20 +149,34 @@ class AIChatTabHelper : public content::WebContentsObserver,
 
   bool HasOpenAIChatPermission() const override;
 
+  void GetScreenshots(
+      mojom::ConversationHandler::GetScreenshotsCallback callback) override;
+
+  void OnScreenshotsCaptured(
+      mojom::ConversationHandler::GetScreenshotsCallback callback,
+      base::expected<std::vector<std::vector<uint8_t>>, std::string>);
+
   void OnFetchPageContentComplete(GetPageContentCallback callback,
                                   std::string content,
                                   bool is_video,
                                   std::string invalidation_token);
 
-  void OnExtractPrintPreviewContentComplete(GetPageContentCallback callback,
-                                            std::string content);
+  void OnExtractPrintPreviewContentComplete(
+      GetPageContentCallback callback,
+      base::expected<std::string, std::string>);
 
-  void BindPageContentExtractorReceiver(
-      mojo::PendingAssociatedReceiver<mojom::PageContentExtractorHost>
-          receiver);
+#if BUILDFLAG(ENABLE_PDF)
+  void OnPDFDocumentLoadComplete(GetPageContentCallback callback);
 
-  // Traverse through a11y tree to check existence of status node.
-  void CheckPDFA11yTree();
+  void OnGetPDFPageCount(GetPageContentCallback callback,
+                         pdf::mojom::PdfListener::GetPdfBytesStatus status,
+                         const std::vector<uint8_t>& bytes,
+                         uint32_t page_count);
+
+  void OnAllPDFPagesTextReceived(
+      GetPageContentCallback callback,
+      const std::vector<std::pair<size_t, std::string>>& page_texts);
+#endif  // BUILDFLAG(ENABLE_PDF)
 
   bool MaybePrintPreviewExtract(GetPageContentCallback& callback);
 
@@ -202,12 +187,7 @@ class AIChatTabHelper : public content::WebContentsObserver,
   bool is_same_document_navigation_ = false;
   int pending_navigation_id_;
   std::u16string previous_page_title_;
-  bool is_pdf_a11y_info_loaded_ = false;
-  uint8_t check_pdf_a11y_tree_attempts_ = 0;
   bool is_page_loaded_ = false;
-
-  raw_ptr<content::WebContents, DanglingUntriaged> inner_web_contents_ =
-      nullptr;
 
   // TODO(petemill): Use signal to allow for multiple callbacks
   GetPageContentCallback pending_get_page_content_callback_;
@@ -215,14 +195,8 @@ class AIChatTabHelper : public content::WebContentsObserver,
   std::unique_ptr<PrintPreviewExtractionDelegate>
       print_preview_extraction_delegate_;
   std::unique_ptr<PageContentFetcherDelegate> page_content_fetcher_delegate_;
-  std::unique_ptr<PDFA11yInfoLoadObserver> pdf_load_observer_;
-  base::OnceClosure on_pdf_a11y_info_loaded_cb_;
 
-  // A scoper only used for PDF viewing.
-  std::unique_ptr<content::ScopedAccessibilityMode> scoped_accessibility_mode_;
-
-  mojo::AssociatedReceiver<mojom::PageContentExtractorHost>
-      page_content_extractor_receiver_{this};
+  std::unique_ptr<FullScreenshotter> full_screenshotter_;
 
   base::WeakPtrFactory<AIChatTabHelper> weak_ptr_factory_{this};
   WEB_CONTENTS_USER_DATA_KEY_DECL();

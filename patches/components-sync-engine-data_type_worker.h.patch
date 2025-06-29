@@ -1,8 +1,8 @@
 diff --git a/components/sync/engine/data_type_worker.h b/components/sync/engine/data_type_worker.h
-index d4ecb89ea48c671a093a1b4e0739c0f4802db20a..19a37a2e9de719382fc28fab22bf195c6655e475 100644
+index f6060370951f6fa33d2dfdb3c18a14e055e6390d..f24f55e834e0232306b1486d50def210ec5d83d8 100644
 --- a/components/sync/engine/data_type_worker.h
 +++ b/components/sync/engine/data_type_worker.h
-@@ -215,6 +215,7 @@ class DataTypeWorker : public UpdateHandler,
+@@ -216,6 +216,7 @@ class DataTypeWorker : public UpdateHandler,
  
    static constexpr size_t kMaxPendingInvalidations = 10u;
  

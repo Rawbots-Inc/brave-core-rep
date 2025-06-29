@@ -166,7 +166,7 @@ extension BrowserViewController {
     rewardsObserver.fetchedPanelPublisher = { [weak self] publisher, tabId in
       DispatchQueue.main.async {
         guard let self = self, self.isViewLoaded, let tab = self.tabManager.selectedTab,
-          tab.rewardsId == tabId
+          tab.rewardsId == UInt32(tabId)
         else { return }
         self.publisher = publisher
       }
@@ -174,14 +174,14 @@ extension BrowserViewController {
   }
 }
 
-extension Tab {
+extension TabBrowserData {
   func reportPageLoad(to rewards: BraveRewards, redirectChain: [URL]) {
-    guard let url = redirectChain.last, let webView = webView, !url.isLocal, !isPrivate
+    guard let tab, let url = redirectChain.last, !url.isLocal, !tab.isPrivate
     else {
       return
     }
 
-    if self.displayFavicon == nil {
+    if tab.displayFavicon == nil {
       adsRewardsLog.warning("No favicon found in \(self) to report to rewards panel")
     }
 
@@ -198,7 +198,7 @@ extension Tab {
       // Only utilized for verifiable conversions, which requires the user to have
       // joined Brave Rewards.
       group.enter()
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "new XMLSerializer().serializeToString",
         args: ["document"],
         contentWorld: WKContentWorld.defaultClient,
@@ -212,7 +212,7 @@ extension Tab {
       // joined Brave Rewards. Desktop requires the user to have opted into
       // notification ads, however we do not have access to that pref at this time.
       group.enter()
-      webView.evaluateSafeJavaScript(
+      tab.evaluateJavaScript(
         functionName: "document?.body?.innerText",
         contentWorld: .defaultClient,
         asFunction: false
@@ -224,7 +224,7 @@ extension Tab {
 
     group.notify(queue: .main) {
       rewards.reportLoadedPage(
-        tab: self,
+        tab: tab,
         htmlContent: htmlContent,
         textContent: textContent
       )

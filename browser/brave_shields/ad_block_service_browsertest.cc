@@ -13,11 +13,11 @@
 #include <vector>
 
 #include "base/base64.h"
+#include "base/check.h"
 #include "base/files/file_util.h"
 #include "base/functional/callback_helpers.h"
 #include "base/memory/raw_ptr.h"
 #include "base/path_service.h"
-#include "base/strings/stringprintf.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/thread_test_helper.h"
@@ -58,6 +58,7 @@
 #include "net/dns/mock_host_resolver.h"
 #include "net/test/test_data_directory.h"
 #include "services/network/host_resolver.h"
+#include "third_party/abseil-cpp/absl/strings/str_format.h"
 
 #if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
@@ -212,13 +213,7 @@ base::FilePath AdBlockServiceTest::MakeFileInTempDir(
   auto dir = std::make_unique<base::ScopedTempDir>();
   EXPECT_TRUE(dir->CreateUniqueTempDir());
   auto path = dir->GetPath();
-  base::File list_file(path.AppendASCII(name), base::File::FLAG_CREATE |
-                                                   base::File::FLAG_WRITE |
-                                                   base::File::FLAG_READ);
-  EXPECT_TRUE(list_file.IsValid());
-  UNSAFE_TODO(list_file.Write(0, contents.c_str(), contents.size()));
-  list_file.Close();
-
+  EXPECT_TRUE(base::WriteFile(path.AppendASCII(name), contents));
   temp_dirs_.push_back(std::move(dir));
 
   return path;
@@ -686,7 +681,7 @@ IN_PROC_BROWSER_TEST_F(AdBlockServiceTest, SubFrameShieldsOff) {
                          )"));
   content::RunAllTasksUntilIdle();
   EXPECT_EQ(profile()->GetPrefs()->GetUint64(kAdsBlocked), 0ULL);
-  brave_shields::ResetBraveShieldsEnabled(content_settings(), url);
+  brave_shields::SetBraveShieldsEnabled(content_settings(), true, url);
 }
 
 // Requests made by a service worker should be blocked as well.
@@ -788,10 +783,13 @@ IN_PROC_BROWSER_TEST_F(AdBlockServiceTest,
   DISABLED_CnameCloakedRequestsGetBlocked
 #define MAYBE_CnameCloakedRequestsCanBeExcepted \
   DISABLED_CnameCloakedRequestsCanBeExcepted
+#define MAYBE_NoRemoveparamOnCnameUncloakedUrl \
+  DISABLED_NoRemoveparamOnCnameUncloakedUrl
 #else
 #define MAYBE_CnameCloakedRequestsGetBlocked CnameCloakedRequestsGetBlocked
 #define MAYBE_CnameCloakedRequestsCanBeExcepted \
   CnameCloakedRequestsCanBeExcepted
+#define MAYBE_NoRemoveparamOnCnameUncloakedUrl NoRemoveparamOnCnameUncloakedUrl
 #endif
 
 // A test observer that allows blocking waits for the
@@ -1201,6 +1199,51 @@ IN_PROC_BROWSER_TEST_F(AdBlockServiceTest,
                                                 excepted_resource_url.spec())));
   EXPECT_EQ(profile()->GetPrefs()->GetUint64(kAdsBlocked), 3ULL);
   ASSERT_EQ(5ULL, inner_resolver->num_resolve());
+}
+
+// `$removeparam` should happen for the original URL, not the CNAME-uncloaked
+// one
+IN_PROC_BROWSER_TEST_F(AdBlockServiceTest,
+                       MAYBE_NoRemoveparamOnCnameUncloakedUrl) {
+  UpdateAdBlockInstanceWithRules(
+      "||frame.com^$subdocument,removeparam=evil\n"
+      "||assets.cdn.net^$subdocument,removeparam=test");
+  GURL tab_url =
+      embedded_test_server()->GetURL("b.com", "/cosmetic_filtering.html");
+  NavigateToURL(tab_url);
+
+  content::WebContents* contents = web_contents();
+
+  GURL frame_url = embedded_test_server()->GetURL(
+      "frame.com", "/cosmetic_frame.html?evil=true&test=true");
+
+  auto inner_resolver = std::make_unique<net::MockHostResolver>();
+
+  const std::set<std::string> kDnsAliases({"assets.cdn.net"});
+  inner_resolver->rules()->AddIPLiteralRuleWithDnsAliases(
+      "frame.com", "127.0.0.1", kDnsAliases);
+  inner_resolver->rules()->AddIPLiteralRuleWithDnsAliases(
+      "b.com", "127.0.0.1",
+      /*dns_aliases=*/std::set<std::string>());
+
+  network::HostResolver resolver(inner_resolver.get(), net::NetLog::Get());
+
+  brave::SetAdblockCnameHostResolverForTesting(&resolver);
+  content::NavigateIframeToURL(contents, "iframe", frame_url);
+
+  ASSERT_EQ(nullptr,
+            content::FrameMatchingPredicateOrNullptr(
+                contents->GetPrimaryPage(),
+                base::BindRepeating(content::FrameHasSourceUrl, frame_url)));
+
+  GURL redirected_frame_url = embedded_test_server()->GetURL(
+      "frame.com", "/cosmetic_frame.html?test=true");
+
+  content::RenderFrameHost* inner_frame = content::FrameMatchingPredicate(
+      contents->GetPrimaryPage(),
+      base::BindRepeating(content::FrameHasSourceUrl, redirected_frame_url));
+
+  ASSERT_EQ("?test=true", EvalJs(inner_frame, "window.location.search"));
 }
 
 class CnameUncloakingFlagDisabledTest : public AdBlockServiceTest {
@@ -2767,6 +2810,27 @@ IN_PROC_BROWSER_TEST_F(AdBlockServiceTest, ProceduralFilterHasText) {
   }
 }
 
+// Test procedural filters matching child of dynamically added element
+IN_PROC_BROWSER_TEST_F(AdBlockServiceTest,
+                       ProceduralFilterDynamicAddedChildHasText) {
+  UpdateAdBlockInstanceWithRules(
+      "a.com##.procedural-filter-child-node-class:has-text(View in App)");
+
+  GURL tab_url =
+      embedded_test_server()->GetURL("a.com", "/cosmetic_filtering.html");
+  NavigateToURL(tab_url);
+
+  content::WebContents* contents = web_contents();
+
+  auto result = EvalJs(contents,
+                       R"(
+      addElementWithChildDynamically();
+      waitCSSSelector('.procedural-filter-child-node-class', 'display', 'none')
+    )");
+  ASSERT_TRUE(result.error.empty());
+  EXPECT_EQ(base::Value(true), result.value);
+}
+
 // Test `matches-attr` procedural filters
 IN_PROC_BROWSER_TEST_F(AdBlockServiceTest, ProceduralFilterMatchesAttr) {
   UpdateAdBlockInstanceWithRules(
@@ -2831,12 +2895,16 @@ IN_PROC_BROWSER_TEST_F(AdBlockServiceTest, ProceduralFilterMatchesPath) {
   UpdateAdBlockInstanceWithRules(
       "a.com##section .positive-string-case "
       "p.odd:matches-path(cosmetic_filtering.html)\n"
-      "a.com##section .positive-regex-case "
-      "p.odd:matches-path(/c[aeiou]smetic\\_[a-z]{9}/)\n"
-      "a.com##section .negative-case:matches-path(/some-other-page.html)");
+      "a.com##:matches-path(/c[aeiou]smetic\\_[a-z]{9}/) section "
+      ".positive-regex-case p.odd\n"
+      "a.com##section .negative-case:matches-path(/some-other-page.html)\n"
+      "a.com##:matches-path(😎) section .positive-unicode-case p.odd");
 
-  GURL tab_url =
-      embedded_test_server()->GetURL("a.com", "/cosmetic_filtering.html");
+  GURL::Replacements replacements;
+  replacements.SetQueryStr("😎");
+  GURL tab_url = embedded_test_server()
+                     ->GetURL("a.com", "/cosmetic_filtering.html")
+                     .ReplaceComponents(replacements);
   NavigateToURL(tab_url);
 
   content::WebContents* contents = web_contents();

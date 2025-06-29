@@ -29,6 +29,7 @@ class EligibleInlineContentAdsV2 final : public EligibleInlineContentAdsBase {
   EligibleInlineContentAdsV2(
       const SubdivisionTargeting& subdivision_targeting,
       const AntiTargetingResource& anti_targeting_resource);
+
   ~EligibleInlineContentAdsV2() override;
 
   void GetForUserModel(
@@ -69,17 +70,14 @@ class EligibleInlineContentAdsV2 final : public EligibleInlineContentAdsBase {
       const SiteHistoryList& site_history,
       EligibleAdsCallback<CreativeInlineContentAdList> callback,
       bool success,
-      const CreativeInlineContentAdList& creative_ads);
+      CreativeInlineContentAdList creative_ads);
 
   void FilterAndMaybePredictCreativeAd(
       const UserModelInfo& user_model,
-      const CreativeInlineContentAdList& creative_ads,
+      CreativeInlineContentAdList creative_ads,
       const AdEventList& ad_events,
       const SiteHistoryList& site_history,
       EligibleAdsCallback<CreativeInlineContentAdList> callback);
-  void FilterIneligibleCreativeAds(CreativeInlineContentAdList& creative_ads,
-                                   const AdEventList& ad_events,
-                                   const SiteHistoryList& site_history);
 
   const database::table::CreativeInlineContentAds creative_ads_database_table_;
 

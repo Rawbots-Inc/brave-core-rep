@@ -5,6 +5,7 @@
 import BraveWallet
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -34,7 +35,7 @@ class Web3NameServiceScriptHandler: TabContentScript {
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: (Any?, String?) -> Void
   ) {

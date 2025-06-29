@@ -11,7 +11,7 @@ const path = require('path')
 // stored in the guard file.
 function getGuardCallStack() {
   const stack = new Error().stack.split('\n').slice(2)
-  for (const i in stack) {
+  for (let i = 0; i < stack.length; i++) {
     if (!stack[i].includes('at ActionGuard.')) {
       return 'GUARD_CALLSTACK:\n' + stack.slice(i).join('\n')
     }
@@ -39,7 +39,7 @@ class ActionGuard {
   wasInterrupted() {
     assert(
       !this.#isRunning,
-      'Cannot check if the action was interrupted while it is running.'
+      'Cannot check if the action was interrupted while it is running.',
     )
     return fs.existsSync(this.#guardFilePath)
   }
@@ -48,14 +48,14 @@ class ActionGuard {
   run(actionClosure) {
     assert(
       !this.#isRunning,
-      'Cannot run the action while it is already running.'
+      'Cannot run the action while it is already running.',
     )
     const wasInterrupted = this.wasInterrupted()
     if (wasInterrupted && this.#cleanupClosure) {
       this.#cleanupClosure()
       assert(
         this.wasInterrupted(),
-        'Cleanup should not remove the guard as it may lead to partial cleanup and unhandled broken state.'
+        'Cleanup should not remove the guard as it may lead to partial cleanup and unhandled broken state.',
       )
     }
     try {

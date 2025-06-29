@@ -14,6 +14,7 @@ import Playlist
 import PlaylistUI
 import Preferences
 import Shared
+import Web
 import os.log
 
 /// Coordinates the usage of playlist across the main UI, Picture in Picture and CarPlay
@@ -135,7 +136,7 @@ public class PlaylistCoordinator: NSObject {
   }
 
   func getPlaylistController(
-    tab: Tab?,
+    tab: (any TabState)?,
     initialItem: PlaylistInfo?,
     initialItemPlaybackOffset: Double
   ) -> UIViewController {
@@ -199,17 +200,17 @@ public class PlaylistCoordinator: NSObject {
     return playlistController
   }
 
-  func getPlaylistController(tab: Tab?, completion: @escaping (UIViewController) -> Void) {
+  func getPlaylistController(tab: (any TabState)?, completion: @escaping (UIViewController) -> Void)
+  {
     if let playlistController = self.playlistController {
       return completion(playlistController)
     }
 
     if let tab = tab,
       let item = tab.playlistItem,
-      let webView = tab.webView,
       let tag = tab.playlistItem?.tagId
     {
-      PlaylistScriptHandler.getCurrentTime(webView: webView, nodeTag: tag) {
+      PlaylistScriptHandler.getCurrentTime(tab: tab, nodeTag: tag) {
         [unowned self] currentTime in
         completion(
           self.getPlaylistController(

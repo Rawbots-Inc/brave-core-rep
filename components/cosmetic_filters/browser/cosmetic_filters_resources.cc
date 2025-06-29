@@ -9,8 +9,10 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/feature_list.h"
 #include "base/json/json_reader.h"
+#include "base/strings/string_util.h"
 #include "base/values.h"
 #include "brave/components/brave_shields/content/browser/ad_block_service.h"
 #include "brave/components/brave_shields/core/common/brave_shield_constants.h"
@@ -117,7 +119,7 @@ void CosmeticFiltersResources::UrlCosmeticResources(
         {"[", base::JoinString(procedural_actions_strings, ","), "]"});
     std::string procedural_actions_script = base::ReplaceStringPlaceholders(
         kProceduralActionsScript,
-        {procedural_filtering_feature_enabled, procedural_actions_json.c_str()},
+        {procedural_filtering_feature_enabled, procedural_actions_json},
         nullptr);
     resources.Set("procedural_actions_script", procedural_actions_script);
   }

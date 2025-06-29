@@ -85,20 +85,17 @@
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "חסימת הכול";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "חסימת כל קובצי העוגיות תמנע מאתרים מסוימים לפעול כהלכה.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "לחסום את כל קובצי העוגיות?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "לחסום את כל קובצי העוגיות?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "המגנים כבר חוסמים קובצי עוגיות של צד שלישי. ההגדרה הזו לחסום את *כל* קובצי העוגיות תסיר קובצי עוגיות ונתונים אתרים קיימים, ועלולה לגרום לאתרים להפסיק לפעול כראוי.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "הגדרת ההעדפה נכשלה. יש לנסות שוב.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "חסימת התראות הסכמה לקובצי עוגיות";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "מונע מאתרים לאחסן מידע על הביקורים הקודמים שלך.\nהאפשרות ״חסימת כל קובצי ה-cookie״ הוסרה. כדי ללמוד איך לאפשר את האפשרות הזו בכל זאת, אפשר לבקר ב[דף העזרה שלנו](https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "מוניטור חסימה";
@@ -490,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "אישור";
 
-/* Cookie settings option title */
-"CookieControl" = "בקרת עוגיות";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "קובצי Cookie ונתוני אתר";
 
@@ -523,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "מנועי חיפוש שנמצאים בשימוש";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "הוספת מנוע חיפוש מותאם אישית";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "יש לכתוב את כתובת ה-URL לחיפוש ולהחליף את השאילתה ב-%1$s.\nלדוגמה:  https://youtube.com/search?q=%2$s\n(אם האתר תומך ב-OpenSearch, תסופק אפשרות הוספה אוטומטית במהלך עריכת השדה הזה).";
 
@@ -540,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "מנוע חיפוש עם אותו שם כבר קיים.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "הזנת שם מנוע החיפוש";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "תבנית חיפוש לא בטוחה עבור";
@@ -661,9 +661,6 @@
 /* No comment provided by engineer. */
 "Done" = "סיום";
 
-/* cookie settings option */
-"DontBlockCookies" = "לא לחסום קובצי עוגיות";
-
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "לא לשלוח";
 
@@ -702,6 +699,9 @@
 
 /* Title for editing a folder */
 "EditFolderTitle" = "ערוך תיקייה";
+
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "עריכת מנועי חיפוש מהירים";
 
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "הפעלת משיכה מטה לרענון";
@@ -787,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "סיום";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "חיפוש ״%@״";
+/* Find `search query` */
+"FindInPageFormat" = "חיפוש ";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "התוצאה הבאה בדף";
@@ -879,6 +879,9 @@
 
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "שדרוגי HTTPS";
+
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "ייבוא נתוני גלישה";
 
 /* title for per-site shield toggles */
 "IndividualControls" = "אמצעי בקרה פרטניים";
@@ -1052,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "הסתר תמונות ממומנות";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "האפשרות 'ממומן׳ כוללת רקעים ממותגים נוספים שבאפשרותך להרוויח בעת הפעלה של תגמולי Brave.";
+"ntp.imageTypeSelectionDescription" = "תמונות ממומנות הן רקעים ממותגים שמופיעים בכרטיסיות חדשות שנפתחו בדפדפן. הפעלת תמונות ממומנות תומכת בחזון של Brave.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "למידע נוסף";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "מידע נוסף על תגמולי Brave";
@@ -2131,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "הסתר";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "הדבקה &כניסה";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "דלוק";
 
@@ -2150,10 +2153,13 @@
 "RecentSearchScannerTitle" = "סריקת קוד QR";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "חיפושים אחרונים מאפשרים לך לגשת באופן פרטי לחיפושים מהעבר. רוצה לאפשר חיפושים אחרונים?";
+"RecentSearchSectionDescription" = "האם ברצונך להפעיל את ׳חיפושים אחרונים׳?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "חיפושים אחרונים";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "חיפושים אחרונים";
+"RecentSearchSectionTitle" = "׳חיפושים אחרונים׳ מאפשר לך לגשת באופן פרטי לחיפושי העבר שלך.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "הצגה";
@@ -2498,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "חיפוש אחר ההצעה";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "כרטיסיות פתוחות, סימניות והיסטוריה";
+"SearchHistorySectionHeader" = "במכשיר שלך";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "ניקוי חיפוש";
@@ -2511,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "חיפוש";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "חיפוש \"%@\"";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "הוספת מנוע חיפוש מותאם אישית";
@@ -2547,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "הצעות חיפוש";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "האם ברצונך להפעיל את ׳הצעות חיפוש׳?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "חיפוש ב-Brave";
@@ -2625,9 +2637,6 @@
 
 /* Header for the YouTube settings section */
 "settings.youtube" = "YouTube";
-
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "לא ניתן לטעון את העמוד.";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "רישיונות";
@@ -3211,9 +3220,6 @@
 /* Word count title */
 "sync.wordCount" = "ספירת מילים: %i";
 
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "סימניות מיובאות";
-
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "סגור";
 
@@ -3271,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "לא מאובטח";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "הדבקה וכניסה";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "רשימת השמעה";
 
@@ -3292,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "הפסק";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "חיפוש קולי";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3539,7 +3548,7 @@
 "ToggleReaderMode" = "הפעלה או כיבוי של תצוגת קורא";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "תרגום";
+"TranslatePage" = "תרגום דף";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "להפעיל הצעות חיפוש?";

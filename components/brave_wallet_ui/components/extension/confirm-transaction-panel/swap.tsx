@@ -19,11 +19,11 @@ import { Origin } from './common/origin'
 import { EditPendingTransactionGas } from './common/gas'
 import { TransactionQueueSteps } from './common/queue'
 import {
-  PendingTransactionActionsFooter //
+  PendingTransactionActionsFooter, //
 } from './common/pending_tx_actions_footer'
 import AdvancedTransactionSettings from '../advanced-transaction-settings'
 import {
-  PendingTransactionNetworkFeeAndSettings //
+  PendingTransactionNetworkFeeAndSettings, //
 } from '../pending-transaction-network-fee/pending-transaction-network-fee'
 import { SwapBase } from '../swap'
 
@@ -54,7 +54,10 @@ export function ConfirmSwapTransaction() {
     insufficientFundsError,
     insufficientFundsForGasError,
     onConfirm,
-    onReject
+    onReject,
+    isZCashTransaction,
+    isBitcoinTransaction,
+    isSolanaTransaction,
   } = usePendingTransactions()
 
   // queries
@@ -78,9 +81,9 @@ export function ConfirmSwapTransaction() {
 
   // render
   if (
-    showAdvancedTransactionSettings &&
-    transactionDetails &&
-    selectedPendingTransaction
+    showAdvancedTransactionSettings
+    && transactionDetails
+    && selectedPendingTransaction
   ) {
     return (
       <AdvancedTransactionSettings
@@ -137,6 +140,9 @@ export function ConfirmSwapTransaction() {
           onToggleAdvancedTransactionSettings
         }
         onToggleEditGas={onToggleEditGas}
+        showEditGas={
+          !isZCashTransaction && !isBitcoinTransaction && !isSolanaTransaction
+        }
       />
 
       <Column

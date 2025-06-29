@@ -23,7 +23,7 @@ namespace bat_ads {
 
 class BatAdsClientMojoBridge;
 
-class BatAdsImpl : public mojom::BatAds {
+class BatAdsImpl final : public mojom::BatAds {
  public:
   BatAdsImpl(const base::FilePath& service_path,
              mojo::PendingAssociatedRemote<mojom::BatAdsClient>
@@ -33,9 +33,6 @@ class BatAdsImpl : public mojom::BatAds {
 
   BatAdsImpl(const BatAdsImpl&) = delete;
   BatAdsImpl& operator=(const BatAdsImpl&) = delete;
-
-  BatAdsImpl(BatAdsImpl&& other) noexcept = delete;
-  BatAdsImpl& operator=(BatAdsImpl&& other) noexcept = delete;
 
   ~BatAdsImpl() override;
 
@@ -69,13 +66,14 @@ class BatAdsImpl : public mojom::BatAds {
       brave_ads::mojom::InlineContentAdEventType mojom_ad_event_type,
       TriggerInlineContentAdEventCallback callback) override;
 
-  void ParseAndSaveCreativeNewTabPageAds(
+  void ParseAndSaveNewTabPageAds(
       base::Value::Dict data,
-      ParseAndSaveCreativeNewTabPageAdsCallback callback) override;
+      ParseAndSaveNewTabPageAdsCallback callback) override;
   void MaybeServeNewTabPageAd(MaybeServeNewTabPageAdCallback callback) override;
   void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type,
       TriggerNewTabPageAdEventCallback callback) override;
 

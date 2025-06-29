@@ -13,49 +13,36 @@ import Shared
 import Storage
 import os.log
 
-public class Migration {
-
-  private let braveCore: BraveCoreMain
-
-  public init(braveCore: BraveCoreMain) {
-    self.braveCore = braveCore
+public class BraveProfileMigrations {
+  let profileController: BraveProfileController
+  public init(profileController: BraveProfileController) {
+    self.profileController = profileController
   }
 
-  public func launchMigrations(keyPrefix: String, profile: Profile) {
-    Preferences.migratePreferences(keyPrefix: keyPrefix)
-    Preferences.migrateWalletPreferences()
-    Preferences.migrateAdAndTrackingProtection()
-    Preferences.migrateHTTPSUpgradeLevel()
-    Preferences.migrateBackgroundSponsoredImages()
-    Preferences.migrateBookmarksButtonInToolbar()
-
-    if Preferences.General.isFirstLaunch.value {
-      if UIDevice.current.userInterfaceIdiom == .phone {
-        // Default Value for preference of tab bar visibility for new users changed to landscape only
-        Preferences.General.tabBarVisibility.value = TabBarVisibility.landscapeOnly.rawValue
-      }
-      // Default url bar location for new users is bottom
-      Preferences.General.isUsingBottomBar.value = true
-      Preferences.Playlist.firstLoadAutoPlay.value = true
-    }
-
+  public func launchMigrations() {
     migrateDeAmpPreferences()
     migrateDebouncePreferences()
+    migrateDefaultUserAgentPreferences()
+    migrateBlockPopupsPreferences()
+  }
 
-    // Adding Observer to enable sync types
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(enableUserSelectedTypesForSync),
-      name: BraveServiceStateObserver.coreServiceLoadedNotification,
-      object: nil
-    )
+  private func migrateDefaultUserAgentPreferences() {
+    Preferences.DeprecatedPreferences.alwaysRequestDesktopSite.migrate { value in
+      self.profileController.defaultHostContentSettings.defaultPageMode = value ? .desktop : .mobile
+    }
+  }
+
+  private func migrateBlockPopupsPreferences() {
+    Preferences.DeprecatedPreferences.blockPopups.migrate { value in
+      self.profileController.defaultHostContentSettings.popupsAllowed = !value
+    }
   }
 
   private func migrateDeAmpPreferences() {
     guard let isDeAmpEnabled = Preferences.Shields.autoRedirectAMPPagesDeprecated.value else {
       return
     }
-    braveCore.deAmpPrefs.isDeAmpEnabled = isDeAmpEnabled
+    profileController.deAmpPrefs.isDeAmpEnabled = isDeAmpEnabled
     Preferences.Shields.autoRedirectAMPPagesDeprecated.value = nil
   }
 
@@ -68,14 +55,31 @@ public class Migration {
     debounceService?.isEnabled = isDebounceEnabled
     Preferences.Shields.autoRedirectTrackingURLsDeprecated.value = nil
   }
+}
 
-  @objc private func enableUserSelectedTypesForSync() {
-    guard braveCore.syncAPI.isInSyncGroup else {
-      Logger.module.info("Sync is not active")
-      return
+public class Migration {
+
+  public init() {}
+
+  public func launchMigrations(keyPrefix: String) {
+    Preferences.migratePreferences(keyPrefix: keyPrefix)
+    Preferences.migrateWalletPreferences()
+    Preferences.migrateAdAndTrackingProtection()
+    Preferences.migrateHTTPSUpgradeLevel()
+    Preferences.migrateBackgroundSponsoredImages()
+    Preferences.migrateBookmarksButtonInToolbar()
+    Preferences.migrateShortcutsButtonOniPad()
+    Preferences.migrateReaderModeStyle()
+
+    if Preferences.General.isFirstLaunch.value {
+      if UIDevice.current.userInterfaceIdiom == .phone {
+        // Default Value for preference of tab bar visibility for new users changed to landscape only
+        Preferences.General.tabBarVisibility.value = TabBarVisibility.landscapeOnly.rawValue
+      }
+      // Default url bar location for new users is bottom
+      Preferences.General.isUsingBottomBar.value = true
+      Preferences.Playlist.firstLoadAutoPlay.value = true
     }
-
-    braveCore.syncAPI.enableSyncTypes(syncProfileService: braveCore.syncProfileService)
   }
 
   public static func migrateLostTabsActiveWindow() {
@@ -94,7 +98,7 @@ public class Migration {
     }
 
     let windowIds = UIApplication.shared.openSessions
-      .compactMap({ BrowserState.getWindowInfo(from: $0).windowId })
+      .compactMap({ BrowserState.getWindowId(from: $0) })
       .filter({ $0 != activeWindow.windowId.uuidString })
 
     let zombieTabs =
@@ -128,14 +132,14 @@ public class Migration {
     Preferences.Migration.lostTabsWindowIDMigration.value = true
   }
 
-  public static func migrateAdsConfirmations(for configruation: BraveRewards.Configuration) {
+  public static func migrateAdsConfirmations(for configuration: BraveRewards.Configuration) {
     // To ensure after a user launches 1.21 that their ads confirmations, viewed count and
     // estimated payout remain correct.
     //
     // This hack is unfortunately neccessary due to a missed migration path when moving
     // confirmations from ledger to ads, we must extract `confirmations.json` out of ledger's
     // state file and save it as a new file under the ads directory.
-    let base = configruation.storageURL
+    let base = configuration.storageURL
     let ledgerStateContainer = base.appendingPathComponent("ledger/random_state.plist")
     let adsConfirmations = base.appendingPathComponent("ads/confirmations.json")
     let fm = FileManager.default
@@ -186,7 +190,7 @@ extension Migration {
 }
 
 extension Preferences {
-  private final class DeprecatedPreferences {
+  fileprivate final class DeprecatedPreferences {
     static let blockAdsAndTracking = Option<Bool>(
       key: "shields.block-ads-and-tracking",
       default: true
@@ -209,6 +213,16 @@ extension Preferences {
       key: "general.show-bookmark-toolbar-shortcut",
       default: UIDevice.isIpad
     )
+
+    /// Sets Desktop UA for iPad by default (iOS 13+ & iPad only).
+    /// Do not read it directly, prefer to use `UserAgent.shouldUseDesktopMode` instead.
+    static let alwaysRequestDesktopSite = Option<Bool>(
+      key: "general.always-request-desktop-site",
+      default: UIDevice.current.userInterfaceIdiom == .pad
+    )
+
+    /// Whether or not to block popups from websites automaticaly
+    static let blockPopups = Option<Bool>(key: "general.block-popups", default: true)
   }
 
   /// Migration preferences
@@ -260,6 +274,16 @@ extension Preferences {
       key: "migration.bookmarks-button-in-toolbar",
       default: false
     )
+
+    static let migratedShortcutsButtonOniPad = Option<Bool>(
+      key: "migration.shortcuts-button-on-ipad",
+      default: false
+    )
+
+    static let migratedReaderModeStyle = Option<Bool>(
+      key: "migration.reader-mode-style",
+      default: false
+    )
   }
 
   /// Migrate a given key from `Prefs` into a specific option
@@ -299,7 +323,6 @@ extension Preferences {
 
     // General
     migrate(key: "saveLogins", to: Preferences.General.saveLogins)
-    migrate(key: "blockPopups", to: Preferences.General.blockPopups)
     migrate(key: "kPrefKeyTabsBarShowPolicy", to: Preferences.General.tabBarVisibility)
 
     // Search
@@ -424,6 +447,33 @@ extension Preferences {
     }
 
     Migration.migratedBookmarksButtonInToolbar.value = true
+  }
+
+  // Migrate new default nil value on iPads to bookmarks button since that was what was always
+  // showing on iPads until the default value was fixed
+  fileprivate class func migrateShortcutsButtonOniPad() {
+    guard !Migration.migratedShortcutsButtonOniPad.value, UIDevice.isIpad else { return }
+
+    if Preferences.General.toolbarShortcutButton.value == nil {
+      Preferences.General.toolbarShortcutButton.value = WidgetShortcut.bookmarks.rawValue
+    }
+
+    Migration.migratedShortcutsButtonOniPad.value = true
+  }
+
+  fileprivate class func migrateReaderModeStyle() {
+    guard !Migration.migratedReaderModeStyle.value,
+      let userDefaults = UserDefaults(suiteName: AppInfo.sharedContainerIdentifier)
+    else {
+      return
+    }
+
+    if let style = userDefaults.object(forKey: "profile.readermode.style") as? [String: Any] {
+      Preferences.ReaderMode.style.value = ReaderModeStyle(dict: style)?.encode()
+      userDefaults.removeObject(forKey: "profile.readermode.style")
+    }
+
+    Migration.migratedReaderModeStyle.value = true
   }
 }
 

@@ -23,8 +23,7 @@ const SettingBraveDefaultExtensionsPageElementBase =
 
 export interface SettingBraveDefaultExtensionsPageElement {
   $: {
-    widevineEnabled: SettingsCheckboxElement,
-    webTorrentEnabled: SettingsCheckboxElement
+    widevineEnabled: SettingsCheckboxElement
   }
 }
 
@@ -61,10 +60,10 @@ export class SettingBraveDefaultExtensionsPageElement extends SettingBraveDefaul
   }
 
   private browserProxy_ = BraveDefaultExtensionsBrowserProxyImpl.getInstance()
-  showRestartToast_: boolean
-  widevineEnabledPref_: chrome.settingsPrivate.PrefObject
-  isExtensionsManifestV2FeatureEnabled_: boolean
-  isExtensionsManifestV2Routed_: boolean
+  declare showRestartToast_: boolean
+  declare widevineEnabledPref_: chrome.settingsPrivate.PrefObject
+  declare isExtensionsManifestV2FeatureEnabled_: boolean
+  declare isExtensionsManifestV2Routed_: boolean
 
   override ready() {
     super.ready()
@@ -92,10 +91,6 @@ export class SettingBraveDefaultExtensionsPageElement extends SettingBraveDefaul
     const router = Router.getInstance();
     this.isExtensionsManifestV2Routed_ =
       router.getCurrentRoute() == router.getRoutes().EXTENSIONS_V2;
-  }
-
-  onWebTorrentEnabledChange_() {
-    this.browserProxy_.setWebTorrentEnabled(this.$.webTorrentEnabled.checked)
   }
 
   restartBrowser_(e: Event) {

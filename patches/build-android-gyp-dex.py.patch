@@ -1,11 +1,11 @@
 diff --git a/build/android/gyp/dex.py b/build/android/gyp/dex.py
-index a9cde18492fcbe09a1a4efc8b46b6313e0554849..1309c1dfc4fd6037e88980abfe9609bc9ea28d84 100755
+index f2af6f8010d16bf8515ba63caefaa3fc8fa914ca..d12191ccf3e1d1323c89ae9b16b08621f9dfdd4b 100755
 --- a/build/android/gyp/dex.py
 +++ b/build/android/gyp/dex.py
-@@ -30,6 +30,7 @@ DEFAULT_IGNORE_WARNINGS = (
-     # META-INF/. This means that all rules with a '-upto-' qualifier will be
-     # excluded and all rules with a -from- qualifier will be included.
-     r'Running R8 version main', )
+@@ -35,6 +35,7 @@ DEFAULT_IGNORE_WARNINGS = (
+     # https://crbug.com/408280256
+     r'MethodHandle.invoke',
+ )
 +DEFAULT_IGNORE_WARNINGS += ( r'.Brave', )
  
  _MERGE_SERVICE_ENTRIES = (

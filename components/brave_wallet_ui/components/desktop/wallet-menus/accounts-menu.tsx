@@ -5,7 +5,12 @@
 
 import * as React from 'react'
 import { useHistory } from 'react-router'
-import { loadTimeData } from '../../../../common/loadTimeData'
+
+// Selectors
+import {
+  useSafeUISelector, //
+} from '../../../common/hooks/use-safe-selector'
+import { UISelectors } from '../../../common/selectors'
 
 // Options
 import { CreateAccountOptions } from '../../../options/nav-options'
@@ -18,20 +23,23 @@ import {
   StyledWrapper,
   PopupButton,
   PopupButtonText,
-  ButtonIcon
+  ButtonIcon,
 } from './wellet-menus.style'
 
 export const AccountsMenu = () => {
   // routing
   const history = useHistory()
 
-  const isAndroid = loadTimeData.getBoolean('isAndroid') || false
+  // Selectors
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
+
   return (
     <StyledWrapper yPosition={42}>
-      {CreateAccountOptions.filter(option => (
-        // Filter out hardware wallet item on Android.
-        !isAndroid || option.name !== 'braveWalletConnectHardwareWallet'
-      )).map((option) => (
+      {CreateAccountOptions.filter(
+        (option) =>
+          // Filter out hardware wallet item on Android.
+          !isAndroid || option.name !== 'braveWalletConnectHardwareWallet',
+      ).map((option) => (
         <PopupButton
           key={option.name}
           onClick={() => history.push(option.route)}

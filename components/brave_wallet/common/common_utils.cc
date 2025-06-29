@@ -7,8 +7,13 @@
 
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
+#include "base/dcheck_is_on.h"
 #include "base/feature_list.h"
 #include "base/notreached.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "brave/components/brave_wallet/common/brave_wallet_types.h"
 #include "brave/components/brave_wallet/common/buildflags.h"
 #include "brave/components/brave_wallet/common/features.h"
@@ -56,13 +61,17 @@ bool IsCardanoEnabled() {
   return base::FeatureList::IsEnabled(features::kBraveWalletCardanoFeature);
 }
 
+bool IsCardanoDAppSupportEnabled() {
+  return IsCardanoEnabled() && features::kCardanoDAppSupport.Get();
+}
+
 bool IsZCashEnabled() {
   return base::FeatureList::IsEnabled(features::kBraveWalletZCashFeature);
 }
 
 bool IsZCashShieldedTransactionsEnabled() {
 #if BUILDFLAG(ENABLE_ORCHARD)
-  return features::kZCashShieldedTransactionsEnabled.Get();
+  return IsZCashEnabled() && features::kZCashShieldedTransactionsEnabled.Get();
 #else
   return false;
 #endif
@@ -319,6 +328,10 @@ mojom::CoinType GetCoinTypeFromTxDataUnion(
 
   if (tx_data_union.is_zec_tx_data()) {
     return mojom::CoinType::ZEC;
+  }
+
+  if (tx_data_union.is_cardano_tx_data()) {
+    return mojom::CoinType::ADA;
   }
 
   NOTREACHED();

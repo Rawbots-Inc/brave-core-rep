@@ -18,8 +18,8 @@
 #include "base/scoped_observation.h"
 #include "base/timer/wall_clock_timer.h"
 #include "base/values.h"
+#include "brave/components/brave_ads/core/browser/service/ads_service_observer.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom-forward.h"
-#include "brave/components/brave_ads/core/public/serving/targeting/condition_matcher/condition_matcher_util.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
 #include "brave/components/ntp_background_images/browser/view_counter_model.h"
 #include "brave/components/ntp_background_images/buildflags/buildflags.h"
@@ -31,6 +31,11 @@ class PrefService;
 
 class GURL;
 
+namespace base {
+class Time;
+class TimeDelta;
+}  // namespace base
+
 namespace brave_ads {
 class AdsService;
 }  // namespace brave_ads
@@ -39,14 +44,17 @@ namespace content {
 class WebUIDataSource;
 }  // namespace content
 
-namespace user_prefs {
-class PrefRegistrySyncable;
-}  // namespace user_prefs
-
 class HostContentSettingsMap;
 class WeeklyStorage;
 
 namespace ntp_background_images {
+
+using GetCurrentBrandedWallpaperCallback = base::OnceCallback<void(
+    const std::optional<GURL>& url,
+    const std::optional<std::string>& placement_id,
+    const std::optional<std::string>& creative_instance_id,
+    bool should_metrics_fallback_to_p3a,
+    const std::optional<GURL>& target_url)>;
 
 class BraveNTPCustomBackgroundService;
 class NTPP3AHelper;
@@ -57,7 +65,8 @@ struct TopSite;
 
 class ViewCounterService : public KeyedService,
                            public content_settings::Observer,
-                           public NTPBackgroundImagesService::Observer {
+                           public NTPBackgroundImagesService::Observer,
+                           public brave_ads::AdsServiceObserver {
  public:
   ViewCounterService(HostContentSettingsMap* host_content_settings,
                      NTPBackgroundImagesService* background_images_service,
@@ -72,41 +81,30 @@ class ViewCounterService : public KeyedService,
   ViewCounterService(const ViewCounterService&) = delete;
   ViewCounterService& operator=(const ViewCounterService&) = delete;
 
-  static void RegisterLocalStatePrefs(PrefRegistrySimple* registry);
-  static void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry);
-  static void RegisterProfilePrefsForMigration(
-      user_prefs::PrefRegistrySyncable* registry);
-  static void MigrateObsoleteProfilePrefs(PrefService* prefs);
-
   // Lets the counter know that a New Tab Page view has occured.
   // This should always be called as it will evaluate whether the user has
   // opted-in or data is available.
   void RegisterPageView();
 
-  void BrandedWallpaperLogoClicked(const std::string& creative_instance_id,
-                                   const std::string& destination_url,
-                                   const std::string& wallpaper_id);
+  void BrandedWallpaperLogoClicked(const std::string& placement_id,
+                                   const std::string& creative_instance_id,
+                                   const std::string& target_url,
+                                   bool should_metrics_fallback_to_p3a);
 
   void MaybeTriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      const bool should_metrics_fallback_to_p3a,
       brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type);
 
   std::optional<base::Value::Dict> GetNextWallpaperForDisplay();
   std::optional<base::Value::Dict> GetCurrentWallpaperForDisplay();
   std::optional<base::Value::Dict> GetCurrentWallpaper() const;
-  std::optional<base::Value::Dict> GetCurrentBrandedWallpaper();
+  std::optional<base::Value::Dict> GetCurrentBrandedWallpaper() const;
   void GetCurrentBrandedWallpaper(
-      base::OnceCallback<
-          void(const std::optional<GURL>& url,
-               const std::optional<std::string>& placement_id,
-               const std::optional<std::string>& creative_instance_id,
-               const std::optional<GURL>& target_url)> callback) const;
-  std::optional<brave_ads::ConditionMatcherMap> GetConditionMatchers(
-      const base::Value::Dict& dict);
-  std::optional<base::Value::Dict>
-  GetNextBrandedWallpaperWhichMatchesConditions();
-  std::optional<base::Value::Dict> GetCurrentBrandedWallpaperFromAdInfo() const;
+      GetCurrentBrandedWallpaperCallback callback) const;
+  std::optional<base::Value::Dict> GetCurrentBrandedWallpaperFromAdsService()
+      const;
   std::optional<base::Value::Dict> GetCurrentBrandedWallpaperFromModel() const;
   std::vector<TopSite> GetTopSitesData() const;
 
@@ -114,22 +112,19 @@ class ViewCounterService : public KeyedService,
   std::string GetSuperReferralThemeName() const;
   std::string GetSuperReferralCode() const;
 
-  void BrandedWallpaperWillBeDisplayed(const std::string& wallpaper_id,
+  void BrandedWallpaperWillBeDisplayed(const std::string& placement_id,
+                                       const std::string& campaign_id,
                                        const std::string& creative_instance_id,
-                                       const std::string& campaign_id);
+                                       bool should_metrics_fallback_to_p3a);
   NTPSponsoredImagesData* GetSponsoredImagesData() const;
 
   void InitializeWebUIDataSource(content::WebUIDataSource* html_source);
 
   void OnTabURLChanged(const GURL& url);
 
- private:
-  // Sync with themeValues in brave_appearance_page.js
-  enum ThemesOption {
-    DEFAULT,
-    SUPER_REFERRAL,
-  };
+  NTPP3AHelper* GetP3AHelper() const;
 
+ private:
   friend class ViewCounterServiceTest;
   friend class NTPBackgroundImagesServiceTest;
   FRIEND_TEST_ALL_PREFIXES(ViewCounterServiceTest, CanShowSponsoredImages);
@@ -142,7 +137,7 @@ class ViewCounterService : public KeyedService,
       BlockNewTabTakeoverWithRichMediaIfJavaScriptContentSettingIsSetToBlocked);
   FRIEND_TEST_ALL_PREFIXES(
       ViewCounterServiceTest,
-      AllowNewTabTakeOverWithImageIfJavaScriptContentSettingIsSetToAllowed);
+      AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToAllowed);
   FRIEND_TEST_ALL_PREFIXES(
       ViewCounterServiceTest,
       AllowNewTabTakeoverWithImageIfJavaScriptContentSettingIsSetToBlocked);
@@ -170,6 +165,9 @@ class ViewCounterService : public KeyedService,
 
   void OnPreferenceChanged(const std::string& pref_name);
 
+  // brave_ads::AdsServiceObserver:
+  void OnDidClearAdsServiceData() override;
+
   // content_settings::Observer:
   void OnContentSettingChanged(
       const ContentSettingsPattern& primary_pattern,
@@ -185,11 +183,15 @@ class ViewCounterService : public KeyedService,
   void OnSponsoredContentDidUpdate(const base::Value::Dict& data) override;
   void OnSuperReferralCampaignDidEnd() override;
 
-  void ParseAndSaveCreativeNewTabPageAdsCallback(bool success);
+  void ParseAndSaveNewTabPageAdsCallback(bool success);
 
   void ResetNotificationState();
+  bool IsShowBackgroundImageOptedIn() const;
   bool IsSponsoredImagesWallpaperOptedIn() const;
   bool IsSuperReferralWallpaperOptedIn() const;
+
+  base::Time GracePeriodEndAt(base::TimeDelta grace_period) const;
+  bool HasGracePeriodEnded(const NTPSponsoredImagesData* images_data) const;
 
   // Do we have a sponsored or referral wallpaper to show and has the user
   // opted-in to showing it at some time.
@@ -200,9 +202,7 @@ class ViewCounterService : public KeyedService,
 
   bool CanShowBackgroundImages() const;
 
-  // Should we show custom background that user uploaded or fill background
-  // with solid color user selected.
-  bool ShouldShowCustomBackground() const;
+  bool ShouldShowCustomBackgroundImages() const;
 
   void ResetModel();
 
@@ -210,11 +210,11 @@ class ViewCounterService : public KeyedService,
 
   void UpdateP3AValues();
 
-  raw_ptr<HostContentSettingsMap> host_content_settings_map_ = nullptr;
+  const raw_ptr<HostContentSettingsMap> host_content_settings_map_ = nullptr;
   raw_ptr<NTPBackgroundImagesService> background_images_service_ = nullptr;
-  raw_ptr<brave_ads::AdsService> ads_service_ = nullptr;
-  raw_ptr<PrefService> prefs_ = nullptr;
-  raw_ptr<PrefService> local_state_prefs_ = nullptr;
+  const raw_ptr<brave_ads::AdsService> ads_service_ = nullptr;
+  const raw_ptr<PrefService> prefs_ = nullptr;
+  const raw_ptr<PrefService> local_state_ = nullptr;
   bool is_supported_locale_ = false;
   PrefChangeRegistrar pref_change_registrar_;
   ViewCounterModel model_;
@@ -222,7 +222,8 @@ class ViewCounterService : public KeyedService,
   std::optional<base::Value::Dict> current_wallpaper_;
 
   // Can be null if custom background is not supported.
-  raw_ptr<BraveNTPCustomBackgroundService> custom_background_service_ = nullptr;
+  const raw_ptr<BraveNTPCustomBackgroundService> custom_background_service_ =
+      nullptr;
 
   // If P3A is enabled, these will track number of tabs created
   // and the ratio of those which are branded images.

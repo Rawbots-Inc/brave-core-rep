@@ -9,10 +9,11 @@
 #include <string>
 
 #include "base/memory/raw_ptr.h"
+#include "base/test/scoped_feature_list.h"
 #include "base/test/task_environment.h"
 #include "brave/components/brave_referrals/browser/brave_referrals_service.h"
 #include "brave/components/brave_referrals/common/pref_names.h"
-#include "brave/components/l10n/common/prefs.h"
+#include "brave/components/ntp_background_images/browser/features.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_data.h"
 #include "brave/components/ntp_background_images/browser/ntp_sponsored_images_data.h"
 #include "brave/components/ntp_background_images/browser/url_constants.h"
@@ -418,7 +419,6 @@ class NTPBackgroundImagesServiceTest : public testing::Test {
     PrefRegistrySimple* const pref_registry = pref_service_.registry();
     NTPBackgroundImagesService::RegisterLocalStatePrefs(pref_registry);
     brave::RegisterPrefsForBraveReferralsService(pref_registry);
-    brave_l10n::RegisterL10nLocalStatePrefs(pref_registry);
   }
 
   void TearDown() override {
@@ -428,8 +428,14 @@ class NTPBackgroundImagesServiceTest : public testing::Test {
   }
 
   void Init() {
+#if !BUILDFLAG(IS_LINUX)
+    scoped_feature_list_.InitAndEnableFeature(
+        features::kBraveNTPSuperReferralWallpaper);
+#endif  // !BUILDFLAG(IS_LINUX)
+
     service_ = std::make_unique<NTPBackgroundImagesServiceForTesting>(
-        /*component_update_service=*/nullptr, &pref_service_);
+        /*variations_service=*/nullptr, /*component_update_service=*/nullptr,
+        &pref_service_);
     service_->Init();
     service_->AddObserver(&observer_);
   }
@@ -439,6 +445,9 @@ class NTPBackgroundImagesServiceTest : public testing::Test {
   TestingPrefServiceSimple pref_service_;
   std::unique_ptr<NTPBackgroundImagesServiceForTesting> service_;
   ObserverMock observer_;
+#if !BUILDFLAG(IS_LINUX)
+  base::test::ScopedFeatureList scoped_feature_list_;
+#endif  // !BUILDFLAG(IS_LINUX)
 };
 
 TEST_F(NTPBackgroundImagesServiceTest, BasicTest) {
@@ -449,7 +458,7 @@ TEST_F(NTPBackgroundImagesServiceTest, BasicTest) {
   EXPECT_TRUE(service_->background_images_component_started);
 }
 
-TEST_F(NTPBackgroundImagesServiceTest, DISABLED_InternalDataTest) {
+TEST_F(NTPBackgroundImagesServiceTest, InternalDataTest) {
   Init();
 
   pref_service_.SetBoolean(kReferralCheckedForPromoCodeFile, true);
@@ -501,35 +510,24 @@ TEST_F(NTPBackgroundImagesServiceTest, DISABLED_InternalDataTest) {
   EXPECT_THAT(images_data->campaigns, ::testing::SizeIs(1));
   const Campaign campaign = images_data->campaigns[0];
   EXPECT_THAT(campaign.campaign_id, ::testing::Not(::testing::IsEmpty()));
-  EXPECT_THAT(campaign.creatives, ::testing::SizeIs(3));
-  EXPECT_EQ(696, campaign.creatives[0].focal_point.x());
-  EXPECT_EQ(base::FilePath::FromUTF8Unsafe("background-1.jpg"),
+  EXPECT_THAT(campaign.creatives, ::testing::SizeIs(1));
+  EXPECT_EQ(25, campaign.creatives[0].focal_point.x());
+  EXPECT_EQ(base::FilePath::FromUTF8Unsafe("background.jpg"),
             campaign.creatives[0].file_path.BaseName());
-  // Check default value is set if "focalPoint" is missed.
-  EXPECT_EQ(0, campaign.creatives[1].focal_point.x());
-  EXPECT_EQ(base::FilePath::FromUTF8Unsafe("background-2.jpg"),
-            campaign.creatives[1].file_path.BaseName());
-  EXPECT_EQ(0, campaign.creatives[2].focal_point.x());
-  EXPECT_EQ(base::FilePath::FromUTF8Unsafe("background-3.jpg"),
-            campaign.creatives[2].file_path.BaseName());
-  EXPECT_THAT(campaign.creatives[0].creative_instance_id, ::testing::IsEmpty());
-  EXPECT_THAT(campaign.creatives[1].creative_instance_id,
-              ::testing::Not(::testing::IsEmpty()));
-  EXPECT_THAT(campaign.creatives[2].creative_instance_id, ::testing::IsEmpty());
+  EXPECT_EQ(campaign.creatives[0].creative_instance_id,
+            "30244a36-561a-48f0-8d7a-780e9035c57a");
   EXPECT_TRUE(observer_.on_sponsored_images_updated);
   EXPECT_THAT(
       observer_.sponsored_images_data->campaigns[0].creatives[0].logo.alt_text,
       ::testing::Not(::testing::IsEmpty()));
-  EXPECT_TRUE(images_data->GetBackgroundAt(0, 0)->FindBool(kIsSponsoredKey));
-  EXPECT_FALSE(images_data->GetBackgroundAt(0, 0)->FindBool(kIsBackgroundKey));
+  EXPECT_TRUE(
+      images_data->MaybeGetBackgroundAt(0, 0)->FindBool(kIsSponsoredKey));
+  EXPECT_FALSE(images_data->MaybeGetBackgroundAt(0, 0)
+                   ->FindBool(kIsBackgroundKey)
+                   .value());
 
-  // Default logo is used for wallpaper at 0.
-  EXPECT_EQ("logo.png",
-            *images_data->GetBackgroundAt(0, 0)->FindStringByDottedPath(
-                kLogoImagePath));
-  // Per wallpaper logo is used for wallpaper at 1.
-  EXPECT_EQ("logo-2.png",
-            *images_data->GetBackgroundAt(0, 1)->FindStringByDottedPath(
+  EXPECT_EQ("30244a36-561a-48f0-8d7a-780e9035c57a/button.png",
+            *images_data->MaybeGetBackgroundAt(0, 0)->FindStringByDottedPath(
                 kLogoImagePath));
 
   // Test BI data loading
@@ -564,7 +562,7 @@ TEST_F(NTPBackgroundImagesServiceTest, DISABLED_InternalDataTest) {
   // Invalid schema version
   const std::string test_json_string_higher_schema = R"(
     {
-      "schemaVersion": 2,
+      "schemaVersion": -1,
       "campaigns": [
         {
           "version": 1,
@@ -889,7 +887,8 @@ TEST_F(NTPBackgroundImagesServiceTest, BasicSuperReferralTest) {
   EXPECT_THAT(images_data->campaigns[0].creatives, ::testing::SizeIs(1));
   EXPECT_THAT(images_data->top_sites, ::testing::SizeIs(3));
   EXPECT_TRUE(images_data->IsSuperReferral());
-  EXPECT_FALSE(*images_data->GetBackgroundAt(0, 0)->FindBool(kIsSponsoredKey));
+  EXPECT_FALSE(
+      *images_data->MaybeGetBackgroundAt(0, 0)->FindBool(kIsSponsoredKey));
   EXPECT_TRUE(observer_.on_sponsored_images_updated);
 }
 

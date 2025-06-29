@@ -7,11 +7,11 @@
 
 #include <utility>
 
-#include "base/debug/dump_without_crashing.h"
+#include "base/check.h"
 #include "base/functional/bind.h"
+#include "brave/components/brave_ads/core/internal/account/issuers/issuers.h"
 #include "brave/components/brave_ads/core/internal/account/issuers/issuers_info.h"
 #include "brave/components/brave_ads/core/internal/account/issuers/issuers_util.h"
-#include "brave/components/brave_ads/core/internal/account/issuers/url_request/issuers_url_request.h"
 #include "brave/components/brave_ads/core/internal/account/user_rewards/user_rewards_util.h"
 #include "brave/components/brave_ads/core/internal/account/utility/redeem_payment_tokens/redeem_payment_tokens.h"
 #include "brave/components/brave_ads/core/internal/account/utility/refill_confirmation_tokens/refill_confirmation_tokens.h"
@@ -27,7 +27,7 @@ UserRewards::UserRewards(WalletInfo wallet) : wallet_(std::move(wallet)) {
 
   GetAdsClient().AddObserver(this);
 
-  issuers_url_request_.SetDelegate(this);
+  issuers_.SetDelegate(this);
   refill_confirmation_tokens_.SetDelegate(this);
   redeem_payment_tokens_.SetDelegate(this);
 }
@@ -37,7 +37,7 @@ UserRewards::~UserRewards() {
 }
 
 void UserRewards::FetchIssuers() {
-  issuers_url_request_.PeriodicallyFetch();
+  issuers_.PeriodicallyFetch();
 }
 
 void UserRewards::MaybeRefillConfirmationTokens() {
@@ -69,12 +69,6 @@ void UserRewards::OnDidRedeemPaymentTokens(
   transactions_database_table_.Reconcile(
       payment_tokens, base::BindOnce([](bool success) {
         if (!success) {
-          // TODO(https://github.com/brave/brave-browser/issues/43316):
-          // Failed to reconcile transactions.
-          SCOPED_CRASH_KEY_STRING64("Issue43316", "failure_reason",
-                                    "Failed to reconcile transactions");
-          base::debug::DumpWithoutCrashing();
-
           return BLOG(0, "Failed to reconcile transactions");
         }
 
@@ -91,7 +85,7 @@ void UserRewards::OnDidRefillConfirmationTokens() {
 }
 
 void UserRewards::OnFailedToRefillConfirmationTokens() {
-  BLOG(1, "Failed to refill confirmation tokens");
+  BLOG(0, "Failed to refill confirmation tokens");
 }
 
 void UserRewards::OnWillRetryRefillingConfirmationTokens(base::Time retry_at) {

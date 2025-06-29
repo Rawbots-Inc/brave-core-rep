@@ -80,6 +80,11 @@ import WebKit
     domain: Domain,
     isDeAmpEnabled: Bool
   ) async -> Set<UserScriptType> {
+    if !mainFrameURL.isWebPage(includeDataURIs: false) {
+      // Local application urls do not need page-specific user scripts injected
+      return []
+    }
+
     var userScriptTypes: Set<UserScriptType> = [
       .siteStateListener, .gpc(ShieldPreferences.enableGPC.value),
     ]
@@ -90,9 +95,9 @@ import WebKit
     // Add the `farblingProtection` script if needed
     // Note: The added farbling protection script based on the document url, not the frame's url.
     // It is also added for every frame, including subframes.
-    if isFPProtectionOn, let etldP1 = mainFrameURL.baseDomain {
+    if isFPProtectionOn, let baseDomain = mainFrameURL.baseDomain {
       userScriptTypes.insert(.nacl)  // dependency for `farblingProtection`
-      userScriptTypes.insert(.farblingProtection(etld: etldP1))
+      userScriptTypes.insert(.farblingProtection(etld: baseDomain))
     }
 
     // Handle dynamic domain level scripts on the request that don't use shields

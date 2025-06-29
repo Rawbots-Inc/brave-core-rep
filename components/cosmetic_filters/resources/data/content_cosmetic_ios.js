@@ -357,9 +357,15 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
     if (CC.hasProceduralActions) {
       const addedElements = [];
       mutations.forEach(mutation =>
-        mutation.addedNodes.length !== 0 && mutation.addedNodes.forEach(n =>
-          n.nodeType === Node.ELEMENT_NODE && addedElements.push(n)
-        )
+        mutation.addedNodes.length !== 0 && mutation.addedNodes.forEach(n => {
+          if (n.nodeType === Node.ELEMENT_NODE) {
+            addedElements.push(n)
+            const childNodes = n.querySelectorAll('*')
+            childNodes.length !== 0 && childNodes.forEach(c => {
+              c.nodeType === Node.ELEMENT_NODE && addedElements.push(c)
+            })
+          }
+        })
       )
       if (addedElements.length !== 0) {
         executeProceduralActions(addedElements);
@@ -391,8 +397,10 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
     }
 
     const futureTimeMs = window.Date.now() + returnToMutationObserverIntervalMs
-    const queryAttrsFromDocumentBound = querySelectorsFromDocument.bind(
-      undefined, futureTimeMs)
+     const queryAttrsFromDocumentBound = queryAttrsFromDocument.bind(
+      undefined,
+      /* switchToMutationObserverAtTime */ futureTimeMs,
+      /* sendSelectorsImmediately */ false)
     selectorsPollingIntervalId = window.setInterval(
       queryAttrsFromDocumentBound, selectorsPollingIntervalMs)
   }
@@ -791,11 +799,21 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
    * @param {number} switchToMutationObserverAtTime A timestamp indicating when
    * we should switch back to mutation observer
    */
-  const querySelectorsFromDocument = (switchToMutationObserverAtTime) => {
+  const queryAttrsFromDocument = async (
+    switchToMutationObserverAtTime, sendSelectorsImmediately) => {
+    // query selectors from document
     querySelectorsFromElement(document)
 
     // Send any found selectors to the browser
-    sendPendingSelectorsThrottled()
+    if (sendSelectorsImmediately) {
+      await sendPendingSelectorsIfNeeded()
+    } else {
+      sendPendingSelectorsThrottled()
+    }
+
+    if (CC.hasProceduralActions) {
+      executeProceduralActions();
+    }
 
     if (switchToMutationObserverAtTime !== undefined &&
       window.Date.now() >= switchToMutationObserverAtTime) {
@@ -808,12 +826,11 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
    * Then it will begin the selectors mutation observer
    */
   const startPollingSelectors = async () => {
-    // First queue up any classes and ids that exist before the mutation
-    // observer starts running.
-    querySelectorsFromElement(document)
-
-    // Send any found selectors to the browser and await the results
-    await sendPendingSelectorsIfNeeded()
+    // First queue up & send any classes and ids that exist before the
+    // mutation observer starts running.
+    await queryAttrsFromDocument(
+      /* switchToMutationObserverAtTime */ undefined,
+      /* sendSelectorsImmediately */ true)
 
     // Second, set up a mutation observer to handle any new ids or classes
     // that are added to the document.
@@ -829,7 +846,7 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
    * polling mechanism
    */
   const scheduleQueuePump = (hide1pContent, genericHide) => {
-    if (!genericHide) {
+    if (!genericHide || CC.hasProceduralActions) {
       if (args.firstSelectorsPollingDelayMs === undefined) {
         startPollingSelectors()
       } else {
@@ -1037,44 +1054,29 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
     return hasChanges
   }
 
-  /// Moves the stylesheet to the bottom of the page
-  const moveStyle = () => {
-    const styleElm = CC.cosmeticStyleSheet
-    const targetElm = document.body
-    styleElm.parentElement.removeChild(styleElm)
-    targetElm.appendChild(styleElm)
-  }
-
   /**
-   * Create a stylesheet and append it to the bottom of the body element.
+   * Create a CSSStyleSheet and append it to the document's adoptedStyleSheets.
    * The stylesheet is stored on `cosmeticStyleSheet` for future reference.
    */
   const createStylesheet = () => {
-    const targetElm = document.body
-    const styleElm = document.createElement('style')
-    styleElm.setAttribute('type', 'text/css')
-    targetElm.appendChild(styleElm)
-    CC.cosmeticStyleSheet = styleElm
-    // The previous `nextElementSibling` we moved our stylesheet below
-    let prevNextElementSibling = null;
+    const styleSheetElm = new CSSStyleSheet();
+    document.adoptedStyleSheets = [
+      ...document.adoptedStyleSheets,
+      styleSheetElm
+    ];
+    CC.cosmeticStyleSheet = styleSheetElm;
 
-    // Start a timer that moves the stylesheet down
+    // Poll every 1sec to see if our stylesheet was removed from
+    // adoptedStyleSheets and re-add if missing.
     window.setInterval(() => {
-      if (styleElm.nextElementSibling === null
-          || styleElm.parentElement !== targetElm) {
+      if (document.adoptedStyleSheets.includes(styleSheetElm)) {
         return
       }
-      if (styleElm.nextElementSibling !==  null) {
-        // if we already moved below this element
-        if (prevNextElementSibling === styleElm.nextElementSibling) {
-          // Avoid a loop where we are repeatedly swapping places with another
-          // element. This can happen with `darkreader` (night mode) for
-          // example and cause unwanted animations to repeat.
-          return
-        }
-        prevNextElementSibling = styleElm.nextElementSibling;
-      }
-      moveStyle()
+      // we were removed, re-add our styleSheetElm
+      document.adoptedStyleSheets = [
+        ...document.adoptedStyleSheets,
+        styleSheetElm
+      ];
     }, 1000)
   }
 
@@ -1097,7 +1099,7 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
       return rule !== undefined && !rule.startsWith(':')
     }).join('')
 
-    CC.cosmeticStyleSheet.innerText = ruleText
+    CC.cosmeticStyleSheet.replaceSync(ruleText);
   }
 
   /**
@@ -1196,38 +1198,41 @@ import { applyCompiledSelector, compileProceduralSelector } from './procedural_f
       }
     }
     for (const { selector, action } of CC.proceduralActionFilters) {
-      let matchingElements = [];
-      let startOperator = 0;
+      try {
+        let matchingElements = [];
+        let startOperator = 0;
 
-      if (selector[0].type === 'css-selector' && added === undefined) {
-        matchingElements = document.querySelectorAll(selector[0].arg);
-        startOperator = 1;
-      } else if (added === undefined) {
-        matchingElements = document.querySelectorAll('*');
-      } else {
-        matchingElements = added;
-      }
+        if (selector[0].type === 'css-selector' && added === undefined) {
+          matchingElements = document.querySelectorAll(selector[0].arg);
+          startOperator = 1;
+        } else if (added === undefined) {
+          matchingElements = document.querySelectorAll('*');
+        } else {
+          matchingElements = added;
+        }
 
-      if (startOperator === selector.length) {
-        // First `css-selector` was already handled, and no more elements remain
-        matchingElements.forEach(elem => {
-          performAction(elem, action);
-        });
-      } else {
-        try {
+        if (startOperator === selector.length) {
+          // First `css-selector` was already handled, and no more elements
+          // remain
+          matchingElements.forEach(elem => {
+            performAction(elem, action);
+          });
+        } else {
           const filter = compileProceduralSelector(
             selector.slice(startOperator));
           applyCompiledSelector(filter, matchingElements).forEach(elem => {
             performAction(elem, action);
           });
-        } catch (e) {
-          console.error('Failed to apply filter ' + JSON.stringify(selector)
-            + ' ' + JSON.stringify(action) + ': ');
-          console.error(e.message);
-          console.error(e.stack);
         }
+      } catch (e) {
+        console.error('Failed to apply filter ' + JSON.stringify(selector)
+          + ' ' + JSON.stringify(action) + ': ');
+        console.error(e.message);
+        console.error(e.stack);
       }
     }
+    // update stylesheet for procedural actions
+    setRulesOnStylesheetThrottled();
   };
 
   const waitForBody = () => {

@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/metrics/histogram_macros.h"
@@ -107,7 +108,7 @@ PageMetrics::PageMetrics(PrefService* local_state,
 
 PageMetrics::~PageMetrics() = default;
 
-void PageMetrics::OnHttpsNavigationEvent(const char* histogram_name,
+void PageMetrics::OnHttpsNavigationEvent(std::string_view histogram_name,
                                          uint64_t name_hash,
                                          base::HistogramBase::Sample32 sample) {
   HttpsEvent event = static_cast<HttpsEvent>(sample);
@@ -131,7 +132,7 @@ void PageMetrics::OnHttpsNavigationEvent(const char* histogram_name,
 }
 
 void PageMetrics::OnInterstitialDecisionEvent(
-    const char* histogram_name,
+    std::string_view histogram_name,
     uint64_t name_hash,
     base::HistogramBase::Sample32 sample) {
   if (sample != security_interstitials::MetricsHelper::Decision::PROCEED) {
@@ -221,9 +222,8 @@ void PageMetrics::ReportPagesLoaded() {
   const char* pages_loaded_histogram_name = nullptr;
 
   if (profile_prefs_->GetBoolean(brave_rewards::prefs::kEnabled)) {
-    const std::string wallet_type =
-        profile_prefs_->GetString(brave_rewards::prefs::kExternalWalletType);
-    if (wallet_type.empty()) {
+    if (profile_prefs_->GetString(brave_rewards::prefs::kExternalWalletType)
+            .empty()) {
       pages_loaded_histogram_name = kPagesLoadedRewardsHistogramName;
     } else {
       pages_loaded_histogram_name = kPagesLoadedRewardsWalletHistogramName;

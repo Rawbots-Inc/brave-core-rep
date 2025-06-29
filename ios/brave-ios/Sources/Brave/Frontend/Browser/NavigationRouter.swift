@@ -15,6 +15,8 @@ public enum DeepLink: String {
   case braveLeo = "brave_leo"
   case playlist
   case browserMenu = "menu"
+  case setDefaultBrowser = "set-default"
+  case importData = "import-data"
 }
 
 // The root navigation for the Router. Look at the tests to see a complete URL
@@ -95,6 +97,10 @@ public enum NavigationPath: Equatable {
       helper.openPlaylist()
     case .browserMenu:
       bvc.presentMenu(from: bvc.navigationToolbar)
+    case .setDefaultBrowser:
+      bvc.presentDefaultBrowserScreenCallout(skipSafeGuards: true)
+    case .importData:
+      bvc.presentDataImporter()
     }
   }
 
@@ -118,7 +124,8 @@ public enum NavigationPath: Equatable {
     switch path {
     case .unknown, .search:
       // Search
-      if let url = bvc.tabManager.selectedTab?.url, InternalURL(url)?.isAboutHomeURL == true {
+      if let url = bvc.tabManager.selectedTab?.visibleURL, InternalURL(url)?.isAboutHomeURL == true
+      {
         bvc.focusURLBar()
       } else {
         bvc.openBlankNewTab(

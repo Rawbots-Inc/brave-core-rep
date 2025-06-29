@@ -14,6 +14,7 @@ public class BraveClassAdapter {
         chain = new BraveAppHooksClassAdapter(chain);
         chain = new BraveAppMenuClassAdapter(chain);
         chain = new BraveBaseCustomTabActivityClassAdapter(chain);
+        chain = new BraveCustomTabActivityClassAdapter(chain);
         chain = new BraveApplicationImplBaseClassAdapter(chain);
         chain = new BraveAutocompleteCoordinatorClassAdapter(chain);
         chain = new BraveAutocompleteEditTextClassAdapter(chain);
@@ -34,6 +35,8 @@ public class BraveClassAdapter {
         chain = new BraveBottomControlsMediatorClassAdapter(chain);
         chain = new BraveCachedFlagClassAdapter(chain);
         chain = new BraveChromeContextMenuPopulatorAdapter(chain);
+        chain = new BraveQuickActionSearchWidgetProviderClassAdapter(chain);
+        chain = new BraveRadioButtonGroupHomepagePreferenceClassAdapter(chain);
         chain = new BraveClearBrowsingDataFragmentAdapter(chain);
         chain = new BraveCommandLineInitUtilClassAdapter(chain);
         chain = new BraveContentSettingsResourcesClassAdapter(chain);
@@ -46,7 +49,6 @@ public class BraveClassAdapter {
         chain = new BraveDynamicColorsClassAdapter(chain);
         chain = new BraveEditUrlSuggestionProcessorBaseClassAdapter(chain);
         chain = new BraveEditUrlSuggestionProcessorClassAdapter(chain);
-        chain = new BraveExportFlowClassAdapter(chain);
         chain = new BraveExternalNavigationHandlerClassAdapter(chain);
         chain = new BraveFeedSurfaceCoordinatorClassAdapter(chain);
         chain = new BraveFeedSurfaceMediatorClassAdapter(chain);
@@ -57,6 +59,7 @@ public class BraveClassAdapter {
         chain = new BraveHubManagerImplClassAdapter(chain);
         chain = new BraveIdentityDiscControllerClassAdapter(chain);
         chain = new BraveIncognitoTabSwitcherPaneClassAdapter(chain);
+        chain = new BraveInfoBarContainerViewClassAdapter(chain);
         chain = new BraveIntentHandlerClassAdapter(chain);
         chain = new BraveLauncherActivityClassAdapter(chain);
         chain = new BraveLaunchIntentDispatcherClassAdapter(chain);
@@ -103,10 +106,10 @@ public class BraveClassAdapter {
         chain = new BraveSiteSettingsCategoryClassAdapter(chain);
         chain = new BraveSiteSettingsDelegateClassAdapter(chain);
         chain = new BraveSiteSettingsPreferencesBaseClassAdapter(chain);
+        chain = new BraveStartupHelperClassAdapter(chain);
         chain = new BraveStatusBarColorControllerClassAdapter(chain);
         chain = new BraveStatusMediatorClassAdapter(chain);
         chain = new BraveStrictPreferenceKeyCheckerClassAdapter(chain);
-        chain = new BraveSwipeRefreshHandlerClassAdapter(chain);
         chain = new BraveSystemAccountManagerDelegateAdapter(chain);
         chain = new BraveTabGroupUiCoordinatorClassAdapter(chain);
         chain = new BraveTabSwitcherPaneBaseClassAdapter(chain);
@@ -121,12 +124,17 @@ public class BraveClassAdapter {
         chain = new BraveTileViewClassAdapter(chain);
         chain = new BraveToolbarLayoutClassAdapter(chain);
         chain = new BraveToolbarManagerClassAdapter(chain);
+        chain = new BraveToolbarPositionControllerClassAdapter(chain);
         chain = new BraveToolbarSwipeLayoutClassAdapter(chain);
         chain = new BraveTopToolbarCoordinatorClassAdapter(chain);
         chain = new BraveUndoBarControllerBaseClassAdapter(chain);
         chain = new BraveVariationsSeedFetcherClassAdapter(chain);
         chain = new BraveWebsiteClassAdapter(chain);
         chain = new BraveWebsitePermissionsFetcherClassAdapter(chain);
+        chain = new BraveFullscreenVideoPictureInPictureControllerClassAdapter(chain);
+        chain = new BraveFullscreenHtmlApiHandlerCompatClassAdapter(chain);
+        chain = new BraveFullscreenHtmlApiHandlerLegacyClassAdapter(chain);
+        chain = new BraveFullscreenHtmlApiHandlerBaseClassAdapter(chain);
         return chain;
     }
 }

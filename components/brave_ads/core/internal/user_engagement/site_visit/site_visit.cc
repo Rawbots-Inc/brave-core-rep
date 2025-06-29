@@ -5,6 +5,7 @@
 
 #include "brave/components/brave_ads/core/internal/user_engagement/site_visit/site_visit.h"
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/location.h"
 #include "base/time/time.h"
@@ -179,7 +180,7 @@ void SiteVisit::StopPageLand(int32_t tab_id) {
 }
 
 void SiteVisit::MaybeSuspendOrResumePageLandForVisibleTab() {
-  if (const std::optional<TabInfo> tab =
+  if (std::optional<TabInfo> tab =
           TabManager::GetInstance().MaybeGetVisible()) {
     MaybeSuspendOrResumePageLand(tab->id);
   }

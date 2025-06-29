@@ -7,6 +7,7 @@ import Foundation
 import Preferences
 import Shared
 import UIKit
+import Web
 
 enum TabBarVisibility: Int, CaseIterable {
   case never
@@ -51,8 +52,6 @@ extension Preferences {
     public static let isFirstLaunch = Option<Bool>(key: "general.first-launch", default: true)
     /// Whether or not to save logins in Brave
     static let saveLogins = Option<Bool>(key: "general.save-logins", default: true)
-    /// Whether or not to block popups from websites automaticaly
-    static let blockPopups = Option<Bool>(key: "general.block-popups", default: true)
     /// Controls how the tab bar should be shown (or not shown)
     static let tabBarVisibility = Option<Int>(
       key: "general.tab-bar-visiblity",
@@ -75,9 +74,9 @@ extension Preferences {
       default: false
     )
     /// Specifies whether the bookmark button is present on toolbar
-    static let toolbarShortcutButton = Option<Int?>(
+    public static let toolbarShortcutButton = Option<Int?>(
       key: "general.show-bookmark-toolbar-shortcut",
-      default: UIDevice.isIpad ? WidgetShortcut.bookmarks.rawValue : nil
+      default: nil
     )
     /// Controls whether or not media should continue playing in the background
     static let mediaAutoBackgrounding = Option<Bool>(
@@ -183,6 +182,11 @@ extension Preferences {
       key: "search.yahoo-jp-phase-one-completed",
       default: false
     )
+    /// Whether or not Yahoo! JAPAN search engine phase two has been completed
+    public static let yahooJPPhaseTwoCompleted = Option<Bool>(
+      key: "search.yahoo-jp-phase-two-completed",
+      default: false
+    )
     /// User picked DSE name for normal mode
     public static let userPickedDSEName = Option<String?>(
       key: "search.user-picked-dse-name",
@@ -236,7 +240,8 @@ extension Preferences {
     /// Enables the Apple's Screen Time feature.
     public static let screenTimeEnabled = Option<Bool>(
       key: "privacy.screentime-toggle",
-      default: AppConstants.buildChannel != .release && !ProcessInfo.processInfo.isiOSAppOnVisionOS
+      default: Preferences.DebugFlag.enableScreenTimeByDefault
+        ?? (AppConstants.buildChannel != .release && !ProcessInfo.processInfo.isiOSAppOnVisionOS)
     )
 
   }
@@ -319,11 +324,7 @@ extension Preferences {
       Option<Bool>(key: "newtabpage.show-newtab-favourites", default: true)
 
     /// A Codable json representation of NewTabPageP3AHelperStorage
-    public static let sponsoredImageEventCountJSON = Option<String?>(
-      key: "newtabpage.si-p3a.event-count",
-      default: nil
-    )
-    public static let sponsoredImageEventCountConstellation = Option<String?>(
+    public static let sponsoredImageEventCount = Option<String?>(
       key: "newtabpage.si-p3a.event-count-constellation",
       default: nil
     )
@@ -375,6 +376,10 @@ extension Preferences {
     static let reddit = Option<Bool>(key: "website-redirect.reddit", default: false)
     static let npr = Option<Bool>(key: "website-redirect.npr", default: false)
   }
+
+  final public class ReaderMode {
+    static let style = Option<String?>(key: "readermode.style", default: nil)
+  }
 }
 
 extension Preferences {
@@ -382,9 +387,8 @@ extension Preferences {
     /// Determines whether Brave Translate is enabled
     /// - true = Enabled
     /// - false = Disabled
-    /// - nil = Onboarding dismissed, state unknown
     public static let translateEnabled =
-      Option<Bool?>(key: "brave-translate.enabled", default: nil)
+      Option<Bool>(key: "brave-translate.enabled", default: true)
 
     /// Determines whether to show Brave Translate onboarding.
     public static let translateURLBarOnboardingCount =

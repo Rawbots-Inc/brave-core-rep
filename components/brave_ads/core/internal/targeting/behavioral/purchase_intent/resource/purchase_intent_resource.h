@@ -10,7 +10,6 @@
 #include <string>
 
 #include "base/memory/weak_ptr.h"
-#include "brave/components/brave_ads/core/internal/common/resources/resource_parsing_error_or.h"
 #include "brave/components/brave_ads/core/internal/targeting/behavioral/purchase_intent/resource/purchase_intent_resource_info.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client_notifier_observer.h"
 
@@ -40,14 +39,12 @@ class PurchaseIntentResource final : public AdsClientNotifierObserver {
   void MaybeLoadOrUnload();
 
   void Load();
-  void LoadCallback(
-      ResourceComponentParsingErrorOr<PurchaseIntentResourceInfo> result);
+  void LoadCallback(std::optional<PurchaseIntentResourceInfo> resource);
 
   void MaybeUnload();
   void Unload();
 
   // AdsClientNotifierObserver:
-  void OnNotifyLocaleDidChange(const std::string& locale) override;
   void OnNotifyPrefDidChange(const std::string& path) override;
   void OnNotifyResourceComponentDidChange(const std::string& manifest_version,
                                           const std::string& id) override;

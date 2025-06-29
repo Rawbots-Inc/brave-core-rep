@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "base/check.h"
 #include "base/check_op.h"
 #include "base/containers/flat_map.h"
 #include "base/files/file_path.h"
@@ -111,7 +112,7 @@ base::flat_map<std::string, std::string> ToUrlResponseHeaders(
 std::optional<mojom::UrlResponseInfo> GetNextUrlResponseForRequest(
     const mojom::UrlRequestInfoPtr& mojom_url_request,
     const URLResponseMap& url_responses) {
-  const std::optional<URLResponsePair> url_response =
+  std::optional<URLResponsePair> url_response =
       GetNextUrlResponseForUrl(mojom_url_request->url, url_responses);
   if (!url_response) {
     return std::nullopt;

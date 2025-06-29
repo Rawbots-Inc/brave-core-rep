@@ -12,7 +12,7 @@ import { formatMessage } from '../../../shared/lib/locale_context'
 import { useLocaleContext } from '../../lib/locale_strings'
 import { AdType } from '../../lib/app_state'
 import { AppModelContext, useAppState } from '../../lib/app_model_context'
-import { Modal } from '../modal'
+import { Modal } from '../common/modal'
 import { NewTabLink } from '../../../shared/components/new_tab_link'
 
 import * as urls from '../../../shared/lib/rewards_urls'
@@ -40,6 +40,9 @@ export function AdsSettingsModal(props: Props) {
   if (!adsInfo) {
     return null
   }
+
+  const adsReceivedThisMonth = Object.values(adsInfo.adTypesReceivedThisMonth)
+    .reduce((prev, current) => prev + current, 0)
 
   function onToggleChange(adType: AdType) {
     return (detail: { checked: boolean }) => {
@@ -149,7 +152,7 @@ export function AdsSettingsModal(props: Props) {
               {getString('adsSettingsTotalAdsLabel')}
             </span>
             <span className='value'>
-              {adsInfo.adsReceivedThisMonth}
+              {adsReceivedThisMonth}
             </span>
           </div>
         </section>
@@ -233,30 +236,6 @@ export function AdsSettingsModal(props: Props) {
             </span>
             <span>
               {adsInfo.adTypesReceivedThisMonth['search-result']}
-            </span>
-          </div>
-          <div className='row'>
-            <Toggle
-              checked={adsInfo.adsEnabled['inline-content']}
-              disabled
-            />
-            <span className='name'>
-              {getString('adTypeInlineContentLabel')}
-              <Tooltip mode='default'>
-                <Icon name='info-outline' />
-                <div slot='content'>
-                  <p>
-                    {
-                      adsInfo.adsEnabled['inline-content']
-                          ? getString('adsSettingsNewsOnTooltip')
-                          : getString('adsSettingsNewsOffTooltip')
-                    }
-                  </p>
-                </div>
-              </Tooltip>
-            </span>
-            <span>
-              {adsInfo.adTypesReceivedThisMonth['inline-content']}
             </span>
           </div>
         </section>

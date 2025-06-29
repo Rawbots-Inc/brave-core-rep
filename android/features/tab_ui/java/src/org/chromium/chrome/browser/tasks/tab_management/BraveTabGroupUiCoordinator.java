@@ -14,15 +14,19 @@ import androidx.annotation.NonNull;
 import org.chromium.base.Callback;
 import org.chromium.base.supplier.ObservableSupplier;
 import org.chromium.base.supplier.OneshotSupplier;
+import org.chromium.base.supplier.Supplier;
+import org.chromium.chrome.browser.bookmarks.TabBookmarker;
 import org.chromium.chrome.browser.browser_controls.BrowserControlsStateProvider;
 import org.chromium.chrome.browser.data_sharing.DataSharingTabManager;
 import org.chromium.chrome.browser.layouts.LayoutStateProvider;
+import org.chromium.chrome.browser.share.ShareDelegate;
 import org.chromium.chrome.browser.tab_ui.TabContentManager;
 import org.chromium.chrome.browser.tabmodel.TabCreatorManager;
 import org.chromium.chrome.browser.tabmodel.TabModelSelector;
 import org.chromium.chrome.browser.tabmodel.TabModelSelectorObserver;
 import org.chromium.chrome.browser.theme.ThemeColorProvider;
 import org.chromium.chrome.browser.toolbar.bottom.BottomControlsCoordinator;
+import org.chromium.chrome.browser.undo_tab_close_snackbar.UndoBarThrottle;
 import org.chromium.chrome.tab_ui.R;
 import org.chromium.components.browser_ui.bottomsheet.BottomSheetController;
 import org.chromium.components.browser_ui.widget.scrim.ScrimManager;
@@ -34,7 +38,7 @@ public class BraveTabGroupUiCoordinator extends TabGroupUiCoordinator {
     private TabGroupUiToolbarView mToolbarView;
 
     // Own members.
-    private TabModelSelector mTabModelSelector;
+    private final TabModelSelector mTabModelSelector;
 
     public BraveTabGroupUiCoordinator(
             @NonNull Activity activity,
@@ -49,7 +53,10 @@ public class BraveTabGroupUiCoordinator extends TabGroupUiCoordinator {
             @NonNull TabCreatorManager tabCreatorManager,
             @NonNull OneshotSupplier<LayoutStateProvider> layoutStateProviderSupplier,
             @NonNull ModalDialogManager modalDialogManager,
-            @NonNull ThemeColorProvider themeColorProvider) {
+            @NonNull ThemeColorProvider themeColorProvider,
+            UndoBarThrottle undoBarThrottle,
+            ObservableSupplier<TabBookmarker> tabBookmarkerSupplier,
+            Supplier<ShareDelegate> shareDelegateSupplier) {
         super(
                 activity,
                 parentView,
@@ -63,7 +70,10 @@ public class BraveTabGroupUiCoordinator extends TabGroupUiCoordinator {
                 tabCreatorManager,
                 layoutStateProviderSupplier,
                 modalDialogManager,
-                themeColorProvider);
+                themeColorProvider,
+                undoBarThrottle,
+                tabBookmarkerSupplier,
+                shareDelegateSupplier);
 
         mTabModelSelector = tabModelSelector;
 
@@ -89,7 +99,6 @@ public class BraveTabGroupUiCoordinator extends TabGroupUiCoordinator {
 
     @Override
     public void initializeWithNative(
-            Activity activity,
             BottomControlsCoordinator.BottomControlsVisibilityController visibilityController,
             Callback<Object> onModelTokenChange) {
         // Fix for the null object crash at TabGroupSyncFeatures.isTabGroupSyncEnabled
@@ -112,22 +121,21 @@ public class BraveTabGroupUiCoordinator extends TabGroupUiCoordinator {
                             if (mTabModelSelector.getModels().size() >= 2
                                     && mTabModelSelector.getModel(false).getProfile() != null) {
                                 callSuperInitializeWithNative(
-                                        activity, visibilityController, onModelTokenChange);
+                                        visibilityController, onModelTokenChange);
 
                                 mTabModelSelector.removeObserver(this);
                             }
                         }
                     });
         } else {
-            callSuperInitializeWithNative(activity, visibilityController, onModelTokenChange);
+            callSuperInitializeWithNative(visibilityController, onModelTokenChange);
         }
     }
 
     private void callSuperInitializeWithNative(
-            Activity activity,
             BottomControlsCoordinator.BottomControlsVisibilityController visibilityController,
             Callback<Object> onModelTokenChange) {
-        super.initializeWithNative(activity, visibilityController, onModelTokenChange);
+        super.initializeWithNative(visibilityController, onModelTokenChange);
     }
 
     @Override

@@ -10,6 +10,7 @@
 
 #include "base/containers/flat_map.h"
 #include "base/no_destructor.h"
+#include "base/notreached.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/brave_news/brave_news_controller_factory.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_service.h"
@@ -37,6 +38,11 @@ class ContentSettingsDefaultsKeeper {
     const auto shields_content_types =
         content_settings::GetShieldsContentSettingsTypes();
     for (const auto content_type : shields_content_types) {
+      if (content_type == ContentSettingsType::BRAVE_COOKIES) {
+        // BRAVE_COOKIES don't have own default values. They relies on the
+        // default COOKIES settings which are stored in the profile prefs.
+        continue;
+      }
       ContentSettingsForOneType settings =
           map->GetSettingsForOneType(content_type);
       for (const auto& setting : settings) {

@@ -11,6 +11,7 @@ import Data
 import Favicon
 import Shared
 import SwiftUI
+import Web
 
 struct RecentlyClosedTabsView: View {
   @Environment(\.presentationMode) @Binding private var presentationMode
@@ -70,7 +71,7 @@ struct RecentlyClosedTabsView: View {
             onRecentlyClosedSelected?(recentlyClosed)
           } label: {
             HStack {
-              FaviconImage(
+              StyledFaviconImage(
                 url: recentlyClosed.url,
                 isPrivateBrowsing: tabManager?.privateBrowsingManager.isPrivateBrowsing == true
               )

@@ -208,9 +208,12 @@ extension SessionTab {
   }
 
   public static func updateAll(
+    synchronously: Bool,
     tabs: [(tabId: UUID, interactionState: Data, title: String, url: URL)]
   ) {
-    DataController.performOnMainContext { context in
+    DataController.perform(
+      context: synchronously ? .existing(DataController.viewContext) : .new(inMemory: false)
+    ) { context in
       for tab in tabs {
         guard let sessionTab = Self.from(tabId: tab.tabId, in: context) else {
           Logger.module.error("Error: SessionTab.updateAll missing managed object")
@@ -219,6 +222,17 @@ extension SessionTab {
         sessionTab.interactionState = tab.interactionState
         sessionTab.title = tab.title
         sessionTab.url = tab.url
+      }
+      if synchronously {
+        try? context.save()
+      }
+    }
+  }
+
+  public static func purgeSessionData() {
+    DataController.performOnMainContext { context in
+      for tab in Self.all() {
+        tab.interactionState = Data()
       }
 
       do {

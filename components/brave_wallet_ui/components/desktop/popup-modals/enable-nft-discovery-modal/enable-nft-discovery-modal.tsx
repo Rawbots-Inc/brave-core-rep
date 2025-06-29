@@ -6,13 +6,12 @@ import * as React from 'react'
 
 // selectors
 import {
-  useSafeUISelector //
+  useSafeUISelector, //
 } from '../../../../common/hooks/use-safe-selector'
 import { UISelectors } from '../../../../common/selectors'
 
 // utils
-import { getLocale, splitStringForTag } from '../../../../../common/locale'
-import { loadTimeData } from '../../../../../common/loadTimeData'
+import { getLocale, formatLocale } from '$web-common/locale'
 
 // components
 import { PopupModal } from '../../popup-modals/index'
@@ -23,7 +22,7 @@ import {
   Description,
   Header,
   Link,
-  Underline
+  Underline,
 } from './enable-nft-discovery-modal.style'
 import { LeoSquaredButton, Column } from '../../../shared/style'
 
@@ -35,19 +34,26 @@ interface Props {
 const LEARN_MORE_LINK =
   'https://github.com/brave/brave-browser/wiki/NFT-Discovery'
 
+const enableNftAutoDiscovery = formatLocale(
+  'braveWalletEnableNftAutoDiscoveryModalDescription',
+  {
+    $1: (content) => <Underline>{content}</Underline>,
+    $2: (content) => (
+      <Link
+        target='_blank'
+        rel='noreferrer'
+        href={LEARN_MORE_LINK}
+      >
+        {content}
+      </Link>
+    ),
+  },
+)
+
 export const EnableNftDiscoveryModal = ({ onConfirm, onCancel }: Props) => {
   // Selectors
   const isPanel = useSafeUISelector(UISelectors.isPanel)
-  const isAndroid = loadTimeData.getBoolean('isAndroid') || false
-
-  const { beforeTag, duringTag, afterTag } = splitStringForTag(
-    getLocale('braveWalletEnableNftAutoDiscoveryModalDescription'),
-    1
-  )
-  const { beforeTag: beforeLink, duringTag: learnMore } = splitStringForTag(
-    afterTag || '',
-    3
-  )
+  const isAndroid = useSafeUISelector(UISelectors.isAndroid)
 
   return (
     <PopupModal
@@ -65,18 +71,7 @@ export const EnableNftDiscoveryModal = ({ onConfirm, onCancel }: Props) => {
         <Header>
           {getLocale('braveWalletEnableNftAutoDiscoveryModalHeader')}
         </Header>
-        <Description>
-          {beforeTag}
-          <Underline>{duringTag}</Underline>
-          {beforeLink}
-          <Link
-            target='_blank'
-            rel='noreferrer'
-            href={LEARN_MORE_LINK}
-          >
-            {learnMore}
-          </Link>
-        </Description>
+        <Description>{enableNftAutoDiscovery}</Description>
         <ButtonRow>
           <LeoSquaredButton
             onClick={onCancel}

@@ -14,20 +14,21 @@ import PlaylistUI
 import Preferences
 import Shared
 import UIKit
+import Web
 import os.log
 
 extension BrowserViewController: PlaylistScriptHandlerDelegate,
   PlaylistFolderSharingScriptHandlerDelegate
 {
   static var didShowStorageFullWarning = false
-  func createPlaylistPopover(item: PlaylistInfo, tab: Tab?) -> PopoverController {
+  func createPlaylistPopover(item: PlaylistInfo, tab: (any TabState)?) -> PopoverController {
 
     let folderName =
       PlaylistItem.getItem(uuid: item.tagId)?.playlistFolder?.title
       ?? Strings.Playlist.defaultPlaylistTitle
 
     return PopoverController(
-      content: PlaylistPopoverView(folderName: folderName) { [weak self] action in
+      content: PlaylistPopoverView(folderName: folderName) { [weak self, weak tab] action in
         guard let self = self,
           let selectedTab = tab,
           let item = selectedTab.playlistItem
@@ -41,8 +42,8 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
           switch action {
           case .openPlaylist:
             DispatchQueue.main.async {
-              if let webView = tab?.webView {
-                PlaylistScriptHandler.getCurrentTime(webView: webView, nodeTag: item.tagId) {
+              if let tab {
+                PlaylistScriptHandler.getCurrentTime(tab: tab, nodeTag: item.tagId) {
                   [weak self] currentTime in
                   self?.openPlaylist(tab: tab, item: item, playbackOffset: currentTime)
                 }
@@ -64,7 +65,11 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
     )
   }
 
-  func updatePlaylistURLBar(tab: Tab?, state: PlaylistItemAddedState, item: PlaylistInfo?) {
+  func updatePlaylistURLBar(
+    tab: (any TabState)?,
+    state: PlaylistItemAddedState,
+    item: PlaylistInfo?
+  ) {
     // `tab` is nil when closed, along with the `.none` state and nil `item`
     guard let tab = tab else { return }
 
@@ -73,7 +78,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
       tab.playlistItem = item
 
       let shouldShowPlaylistURLBarButton =
-        tab.url?.isPlaylistSupportedSiteURL == true
+        tab.visibleURL?.isPlaylistSupportedSiteURL == true
         && Preferences.Playlist.enablePlaylistURLBarButton.value
 
       let browsers = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
@@ -112,15 +117,15 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
     }
   }
 
-  func showPlaylistPopover(tab: Tab?) {
+  func showPlaylistPopover(tab: (any TabState)?) {
   }
 
-  func showPlaylistToast(tab: Tab?, state: PlaylistItemAddedState, item: PlaylistInfo?) {
+  func showPlaylistToast(tab: (any TabState)?, state: PlaylistItemAddedState, item: PlaylistInfo?) {
     updatePlaylistURLBar(tab: tab, state: state, item: item)
 
     guard let selectedTab = tabManager.selectedTab,
       selectedTab === tab,
-      selectedTab.url?.isPlaylistSupportedSiteURL == true
+      selectedTab.visibleURL?.isPlaylistSupportedSiteURL == true
     else {
       return
     }
@@ -165,8 +170,8 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
             UIImpactFeedbackGenerator(style: .medium).vibrate()
 
             DispatchQueue.main.async {
-              if let webView = tab?.webView {
-                PlaylistScriptHandler.getCurrentTime(webView: webView, nodeTag: item.tagId) {
+              if let tab {
+                PlaylistScriptHandler.getCurrentTime(tab: tab, nodeTag: item.tagId) {
                   [weak self] currentTime in
                   self?.openPlaylist(tab: tab, item: item, playbackOffset: currentTime)
                 }
@@ -187,7 +192,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
     }
   }
 
-  func showPlaylistAlert(tab: Tab?, state: PlaylistItemAddedState, item: PlaylistInfo?) {
+  func showPlaylistAlert(tab: (any TabState)?, state: PlaylistItemAddedState, item: PlaylistInfo?) {
     // Has to be done otherwise it is impossible to play a video after selecting its elements
     UIMenuController.shared.hideMenu()
 
@@ -223,7 +228,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
     present(alert, animated: true, completion: nil)
   }
 
-  func showPlaylistOnboarding(tab: Tab?) {
+  func showPlaylistOnboarding(tab: (any TabState)?) {
     // Do NOT show the playlist onboarding popup if the tab isn't visible
 
     guard Preferences.Playlist.enablePlaylistURLBarButton.value,
@@ -234,7 +239,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
       return
     }
 
-    let shouldShowOnboarding = tab?.url?.isPlaylistSupportedSiteURL == true
+    let shouldShowOnboarding = tab?.visibleURL?.isPlaylistSupportedSiteURL == true
 
     if shouldShowOnboarding {
       if Preferences.Playlist.addToPlaylistURLBarOnboardingCount.value < 2,
@@ -280,9 +285,10 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
     }
   }
 
-  func openPlaylist(tab: Tab?, item: PlaylistInfo?, folderSharingPageUrl: String? = nil) {
-    if let item, let webView = tab?.webView {
-      PlaylistScriptHandler.getCurrentTime(webView: webView, nodeTag: item.tagId) {
+  func openPlaylist(tab: (any TabState)?, item: PlaylistInfo?, folderSharingPageUrl: String? = nil)
+  {
+    if let item, let tab {
+      PlaylistScriptHandler.getCurrentTime(tab: tab, nodeTag: item.tagId) {
         [weak self] currentTime in
         self?.openPlaylist(
           tab: tab,
@@ -302,7 +308,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
   }
 
   private func openPlaylist(
-    tab: Tab?,
+    tab: (any TabState)?,
     item: PlaylistInfo?,
     playbackOffset: Double,
     folderSharingPageUrl: String? = nil
@@ -358,6 +364,39 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
   ) {
     PlaylistP3A.recordUsage()
 
+    let addItemToPlaylist = {
+      [weak self] (
+        item: PlaylistInfo,
+        folderUUID: String?,
+        completion: ((_ didAddItem: Bool) -> Void)?
+      ) in
+      PlaylistItem.addItem(item, folderUUID: folderUUID, cachedData: nil) {
+        guard let self = self else { return }
+
+        if let url = URL(string: item.src), url.scheme == "blob" {
+          // Spawn a WebView to load the non-blob asset
+          Task { @MainActor in
+            let mediaStreamer = PlaylistMediaStreamer(
+              playerView: self.view,
+              webLoaderFactory: LivePlaylistWebLoaderFactory()
+            )
+
+            let newItem = try await mediaStreamer.loadMediaStreamingAsset(item)
+            PlaylistManager.shared.autoDownload(item: newItem)
+          }
+        } else {
+          PlaylistManager.shared.autoDownload(item: item)
+        }
+
+        self.updatePlaylistURLBar(
+          tab: self.tabManager.selectedTab,
+          state: .existingItem,
+          item: item
+        )
+        completion?(true)
+      }
+    }
+
     if PlaylistManager.shared.isDiskSpaceEncumbered()
       && !BrowserViewController.didShowStorageFullWarning
     {
@@ -380,18 +419,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
             self.addToPlayListActivityItem = nil
 
             AppReviewManager.shared.processSubCriteria(for: .numberOfPlaylistItems)
-            PlaylistItem.addItem(item, folderUUID: folderUUID, cachedData: nil) { [weak self] in
-              guard let self = self else { return }
-              PlaylistManager.shared.autoDownload(item: item)
-
-              self.updatePlaylistURLBar(
-                tab: self.tabManager.selectedTab,
-                state: .existingItem,
-                item: item
-              )
-
-              completion?(true)
-            }
+            addItemToPlaylist(item, folderUUID, completion)
           }
         )
       )
@@ -414,17 +442,7 @@ extension BrowserViewController: PlaylistScriptHandlerDelegate,
       addToPlayListActivityItem = nil
 
       AppReviewManager.shared.processSubCriteria(for: .numberOfPlaylistItems)
-      PlaylistItem.addItem(item, folderUUID: folderUUID, cachedData: nil) { [weak self] in
-        guard let self = self else { return }
-        PlaylistManager.shared.autoDownload(item: item)
-
-        self.updatePlaylistURLBar(
-          tab: self.tabManager.selectedTab,
-          state: .existingItem,
-          item: item
-        )
-        completion?(true)
-      }
+      addItemToPlaylist(item, folderUUID, completion)
     }
   }
 

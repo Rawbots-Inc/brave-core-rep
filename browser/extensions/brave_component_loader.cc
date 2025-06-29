@@ -8,13 +8,14 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/command_line.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "brave/components/brave_component_updater/browser/brave_component_installer.h"
 #include "brave/components/brave_component_updater/browser/brave_on_demand_updater.h"
 #include "brave/components/brave_extension/grit/brave_extension.h"
-#include "brave/components/brave_webtorrent/grit/brave_webtorrent_resources.h"
 #include "brave/components/constants/brave_switches.h"
 #include "brave/components/constants/pref_names.h"
 #include "chrome/browser/browser_process.h"
@@ -31,18 +32,12 @@
 #include "extensions/common/mojom/manifest.mojom.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-#include "brave/browser/ethereum_remote_client/ethereum_remote_client_constants.h"
-#include "brave/browser/extensions/ethereum_remote_client_util.h"
-#endif
-
 using extensions::mojom::ManifestLocation;
 
 namespace extensions {
 
-BraveComponentLoader::BraveComponentLoader(ExtensionSystem* extension_system,
-                                           Profile* profile)
-    : ComponentLoader(extension_system, profile),
+BraveComponentLoader::BraveComponentLoader(Profile* profile)
+    : ComponentLoader(profile),
       profile_(profile),
       profile_prefs_(profile->GetPrefs()) {
   pref_change_registrar_.Init(profile_prefs_);
@@ -68,29 +63,6 @@ void BraveComponentLoader::OnComponentReady(std::string extension_id,
   if (allow_file_access) {
     ExtensionPrefs::Get(profile_)->SetAllowFileAccess(extension_id, true);
   }
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-  if (extension_id == kEthereumRemoteClientExtensionId) {
-    ReinstallAsNonComponent(kEthereumRemoteClientExtensionId);
-  }
-#endif
-}
-
-void BraveComponentLoader::ReinstallAsNonComponent(
-    const std::string& extension_id) {
-  extensions::ExtensionService* service =
-      extensions::ExtensionSystem::Get(profile_)->extension_service();
-  extensions::ExtensionRegistry* registry =
-      extensions::ExtensionRegistry::Get(profile_);
-  const Extension* extension = registry->GetInstalledExtension(extension_id);
-  DCHECK(extension);
-  if (extension->location() == ManifestLocation::kComponent) {
-    service->RemoveComponentExtension(extension_id);
-    std::string error;
-    scoped_refptr<Extension> normal_extension = Extension::Create(
-        extension->path(), ManifestLocation::kExternalPref,
-        *extension->manifest()->value(), extension->creation_flags(), &error);
-    service->AddExtension(normal_extension.get());
-  }
 }
 
 void BraveComponentLoader::AddExtension(const std::string& extension_id,
@@ -108,42 +80,6 @@ void BraveComponentLoader::AddDefaultComponentExtensions(
     bool skip_session_components) {
   ComponentLoader::AddDefaultComponentExtensions(skip_session_components);
   UpdateBraveExtension();
-}
-
-#if BUILDFLAG(ETHEREUM_REMOTE_CLIENT_ENABLED)
-void BraveComponentLoader::AddEthereumRemoteClientExtension() {
-  AddExtension(kEthereumRemoteClientExtensionId,
-               kEthereumRemoteClientExtensionName,
-               kEthereumRemoteClientExtensionPublicKey);
-}
-
-void BraveComponentLoader::AddEthereumRemoteClientExtensionOnStartup() {
-  // Only load Crypto Wallets if it is set as the default wallet
-  if (ShouldLoadEthereumRemoteClientExtension(profile_prefs_)) {
-    AddEthereumRemoteClientExtension();
-  }
-}
-
-void BraveComponentLoader::UnloadEthereumRemoteClientExtension() {
-  extensions::ExtensionService* service =
-      extensions::ExtensionSystem::Get(profile_)->extension_service();
-  DCHECK(service);
-  service->UnloadExtension(kEthereumRemoteClientExtensionId,
-                           extensions::UnloadedExtensionReason::DISABLE);
-}
-#endif
-
-void BraveComponentLoader::AddWebTorrentExtension() {
-  const base::CommandLine& command_line =
-      *base::CommandLine::ForCurrentProcess();
-  if (!command_line.HasSwitch(switches::kDisableWebTorrentExtension) &&
-      (!profile_prefs_->FindPreference(kWebTorrentEnabled) ||
-       profile_prefs_->GetBoolean(kWebTorrentEnabled))) {
-    base::FilePath brave_webtorrent_path(FILE_PATH_LITERAL(""));
-    brave_webtorrent_path =
-        brave_webtorrent_path.Append(FILE_PATH_LITERAL("brave_webtorrent"));
-    Add(IDR_BRAVE_WEBTORRENT, brave_webtorrent_path);
-  }
 }
 
 bool BraveComponentLoader::UseBraveExtensionBackgroundPage() {

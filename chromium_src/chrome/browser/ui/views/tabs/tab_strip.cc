@@ -22,8 +22,11 @@
 #include "ui/gfx/win/hwnd_util.h"
 #endif
 
-#define AddTab(TAB, MODEL_INDEX, PINNED) \
-  AddTab(std::make_unique<BraveTab>(this), MODEL_INDEX, PINNED)
+// Overrides TabContainer::TabInsertionParams construction in
+// TabStrip::AddTabsAt
+#define param(TAB, MODEL_INDEX, PINNED) \
+  param(std::make_unique<BraveTab>(this), MODEL_INDEX, PINNED)
+
 #define CompoundTabContainer BraveCompoundTabContainer
 #define TabContainerImpl BraveTabContainer
 #define TabHoverCardController BraveTabHoverCardController
@@ -37,7 +40,8 @@
   if (tabs::utils::ShouldShowVerticalTabs(tab_strip_->GetBrowser())) {       \
     tabs::UpdateInsertionIndexForVerticalTabs(                               \
         dragged_bounds, first_dragged_tab_index, num_dragged_tabs,           \
-        dragged_group, candidate_index, tab_strip_->controller_.get(),       \
+        GetTabAt(first_dragged_tab_index)->group().has_value(),              \
+        candidate_index, tab_strip_->controller_.get(),                      \
         &tab_strip_->tab_container_.get(), min_distance, min_distance_index, \
         tab_strip_);                                                         \
     continue;                                                                \
@@ -55,7 +59,7 @@
 #undef TabHoverCardController
 #undef CompoundTabContainer
 #undef TabContainerImpl
-#undef AddTab
+#undef param
 
 bool TabStrip::IsTabTiled(const Tab* tab) const {
   return false;

@@ -1,16 +1,16 @@
 diff --git a/chrome/browser/ui/webui/settings/site_settings_helper.cc b/chrome/browser/ui/webui/settings/site_settings_helper.cc
-index e8c5e5cec26dea02fea5c3b21155b708b6500332..92d016a366f7733774236bdeac1879c412f70bb0 100644
+index 26d5c6f17470a3135baecd156212f0cb1984c9e1..73396d881a3f039e076c975ecc32ad62794040cb 100644
 --- a/chrome/browser/ui/webui/settings/site_settings_helper.cc
 +++ b/chrome/browser/ui/webui/settings/site_settings_helper.cc
-@@ -247,6 +247,7 @@ constexpr auto kContentSettingsTypeGroupNames = std::to_array<
-     {ContentSettingsType::CONTROLLED_FRAME, nullptr},
-     // POINTER_LOCK has been deprecated.
-     {ContentSettingsType::POINTER_LOCK, nullptr},
+@@ -259,6 +259,7 @@ constexpr auto kContentSettingsTypeGroupNames = std::to_array<
+      nullptr},
+     {ContentSettingsType::INITIALIZED_TRANSLATIONS, nullptr},
+     {ContentSettingsType::SUSPICIOUS_NOTIFICATION_IDS, nullptr},
 +    BRAVE_CONTENT_SETTINGS_TYPE_GROUP_NAMES_LIST
  });
  
  static_assert(
-@@ -507,6 +508,7 @@ bool HasRegisteredGroupName(ContentSettingsType type) {
+@@ -533,6 +534,7 @@ bool HasRegisteredGroupName(ContentSettingsType type) {
  }
  
  ContentSettingsType ContentSettingsTypeFromGroupName(std::string_view name) {
@@ -18,7 +18,7 @@ index e8c5e5cec26dea02fea5c3b21155b708b6500332..92d016a366f7733774236bdeac1879c4
    for (const auto& entry : kContentSettingsTypeGroupNames) {
      // Content setting types that aren't represented in the settings UI
      // will have `nullptr` as their `name`. However, converting `nullptr`
-@@ -521,6 +523,7 @@ ContentSettingsType ContentSettingsTypeFromGroupName(std::string_view name) {
+@@ -547,6 +549,7 @@ ContentSettingsType ContentSettingsTypeFromGroupName(std::string_view name) {
  }
  
  std::string_view ContentSettingsTypeToGroupName(ContentSettingsType type) {
@@ -26,15 +26,15 @@ index e8c5e5cec26dea02fea5c3b21155b708b6500332..92d016a366f7733774236bdeac1879c4
    for (const auto& entry : kContentSettingsTypeGroupNames) {
      if (type == entry.type) {
        // Content setting types that aren't represented in the settings UI
-@@ -697,6 +700,7 @@ std::string SiteSettingSourceToString(const SiteSettingSource source) {
+@@ -726,6 +729,7 @@ std::string SiteSettingSourceToString(const SiteSettingSource source) {
  SiteSettingSource ProviderTypeToSiteSettingsSource(
      const ProviderType provider_type) {
    switch (provider_type) {
 +    BRAVE_PROVIDER_TYPE_TO_SITE_SETTINGS_SOURCE
      case ProviderType::kWebuiAllowlistProvider:
+     case ProviderType::kComponentExtensionProvider:
        return SiteSettingSource::kAllowlist;
-     case ProviderType::kPolicyProvider:
-@@ -722,6 +726,7 @@ SiteSettingSource ProviderTypeToSiteSettingsSource(
+@@ -753,6 +757,7 @@ SiteSettingSource ProviderTypeToSiteSettingsSource(
  
  std::string ProviderToDefaultSettingSourceString(const ProviderType provider) {
    switch (provider) {
@@ -42,3 +42,11 @@ index e8c5e5cec26dea02fea5c3b21155b708b6500332..92d016a366f7733774236bdeac1879c4
      case ProviderType::kPolicyProvider:
        return "policy";
      case ProviderType::kSupervisedProvider:
+@@ -879,6 +884,7 @@ base::Value::Dict GetExceptionForPage(
+   exception.Set(kSource, SiteSettingSourceToString(source));
+   exception.Set(kIncognito, incognito);
+   exception.Set(kIsEmbargoed, is_embargoed);
++  BRAVE_GET_EXCEPTION_FOR_PAGE
+   return exception;
+ }
+ 

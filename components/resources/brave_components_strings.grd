@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grit latest_public_release="0" current_release="1" output_all_resource_defines="false" source_lang_id="en">
+<grit latest_public_release="0" current_release="1" source_lang_id="en">
   <outputs>
     <output filename="grit/brave_components_strings.h" type="rc_header">
       <emit emit_type='prepend'></emit>
     </output>
+    <output filename="grit/brave_components_webui_strings.h" type="webui_header" />
+    <output filename="grit/brave_components_webui_strings.ts" type="webui_ts" />
+    <output filename="grit/brave_components_webui_mock_strings.ts" type="webui_mock" />
     <output filename="brave_components_strings_af.pak" type="data_package" lang="af" />
     <output filename="brave_components_strings_am.pak" type="data_package" lang="am" />
     <output filename="brave_components_strings_ar.pak" type="data_package" lang="ar" />
@@ -281,6 +284,9 @@
       <message name="IDS_BRAVE_NEW_TAB_SHOW_REWARDS" desc="Text for settings show rewards option">Show Brave Rewards</message>
       <message name="IDS_BRAVE_NEW_TAB_SHOW_CARDS" desc="Text for cards option">Cards</message>
       <message name="IDS_BRAVE_NEW_TAB_BRANDED_WALLPAPER_OPT_IN" desc="Text for setting to opt-in to Branded Wallpapers on New Tab Page">Show Sponsored Images</message>
+      <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_CAN_EARN_DESCRIPTION" desc="Description text for learn more label for Sponsored Images setting on New Tab Page that informs users they can earn BAT">You can earn for seeing Sponsored Images.</message>
+      <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_EARNING_DESCRIPTION" desc="Description text for learn more label for Sponsored Images setting on New Tab Page that informs users they are currently earning BAT">You're earning BAT for Sponsored Images. Disabling Sponsored Images will reduce how much you earn.</message>
+      <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_LEARN_MORE" desc="Learn more link text for Sponsored Images setting on New Tab Page">Learn more</message>
       <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_EARNING_TITLE" desc="Title of message about already earning from sponsored images">You're earning BAT for Sponsored Images.</message>
       <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_ENABLE_REWARDS" desc="Text of the button to enable Rewards">Enable Rewards</message>
       <message name="IDS_BRAVE_NEW_TAB_SPONSORED_IMAGE_NOT_EARNING_TITLE" desc="Title of message about not yet earning from sponsored images">You can earn for seeing Sponsored Images.</message>
@@ -780,10 +786,6 @@
       <message name="IDS_BRAVE_WALLET_DOWNLOADING" desc="">Downloading Component...</message>
       <message name="IDS_BRAVE_WALLET_DISCLOSURE_CONFIRM" desc="">I understand</message>
 
-      <message name="IDS_PAGE_INFO_BRAVE_WEBTORRENT" desc="The message showed to the user in the HTTP info bubble view when viewing a webtorrent: page">
-        You're viewing a WebTorrent page
-      </message>
-
       <message name="IDS_TEST_STRING_FOR_PLACEHOLDERS" desc="Only for test purpose. Don't need to translate">
         Test string for <ph name="PART_ONE">$1</ph>place holders<ph name="PART_ONE_END">$2</ph>. <ph name="PART_TWO">$3</ph>Learn more<ph name="PART_TWO_END">$4</ph>
       </message>
@@ -808,6 +810,7 @@
         <part file="brave_new_tab_page_strings.grdp" />
         <part file="brave_shields_strings.grdp" />
         <part file="brave_welcome_strings.grdp" />
+        <part file="email_aliases_strings.grdp" />
       </if>
       <if expr="enable_brave_vpn">
         <part file="brave_vpn_strings.grdp" />
@@ -816,6 +819,7 @@
       <if expr="enable_playlist">
         <part file="playlist_strings.grdp" />
       </if>
+      <part file="../brave_account/resources/brave_account_strings.grdp" />
     </messages>
   </release>
 </grit>

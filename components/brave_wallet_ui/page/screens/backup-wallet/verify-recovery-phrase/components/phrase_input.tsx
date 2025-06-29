@@ -6,7 +6,7 @@
 import * as React from 'react'
 
 // utils
-import { getLocale, splitStringForTag } from '../../../../../../common/locale'
+import { getLocale, formatLocale } from '$web-common/locale'
 
 // styles
 import {
@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormInput,
   CloseButton,
-  CloseIcon
+  CloseIcon,
 } from '../verify_recovery_phrase.style'
 import { Column, VerticalSpace } from '../../../../../components/shared/style'
 import { InfoAlert } from './verification_progress.style'
@@ -23,7 +23,7 @@ import { AlertWrapper } from '../../../onboarding/onboarding.style'
 const alertSlotStyle = {
   display: 'flex',
   alignItems: 'center',
-  height: '20px'
+  height: '20px',
 }
 
 interface Props {
@@ -39,11 +39,13 @@ export const PhraseInput = ({
   showError,
   wordPosition,
   onChange,
-  onHideError
+  onHideError,
 }: Props) => {
-  const { beforeTag, afterTag } = splitStringForTag(
-    getLocale('braveWalletRecoveryWordInstructions'),
-    1
+  const recoveryInstructions = formatLocale(
+    'braveWalletRecoveryWordInstructions',
+    {
+      $1: <Bold>{wordPosition}</Bold>,
+    },
   )
 
   return (
@@ -51,11 +53,7 @@ export const PhraseInput = ({
       margin='120px 0 18px'
       gap='25px'
     >
-      <FormLabel>
-        {beforeTag}
-        <Bold>{wordPosition}</Bold>
-        {afterTag}
-      </FormLabel>
+      <FormLabel>{recoveryInstructions}</FormLabel>
       <FormInput
         value={phrase}
         onInput={(event) => onChange(event.value)}

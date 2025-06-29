@@ -217,7 +217,7 @@ public class ActivityShortcutManager: NSObject {
       }
     case .openSyncedTabs:
       bvc.popToBVC()
-      bvc.showTabTray(isExternallyPresented: true)
+      bvc.navigationHelper.openSyncedTabsList()
     }
   }
 

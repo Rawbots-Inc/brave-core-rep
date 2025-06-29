@@ -10,7 +10,10 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/command_line.h"
+#include "base/logging.h"
 #include "base/metrics/histogram_functions.h"
 #include "base/metrics/histogram_macros.h"
 #include "base/notreached.h"
@@ -433,6 +436,13 @@ void BraveWalletP3A::OnTransactionStatusChanged(
       return;
     }
     if (!count_test_networks && chain_id == mojom::kZCashTestnet) {
+      return;
+    }
+  } else if (tx_coin == mojom::CoinType::ADA) {
+    if (tx_type != mojom::TransactionType::Other) {
+      return;
+    }
+    if (!count_test_networks && chain_id == mojom::kCardanoTestnet) {
       return;
     }
   } else {

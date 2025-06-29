@@ -19,7 +19,6 @@
 #include "base/types/expected.h"
 #include "brave/components/ai_chat/core/browser/ai_chat_credential_manager.h"
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
-#include "brave/components/ai_chat/core/browser/engine/remote_completion_client.h"
 #include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom-forward.h"
 #include "brave/components/api_request_helper/api_request_helper.h"
 
@@ -42,11 +41,11 @@ struct CredentialCacheEntry;
 // Performs remote request to the remote HTTP Brave Conversation API.
 class ConversationAPIClient {
  public:
-  using GenerationResult = base::expected<std::string, mojom::APIError>;
-  using GenerationDataCallback =
-      base::RepeatingCallback<void(mojom::ConversationEntryEventPtr)>;
+  using GenerationResult = EngineConsumer::GenerationResult;
+  using GenerationResultData = EngineConsumer::GenerationResultData;
+  using GenerationDataCallback = EngineConsumer::GenerationDataCallback;
   using GenerationCompletedCallback =
-      base::OnceCallback<void(GenerationResult)>;
+      EngineConsumer::GenerationCompletedCallback;
 
   enum ConversationEventType {
     System,
@@ -64,6 +63,11 @@ class ConversationAPIClient {
     RequestRewrite,
     SuggestedActions,
     UploadImage,
+    GetSuggestedTopicsForFocusTabs,
+    DedupeTopics,
+    GetSuggestedAndDedupeTopicsForFocusTabs,
+    GetFocusTabsForTopic,
+    PageScreenshot,
     // TODO(petemill):
     // - Search in-progress?
     // - Sources?
@@ -75,30 +79,49 @@ class ConversationAPIClient {
   struct ConversationEvent {
     mojom::CharacterType role;
     ConversationEventType type;
-    std::string content;
+    std::vector<std::string> content;
+    std::string topic;  // Used in GetFocusTabsForTopic event.
+
+    ConversationEvent(mojom::CharacterType,
+                      ConversationEventType,
+                      const std::vector<std::string>&,
+                      const std::string& = "");
+    ConversationEvent();
+    ~ConversationEvent();
+    ConversationEvent(const ConversationEvent&) = delete;
+    ConversationEvent& operator=(const ConversationEvent&) = delete;
+    ConversationEvent(ConversationEvent&&);
+    ConversationEvent& operator=(ConversationEvent&&);
   };
 
   ConversationAPIClient(
       const std::string& model_name,
       scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
-      AIChatCredentialManager* credential_manager);
+      AIChatCredentialManager* credential_manager,
+      ModelService* model_service);
 
   ConversationAPIClient(const ConversationAPIClient&) = delete;
   ConversationAPIClient& operator=(const ConversationAPIClient&) = delete;
   virtual ~ConversationAPIClient();
 
   virtual void PerformRequest(
-      const std::vector<ConversationEvent>& conversation,
+      std::vector<ConversationEvent> conversation,
       const std::string& selected_language,
       GenerationDataCallback data_received_callback,
-      GenerationCompletedCallback completed_callback);
+      GenerationCompletedCallback completed_callback,
+      const std::optional<std::string>& model_name = std::nullopt);
 
   void ClearAllQueries();
 
+  static std::optional<GenerationResultData> ParseResponseEvent(
+      base::Value::Dict& response_event,
+      ModelService* model_service);
+
  protected:
   std::string CreateJSONRequestBody(
-      const std::vector<ConversationEvent>& conversation,
+      std::vector<ConversationEvent> conversation,
       const std::string& selected_language,
+      const std::optional<std::string>& model_name,
       const bool is_sse_enabled);
 
   void SetAPIRequestHelperForTesting(
@@ -111,21 +134,23 @@ class ConversationAPIClient {
 
  private:
   void PerformRequestWithCredentials(
-      const std::vector<ConversationEvent>& conversation,
-      const std::string selected_language,
+      std::vector<ConversationEvent> conversation,
+      const std::string& selected_language,
+      const std::optional<std::string>& model_name,
       GenerationDataCallback data_received_callback,
       GenerationCompletedCallback completed_callback,
       std::optional<CredentialCacheEntry> credential);
 
   void OnQueryCompleted(std::optional<CredentialCacheEntry> credential,
                         GenerationCompletedCallback callback,
-                        APIRequestResult result);
+                        api_request_helper::APIRequestResult result);
   void OnQueryDataReceived(GenerationDataCallback callback,
                            base::expected<base::Value, std::string> result);
 
   const std::string model_name_;
   std::unique_ptr<api_request_helper::APIRequestHelper> api_request_helper_;
   raw_ptr<AIChatCredentialManager, DanglingUntriaged> credential_manager_;
+  raw_ptr<ModelService> model_service_;
 
   base::WeakPtrFactory<ConversationAPIClient> weak_ptr_factory_{this};
 };

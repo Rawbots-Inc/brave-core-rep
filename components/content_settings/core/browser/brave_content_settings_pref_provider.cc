@@ -9,6 +9,9 @@
 #include <memory>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_deref.h"
+#include "base/check_op.h"
 #include "base/containers/contains.h"
 #include "base/functional/bind.h"
 #include "base/json/values_util.h"
@@ -54,11 +57,10 @@ constexpr char kSessionModelPath[] = "model";
 constexpr char kSettingPath[] = "setting";
 constexpr char kPerResourcePath[] = "per_resource";
 
-std::unique_ptr<Rule> CloneRule(const Rule* original_rule) {
-  DCHECK(original_rule);
+std::unique_ptr<Rule> CloneRule(const Rule& original_rule) {
   return std::make_unique<Rule>(
-      original_rule->primary_pattern, original_rule->secondary_pattern,
-      original_rule->value.Clone(), original_rule->metadata);
+      original_rule.primary_pattern, original_rule.secondary_pattern,
+      original_rule.value.Clone(), original_rule.metadata.Clone());
 }
 
 bool IsActive(const Rule* cookie_rule,
@@ -159,8 +161,9 @@ void BravePrefProvider::MigrateShieldsSettings(bool incognito) {
   // Incognito inherits from regular profile, so nothing to do.
   // Guest doesn't inherit, but only keeps settings for the duration of the
   // session, so also nothing to do.
-  if (incognito)
+  if (incognito) {
     return;
+  }
 
   const int version = prefs_->GetInteger(kBraveShieldsSettingsVersion);
   const auto& shields_cookies = prefs_->GetDict(kObsoleteShieldCookies);
@@ -179,8 +182,9 @@ void BravePrefProvider::MigrateShieldsSettings(bool incognito) {
       content_settings::ContentSettingsRegistry::GetInstance();
   for (const auto content_type : kNoWildcardTypes) {
     const auto* info = content_settings->Get(content_type);
-    if (!info)
+    if (!info) {
       continue;
+    }
 
     // We need to bind PostTask to break the stack trace because if we get there
     // from the sync the ChangeProcessor will ignore this update.
@@ -250,16 +254,18 @@ void BravePrefProvider::MigrateShieldsSettingsFromResourceIds() {
 
         // For "ads" and "cookies" we need to adapt the name to the new one,
         // otherwise it will refer to upstream's "ads" and "cookies" settings.
-        if (resource_identifier == brave_shields::kObsoleteAds)
+        if (resource_identifier == brave_shields::kObsoleteAds) {
           shields_preference_name = brave_shields::kAds;
-        else if (resource_identifier == brave_shields::kObsoleteCookies)
+        } else if (resource_identifier == brave_shields::kObsoleteCookies) {
           shields_preference_name = brave_shields::kObsoleteShieldsCookies;
-        else
+        } else {
           shields_preference_name = resource_identifier;
+        }
 
         // Protect against non registered paths (unlikely, but possible).
-        if (!IsShieldsContentSettingsTypeName(shields_preference_name))
+        if (!IsShieldsContentSettingsTypeName(shields_preference_name)) {
           continue;
+        }
 
         // Drop a "global" value of brave shields, that actually shouldn't exist
         // at all since we don't have any global toggle for this.
@@ -313,12 +319,14 @@ void BravePrefProvider::MigrateShieldsSettingsFromResourceIdsForOneType(
 
 void BravePrefProvider::MigrateShieldsSettingsV1ToV2() {
   // Check if migration is needed.
-  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 1)
+  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 1) {
     return;
+  }
 
   // All sources in Brave-specific ContentSettingsType(s) we want to migrate.
-  for (const auto& content_type : GetShieldsContentSettingsTypes())
+  for (const auto& content_type : GetShieldsContentSettingsTypes()) {
     MigrateShieldsSettingsV1ToV2ForOneType(content_type);
+  }
 
   // ContentSettingsType::JAVASCRIPT.
   MigrateShieldsSettingsV1ToV2ForOneType(ContentSettingsType::JAVASCRIPT);
@@ -329,8 +337,9 @@ void BravePrefProvider::MigrateShieldsSettingsV1ToV2() {
 
 void BravePrefProvider::MigrateShieldsSettingsV2ToV3() {
   // Check if migration is needed.
-  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 2)
+  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 2) {
     return;
+  }
 
   const ContentSettingsPattern& wildcard = ContentSettingsPattern::Wildcard();
   const ContentSettingsPattern first_party(
@@ -368,7 +377,7 @@ void BravePrefProvider::MigrateShieldsSettingsV2ToV3() {
     std::unique_ptr<Rule> new_rule = std::make_unique<Rule>(
         // Exchange primary and secondary patterns.
         old_rule->secondary_pattern, old_rule->primary_pattern,
-        std::move(old_rule->value), old_rule->metadata);
+        std::move(old_rule->value), std::move(old_rule->metadata));
     // Replace first party placeholder with actual pattern
     if (new_rule->primary_pattern == first_party) {
       new_rule->primary_pattern =
@@ -394,8 +403,9 @@ void BravePrefProvider::MigrateShieldsSettingsV2ToV3() {
 }
 
 void BravePrefProvider::MigrateShieldsSettingsV3ToV4(int start_version) {
-  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 3)
+  if (prefs_->GetInteger(kBraveShieldsSettingsVersion) != 3) {
     return;
+  }
 
   if (start_version == 3) {
     // Because of
@@ -428,7 +438,7 @@ void BravePrefProvider::MigrateShieldsSettingsV1ToV2ForOneType(
       new_rules.emplace_back(std::make_unique<Rule>(
           new_primary_pattern.value_or(rule->primary_pattern),
           new_secondary_pattern.value_or(rule->secondary_pattern),
-          rule->value.Clone(), rule->metadata));
+          rule->value.Clone(), rule->metadata.Clone()));
     }
   }
   rule_iterator.reset();
@@ -453,8 +463,9 @@ void BravePrefProvider::MigrateShieldsSettingsV1ToV2ForOneType(
 }
 
 void BravePrefProvider::MigrateFingerprintingSettings() {
-  if (prefs_->GetBoolean(kBraveShieldsFPSettingsMigration) || off_the_record_)
+  if (prefs_->GetBoolean(kBraveShieldsFPSettingsMigration) || off_the_record_) {
     return;
+  }
 
   // Find rules that can be migrated and create replacement rules for them.
   std::vector<std::unique_ptr<Rule>> rules;
@@ -463,7 +474,7 @@ void BravePrefProvider::MigrateFingerprintingSettings() {
       content_settings::PartitionKey::WipGetDefault());
   while (rule_iterator && rule_iterator->HasNext()) {
     auto rule = rule_iterator->Next();
-    rules.emplace_back(CloneRule(rule.get()));
+    rules.emplace_back(CloneRule(CHECK_DEREF(rule.get())));
   }
   rule_iterator.reset();
 
@@ -486,8 +497,9 @@ void BravePrefProvider::MigrateFingerprintingSettings() {
 }
 
 void BravePrefProvider::MigrateFingerprintingSetingsToOriginScoped() {
-  if (off_the_record_)
+  if (off_the_record_) {
     return;
+  }
 
   // Find rules that can be migrated and create replacement rules for them.
   std::vector<std::unique_ptr<Rule>> rules;
@@ -496,7 +508,7 @@ void BravePrefProvider::MigrateFingerprintingSetingsToOriginScoped() {
       content_settings::PartitionKey::WipGetDefault());
   while (rule_iterator && rule_iterator->HasNext()) {
     auto rule = rule_iterator->Next();
-    rules.emplace_back(CloneRule(rule.get()));
+    rules.emplace_back(CloneRule(CHECK_DEREF(rule.get())));
   }
   rule_iterator.reset();
 
@@ -605,7 +617,8 @@ bool BravePrefProvider::SetWebsiteSettingInternal(
 
     GetPref(content_type)
         ->SetWebsiteSetting(primary_pattern, secondary_pattern,
-                            std::move(in_value), metadata, partition_key);
+                            std::move(in_value), std::move(metadata),
+                            partition_key);
     return true;
   }
 
@@ -613,8 +626,9 @@ bool BravePrefProvider::SetWebsiteSettingInternal(
       content_settings::ValueToContentSetting(in_value) !=
           CONTENT_SETTING_DEFAULT &&
       secondary_pattern ==
-          ContentSettingsPattern::FromString("https://balanced/*"))
+          ContentSettingsPattern::FromString("https://balanced/*")) {
     return false;
+  }
 
   return PrefProvider::SetWebsiteSetting(primary_pattern, secondary_pattern,
                                          content_type, std::move(in_value),
@@ -647,6 +661,47 @@ std::unique_ptr<Rule> BravePrefProvider::GetRule(
 
   return PrefProvider::GetRule(primary_url, secondary_url, content_type,
                                off_the_record, partition_key);
+}
+
+BravePrefProvider::CookieType BravePrefProvider::GetCookieType(
+    const ContentSettingsPattern& primary_pattern,
+    const ContentSettingsPattern& secondary_pattern,
+    const ContentSetting& value,
+    bool incognito) const {
+  const auto find_cookie =
+      [&primary_pattern, &secondary_pattern,
+       &value](const std::vector<std::unique_ptr<Rule>>& rules) {
+        for (const auto& rule : rules) {
+          if (rule->primary_pattern == primary_pattern &&
+              rule->secondary_pattern == secondary_pattern &&
+              rule->value == value) {
+            return true;
+          }
+        }
+        return false;
+      };
+
+  if (find_cookie(brave_shield_down_rules_.at(incognito))) {
+    return CookieType::kShieldsDownCookie;
+  }
+
+  if (find_cookie(brave_cookie_rules_.at(incognito))) {
+    return CookieType::kCustomShieldsCookie;
+  }
+
+  const bool google_sign_in_flag_enabled =
+      google_sign_in_permission::IsGoogleSignInFeatureEnabled();
+  if (!google_sign_in_flag_enabled &&
+      prefs_->FindPreference(kGoogleLoginControlType) &&
+      prefs_->GetBoolean(kGoogleLoginControlType)) {
+    if ((primary_pattern == google_sign_in_permission::GetGoogleAuthPattern() ||
+         primary_pattern ==
+             google_sign_in_permission::GetFirebaseAuthPattern()) &&
+        secondary_pattern == ContentSettingsPattern::Wildcard()) {
+      return CookieType::kGoogleSignInCookie;
+    }
+  }
+  return CookieType::kRegularCookie;
 }
 
 void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
@@ -683,17 +738,16 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
     const auto google_auth_rule = std::make_unique<Rule>(
         google_sign_in_permission::GetGoogleAuthPattern(),
         ContentSettingsPattern::Wildcard(),
-        ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata);
-    rules.emplace_back(CloneRule(google_auth_rule.get()));
-    brave_cookie_rules_[incognito].emplace_back(
-        CloneRule(google_auth_rule.get()));
+        ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata.Clone());
+    rules.emplace_back(CloneRule(*google_auth_rule));
+    brave_cookie_rules_[incognito].emplace_back(CloneRule(*google_auth_rule));
 
     const auto firebase_rule = std::make_unique<Rule>(
         google_sign_in_permission::GetFirebaseAuthPattern(),
         ContentSettingsPattern::Wildcard(),
-        ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata);
-    rules.emplace_back(CloneRule(firebase_rule.get()));
-    brave_cookie_rules_[incognito].emplace_back(CloneRule(firebase_rule.get()));
+        ContentSettingToValue(CONTENT_SETTING_ALLOW), std::move(metadata));
+    rules.emplace_back(CloneRule(*firebase_rule));
+    brave_cookie_rules_[incognito].emplace_back(CloneRule(*firebase_rule));
   } else if (google_sign_in_flag_enabled) {
     // Google Sign-In feature:
     // Add per-site cookie exception for Google/Firebase auth domains.
@@ -722,17 +776,16 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
       }
       const auto google_auth_rule = std::make_unique<Rule>(
           google_sign_in_permission::GetGoogleAuthPattern(), embedding_pattern,
-          google_sign_in_rule->value.Clone(), metadata);
-      rules.emplace_back(CloneRule(google_auth_rule.get()));
-      brave_cookie_rules_[incognito].emplace_back(
-          CloneRule(google_auth_rule.get()));
+          google_sign_in_rule->value.Clone(), metadata.Clone());
+      rules.emplace_back(CloneRule(*google_auth_rule));
+      brave_cookie_rules_[incognito].emplace_back(CloneRule(*google_auth_rule));
 
       const auto firebase_rule = std::make_unique<Rule>(
           google_sign_in_permission::GetFirebaseAuthPattern(),
-          embedding_pattern, google_sign_in_rule->value.Clone(), metadata);
-      rules.emplace_back(CloneRule(firebase_rule.get()));
-      brave_cookie_rules_[incognito].emplace_back(
-          CloneRule(firebase_rule.get()));
+          embedding_pattern, google_sign_in_rule->value.Clone(),
+          std::move(metadata));
+      rules.emplace_back(CloneRule(*firebase_rule));
+      brave_cookie_rules_[incognito].emplace_back(CloneRule(*firebase_rule));
     }
   }
 
@@ -745,7 +798,8 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
         ContentSettingsType::COOKIES, incognito,
         content_settings::PartitionKey::WipGetDefault());
     while (chromium_cookies_iterator && chromium_cookies_iterator->HasNext()) {
-      rules.emplace_back(CloneRule(chromium_cookies_iterator->Next().get()));
+      rules.emplace_back(
+          CloneRule(CHECK_DEREF(chromium_cookies_iterator->Next().get())));
     }
   }
 
@@ -757,7 +811,7 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
         content_settings::PartitionKey::WipGetDefault());
     while (brave_shields_iterator && brave_shields_iterator->HasNext()) {
       shield_rules.emplace_back(
-          CloneRule(brave_shields_iterator->Next().get()));
+          CloneRule(CHECK_DEREF(brave_shields_iterator->Next().get())));
     }
   }
 
@@ -770,8 +824,9 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
     while (brave_cookies_iterator && brave_cookies_iterator->HasNext()) {
       auto rule = brave_cookies_iterator->Next();
       if (IsActive(rule.get(), shield_rules)) {
-        rules.emplace_back(CloneRule(rule.get()));
-        brave_cookie_rules_[incognito].emplace_back(CloneRule(rule.get()));
+        rules.emplace_back(CloneRule(CHECK_DEREF(rule.get())));
+        brave_cookie_rules_[incognito].emplace_back(
+            CloneRule(CHECK_DEREF(rule.get())));
       }
     }
   }
@@ -794,13 +849,13 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
 
       rules.emplace_back(std::make_unique<Rule>(
           ContentSettingsPattern::Wildcard(), shield_rule->primary_pattern,
-          ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata));
+          ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata.Clone()));
       brave_shield_down_rules_[incognito].emplace_back(std::make_unique<Rule>(
           ContentSettingsPattern::Wildcard(), shield_rule->primary_pattern,
-          ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata));
+          ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata.Clone()));
       brave_cookie_rules_[incognito].emplace_back(std::make_unique<Rule>(
           ContentSettingsPattern::Wildcard(), shield_rule->primary_pattern,
-          ContentSettingToValue(CONTENT_SETTING_ALLOW), metadata));
+          ContentSettingToValue(CONTENT_SETTING_ALLOW), std::move(metadata)));
     }
   }
 
@@ -817,7 +872,7 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
                      ValueToContentSetting(old_rule->value);
         });
     if (match == old_rules.end()) {
-      brave_cookie_updates.emplace_back(CloneRule(new_rule.get()));
+      brave_cookie_updates.emplace_back(CloneRule(CHECK_DEREF(new_rule.get())));
     }
   }
 
@@ -833,7 +888,7 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
     if (match == brave_cookie_rules_[incognito].end()) {
       brave_cookie_updates.emplace_back(std::make_unique<Rule>(
           old_rule->primary_pattern, old_rule->secondary_pattern, base::Value(),
-          old_rule->metadata));
+          old_rule->metadata.Clone()));
     }
   }
   {
@@ -842,7 +897,8 @@ void BravePrefProvider::UpdateCookieRules(ContentSettingsType content_type,
     for (auto&& r : rules) {
       cookie_rules_[incognito].SetValue(
           r->primary_pattern, r->secondary_pattern,
-          ContentSettingsType::COOKIES, std::move(r->value), r->metadata);
+          ContentSettingsType::COOKIES, std::move(r->value),
+          std::move(r->metadata));
     }
   }
 

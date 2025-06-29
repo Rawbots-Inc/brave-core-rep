@@ -6,6 +6,7 @@
 #ifndef BRAVE_COMPONENTS_AI_CHAT_CORE_BROWSER_AI_CHAT_DATABASE_H_
 #define BRAVE_COMPONENTS_AI_CHAT_CORE_BROWSER_AI_CHAT_DATABASE_H_
 
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -34,50 +35,59 @@ class AIChatDatabase {
                  os_crypt_async::Encryptor encryptor);
   AIChatDatabase(const AIChatDatabase&) = delete;
   AIChatDatabase& operator=(const AIChatDatabase&) = delete;
-  ~AIChatDatabase();
+  virtual ~AIChatDatabase();
 
   // Gets lightweight metadata for all conversations. No high-memory-consuming
   // data is returned.
-  std::vector<mojom::ConversationPtr> GetAllConversations();
+  virtual std::vector<mojom::ConversationPtr> GetAllConversations();
 
   // Gets all data needed to rehydrate a conversation
-  mojom::ConversationArchivePtr GetConversationData(
+  virtual mojom::ConversationArchivePtr GetConversationData(
       std::string_view conversation_uuid);
 
   // Returns new ID for the provided entry and any provided associated content
-  bool AddConversation(mojom::ConversationPtr conversation,
-                       std::optional<std::string> contents,
-                       mojom::ConversationTurnPtr first_entry);
+  virtual bool AddConversation(mojom::ConversationPtr conversation,
+                               std::vector<std::string> contents,
+                               mojom::ConversationTurnPtr first_entry);
 
   // Update any properties of associated content metadata or full-text content
-  bool AddOrUpdateAssociatedContent(
+  virtual bool AddOrUpdateAssociatedContent(
       std::string_view conversation_uuid,
-      mojom::AssociatedContentPtr associated_content,
-      std::optional<std::string> content);
+      std::vector<mojom::AssociatedContentPtr> associated_content,
+      std::vector<std::string> contents);
 
   // Adds a new conversation entry to the conversation with the provided UUID
-  bool AddConversationEntry(
+  virtual bool AddConversationEntry(
       std::string_view conversation_uuid,
       mojom::ConversationTurnPtr entry,
-      std::optional<std::string_view> model_key = std::nullopt,
       std::optional<std::string> editing_id = std::nullopt);
 
   // Updates the title of the conversation with the provided UUID
-  bool UpdateConversationTitle(std::string_view conversation_uuid,
-                               std::string_view title);
+  virtual bool UpdateConversationTitle(std::string_view conversation_uuid,
+                                       std::string_view title);
+
+  // Updates the model of the conversation with the provided value
+  virtual bool UpdateConversationModelKey(std::string_view conversation_uuid,
+                                          std::optional<std::string> model_key);
+
+  // Updates the token information of the conversation with the provided UUID
+  virtual bool UpdateConversationTokenInfo(std::string_view conversation_uuid,
+                                           uint64_t total_tokens,
+                                           uint64_t trimmed_tokens);
 
   // Deletes the conversation with the provided UUID
-  bool DeleteConversation(std::string_view conversation_uuid);
+  virtual bool DeleteConversation(std::string_view conversation_uuid);
 
   // Deletes the conversation entry with the provided ID and all associated
   // edits and events.
-  bool DeleteConversationEntry(std::string_view conversation_entry_uuid);
+  virtual bool DeleteConversationEntry(
+      std::string_view conversation_entry_uuid);
 
   // Drops all data and tables in the database, and re-creates empty tables
-  bool DeleteAllData();
+  virtual bool DeleteAllData();
 
-  bool DeleteAssociatedWebContent(std::optional<base::Time> begin_time,
-                                  std::optional<base::Time> end_time);
+  virtual bool DeleteAssociatedWebContent(std::optional<base::Time> begin_time,
+                                          std::optional<base::Time> end_time);
 
  private:
   friend class AIChatDatabaseTest;

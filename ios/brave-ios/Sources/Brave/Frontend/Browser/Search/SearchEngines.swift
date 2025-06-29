@@ -74,6 +74,21 @@ public class SearchEngines {
     setInitialDefaultEngine(engine.legacyName ?? engine.rawValue)
   }
 
+  public func updateYahooJPOrderIfNeeded() {
+    guard let region = locale.region?.identifier,
+      initialSearchEngines.yahooJapanEnabledRegions.contains(region),
+      DefaultEngineType.standard.option.value
+        != InitialSearchEngines.SearchEngineID.yahoojp.rawValue
+    else { return }
+    // Move Yahoo! JP to the second position (after the DSE)
+    if let oldIndex = orderedEngines.firstIndex(where: {
+      $0.engineID == InitialSearchEngines.SearchEngineID.yahoojp.rawValue
+    }) {
+      let yahooJP = orderedEngines.remove(at: oldIndex)
+      orderedEngines.insert(yahooJP, at: 1)
+    }
+  }
+
   private var loadingStream: AsyncStream<Void>?
 
   public func loadSearchEngines() async {
@@ -98,6 +113,28 @@ public class SearchEngines {
     guard let loadingStream else { return }
     for await _ in loadingStream {
       return
+    }
+  }
+
+  /// Update DSE to Yahoo! JAPAN for Japan region if user's DSE is google for standard tabs
+  public func updateDSEToYahooJPIfNeeded() {
+    // match conditions:
+    // 1. in Japan region
+    // 2. DSE is google for standard tab
+    // 3. user has never picked a DSE for standard tab since version 1.77
+    guard let region = locale.region?.identifier,
+      initialSearchEngines.yahooJapanEnabledRegions.contains(region),
+      let dseStandard = defaultEngine(forType: .standard),
+      dseStandard.engineID == InitialSearchEngines.SearchEngineID.google.rawValue,
+      Preferences.Search.userPickedDSEName.value == nil
+    else { return }
+    DefaultEngineType.standard.option.value = InitialSearchEngines.SearchEngineID.yahoojp.rawValue
+    // Make sure Yahoo! JAPAN is at the first position of the list
+    if let oldIndex = orderedEngines.firstIndex(where: {
+      $0.engineID == InitialSearchEngines.SearchEngineID.yahoojp.rawValue
+    }) {
+      let yahooJP = orderedEngines.remove(at: oldIndex)
+      orderedEngines.insert(yahooJP, at: 0)
     }
   }
 

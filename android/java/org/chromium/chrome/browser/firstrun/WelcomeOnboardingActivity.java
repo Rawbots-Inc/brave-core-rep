@@ -11,7 +11,7 @@ import static org.chromium.ui.base.ViewUtils.dpToPx;
 
 import android.animation.LayoutTransition;
 import android.content.Intent;
-import android.os.Bundle;
+import android.os.Build;
 import android.os.RemoteException;
 import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
@@ -26,8 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerClient.InstallReferrerResponse;
@@ -40,13 +39,13 @@ import org.chromium.base.ThreadUtils;
 import org.chromium.chrome.R;
 import org.chromium.chrome.browser.BraveConfig;
 import org.chromium.chrome.browser.BraveLocalState;
-import org.chromium.chrome.browser.back_press.SecondaryActivityBackPressUma.SecondaryActivity;
 import org.chromium.chrome.browser.customtabs.CustomTabActivity;
+import org.chromium.chrome.browser.day_zero.DayZeroHelper;
 import org.chromium.chrome.browser.metrics.ChangeMetricsReportingStateCalledFrom;
 import org.chromium.chrome.browser.metrics.UmaSessionStats;
+import org.chromium.chrome.browser.notifications.BravePermissionUtils;
 import org.chromium.chrome.browser.onboarding.OnboardingPrefManager;
 import org.chromium.chrome.browser.preferences.BravePref;
-import org.chromium.chrome.browser.preferences.ChromePreferenceKeys;
 import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
 import org.chromium.chrome.browser.privacy.settings.PrivacyPreferencesManagerImpl;
 import org.chromium.chrome.browser.set_default_browser.BraveSetDefaultBrowserUtils;
@@ -98,6 +97,15 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
     private Button mBtnNegative;
     private CheckBox mCheckboxCrash;
     private CheckBox mCheckboxP3a;
+
+    private enum CurrentOnboardingPage {
+        SET_AS_DEFAULT,
+        NOTIFICATION_PERMISSION,
+        WDP_PAGE,
+        ANALYTICS_CONSENT_PAGE
+    }
+
+    private CurrentOnboardingPage mCurrentOnboardingPage;
 
     /**
      * Initializes the views and sets up the onboarding activity UI. This method handles the initial
@@ -229,7 +237,8 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
                     view -> {
                         if (mCurrentStep == 0 && !isDefaultBrowser()) {
                             setDefaultBrowserAndProceedToNextStep();
-                        } else if (isWDPEnabled() && mCurrentStep == getWDPPageStep()) {
+                        } else if (isWDPEnabled()
+                                && mCurrentOnboardingPage == CurrentOnboardingPage.WDP_PAGE) {
                             UserPrefs.get(getProfileProviderSupplier().get().getOriginalProfile())
                                     .setBoolean(BravePref.WEB_DISCOVERY_ENABLED, true);
                             nextOnboardingStep();
@@ -242,7 +251,8 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mBtnNegative != null) {
             mBtnNegative.setOnClickListener(
                     view -> {
-                        if (mCurrentStep == getAnalyticsConsentPageStep()) {
+                        if (mCurrentOnboardingPage
+                                == CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE) {
                             CustomTabActivity.showInfoPage(this, P3A_URL);
                         } else {
                             nextOnboardingStep();
@@ -263,60 +273,143 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         return BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(this);
     }
 
-    ActivityResultLauncher<String> mRequestPermissionLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.RequestPermission(),
-                    isGranted -> {
-                        nextOnboardingStep();
-                    });
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == BravePermissionUtils.NOTIFICATION_PERMISSION_CODE) {
+            nextOnboardingStep();
+        }
+    }
 
     private void nextOnboardingStep() {
         if (isActivityFinishingOrDestroyed()) return;
 
         mCurrentStep++;
-        if (mCurrentStep == 0) {
-            if (!BraveSetDefaultBrowserUtils.supportsDefaultRoleManager()) {
-                if (mIvBrave != null) {
-                    mIvBrave.setVisibility(View.VISIBLE);
-                }
-                showBrowserSelectionPage();
-            } else if (!isDefaultBrowser()) {
-                setDefaultBrowserAndProceedToNextStep();
-            } else {
-                nextOnboardingStep();
-            }
-        } else if (isWDPEnabled() && mCurrentStep == getWDPPageStep()) {
+        String variant = DayZeroHelper.getDayZeroVariant();
+        switch (variant) {
+            case "b":
+                handleOnboardingStepForVariantB(mCurrentStep);
+                break;
+            case "c":
+                handleOnboardingStepForVariantC(mCurrentStep);
+                break;
+            case "d":
+                handleOnboardingStepForVariantD(mCurrentStep);
+                break;
+            default:
+                handleOnboardingStepForVariantA(mCurrentStep);
+                break;
+        }
+    }
+
+    private void handleOnboardingStepForVariantA(int step) {
+        if (step == 0) {
+            handleSetAsDefaultStep();
+        } else if (step == 1) {
+            handleWDPStep();
+        } else if (step == 2) {
+            handleAnalyticsConsentPage();
+        } else {
+            finalStep();
+        }
+    }
+
+    private void handleOnboardingStepForVariantB(int step) {
+        if (step == 0) {
+            handleSetAsDefaultStep();
+        } else if (step == 1) {
+            // Notification permission
+            handleNotificationPermission();
+        } else if (step == 2) {
+            handleWDPStep();
+        } else if (step == 3) {
+            handleAnalyticsConsentPage();
+        } else {
+            finalStep();
+        }
+    }
+
+    private void handleOnboardingStepForVariantC(int step) {
+        if (step == 0) {
+            handleSetAsDefaultStep();
+        } else if (step == 1) {
+            handleWDPStep();
+        } else if (step == 2) {
+            handleAnalyticsConsentPage();
+        } else {
+            ChromeSharedPreferences.getInstance()
+                    .writeBoolean(OnboardingPrefManager.SHOULD_SHOW_SEARCH_WIDGET_PROMO, true);
+            finalStep();
+        }
+    }
+
+    private void handleOnboardingStepForVariantD(int step) {
+        if (step == 0) {
+            handleSetAsDefaultStep();
+        } else if (step == 1) {
+            // Notification permission
+            handleNotificationPermission();
+        } else if (step == 2) {
+            handleWDPStep();
+        } else if (step == 3) {
+            handleAnalyticsConsentPage();
+        } else {
+            ChromeSharedPreferences.getInstance()
+                    .writeBoolean(OnboardingPrefManager.SHOULD_SHOW_SEARCH_WIDGET_PROMO, true);
+            finalStep();
+        }
+    }
+
+    private void finalStep() {
+        OnboardingPrefManager.getInstance().setP3aOnboardingShown(true);
+
+        FirstRunStatus.setFirstRunFlowComplete(true);
+
+        FirstRunUtils.setEulaAccepted();
+
+        finish();
+        sendFirstRunCompleteIntent();
+    }
+
+    private void handleNotificationPermission() {
+        mCurrentOnboardingPage = CurrentOnboardingPage.NOTIFICATION_PERMISSION;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            BravePermissionUtils.showNotificationPermissionDialog(WelcomeOnboardingActivity.this);
+        } else {
+            nextOnboardingStep();
+        }
+    }
+
+    private void handleSetAsDefaultStep() {
+        mCurrentOnboardingPage = CurrentOnboardingPage.SET_AS_DEFAULT;
+        if (!BraveSetDefaultBrowserUtils.supportsDefaultRoleManager()) {
             if (mIvBrave != null) {
                 mIvBrave.setVisibility(View.VISIBLE);
             }
-            showWDPPage();
-        } else if (mCurrentStep == getAnalyticsConsentPageStep()) {
-            showAnalyticsConsentPage();
+            showBrowserSelectionPage();
+        } else if (!isDefaultBrowser()) {
+            setDefaultBrowserAndProceedToNextStep();
         } else {
-            OnboardingPrefManager.getInstance().setP3aOnboardingShown(true);
-            OnboardingPrefManager.getInstance().setOnboardingSearchBoxTooltip(true);
-
-            FirstRunStatus.setFirstRunFlowComplete(true);
-
-            ChromeSharedPreferences.getInstance()
-                    .writeBoolean(ChromePreferenceKeys.FIRST_RUN_CACHED_TOS_ACCEPTED, true);
-            FirstRunUtils.setEulaAccepted();
-
-            finish();
-            sendFirstRunCompleteIntent();
+            nextOnboardingStep();
         }
+    }
+
+    private void handleWDPStep() {
+        if (!isWDPEnabled()) {
+            nextOnboardingStep();
+            return;
+        }
+
+        mCurrentOnboardingPage = CurrentOnboardingPage.WDP_PAGE;
+        if (mIvBrave != null) {
+            mIvBrave.setVisibility(View.VISIBLE);
+        }
+        showWDPPage();
     }
 
     private boolean isWDPEnabled() {
         return BraveConfig.WEB_DISCOVERY_ENABLED;
-    }
-
-    private int getAnalyticsConsentPageStep() {
-        return 2;
-    }
-
-    private int getWDPPageStep() {
-        return 1;
     }
 
     private void showBrowserSelectionPage() {
@@ -349,7 +442,8 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         }
     }
 
-    private void showAnalyticsConsentPage() {
+    private void handleAnalyticsConsentPage() {
+        mCurrentOnboardingPage = CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE;
         int margin = mIsTablet ? 250 : 60;
         setLeafAnimation(mVLeafAlignTop, mIvLeafTop, 1.5f, margin, true);
         setLeafAnimation(mVLeafAlignBottom, mIvLeafBottom, 1.5f, margin, false);
@@ -481,8 +575,7 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mTvDefault != null) {
             ChromeClickableSpan wdpLearnMoreClickableSpan =
                     new ChromeClickableSpan(
-                            WelcomeOnboardingActivity.this,
-                            R.color.brave_blue_tint_color,
+                            WelcomeOnboardingActivity.this.getColor(R.color.brave_blue_tint_color),
                             (textView) -> {
                                 CustomTabActivity.showInfoPage(this, WDP_LINK);
                             });
@@ -571,10 +664,6 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK
-                && requestCode == BraveConstants.DEFAULT_BROWSER_ROLE_REQUEST_CODE) {
-            // We don't need to anything with the result here.
-        }
         if (isActivityFinishingOrDestroyed()) return;
         nextOnboardingStep();
     }
@@ -608,17 +697,12 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         mFirstRunFlowSequencer =
                 new BraveFirstRunFlowSequencer(getProfileProviderSupplier()) {
                     @Override
-                    public void onFlowIsKnown(Bundle freProperties) {
+                    public void onFlowIsKnown(boolean isChild) {
                         initializeViews();
                     }
                 };
         mFirstRunFlowSequencer.start();
         onInitialLayoutInflationComplete();
-    }
-
-    @Override
-    public int getSecondaryActivity() {
-        return SecondaryActivity.FIRST_RUN;
     }
 
     private void maybeUpdateFirstRunDefaultValues() {

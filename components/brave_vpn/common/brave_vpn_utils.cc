@@ -7,6 +7,7 @@
 
 #include <utility>
 
+#include "base/check.h"
 #include "base/containers/fixed_flat_map.h"
 #include "base/feature_list.h"
 #include "base/json/json_writer.h"
@@ -56,6 +57,7 @@ void RegisterVPNLocalStatePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(prefs::kBraveVPNSmartProxyRoutingEnabled,
                                 false);
   registry->RegisterListPref(prefs::kBraveVPNWidgetUsageWeeklyStorage);
+  registry->RegisterListPref(prefs::kBraveVPNConnectedMinutesWeeklyStorage);
 }
 
 #if !BUILDFLAG(IS_ANDROID)

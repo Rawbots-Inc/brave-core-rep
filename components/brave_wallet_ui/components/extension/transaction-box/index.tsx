@@ -8,10 +8,10 @@ import * as React from 'react'
 // types
 import {
   BraveWallet,
-  SerializableTransactionInfo
+  SerializableTransactionInfo,
 } from '../../../constants/types'
 import {
-  TypedSolanaInstructionWithParams //
+  TypedSolanaInstructionWithParams, //
 } from '../../../utils/solana-instruction-utils'
 
 // utils
@@ -21,18 +21,17 @@ import { getTransactionTypeName } from '../../../utils/tx-utils'
 
 // components
 import {
-  SolanaTransactionInstruction //
+  SolanaTransactionInstruction, //
 } from '../../shared/solana-transaction-instruction/solana-transaction-instruction'
 
 // style
 import {
-  BitcoinDetailColumn,
   CodeDetailLine,
   CodeSnippet,
   CodeSnippetText,
   DetailColumn,
   DetailText,
-  TransactionText
+  TransactionText,
 } from './style'
 
 export interface Props {
@@ -42,7 +41,7 @@ export interface Props {
 
 export const TransactionDetailBox = ({
   transactionInfo,
-  instructions
+  instructions,
 }: Props) => {
   const { txArgs, txParams, txType, txDataUnion } = transactionInfo
 
@@ -51,27 +50,14 @@ export const TransactionDetailBox = ({
 
   const btcData = txDataUnion.btcTxData
   const zecData = txDataUnion.zecTxData
+  const cardanoData = txDataUnion.cardanoTxData
   const dataArray = txDataUnion.ethTxData1559?.baseData.data || []
-
-  // render
-  // No Data
-  if (dataArray.length === 0 && !btcData && !zecData && !solData) {
-    return (
-      <CodeSnippet>
-        <code>
-          <CodeSnippetText>
-            {getLocale('braveWalletConfirmTransactionNoData')}
-          </CodeSnippetText>
-        </code>
-      </CodeSnippet>
-    )
-  }
 
   // BTC
   // TODO(apaymyshev): strings localization.
   if (btcData) {
     return (
-      <BitcoinDetailColumn>
+      <DetailColumn>
         {btcData.inputs?.map((input, index) => {
           return (
             <div key={'input' + index}>
@@ -92,7 +78,34 @@ export const TransactionDetailBox = ({
             </div>
           )
         })}
-      </BitcoinDetailColumn>
+      </DetailColumn>
+    )
+  }
+
+  if (cardanoData) {
+    return (
+      <DetailColumn>
+        {cardanoData.inputs?.map((input, index) => {
+          return (
+            <div key={'input' + index}>
+              <CodeDetailLine>{`Input: ${index}`}</CodeDetailLine>
+              <CodeDetailLine>{`Value: ${input.value}`}</CodeDetailLine>
+              <CodeDetailLine>{`Address: ${
+                input.address //
+              }`}</CodeDetailLine>
+            </div>
+          )
+        })}
+        {cardanoData.outputs?.map((output, index) => {
+          return (
+            <div key={'output' + index}>
+              <CodeDetailLine>{`Output: ${index}`}</CodeDetailLine>
+              <CodeDetailLine>{`Value: ${output.value}`}</CodeDetailLine>
+              <CodeDetailLine>{`Address: ${output.address}`}</CodeDetailLine>
+            </div>
+          )
+        })}
+      </DetailColumn>
     )
   }
 
@@ -120,6 +133,19 @@ export const TransactionDetailBox = ({
           })}
         </DetailColumn>
       </>
+    )
+  }
+
+  // No Data
+  if (dataArray.length === 0 && !solData) {
+    return (
+      <CodeSnippet>
+        <code>
+          <CodeSnippetText>
+            {getLocale('braveWalletConfirmTransactionNoData')}
+          </CodeSnippetText>
+        </code>
+      </CodeSnippet>
     )
   }
 

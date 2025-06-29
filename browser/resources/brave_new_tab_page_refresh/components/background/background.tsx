@@ -5,15 +5,16 @@
 
 import * as React from 'react'
 
-import { SponsoredRichMediaEventType, SponsoredImageBackground } from '../../models/backgrounds'
-import { useAppState, useAppActions } from '../context/app_model_context'
+import { NewTabPageAdEventType, SponsoredImageBackground } from '../../state/background_state'
+import { useBackgroundState, useBackgroundActions } from '../../context/background_context'
 import { openLink } from '../common/link'
 import { loadImage } from '../../lib/image_loader'
 
 import { style } from './background.style'
 
 export function Background() {
-  const currentBackground = useAppState((s) => s.currentBackground)
+  const actions = useBackgroundActions()
+  const currentBackground = useBackgroundState((s) => s.currentBackground)
 
   function renderBackground() {
     if (!currentBackground) {
@@ -23,12 +24,17 @@ export function Background() {
     switch (currentBackground.type) {
       case 'brave':
       case 'custom':
-      case 'sponsored-image':
         return <ImageBackground url={currentBackground.imageUrl} />
+      case 'sponsored-image':
+        return (
+          <ImageBackground
+            url={currentBackground.imageUrl}
+            onLoadError={actions.notifySponsoredImageLoadError}
+          />
+        )
       case 'sponsored-rich-media':
         return <SponsoredRichMediaBackground background={currentBackground} />
-      case 'solid':
-      case 'gradient':
+      case 'color':
         return <ColorBackground colorValue={currentBackground.cssValue} />
     }
   }
@@ -56,7 +62,7 @@ function setBackgroundVariable(value: string) {
   }
 }
 
-function ImageBackground(props: { url: string }) {
+function ImageBackground(props: { url: string, onLoadError?: () => void }) {
   // In order to avoid a "flash-of-unloaded-image", load the image in the
   // background and only update the background CSS variable when the image has
   // finished loading.
@@ -64,6 +70,8 @@ function ImageBackground(props: { url: string }) {
     loadImage(props.url).then((loaded) => {
       if (loaded) {
         setBackgroundVariable(`url(${CSS.escape(props.url)})`)
+      } else if (props.onLoadError) {
+        props.onLoadError()
       }
     })
   }, [props.url])
@@ -74,9 +82,9 @@ function ImageBackground(props: { url: string }) {
 function SponsoredRichMediaBackground(
   props: { background: SponsoredImageBackground }
 ) {
-  const actions = useAppActions()
+  const actions = useBackgroundActions()
   const sponsoredRichMediaBaseUrl =
-      useAppState((s) => s.sponsoredRichMediaBaseUrl)
+    useBackgroundState((s) => s.sponsoredRichMediaBaseUrl)
 
   return (
     <IframeBackground
@@ -87,7 +95,7 @@ function SponsoredRichMediaBackground(
         if (eventType) {
           actions.notifySponsoredRichMediaEvent(eventType)
         }
-        if (eventType === 'click') {
+        if (eventType === NewTabPageAdEventType.kClicked) {
           const url = props.background.logo?.destinationUrl
           if (url) {
             openLink(url)
@@ -98,18 +106,17 @@ function SponsoredRichMediaBackground(
   )
 }
 
-function getRichMediaEventType(data: any): SponsoredRichMediaEventType | null {
+function getRichMediaEventType(data: any): NewTabPageAdEventType | null {
   if (!data || data.type !== 'richMediaEvent') {
     return null
   }
   const value = String(data.value || '')
   switch (value) {
-    case 'click':
-    case 'interaction':
-    case 'mediaPlay':
-    case 'media25':
-    case 'media100':
-      return value
+    case 'click': return NewTabPageAdEventType.kClicked
+    case 'interaction': return NewTabPageAdEventType.kInteraction
+    case 'mediaPlay': return NewTabPageAdEventType.kMediaPlay
+    case 'media25': return NewTabPageAdEventType.kMedia25
+    case 'media100': return NewTabPageAdEventType.kMedia100
   }
   return null
 }

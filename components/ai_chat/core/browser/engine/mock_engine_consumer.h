@@ -7,14 +7,13 @@
 #define BRAVE_COMPONENTS_AI_CHAT_CORE_BROWSER_ENGINE_MOCK_ENGINE_CONSUMER_H_
 
 #include <string>
+#include <vector>
 
 #include "brave/components/ai_chat/core/browser/engine/engine_consumer.h"
+#include "brave/components/ai_chat/core/common/mojom/ai_chat.mojom.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
 namespace ai_chat {
-namespace mojom {
-class ModelOptions;
-}  // namespace mojom
 
 class MockEngineConsumer : public EngineConsumer {
  public:
@@ -35,6 +34,8 @@ class MockEngineConsumer : public EngineConsumer {
                const std::string& page_content,
                const ConversationHistory& conversation_history,
                const std::string& selected_language,
+               const std::vector<base::WeakPtr<Tool>>&,
+               std::optional<std::string_view> preferred_tool_name,
                GenerationDataCallback data_received_callback,
                GenerationCompletedCallback completed_callback),
               (override));
@@ -51,6 +52,18 @@ class MockEngineConsumer : public EngineConsumer {
   MOCK_METHOD(void, SanitizeInput, (std::string & input), (override));
 
   MOCK_METHOD(void, ClearAllQueries, (), (override));
+
+  MOCK_METHOD(void,
+              GetSuggestedTopics,
+              (const std::vector<Tab>&, GetSuggestedTopicsCallback),
+              (override));
+  MOCK_METHOD(void,
+              GetFocusTabs,
+              (const std::vector<Tab>&,
+               const std::string&,
+               GetFocusTabsCallback),
+              (override));
+  MOCK_METHOD(const std::string&, GetModelName, (), (const, override));
 
   bool SupportsDeltaTextResponses() const override {
     return supports_delta_text_responses_;

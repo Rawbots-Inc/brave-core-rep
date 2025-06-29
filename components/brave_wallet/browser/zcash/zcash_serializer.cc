@@ -5,10 +5,13 @@
 
 #include "brave/components/brave_wallet/browser/zcash/zcash_serializer.h"
 
+#include <array>
 #include <map>
 #include <string>
 #include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/containers/span.h"
 #include "base/containers/span_writer.h"
 #include "brave/components/brave_wallet/common/btc_like_serializer_stream.h"
@@ -32,7 +35,7 @@ constexpr uint32_t kV5VersionGroupId = 0x26A7270A;
 std::array<uint8_t, kZCashDigestSize> Blake2b256(
     base::span<const uint8_t> payload,
     base::span<const uint8_t, kBlake2bPersonalizerLength> personalizer) {
-  return Blake2bHash<kZCashDigestSize>(payload, personalizer);
+  return Blake2bHash<kZCashDigestSize>({payload}, personalizer);
 }
 
 void PushHeader(const ZCashTransaction& tx, BtcLikeSerializerStream& stream) {

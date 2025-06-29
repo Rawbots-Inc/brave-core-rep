@@ -5,8 +5,8 @@
 
 #include "brave/browser/ui/webui/settings/brave_settings_localized_strings_provider.h"
 
-#include <string>
-
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/browser/shell_integrations/buildflags/buildflags.h"
 #include "brave/browser/ui/webui/brave_settings_ui.h"
@@ -18,11 +18,13 @@
 #include "brave/components/brave_wallet/browser/pref_names.h"
 #include "brave/components/constants/url_constants.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/localization_util.h"
+#include "brave/components/containers/buildflags/buildflags.h"
+#include "brave/components/email_aliases/features.h"
 #include "brave/components/playlist/common/buildflags/buildflags.h"
 #include "brave/components/request_otr/common/buildflags/buildflags.h"
 #include "brave/components/version_info/version_info.h"
 #include "brave/grit/brave_generated_resources.h"
+#include "brave/grit/brave_generated_resources_webui_strings.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
@@ -63,6 +65,11 @@ constexpr char16_t kBraveBuildInstructionsUrl[] =
 constexpr char16_t kBraveLicenseUrl[] = u"https://mozilla.org/MPL/2.0/";
 constexpr char16_t kBraveReleaseTagPrefix[] =
     u"https://github.com/brave/brave-browser/releases/tag/v";
+#if BUILDFLAG(ENABLE_CONTAINERS)
+constexpr char16_t kContainersLearnMoreURL[] =
+    u"https://github.com/brave/brave-browser/wiki/"
+    u"Containers";
+#endif
 constexpr char16_t kGoogleLoginLearnMoreURL[] =
     u"https://github.com/brave/brave-browser/wiki/"
     u"Allow-Google-login---Third-Parties-and-Extensions";
@@ -86,6 +93,19 @@ constexpr char16_t kBlockAllCookiesLearnMoreUrl[] =
 constexpr char16_t kLeoCustomModelsLearnMoreURL[] =
     u"https://support.brave.com/hc/en-us/articles/"
     u"34070140231821-How-do-I-use-the-Bring-Your-Own-Model-BYOM-with-Brave-Leo";
+
+constexpr char16_t kTabOrganizationLearnMoreURL[] =
+    u"https://support.brave.com/hc/en-us/articles/"
+    u"35200007195917-How-to-use-Tab-Focus-Mode";
+
+constexpr char16_t kLeoPrivacyPolicyURL[] =
+    u"https://brave.com/privacy/browser/#brave-leo";
+
+constexpr char16_t kSurveyPanelistLearnMoreURL[] =
+    u"https://support.brave.com/hc/en-us/articles/36550092449165";
+
+constexpr char16_t kExtensionsV2LearnMoreURL[] =
+    u"https://brave.com/blog/brave-shields-manifest-v3/";
 
 void BraveAddCommonStrings(content::WebUIDataSource* html_source,
                            Profile* profile) {
@@ -138,9 +158,7 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"siteSettingsLocalhostAccessAllowExceptions",
        IDS_SETTINGS_SITE_SETTINGS_LOCALHOST_ACCESS_ALLOW_EXCEPTIONS},
       {"braveGetStartedTitle", IDS_SETTINGS_BRAVE_GET_STARTED_TITLE},
-
-      // <Brave Account>
-      // Row:
+      // <Brave Account Row>
       {"braveAccountRowTitle", IDS_SETTINGS_BRAVE_ACCOUNT_ROW_TITLE},
       {"braveAccountRowDescription",
        IDS_SETTINGS_BRAVE_ACCOUNT_ROW_DESCRIPTION},
@@ -148,77 +166,7 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_BRAVE_ACCOUNT_GET_STARTED_BUTTON_LABEL},
       {"braveAccountManageAccountButtonLabel",
        IDS_SETTINGS_BRAVE_ACCOUNT_MANAGE_ACCOUNT_BUTTON_LABEL},
-
-      // 'Entry' dialog:
-      {"braveAccountEntryDialogTitle",
-       IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_TITLE},
-      {"braveAccountEntryDialogDescription",
-       IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_DESCRIPTION},
-      {"braveAccountCreateBraveAccountButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_ENTRY_DIALOG_CREATE_BRAVE_ACCOUNT_BUTTON_LABEL},
-      {"braveAccountAlreadyHaveAccountSignInButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_ALREADY_HAVE_ACCOUNT_SIGN_IN_BUTTON_LABEL},
-      {"braveAccountSelfCustodyButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_SELF_CUSTODY_BUTTON_LABEL},
-
-      // 'Create' dialog:
-      {"braveAccountCreateDialogTitle",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_DIALOG_TITLE},
-      {"braveAccountCreateDialogDescription",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_DIALOG_DESCRIPTION},
-      {"braveAccountEmailInputErrorMessage",
-       IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_ERROR_MESSAGE},
-      {"braveAccountCreatePasswordInputLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_PASSWORD_INPUT_LABEL},
-      {"braveAccountPasswordStrengthMeterWeak",
-       IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_WEAK},
-      {"braveAccountPasswordStrengthMeterMedium",
-       IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_MEDIUM},
-      {"braveAccountPasswordStrengthMeterStrong",
-       IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_STRENGTH_METER_STRONG},
-      {"braveAccountConfirmPasswordInputLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_LABEL},
-      {"braveAccountConfirmPasswordInputPlaceholder",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_PLACEHOLDER},
-      {"braveAccountConfirmPasswordInputErrorMessage",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_ERROR_MESSAGE},
-      {"braveAccountConfirmPasswordInputSuccessMessage",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CONFIRM_PASSWORD_INPUT_SUCCESS_MESSAGE},
-      {"braveAccountCreateAccountButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CREATE_ACCOUNT_BUTTON_LABEL},
-
-      // 'Sign In' dialog:
-      {"braveAccountSignInDialogTitle",
-       IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_DIALOG_TITLE},
-      {"braveAccountSignInDialogDescription",
-       IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_DIALOG_DESCRIPTION},
-      {"braveAccountPasswordInputLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_INPUT_LABEL},
-      {"braveAccountForgotPasswordButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_BUTTON_LABEL},
-      {"braveAccountSignInButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_SIGN_IN_BUTTON_LABEL},
-
-      // 'Forgot Password' dialog:
-      {"braveAccountForgotPasswordDialogTitle",
-       IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_DIALOG_TITLE},
-      {"braveAccountForgotPasswordDialogDescription",
-       IDS_SETTINGS_BRAVE_ACCOUNT_FORGOT_PASSWORD_DIALOG_DESCRIPTION},
-      {"braveAccountAlertMessage", IDS_SETTINGS_BRAVE_ACCOUNT_ALERT_MESSAGE},
-      {"braveAccountCancelButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_CANCEL_BUTTON_LABEL},
-      {"braveAccountResetPasswordButtonLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_RESET_PASSWORD_BUTTON_LABEL},
-
-      // Common:
-      {"braveAccountEmailInputLabel",
-       IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_LABEL},
-      {"braveAccountEmailInputPlaceholder",
-       IDS_SETTINGS_BRAVE_ACCOUNT_EMAIL_INPUT_PLACEHOLDER},
-      {"braveAccountPasswordInputPlaceholder",
-       IDS_SETTINGS_BRAVE_ACCOUNT_PASSWORD_INPUT_PLACEHOLDER},
-      // </Brave Account>
-
+      // </Brave Account Row>
       {"siteSettingsShields", IDS_SETTINGS_SITE_SETTINGS_SHIELDS},
       {"siteSettingsShieldsStatus", IDS_SETTINGS_SITE_SETTINGS_SHIELDS_STATUS},
       {"siteSettingsShieldsUp", IDS_SETTINGS_SITE_SETTINGS_SHIELDS_UP},
@@ -227,6 +175,10 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_SITE_SETTINGS_SHIELDS_DESCRIPTION},
       {"appearanceSettingsBraveTheme",
        IDS_SETTINGS_APPEARANCE_SETTINGS_BRAVE_THEMES},
+      {"appearanceSettingsThemesGalleryUrl",
+       IDS_SETTINGS_APPEARANCE_SETTINGS_THEMES_GALLERY_URL},
+      {"appearanceSettingsOpenWebStore",
+       IDS_SETTINGS_APPEARANCE_SETTINGS_OPEN_WEB_STORE},
       {"appearanceSettingsShowBookmarksButton",
        IDS_SETTINGS_APPEARANCE_SETTINGS_SHOW_BOOKMARKS_BUTTON},
       {"appearanceSettingsLocationBarIsWide",
@@ -250,8 +202,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_NEVER_SHOW_BOOKMARK_BAR_DESC},
       {"appearanceSettingsShowAutocompleteInAddressBar",
        IDS_SETTINGS_APPEARANCE_SETTINGS_SHOW_AUTOCOMPLETE_IN_ADDRESS_BAR},
-      {"appearanceSettingsUseTopSiteSuggestions",
-       IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_TOP_SITES},
+      {"appearanceSettingsUseTopSuggestions",
+       IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_TOP_SUGGESTIONS},
       {"appearanceSettingsUseHistorySuggestions",
        IDS_SETTINGS_APPEARANCE_SETTINGS_USE_AUTOCOMPLETE_HISTORY},
       {"appearanceSettingsUseBookmarkSuggestions",
@@ -421,6 +373,12 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"requestOTRAlways", IDS_SETTINGS_REQUEST_OTR_ALWAYS},
       {"requestOTRNever", IDS_SETTINGS_REQUEST_OTR_NEVER},
 #endif
+#if BUILDFLAG(IS_WIN)
+      {"windowsRecallDisabledLabel",
+       IDS_SETTINGS_WINDOWS_RECALL_DISABLED_LABEL},
+      {"windowsRecallDisabledSubLabel",
+       IDS_SETTINGS_WINDOWS_RECALL_DISABLED_SUBLABEL},
+#endif
       {"braveSync", IDS_SETTINGS_BRAVE_SYNC_TITLE},
       {"braveSyncSetupActionLabel", IDS_SETTINGS_BRAVE_SYNC_SETUP_ACTION_LABEL},
       {"braveSyncSetupTitle", IDS_SETTINGS_BRAVE_SYNC_SETUP_TITLE},
@@ -524,6 +482,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_LEO_ASSISTANT_SHOW_IN_CONTEXT_MENU_LABEL},
       {"braveLeoAssistantShowInContextMenuDesc",
        IDS_SETTINGS_LEO_ASSISTANT_SHOW_IN_CONTEXT_MENU_DESC},
+      {"braveLeoAssistantTabOrganizationLabel",
+       IDS_SETTINGS_LEO_ASSISTANT_TAB_ORGANIZATION_LABEL},
       {"braveLeoAssistantHistoryPreferenceLabel",
        IDS_SETTINGS_LEO_ASSISTANT_HISTORY_PREFERENCE_LABEL},
       {"braveLeoAssistantHistoryPreferenceConfirm",
@@ -542,8 +502,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"braveLeoAssistantModelSelectionLabel",
        IDS_SETTINGS_LEO_ASSISTANT_MODEL_SELECTION_LABEL},
       {"braveLeoModelSubtitle-chat-basic", IDS_CHAT_UI_CHAT_BASIC_SUBTITLE},
-      {"braveLeoModelSubtitle-chat-leo-expanded",
-       IDS_CHAT_UI_CHAT_LEO_EXPANDED_SUBTITLE},
       {"braveLeoModelSubtitle-chat-claude-instant",
        IDS_CHAT_UI_CHAT_CLAUDE_INSTANT_SUBTITLE},
       {"braveLeoModelSubtitle-chat-claude-haiku",
@@ -551,6 +509,10 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"braveLeoModelSubtitle-chat-claude-sonnet",
        IDS_CHAT_UI_CHAT_CLAUDE_SONNET_SUBTITLE},
       {"braveLeoModelSubtitle-chat-qwen", IDS_CHAT_UI_CHAT_QWEN_SUBTITLE},
+      {"braveLeoModelSubtitle-chat-vision-basic",
+       IDS_CHAT_UI_CHAT_VISION_BASIC_SUBTITLE},
+      {"braveLeoModelSubtitle-chat-deepseek-r1",
+       IDS_CHAT_UI_CHAT_DEEPSEEK_R1_SUBTITLE},
       {"braveLeoAssistantManageUrlLabel",
        IDS_SETTINGS_LEO_ASSISTANT_MANAGE_URL},
       {"braveLeoAssistantByomLabel", IDS_SETTINGS_LEO_ASSISTANT_BYOM_LABEL},
@@ -597,6 +559,10 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_TITLE},
       {"braveLeoAssistantYourModelsDesc1",
        IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_1},
+      {"braveLeoAssistantAboutLeoLabel",
+       IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_LABEL},
+      {"braveLeoAssistantAboutLeoDesc1",
+       IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_DESC_1},
       {"braveLeoModelSectionTitle", IDS_CHAT_UI_MENU_TITLE_MODELS},
       {"braveLeoAssistantEndpointInvalidError",
        IDS_SETTINGS_LEO_ASSISTANT_ENDPOINT_INVALID_ERROR},
@@ -617,6 +583,11 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"braveLeoAssistantModelSystemPromptDesc",
        IDS_SETTINGS_LEO_ASSISTANT_MODEL_SYSTEM_PROMPT_DESC},
       {"braveLeoAssistantTokensCount", IDS_SETTINGS_LEO_ASSISTANT_TOKENS_COUNT},
+
+      // Survey Panelist Page
+      {"surveyPanelist", IDS_SETTINGS_SURVEY_PANELIST},
+      {"braveSurveyPanelistLabel", IDS_SETTINGS_SURVEY_PANELIST_LABEL},
+      {"braveSurveyPanelistDesc", IDS_SETTINGS_SURVEY_PANELIST_DESC},
 
       // New Tab Page
       {"braveNewTab", IDS_SETTINGS_NEW_TAB},
@@ -650,7 +621,6 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"showSearchTabsBtn", IDS_SETTINGS_TABS_SEARCH_SHOW},
       {"onExitPageTitle", IDS_SETTINGS_BRAVE_ON_EXIT},
       {"braveDefaultExtensions", IDS_SETTINGS_BRAVE_DEFAULT_EXTENSIONS_TITLE},
-      {"webTorrentEnabledDesc", IDS_SETTINGS_WEBTORRENT_ENABLED_DESC},
       {"defaultEthereumWalletDesc", IDS_SETTINGS_DEFAULT_ETHEREUM_WALLET_DESC},
       {"defaultSolanaWalletDesc", IDS_SETTINGS_DEFAULT_SOLANA_WALLET_DESC},
       {"defaultBaseCurrencyDesc", IDS_SETTINGS_DEFAULT_BASE_CURRENCY_DESC},
@@ -732,6 +702,14 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"p3aEnabledDesc", IDS_BRAVE_P3A_ENABLE_SETTING_SUBITEM},
       {"siteSettings", IDS_SETTINGS_SITE_AND_SHIELDS_SETTINGS},
       {"showFullUrls", IDS_SETTINGS_ALWAYS_SHOW_FULL_URLS},
+      {"resetZCashSyncStateInfo",
+       IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_INFO},
+      {"resetZCashSyncStateDesc",
+       IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_DESC},
+      {"resetZCashSyncStateConfirmation",
+       IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_CONFIRMATION},
+      {"resetZCashSyncStateConfirmed",
+       IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_CONFIRMED},
       {"resetWallet", IDS_SETTINGS_WALLET_RESET},
       {"resetTransactionInfo", IDS_SETTINGS_WALLET_RESET_TRANSACTION_INFO},
       {"resetTransactionInfoDesc",
@@ -905,21 +883,16 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       {"braveShieldsSaveContactInfo",
        IDS_BRAVE_SHIELDS_SAVE_CONTACT_INFO_LABEL},
       {"braveShieldsSaveContactInfoSublabel",
-       IDS_BRAVE_SHIELDS_SAVE_CONTACT_INFO_LABEL_SUBLABEL}};
+       IDS_BRAVE_SHIELDS_SAVE_CONTACT_INFO_LABEL_SUBLABEL},
+      {"cookieControlledByShieldsHeader",
+       IDS_SETTINGS_COOKIE_CONTROLLED_BY_SHIELDS_HEADER_TEXT},
+      {"cookieControlledByShieldsTooltip",
+       IDS_SETTINGS_COOKIE_CONTROLLED_BY_SHIELDS_TOOLTIP_TEXT},
+      {"cookieControlledByGoogleSigninTooltip",
+       IDS_SETTINGS_COOKIE_CONTROLLED_BY_GOOGLE_SIGN_IN_TOOLTIP_TEXT},
+  };
 
   html_source->AddLocalizedStrings(localized_strings);
-  // <Brave Account>
-  html_source->AddString(
-      "braveAccountSelfCustodyDescription",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_BRAVE_ACCOUNT_SELF_CUSTODY_DESCRIPTION,
-          kBraveAccountSelfCustodyLearnMoreURL));
-  html_source->AddString(
-      "braveAccountConsentCheckboxLabel",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_BRAVE_ACCOUNT_CONSENT_CHECKBOX_LABEL,
-          kBraveAccountTermsOfServiceURL, kBraveAccountPrivacyAgreementURL));
-  // </Brave Account>
   html_source->AddString("braveShieldsExampleTemplate", "example.com");
   html_source->AddString("webRTCLearnMoreURL", kWebRTCLearnMoreURL);
   html_source->AddString("googleLoginLearnMoreURL", kGoogleLoginLearnMoreURL);
@@ -933,8 +906,8 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
           l10n_util::GetStringUTF8(
               IDS_AI_CHAT_DEFAULT_CUSTOM_MODEL_SYSTEM_PROMPT),
           {"%datetime%"}, nullptr));
-  auto confirmation_phrase = brave_l10n::GetLocalizedResourceUTF16String(
-      IDS_SETTINGS_WALLET_RESET_CONFIRMATION_PHRASE);
+  auto confirmation_phrase =
+      l10n_util::GetStringUTF16(IDS_SETTINGS_WALLET_RESET_CONFIRMATION_PHRASE);
   html_source->AddString("walletResetConfirmationPhrase", confirmation_phrase);
   auto confirmation_text = l10n_util::GetStringFUTF16(
       IDS_SETTINGS_WALLET_RESET_CONFIRMATION, confirmation_phrase);
@@ -944,10 +917,22 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       confirmation_phrase);
   html_source->AddString("walletResetTransactionInfoConfirmation",
                          reset_tx_confirmation_text);
-
+  html_source->AddString(
+      "resetZCashSyncStateConfirmation",
+      l10n_util::GetStringFUTF16(
+          IDS_SETTINGS_WALLET_RESET_ZCASH_SYNC_STATE_CONFIRMATION,
+          confirmation_phrase));
   html_source->AddString(
       "braveLeoAssistantInputDefaultContextSize",
       base::NumberToString16(ai_chat::kDefaultCustomModelContextSize));
+
+  html_source->AddString("braveLeoAssistantTabOrganizationDesc",
+                         l10n_util::GetStringFUTF16(
+                             IDS_SETTINGS_LEO_ASSISTANT_TAB_ORGANIZATION_DESC,
+                             kTabOrganizationLearnMoreURL));
+
+  html_source->AddString("braveLeoAssistantTabOrganizationLearnMoreURL",
+                         kTabOrganizationLearnMoreURL);
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   html_source->AddString("webDiscoveryLearnMoreURL", kWebDiscoveryLearnMoreUrl);
@@ -961,7 +946,7 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
               g_browser_process->GetApplicationLocale())
               .spec()));
   html_source->AddString("autoLockMinutesValue",
-                         std::to_string(profile->GetPrefs()->GetInteger(
+                         base::NumberToString(profile->GetPrefs()->GetInteger(
                              kBraveWalletAutoLockMinutes)));
 
   html_source->AddString(
@@ -974,6 +959,10 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
                              IDS_SETTINGS_RESOLVE_UNSTOPPABLE_DOMAINS_SUB_DESC,
                              kUnstoppableDomainsLearnMoreURL));
 
+#if BUILDFLAG(ENABLE_CONTAINERS)
+  html_source->AddLocalizedStrings(webui::kContainersStrings);
+  html_source->AddString("containersLearnMoreURL", kContainersLearnMoreURL);
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
   html_source->AddString(
       "ensOffchainLookupDesc",
       l10n_util::GetStringFUTF16(IDS_SETTINGS_ENABLE_ENS_OFFCHAIN_LOOKUP_DESC,
@@ -989,6 +978,23 @@ void BraveAddCommonStrings(content::WebUIDataSource* html_source,
       "braveLeoAssistantYourModelsDesc2",
       l10n_util::GetStringFUTF16(IDS_SETTINGS_LEO_ASSISTANT_YOUR_MODELS_DESC_2,
                                  kLeoCustomModelsLearnMoreURL));
+
+  html_source->AddString(
+      "braveLeoAssistantAboutLeoDesc2",
+      l10n_util::GetStringFUTF16(IDS_SETTINGS_LEO_ASSISTANT_ABOUT_LEO_DESC_2,
+                                 kLeoPrivacyPolicyURL));
+
+  html_source->AddString("braveSurveyPanelistLearnMoreURL",
+                         kSurveyPanelistLearnMoreURL);
+
+  html_source->AddString(
+      "braveSurveyPanelistDesc",
+      l10n_util::GetStringFUTF16(IDS_SETTINGS_SURVEY_PANELIST_DESC,
+                                 kSurveyPanelistLearnMoreURL));
+  html_source->AddString(
+      "extensionsV2Warn",
+      l10n_util::GetStringFUTF16(IDS_SETTINGS_MANAGE_EXTENSIONS_V2_WARN,
+                                 kExtensionsV2LearnMoreURL));
 }  // NOLINT(readability/fn_size)
 
 void BraveAddResources(content::WebUIDataSource* html_source,
@@ -1014,6 +1020,90 @@ void BraveAddSyncStrings(content::WebUIDataSource* html_source) {
                          passphraseDecryptionErrorMessage);
 }
 
+void BraveAddEmailAliasesStrings(content::WebUIDataSource* html_source) {
+  if (!base::FeatureList::IsEnabled(email_aliases::kEmailAliases)) {
+    return;
+  }
+  webui::LocalizedString localized_strings[] = {
+      {"emailAliasesShortDescription",
+       IDS_SETTINGS_EMAIL_ALIASES_SHORT_DESCRIPTION},
+      {"emailAliasesDescription", IDS_SETTINGS_EMAIL_ALIASES_DESCRIPTION},
+      {"emailAliasesLearnMore", IDS_SETTINGS_EMAIL_ALIASES_LEARN_MORE},
+      {"emailAliasesSignOut", IDS_SETTINGS_EMAIL_ALIASES_SIGN_OUT},
+      {"emailAliasesSignOutTitle", IDS_SETTINGS_EMAIL_ALIASES_SIGN_OUT_TITLE},
+      {"emailAliasesConnectingToBraveAccount",
+       IDS_SETTINGS_EMAIL_ALIASES_CONNECTING_TO_BRAVE_ACCOUNT},
+      {"emailAliasesBraveAccount", IDS_SETTINGS_EMAIL_ALIASES_BRAVE_ACCOUNT},
+      {"emailAliasesCopiedToClipboard",
+       IDS_SETTINGS_EMAIL_ALIASES_COPIED_TO_CLIPBOARD},
+      {"emailAliasesClickToCopyAlias",
+       IDS_SETTINGS_EMAIL_ALIASES_CLICK_TO_COPY_ALIAS},
+      {"emailAliasesUsedBy", IDS_SETTINGS_EMAIL_ALIASES_USED_BY},
+      {"emailAliasesEdit", IDS_SETTINGS_EMAIL_ALIASES_EDIT},
+      {"emailAliasesDelete", IDS_SETTINGS_EMAIL_ALIASES_DELETE},
+      {"emailAliasesCreateDescription",
+       IDS_SETTINGS_EMAIL_ALIASES_CREATE_DESCRIPTION},
+      {"emailAliasesListTitle", IDS_SETTINGS_EMAIL_ALIASES_LIST_TITLE},
+      {"emailAliasesCreateAliasTitle",
+       IDS_SETTINGS_EMAIL_ALIASES_CREATE_ALIAS_TITLE},
+      {"emailAliasesBubbleDescription",
+       IDS_SETTINGS_EMAIL_ALIASES_BUBBLE_DESCRIPTION},
+      {"emailAliasesBubbleLimitReached",
+       IDS_SETTINGS_EMAIL_ALIASES_BUBBLE_LIMIT_REACHED},
+      {"emailAliasesCreateAliasLabel",
+       IDS_SETTINGS_EMAIL_ALIASES_CREATE_ALIAS_LABEL},
+      {"emailAliasesRefreshButtonTitle",
+       IDS_SETTINGS_EMAIL_ALIASES_REFRESH_BUTTON_TITLE},
+      {"emailAliasesGeneratingNewAlias",
+       IDS_SETTINGS_EMAIL_ALIASES_GENERATING_NEW_ALIAS},
+      {"emailAliasesGenerateError", IDS_SETTINGS_EMAIL_ALIASES_GENERATE_ERROR},
+      {"emailAliasesNoteLabel", IDS_SETTINGS_EMAIL_ALIASES_NOTE_LABEL},
+      {"emailAliasesEditNotePlaceholder",
+       IDS_SETTINGS_EMAIL_ALIASES_EDIT_NOTE_PLACEHOLDER},
+      {"emailAliasesCancelButton", IDS_SETTINGS_EMAIL_ALIASES_CANCEL_BUTTON},
+      {"emailAliasesManageButton", IDS_SETTINGS_EMAIL_ALIASES_MANAGE_BUTTON},
+      {"emailAliasesAliasLabel", IDS_SETTINGS_EMAIL_ALIASES_ALIAS_LABEL},
+      {"emailAliasesEmailsWillBeForwardedTo",
+       IDS_SETTINGS_EMAIL_ALIASES_EMAILS_WILL_BE_FORWARDED_TO},
+      {"emailAliasesEditAliasTitle",
+       IDS_SETTINGS_EMAIL_ALIASES_EDIT_ALIAS_TITLE},
+      {"emailAliasesCreateAliasButton",
+       IDS_SETTINGS_EMAIL_ALIASES_CREATE_ALIAS_BUTTON},
+      {"emailAliasesUpdateAliasError",
+       IDS_SETTINGS_EMAIL_ALIASES_UPDATE_ALIAS_ERROR},
+      {"emailAliasesSaveAliasButton",
+       IDS_SETTINGS_EMAIL_ALIASES_SAVE_ALIAS_BUTTON},
+      {"emailAliasesDeleteAliasTitle",
+       IDS_SETTINGS_EMAIL_ALIASES_DELETE_ALIAS_TITLE},
+      {"emailAliasesDeleteAliasDescription",
+       IDS_SETTINGS_EMAIL_ALIASES_DELETE_ALIAS_DESCRIPTION},
+      {"emailAliasesDeleteAliasButton",
+       IDS_SETTINGS_EMAIL_ALIASES_DELETE_ALIAS_BUTTON},
+      {"emailAliasesDeleteAliasError",
+       IDS_SETTINGS_EMAIL_ALIASES_DELETE_ALIAS_ERROR},
+      {"emailAliasesDeleteWarning", IDS_SETTINGS_EMAIL_ALIASES_DELETE_WARNING},
+      {"emailAliasesSignInOrCreateAccount",
+       IDS_SETTINGS_EMAIL_ALIASES_SIGN_IN_OR_CREATE_ACCOUNT},
+      {"emailAliasesEnterEmailToGetLoginLink",
+       IDS_SETTINGS_EMAIL_ALIASES_ENTER_EMAIL_TO_GET_LOGIN_LINK},
+      {"emailAliasesGetLoginLinkButton",
+       IDS_SETTINGS_EMAIL_ALIASES_GET_LOGIN_LINK_BUTTON},
+      {"emailAliasesRequestAuthenticationError",
+       IDS_SETTINGS_EMAIL_ALIASES_REQUEST_AUTHENTICATION_ERROR},
+      {"emailAliasesEmailAddressPlaceholder",
+       IDS_SETTINGS_EMAIL_ALIASES_EMAIL_ADDRESS_PLACEHOLDER},
+      {"emailAliasesLoginEmailOnTheWay",
+       IDS_SETTINGS_EMAIL_ALIASES_LOGIN_EMAIL_ON_THE_WAY},
+      {"emailAliasesClickOnSecureLogin",
+       IDS_SETTINGS_EMAIL_ALIASES_CLICK_ON_SECURE_LOGIN},
+      {"emailAliasesDontSeeEmail", IDS_SETTINGS_EMAIL_ALIASES_DONT_SEE_EMAIL},
+      {"emailAliasesAuthError", IDS_SETTINGS_EMAIL_ALIASES_AUTH_ERROR},
+      {"emailAliasesAuthTryAgainButton",
+       IDS_SETTINGS_EMAIL_ALIASES_AUTH_TRY_AGAIN_BUTTON},
+  };
+  html_source->AddLocalizedStrings(localized_strings);
+}
+
 }  // namespace
 
 void BraveAddLocalizedStrings(content::WebUIDataSource* html_source,
@@ -1023,6 +1113,7 @@ void BraveAddLocalizedStrings(content::WebUIDataSource* html_source,
   BraveAddAboutStrings(html_source, profile);
   BravePrivacyHandler::AddLoadTimeData(html_source, profile);
   BraveAddSyncStrings(html_source);
+  BraveAddEmailAliasesStrings(html_source);
 
   // Load time data for brave://settings/extensions
   html_source->AddBoolean(
@@ -1066,112 +1157,111 @@ void BraveAddLocalizedStrings(content::WebUIDataSource* html_source,
   // We're reinstating these cookie-related settings that were deleted upstream
   html_source->AddString(
       "cacheStorageLastModified",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_LAST_MODIFIED_LABEL));
   html_source->AddString("cacheStorageOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
       "cacheStorageSize",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_SIZE_ON_DISK_LABEL));
   html_source->AddString(
       "cookieAccessibleToScript",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_COOKIE_ACCESSIBLE_TO_SCRIPT_LABEL));
-  html_source->AddString("cookieCacheStorage",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_CACHE_STORAGE));
-  html_source->AddString("cookieContent",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_CONTENT_LABEL));
-  html_source->AddString("cookieCreated",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_CREATED_LABEL));
-  html_source->AddString("cookieDatabaseStorage",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_DATABASE_STORAGE));
-  html_source->AddString("cookieDomain",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_DOMAIN_LABEL));
-  html_source->AddString("cookieExpires",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_EXPIRES_LABEL));
-  html_source->AddString("cookieFileSystem",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_FILE_SYSTEM));
-  html_source->AddString("cookieFlashLso",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_FLASH_LSO));
-  html_source->AddString("cookieLocalStorage",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_LOCAL_STORAGE));
-  html_source->AddString("cookieName",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_NAME_LABEL));
-  html_source->AddString("cookiePath",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_PATH_LABEL));
-  html_source->AddString("cookieSendFor",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_COOKIE_SENDFOR_LABEL));
-  html_source->AddString("cookieServiceWorker",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_SERVICE_WORKER));
-  html_source->AddString("cookieSharedWorker",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_SHARED_WORKER));
-  html_source->AddString("cookieQuotaStorage",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_COOKIES_QUOTA_STORAGE));
+  html_source->AddString(
+      "cookieCacheStorage",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_CACHE_STORAGE));
+  html_source->AddString(
+      "cookieContent",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_CONTENT_LABEL));
+  html_source->AddString(
+      "cookieCreated",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_CREATED_LABEL));
+  html_source->AddString(
+      "cookieDatabaseStorage",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_DATABASE_STORAGE));
+  html_source->AddString(
+      "cookieDomain",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_DOMAIN_LABEL));
+  html_source->AddString(
+      "cookieExpires",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_EXPIRES_LABEL));
+  html_source->AddString(
+      "cookieFileSystem",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_FILE_SYSTEM));
+  html_source->AddString("cookieFlashLso", l10n_util::GetStringUTF16(
+                                               IDS_SETTINGS_COOKIES_FLASH_LSO));
+  html_source->AddString(
+      "cookieLocalStorage",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_LOCAL_STORAGE));
+  html_source->AddString(
+      "cookieName",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_NAME_LABEL));
+  html_source->AddString(
+      "cookiePath",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_PATH_LABEL));
+  html_source->AddString(
+      "cookieSendFor",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_COOKIE_SENDFOR_LABEL));
+  html_source->AddString(
+      "cookieServiceWorker",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_SERVICE_WORKER));
+  html_source->AddString(
+      "cookieSharedWorker",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_SHARED_WORKER));
+  html_source->AddString(
+      "cookieQuotaStorage",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_COOKIES_QUOTA_STORAGE));
   html_source->AddString("databaseOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString("fileSystemOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
       "fileSystemPersistentUsage",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_FILE_SYSTEM_PERSISTENT_USAGE_LABEL));
   html_source->AddString(
       "fileSystemTemporaryUsage",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_FILE_SYSTEM_TEMPORARY_USAGE_LABEL));
   html_source->AddString(
       "indexedDbSize",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_SIZE_ON_DISK_LABEL));
   html_source->AddString(
       "indexedDbLastModified",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_LAST_MODIFIED_LABEL));
   html_source->AddString("indexedDbOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
       "localStorageLastModified",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_LAST_MODIFIED_LABEL));
   html_source->AddString("localStorageOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
       "localStorageSize",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_SIZE_ON_DISK_LABEL));
   html_source->AddString("quotaOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
-      "quotaSize", brave_l10n::GetLocalizedResourceUTF16String(
+      "quotaSize", l10n_util::GetStringUTF16(
                        IDS_SETTINGS_COOKIES_LOCAL_STORAGE_SIZE_ON_DISK_LABEL));
   html_source->AddString("serviceWorkerOrigin",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_COOKIES_LOCAL_STORAGE_ORIGIN_LABEL));
   html_source->AddString(
       "serviceWorkerSize",
-      brave_l10n::GetLocalizedResourceUTF16String(
+      l10n_util::GetStringUTF16(
           IDS_SETTINGS_COOKIES_LOCAL_STORAGE_SIZE_ON_DISK_LABEL));
 
 #if BUILDFLAG(ENABLE_PLAYLIST)
@@ -1180,14 +1270,14 @@ void BraveAddLocalizedStrings(content::WebUIDataSource* html_source,
   // At this moment, the feature name is DNT.
   html_source->AddString("playlist", "Playlist");
 
-  html_source->AddString("bravePlaylistEnablePlaylistLabel",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_PLAYLIST_ENABLE_PLAYLIST_LABEL));
-  html_source->AddString("bravePlaylistCacheByDefaultLabel",
-                         brave_l10n::GetLocalizedResourceUTF16String(
-                             IDS_SETTINGS_PLAYLIST_CACHE_BY_DEFAULT_LABEL));
+  html_source->AddString(
+      "bravePlaylistEnablePlaylistLabel",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_PLAYLIST_ENABLE_PLAYLIST_LABEL));
+  html_source->AddString(
+      "bravePlaylistCacheByDefaultLabel",
+      l10n_util::GetStringUTF16(IDS_SETTINGS_PLAYLIST_CACHE_BY_DEFAULT_LABEL));
   html_source->AddString("bravePlaylistCacheByDefaultSubLabel",
-                         brave_l10n::GetLocalizedResourceUTF16String(
+                         l10n_util::GetStringUTF16(
                              IDS_SETTINGS_PLAYLIST_CACHE_BY_DEFAULT_SUB_LABEL));
 #endif
 }

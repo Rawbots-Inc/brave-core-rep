@@ -6,11 +6,13 @@
 #include "brave/components/brave_wallet/browser/internal/orchard_storage/orchard_storage.h"
 
 #include <algorithm>
+#include <array>
 #include <limits>
 #include <memory>
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/containers/to_vector.h"
 #include "base/files/file_util.h"
 #include "base/threading/scoped_blocking_call.h"

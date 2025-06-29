@@ -12,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/notimplemented.h"
 #include "base/notreached.h"
@@ -29,6 +30,7 @@
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_list.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/tabs/tab_enums.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
 #include "chrome/browser/ui/tabs/tab_utils.h"
@@ -48,8 +50,12 @@ BraveTabContextMenuContents::BraveTabContextMenuContents(
   const bool is_vertical_tab = tabs::utils::ShouldShowVerticalTabs(browser_);
 
   model_ = std::make_unique<BraveTabMenuModel>(
-      this, controller->browser()->tab_menu_model_delegate(),
-      controller->model(), index, is_vertical_tab);
+      this, browser_->GetFeatures().tab_menu_model_delegate(),
+      controller->model(),
+#if BUILDFLAG(ENABLE_CONTAINERS)
+      *this,
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
+      index, is_vertical_tab);
   restore_service_ =
       TabRestoreServiceFactory::GetForProfile(browser_->profile());
   menu_runner_ = std::make_unique<views::MenuRunner>(
@@ -150,6 +156,36 @@ void BraveTabContextMenuContents::ExecuteCommand(int command_id,
       static_cast<TabStripModel::ContextMenuCommand>(command_id), tab_);
 }
 
+#if BUILDFLAG(ENABLE_CONTAINERS)
+void BraveTabContextMenuContents::OnContainerSelected(
+    const containers::mojom::ContainerPtr& container) {
+  // Should open selected tabs in the specified container.
+
+  // TODO(https://github.com/brave/brave-browser/issues/46352) Uncomment this
+  // when the containers feature is ready.
+  // auto* tab_strip_model =
+  //     static_cast<BraveTabStripModel*>(controller_->model());
+  // for (auto index : tab_strip_model->GetTabIndicesForCommandAt(tab_index_)) {
+  //   auto* tab = tab_strip_model->GetTabAtIndex(index);
+  //   brave::IsolateTab(browser_, tab->GetHandle(),
+  //                     container->id);
+  // }
+  NOTIMPLEMENTED();
+}
+
+base::flat_set<std::string>
+BraveTabContextMenuContents::GetCurrentContainerIds() {
+  // TODO(https://github.com/brave/brave-browser/issues/46352) Fill the set with
+  // container ids of tabs selected.
+  NOTIMPLEMENTED();
+  return {};
+}
+
+Browser* BraveTabContextMenuContents::GetBrowserToOpenSettings() {
+  return browser_;
+}
+#endif  // BUILDFLAG(ENABLE_CONTAINERS)
+
 bool BraveTabContextMenuContents::IsBraveCommandIdEnabled(
     int command_id) const {
   CHECK(IsValidContextMenu());
@@ -184,6 +220,8 @@ bool BraveTabContextMenuContents::IsBraveCommandIdEnabled(
     case BraveTabMenuModel::CommandTileTabs:
       [[fallthrough]];
     case BraveTabMenuModel::CommandBreakTile:
+      [[fallthrough]];
+    case BraveTabMenuModel::CommandOpenInContainer:
       [[fallthrough]];
     case BraveTabMenuModel::CommandSwapTabsInTile:
       return true;

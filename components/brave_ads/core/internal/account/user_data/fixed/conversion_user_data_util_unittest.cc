@@ -42,7 +42,7 @@ TEST_F(BraveAdsConversionUserDataUtilTest, BuildVerifiableConversionUserData) {
                     test::kVerifiableConversionAdvertiserPublicKeyBase64});
 
   // Act
-  const std::optional<base::Value::Dict> verifiable_conversion_user_data =
+  std::optional<base::Value::Dict> verifiable_conversion_user_data =
       MaybeBuildVerifiableConversionUserData(conversion);
   ASSERT_TRUE(verifiable_conversion_user_data);
 
@@ -100,17 +100,13 @@ TEST_F(BraveAdsConversionUserDataUtilTest, BuildConversionActionTypeUserData) {
   const ConversionInfo conversion =
       BuildConversion(ad_event, /*verifiable_conversion=*/std::nullopt);
 
-  // Act
-  const base::Value::Dict user_data =
-      BuildConversionActionTypeUserData(conversion);
-
-  // Assert
+  // Act & Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "action": "view"
-                    })"),
-            user_data);
+                    })JSON"),
+            BuildConversionActionTypeUserData(conversion));
 }
 
 }  // namespace brave_ads

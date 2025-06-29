@@ -6,11 +6,12 @@
 import BraveShields
 import Data
 import Foundation
+import Web
 
 @MainActor
 class ShieldsSettingsViewModel: ObservableObject {
   private var domain: Domain
-  private let tab: Tab
+  private let tab: any TabState
 
   @Published var stats: TPPageStats
   @Published var shieldsEnabled: Bool {
@@ -46,7 +47,7 @@ class ShieldsSettingsViewModel: ObservableObject {
   /// If we are updating our state values, we don't want to assign to the domain preference.
   private var isUpdatingState: Bool = false
 
-  init(tab: Tab, domain: Domain) {
+  init(tab: some TabState, domain: Domain) {
     self.domain = domain
     self.tab = tab
     self.shieldsEnabled = !domain.areAllShieldsOff
@@ -56,10 +57,10 @@ class ShieldsSettingsViewModel: ObservableObject {
       .fpProtection,
       considerAllShieldsOption: true
     )
-    self.stats = tab.contentBlocker.stats
+    self.stats = tab.contentBlocker?.stats ?? .init()
 
-    tab.contentBlocker.statsDidChange = { [weak self] _ in
-      self?.stats = tab.contentBlocker.stats
+    tab.contentBlocker?.statsDidChange = { [weak self, weak tab] _ in
+      self?.stats = tab?.contentBlocker?.stats ?? .init()
     }
   }
 

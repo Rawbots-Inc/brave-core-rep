@@ -3,25 +3,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifdef UNSAFE_BUFFERS_BUILD
-// TODO(https://github.com/brave/brave-browser/issues/41661): Remove this and
-// convert code to safer constructs.
-#pragma allow_unsafe_buffers
-#endif
-
 #include "brave/browser/default_protocol_handler_utils_win.h"
 
 #include <shobjidl.h>
-
 #include <winternl.h>
+
 #include <wrl/client.h>
 
+#include <array>
 #include <memory>
 #include <string_view>
 #include <utility>
 #include <vector>
 
 #include "base/base64.h"
+#include "base/compiler_specific.h"
 #include "base/containers/span.h"
 #include "base/containers/span_reader.h"
 #include "base/files/file_path.h"
@@ -32,8 +28,8 @@
 #include "base/path_service.h"
 #include "base/strings/cstring_view.h"
 #include "base/strings/strcat.h"
+#include "base/strings/string_util.h"
 #include "base/strings/string_util_win.h"
-#include "base/strings/stringprintf.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/threading/scoped_blocking_call.h"
 #include "base/win/atl.h"
@@ -44,6 +40,7 @@
 #include "base/win/windows_version.h"
 #include "chrome/install_static/install_util.h"
 #include "chrome/installer/util/shell_util.h"
+#include "third_party/abseil-cpp/absl/strings/str_format.h"
 
 // Most of source code in this file comes from firefox's SetDefaultBrowser -
 // https://github.com/mozilla/gecko-dev/blob/master/toolkit/mozapps/defaultagent/SetDefaultBrowser.cpp
@@ -66,7 +63,7 @@ std::wstring HashString(base::wcstring_view input) {
     // there's nothing for us to do with small strings.
     return std::wstring();
   }
-  auto bytes = base::as_bytes(base::span(input.data(), input.size() + 1));
+  auto bytes = base::byte_span_with_nul_from_cstring_view(input);
 
   // Compute an MD5 hash. md5[0] and md5[1] will be used as constant multipliers
   // in the scramble below.
@@ -81,13 +78,13 @@ std::wstring HashString(base::wcstring_view input) {
   };
 
   auto magic_numbers_table = std::to_array<MagicBlock>(
-      {{{{base::numerics::U32FromNativeEndian(md5.first<4u>()) | 1,
-          0xCF98B111uL, 0x87085B9FuL, 0x12CEB96DuL, 0x257E1D83uL},
-         {base::numerics::U32FromNativeEndian(md5.first<4u>()) | 1,
-          0xEF0569FBuL, 0x689B6B9FuL, 0x79F8A395uL, 0xC3EFEA97uL}}},
-       {{{base::numerics::U32FromNativeEndian(md5.last<4u>()) | 1, 0xA27416F5uL,
+      {{{{base::U32FromNativeEndian(md5.first<4u>()) | 1, 0xCF98B111uL,
+          0x87085B9FuL, 0x12CEB96DuL, 0x257E1D83uL},
+         {base::U32FromNativeEndian(md5.first<4u>()) | 1, 0xEF0569FBuL,
+          0x689B6B9FuL, 0x79F8A395uL, 0xC3EFEA97uL}}},
+       {{{base::U32FromNativeEndian(md5.last<4u>()) | 1, 0xA27416F5uL,
           0xD38396FFuL, 0x7C932B89uL, 0xBFA49F69uL},
-         {base::numerics::U32FromNativeEndian(md5.last<4u>()) | 1, 0xC31713DBuL,
+         {base::U32FromNativeEndian(md5.last<4u>()) | 1, 0xC31713DBuL,
           0xDDCD1F0FuL, 0x59C3AF2DuL, 0x35BD1EC9uL}}}});
 
   // The checksums.
@@ -104,7 +101,7 @@ std::wstring HashString(base::wcstring_view input) {
 
     for (const auto& magic_block : magic_numbers_table) {
       const auto& [c0, c1] = magic_block.line;
-      uint32_t ui32 = base::numerics::U32FromNativeEndian(*reader.Read<4u>());
+      uint32_t ui32 = base::U32FromNativeEndian(*reader.Read<4u>());
 
       h0 += ui32;
       // Scramble 0

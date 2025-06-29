@@ -7,6 +7,7 @@ import Favicon
 import Shared
 import Storage
 import UIKit
+import Web
 import WebKit
 import os.log
 
@@ -29,14 +30,13 @@ extension BrowserViewController {
   /// Adding Toolbar button over the keyboard for adding Open Search Engine
   /// - Parameter webView: webview triggered open seach engine
   @discardableResult
-  func evaluateWebsiteSupportOpenSearchEngine(_ webView: WKWebView) -> Bool {
-    if let tab = tabManager[webView],
-      let openSearchMetaData = tab.pageMetadata?.search,
-      let url = webView.url,
+  func evaluateWebsiteSupportOpenSearchEngine(in tab: some TabState) -> Bool {
+    if let openSearchMetaData = tab.pageMetadataHelper?.metadata?.search,
+      let url = tab.visibleURL,
       url.isSecureWebPage()
     {
       return updateAddOpenSearchEngine(
-        webView,
+        tab.view,
         referenceObject: OpenSearchReference(
           reference: openSearchMetaData.href,
           title: openSearchMetaData.title
@@ -49,7 +49,7 @@ extension BrowserViewController {
 
   @discardableResult
   private func updateAddOpenSearchEngine(
-    _ webView: WKWebView,
+    _ webView: UIView,
     referenceObject: OpenSearchReference
   ) -> Bool {
     var supportsAutoAdd = true
@@ -142,8 +142,8 @@ extension BrowserViewController {
       return
     }
 
-    guard let scheme = tabManager.selectedTab?.webView?.url?.scheme,
-      let host = tabManager.selectedTab?.webView?.url?.host
+    guard let scheme = tabManager.selectedTab?.visibleURL?.scheme,
+      let host = tabManager.selectedTab?.visibleURL?.host
     else {
       Logger.module.error("Selected Tab doesn't have URL")
       return

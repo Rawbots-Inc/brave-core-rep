@@ -116,7 +116,7 @@ void NotificationAdServing::GetAdEvents() {
 void NotificationAdServing::GetAdEventsCallback(bool success,
                                                 const AdEventList& ad_events) {
   if (!success) {
-    BLOG(1, "Notification ad not served: Failed to get ad events");
+    BLOG(0, "Notification ad not served: Failed to get ad events");
     return FailedToServeAd();
   }
 
@@ -163,7 +163,7 @@ void NotificationAdServing::GetEligibleAds(UserModelInfo user_model) {
 
 void NotificationAdServing::GetEligibleAdsCallback(
     uint64_t trace_id,
-    const CreativeNotificationAdList& creative_ads) {
+    CreativeNotificationAdList creative_ads) {
   TRACE_EVENT_NESTABLE_ASYNC_END1(
       kTraceEventCategory, "NotificationAdServing::GetEligibleAds",
       TRACE_ID_WITH_SCOPE("NotificationAdServing", trace_id), "creative_ads",
@@ -222,7 +222,7 @@ base::Time NotificationAdServing::MaybeServeAdAfter(base::TimeDelta delay) {
 
 void NotificationAdServing::ServeAd(const NotificationAdInfo& ad) {
   if (!ad.IsValid()) {
-    BLOG(1, "Notification ad not served: Invalid ad");
+    BLOG(0, "Notification ad not served: Invalid ad");
     return FailedToServeAd();
   }
 

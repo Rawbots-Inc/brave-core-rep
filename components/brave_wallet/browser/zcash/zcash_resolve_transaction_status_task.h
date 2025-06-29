@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <string>
+#include <variant>
 
 #include "base/functional/callback.h"
 #include "brave/components/brave_wallet/browser/zcash/zcash_action_context.h"
@@ -27,16 +28,15 @@ class ZCashResolveTransactionStatusTask {
                      std::string>)>;
 
   ZCashResolveTransactionStatusTask(
-      absl::variant<base::PassKey<ZCashWalletService>,
-                    base::PassKey<class ZCashResolveTransactionStatusTaskTest>>
+      std::variant<base::PassKey<ZCashWalletService>,
+                   base::PassKey<class ZCashResolveTransactionStatusTaskTest>>
           pass_key,
       ZCashActionContext context,
       ZCashWalletService& zcash_wallet_service,
-      std::unique_ptr<ZCashTxMeta> tx_meta,
-      ZCashResolveTransactionStatusTaskCallback callback);
+      std::unique_ptr<ZCashTxMeta> tx_meta);
   ~ZCashResolveTransactionStatusTask();
 
-  void Start();
+  void Start(ZCashResolveTransactionStatusTaskCallback callback);
 
  private:
   void ScheduleWorkOnTask();
@@ -54,8 +54,6 @@ class ZCashResolveTransactionStatusTask {
   raw_ref<ZCashWalletService> zcash_wallet_service_;
   std::unique_ptr<ZCashTxMeta> tx_meta_;
   ZCashResolveTransactionStatusTaskCallback callback_;
-
-  bool started_ = false;
 
   std::optional<std::string> error_;
   std::optional<zcash::mojom::BlockIDPtr> chain_tip_;

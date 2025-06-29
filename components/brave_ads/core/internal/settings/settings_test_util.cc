@@ -15,6 +15,11 @@ namespace brave_ads::test {
 
 void DisableBraveRewards() {
   SetProfileBooleanPrefValue(brave_rewards::prefs::kEnabled, false);
+  DisconnectExternalBraveRewardsWallet();
+}
+
+void DisconnectExternalBraveRewardsWallet() {
+  SetProfileStringPrefValue(brave_rewards::prefs::kExternalWalletType, "");
 }
 
 void OptOutOfBraveNewsAds() {
@@ -48,6 +53,12 @@ void OptOutOfAllAds() {
   OptOutOfNewTabPageAds();
   OptOutOfNotificationAds();
   OptOutOfSearchResultAds();
+}
+
+void OptOutOfSurveyPanelist() {
+  SetProfileBooleanPrefValue(
+      ntp_background_images::prefs::kNewTabPageSponsoredImagesSurveyPanelist,
+      false);
 }
 
 }  // namespace brave_ads::test

@@ -27,8 +27,6 @@ interface BatAdsClientNotifier {
 
   NotifyDidInitializeAds();
 
-  NotifyLocaleDidChange(string locale);
-
   NotifyPrefDidChange(string path);
 
   NotifyResourceComponentDidChange(string manifest_version, string id);
@@ -97,12 +95,7 @@ interface BatAdsClient {
   LoadResourceComponent(string id, int32 version) =>
       (mojo_base.mojom.File? file);
 
-  [Sync]
-  LoadDataResource(string name) => (mojo_base.mojom.BigString value);
-
   ShowScheduledCaptcha(string payment_id, string captcha_id);
-
-  RecordP2AEvents(array<string> events);
 
   [Sync]
   FindProfilePref(string path) => (bool value);
@@ -153,7 +146,7 @@ interface BatAds {
   Initialize(brave_ads.mojom.WalletInfo? mojom_wallet) => (bool success);
   Shutdown() => (bool success);
 
-  GetInternals() => (mojo_base.mojom.ListValue? value);
+  GetInternals() => (mojo_base.mojom.DictionaryValue? value);
 
   GetDiagnostics() => (mojo_base.mojom.ListValue? value);
 
@@ -167,11 +160,12 @@ interface BatAds {
       brave_ads.mojom.InlineContentAdEventType mojom_ad_event_type) =>
           (bool success);
 
-  ParseAndSaveCreativeNewTabPageAds(mojo_base.mojom.DictionaryValue json) => (bool success);
+  ParseAndSaveNewTabPageAds(mojo_base.mojom.DictionaryValue value) => (bool success);
   MaybeServeNewTabPageAd() => (mojo_base.mojom.DictionaryValue? value);
   TriggerNewTabPageAdEvent(
       string placement_id,
       string creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       brave_ads.mojom.NewTabPageAdEventType mojom_ad_event_type) =>
           (bool success);
 
@@ -214,11 +208,11 @@ interface BatAds {
 };
 
 interface AdsInternals {
+  CreateAdsInternalsPageHandler(pending_remote<AdsInternalsPage> page);
   GetAdsInternals() => (string response);
   ClearAdsData() => (bool success);
-  CreateAdsInternalsPageHandler(pending_remote<AdsInternalsPage> page);
 };
 
 interface AdsInternalsPage {
-  OnBraveRewardsEnabledChanged(bool enabled);
+  UpdateBraveRewardsEnabled(bool enabled);
 };

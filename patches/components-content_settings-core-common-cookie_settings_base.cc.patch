@@ -1,8 +1,8 @@
 diff --git a/components/content_settings/core/common/cookie_settings_base.cc b/components/content_settings/core/common/cookie_settings_base.cc
-index edfab3eb9a79abecf2b184b33d3c0731bd85d75e..cfc1d50015428eb67a4f38924a6ebab52b855779 100644
+index 57e2bc50336f9c8b42b6ad76ca3e65ee561db0e3..d683a69b4fd4ac82182a8b3fdfbbdc110a0191f8 100644
 --- a/components/content_settings/core/common/cookie_settings_base.cc
 +++ b/components/content_settings/core/common/cookie_settings_base.cc
-@@ -572,6 +572,7 @@ CookieSettingsBase::DecideAccess(
+@@ -658,6 +658,7 @@ CookieSettingsBase::DecideAccess(const GURL& url,
      return BlockAllCookies{};
    }
  
@@ -10,11 +10,11 @@ index edfab3eb9a79abecf2b184b33d3c0731bd85d75e..cfc1d50015428eb67a4f38924a6ebab5
    if (!is_third_party_request) {
      return AllowAllCookies{ThirdPartyCookieAllowMechanism::kNone};
    }
-@@ -758,6 +759,7 @@ CookieSettingsBase::GetCookieSettingInternal(
-     CHECK(is_third_party_request, base::NotFatalUntil::M128);
-     CHECK(global_setting_or_embedder_blocks_third_party_cookies,
-           base::NotFatalUntil::M128);
+@@ -836,6 +837,7 @@ CookieSettingsBase::GetCookieSettingInternal(
+   if (std::holds_alternative<AllowPartitionedCookies>(choice)) {
+     CHECK(is_third_party_request);
+     CHECK(block_third_party_cookies);
 +    BRAVE_COOKIE_SETTINGS_BASE_GET_COOKIES_SETTINGS_INTERNAL_IS_EXPLICIT_SETTING
-     CHECK(!is_explicit_setting, base::NotFatalUntil::M128);
+     CHECK(!is_explicit_setting);
  
      FireStorageAccessHistogram(StorageAccessResult::ACCESS_BLOCKED);

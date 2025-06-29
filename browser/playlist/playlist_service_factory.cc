@@ -11,7 +11,10 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "base/feature_list.h"
+#include "base/logging.h"
 #include "base/no_destructor.h"
 #include "base/task/thread_pool.h"
 #include "brave/browser/brave_stats/first_run_util.h"
@@ -216,10 +219,14 @@ PlaylistService* PlaylistServiceFactory::GetForBrowserContext(
 #if BUILDFLAG(IS_ANDROID)
 // static
 mojo::PendingRemote<mojom::PlaylistService>
-PlaylistServiceFactory::GetForContext(content::BrowserContext* context) {
-  return static_cast<PlaylistService*>(
-             GetInstance()->GetServiceForBrowserContext(context, true))
-      ->MakeRemote();
+PlaylistServiceFactory::GetRemoteForProfile(Profile* profile) {
+  auto* service = static_cast<PlaylistService*>(
+      GetInstance()->GetServiceForBrowserContext(profile, true));
+  if (!service) {
+    return mojo::PendingRemote<mojom::PlaylistService>();
+  }
+
+  return service->MakeRemote();
 }
 #endif  // BUILDFLAG(IS_ANDROID)
 

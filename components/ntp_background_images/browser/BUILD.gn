@@ -9,6 +9,8 @@ static_library("browser") {
   sources = [
     "features.cc",
     "features.h",
+    "new_tab_takeover_infobar_util.cc",
+    "new_tab_takeover_infobar_util.h",
     "ntp_background_images_component_installer.cc",
     "ntp_background_images_component_installer.h",
     "ntp_background_images_data.cc",
@@ -53,7 +55,6 @@ static_library("browser") {
     "//brave/components/brave_component_updater/browser",
     "//brave/components/brave_rewards/core",
     "//brave/components/constants",
-    "//brave/components/l10n/common",
     "//brave/components/ntp_background_images/buildflags",
     "//brave/components/ntp_background_images/common",
     "//brave/components/p3a_utils",
@@ -62,8 +63,11 @@ static_library("browser") {
     "//components/content_settings/core/browser",
     "//components/content_settings/core/common",
     "//components/keyed_service/core",
+    "//components/metrics",
     "//components/pref_registry:pref_registry",
     "//components/prefs",
+    "//components/variations",
+    "//components/variations/service",
     "//crypto",
     "//services/network/public/cpp",
     "//ui/gfx/geometry",
@@ -109,5 +113,22 @@ source_set("test_support") {
     "ntp_background_images_service_waiter.h",
     "ntp_p3a_helper_mock.cc",
     "ntp_p3a_helper_mock.h",
+  ]
+}
+
+source_set("unit_tests") {
+  testonly = true
+
+  sources = [ "new_tab_takeover_infobar_util_unittest.cc" ]
+
+  deps = [
+    ":browser",
+    "//base",
+    "//base/test:test_support",
+    "//brave/components/brave_ads/core",
+    "//brave/components/brave_rewards/core",
+    "//brave/components/ntp_background_images/common",
+    "//components/sync_preferences:test_support",
+    "//testing/gtest",
   ]
 }

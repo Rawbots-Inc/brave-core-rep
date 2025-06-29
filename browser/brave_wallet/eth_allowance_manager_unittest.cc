@@ -11,7 +11,9 @@
 #include <string_view>
 #include <utility>
 
+#include "base/check.h"
 #include "base/memory/raw_ptr.h"
+#include "base/strings/string_util.h"
 #include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/test/values_test_util.h"

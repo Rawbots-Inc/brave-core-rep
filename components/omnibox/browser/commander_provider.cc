@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/memory/scoped_refptr.h"
 #include "base/strings/strcat.h"
 #include "brave/components/commander/browser/commander_frontend_delegate.h"
@@ -52,10 +53,9 @@ void CommanderProvider::Start(const AutocompleteInput& input,
   }
 }
 
-void CommanderProvider::Stop(bool clear_cached_results,
-                             bool due_to_user_inactivity) {
+void CommanderProvider::Stop(AutocompleteStopReason stop_reason) {
   last_input_.clear();
-  AutocompleteProvider::Stop(clear_cached_results, due_to_user_inactivity);
+  AutocompleteProvider::Stop(stop_reason);
 }
 
 void CommanderProvider::OnCommanderUpdated() {

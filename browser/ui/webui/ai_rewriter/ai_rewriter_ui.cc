@@ -8,10 +8,10 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
 #include "base/memory/weak_ptr.h"
 #include "base/notimplemented.h"
-#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/browser/ui/ai_rewriter/ai_rewriter_dialog_delegate.h"
@@ -26,11 +26,11 @@
 #include "brave/components/ai_rewriter/common/mojom/ai_rewriter.mojom.h"
 #include "brave/components/ai_rewriter/resources/page/grit/ai_rewriter_ui_generated_map.h"
 #include "brave/components/constants/webui_url_constants.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_finder.h"
 #include "chrome/browser/ui/webui/constrained_web_dialog_ui.h"
 #include "components/grit/brave_components_resources.h"
+#include "components/grit/brave_components_webui_strings.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/browser/web_ui_data_source.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
@@ -52,10 +52,7 @@ AIRewriterUI::AIRewriterUI(content::WebUI* web_ui)
       web_ui, kRewriterUIHost, kAiRewriterUiGenerated, IDR_REWRITER_UI_HTML);
   DCHECK(source);
 
-  for (const auto& str : ai_chat::GetLocalizedStrings()) {
-    source->AddString(str.name,
-                      brave_l10n::GetLocalizedResourceUTF16String(str.id));
-  }
+  source->AddLocalizedStrings(webui::kAiChatStrings);
 
   ai_engine_ = ai_chat::AIChatServiceFactory::GetForBrowserContext(profile_)
                    ->GetDefaultAIEngine();

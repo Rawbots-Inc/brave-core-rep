@@ -9,19 +9,21 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <variant>
 
 #include "base/functional/bind.h"
+#include "base/logging.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/task/thread_pool.h"
+#include "brave/components/brave_news/browser/lib.rs.h"
 #include "brave/components/brave_news/browser/network.h"
 #include "brave/components/brave_news/common/brave_news.mojom.h"
-#include "brave/components/brave_news/rust/lib.rs.h"
 #include "content/public/browser/browser_thread.h"
 #include "net/base/load_flags.h"
 #include "services/network/public/cpp/resource_request.h"
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
-#include "third_party/abseil-cpp/absl/types/variant.h"
+#include "third_party/rust/cxx/v1/cxx.h"
 #include "ui/base/l10n/time_format.h"
 #include "url/gurl.h"
 #include "url/url_constants.h"
@@ -70,7 +72,7 @@ mojom::ArticlePtr RustFeedItemToArticle(const FeedItem& rust_feed_item,
 }
 
 using ParseFeedCallback =
-    base::OnceCallback<void(absl::variant<DirectFeedResult, DirectFeedError>)>;
+    base::OnceCallback<void(std::variant<DirectFeedResult, DirectFeedError>)>;
 void ParseFeedDataOffMainThread(const GURL& feed_url,
                                 std::string publisher_id,
                                 std::string body_content,
@@ -82,7 +84,7 @@ void ParseFeedDataOffMainThread(const GURL& feed_url,
       base::BindOnce(
           [](const GURL& feed_url, std::string publisher_id,
              std::string body_content)
-              -> absl::variant<DirectFeedResult, DirectFeedError> {
+              -> std::variant<DirectFeedResult, DirectFeedError> {
             brave_news::FeedData data;
             if (!parse_feed_bytes(::rust::Slice<const uint8_t>(
                                       (const uint8_t*)body_content.data(),
@@ -301,7 +303,7 @@ void DirectFeedFetcher::OnFeedDownloaded(
 void DirectFeedFetcher::OnParsedFeedData(
     DownloadFeedCallback callback,
     DirectFeedResponse result,
-    absl::variant<DirectFeedResult, DirectFeedError> data) {
+    std::variant<DirectFeedResult, DirectFeedError> data) {
   result.result = std::move(data);
   std::move(callback).Run(std::move(result));
 }

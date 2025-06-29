@@ -11,6 +11,7 @@
 #include "base/check.h"
 #include "base/check_is_test.h"
 #include "base/functional/bind.h"
+#include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "base/values.h"
 #include "brave/browser/brave_ads/ads_service_factory.h"
@@ -19,8 +20,6 @@
 #include "brave/components/brave_ads/content/browser/creatives/search_result_ad/creative_search_result_ad_url_placement_id_extractor.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
-#include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/brave_search/common/brave_search_utils.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_isolated_world_ids.h"
@@ -79,27 +78,7 @@ void CreativeSearchResultAdTabHelper::MaybeCreateForWebContents(
     return;
   }
 
-  if (!ShouldSupportSearchResultAds()) {
-    return;
-  }
-
   CreateForWebContents(web_contents);
-}
-
-bool CreativeSearchResultAdTabHelper::ShouldHandleCreativeAdEvents() const {
-  if (!ShouldSupportSearchResultAds()) {
-    // If the feature is disabled, we should not trigger creative ad events.
-    return false;
-  }
-
-  if (ShouldAlwaysTriggerSearchResultAdEvents()) {
-    // If the feature is enabled, we should always trigger creative ad events.
-    return true;
-  }
-
-  // If the feature is enabled, we should only trigger creative ad events when
-  // the user has joined Brave Rewards.
-  return GetPrefs()->GetBoolean(brave_rewards::prefs::kEnabled);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -136,10 +115,6 @@ void CreativeSearchResultAdTabHelper::MaybeCreateCreativeSearchResultAdHandler(
     content::NavigationHandle* const navigation_handle) {
   CHECK(navigation_handle);
 
-  if (!ShouldHandleCreativeAdEvents()) {
-    return;
-  }
-
   // Do not trigger ad viewed events if the user navigates back or forward.
   const bool should_trigger_creative_ad_viewed_events =
       (navigation_handle->GetPageTransition() &
@@ -153,10 +128,6 @@ void CreativeSearchResultAdTabHelper::MaybeCreateCreativeSearchResultAdHandler(
 
 void CreativeSearchResultAdTabHelper::
     MaybeExtractCreativeAdPlacementIdsFromWebPageAndHandleViewedEvents() {
-  if (!ShouldHandleCreativeAdEvents()) {
-    return;
-  }
-
   if (!creative_search_result_ad_handler_) {
     return;
   }
@@ -198,7 +169,7 @@ void CreativeSearchResultAdTabHelper::MaybeHandleCreativeAdViewedEvent(
 
 void CreativeSearchResultAdTabHelper::MaybeHandleCreativeAdViewedEventCallback(
     mojom::CreativeSearchResultAdInfoPtr creative_search_result_ad,
-    const base::Value value) {
+    base::Value value) {
   const bool is_visible = value.is_bool() && value.GetBool();
   if (!is_visible) {
     // If the ad is not visible, we should not trigger the viewed event.
@@ -218,11 +189,7 @@ void CreativeSearchResultAdTabHelper::MaybeHandleCreativeAdClickedEvent(
     return;
   }
 
-  if (!ShouldHandleCreativeAdEvents()) {
-    return;
-  }
-
-  const std::optional<std::string> placement_id =
+  std::optional<std::string> placement_id =
       MaybeExtractCreativeAdPlacementIdFromUrl(url);
   if (!placement_id || placement_id->empty()) {
     // The URL does not contain a placement id.

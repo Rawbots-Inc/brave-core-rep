@@ -12,13 +12,21 @@ import styles from './style.module.scss'
 
 export default function LongPageInfo() {
   const context = useUntrustedConversationContext()
-  const warningText = context.isContentRefined
-    ? getLocale('pageContentRefinedWarning')
-    : formatMessage(getLocale('pageContentTooLongWarning'), {
+  let warningText
+  if (context.trimmedTokens > 0 && context.totalTokens > 0) {
+      const percentage = 100 - Math.floor((Number(context.trimmedTokens) / Number(context.totalTokens)) * 100)
+      warningText = formatMessage(getLocale(S.CHAT_UI_TRIMMED_TOKENS_WARNING), {
+        placeholders: {
+          $1: percentage + '%'
+        }
+      })
+  } else {
+    warningText = formatMessage(getLocale(S.CHAT_UI_PAGE_CONTENT_TOO_LONG_WARNING), {
         placeholders: {
           $1: context.contentUsedPercentage + '%'
         }
       })
+  }
 
   return (
     <div className={styles.info}>

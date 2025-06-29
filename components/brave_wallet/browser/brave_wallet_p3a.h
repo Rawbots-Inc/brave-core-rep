@@ -8,6 +8,7 @@
 
 #include <optional>
 
+#include "base/gtest_prod_util.h"
 #include "base/memory/raw_ptr.h"
 #include "brave/components/brave_wallet/browser/keyring_service_observer_base.h"
 #include "brave/components/brave_wallet/common/brave_wallet.mojom.h"
@@ -19,6 +20,7 @@ class PrefService;
 
 namespace brave_wallet {
 
+// TODO(https://github.com/brave/brave-browser/issues/45278): Cardano P3A
 inline constexpr char kKeyringCreatedHistogramName[] =
     "Brave.Wallet.KeyringCreated";
 inline constexpr char kOnboardingConversionHistogramName[] =

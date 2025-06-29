@@ -10,6 +10,7 @@
 #include <optional>
 #include <utility>
 
+#include "base/check.h"
 #include "base/check_is_test.h"
 #include "base/functional/bind.h"
 #include "brave/browser/ui/color/brave_color_id.h"
@@ -35,22 +36,14 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/widget/widget_delegate.h"
 
-SplitViewLocationBar::SplitViewLocationBar(PrefService* prefs,
-                                           SplitView* split_view)
+SplitViewLocationBar::SplitViewLocationBar(PrefService* prefs)
     : prefs_(prefs),
-      split_view_(split_view),
       location_bar_model_delegate_(
           std::make_unique<SplitViewLocationBarModelDelegate>()),
       location_bar_model_(std::make_unique<LocationBarModelImpl>(
           location_bar_model_delegate_.get(),
           content::kMaxURLDisplayChars)) {
-  set_owned_by_client();
-
-  if (split_view_) {
-    view_observation_.Observe(split_view_->secondary_contents_container());
-  } else {
-    CHECK_IS_TEST();
-  }
+  set_owned_by_client(OwnedByClientPassKey());
 
   constexpr auto kChildSpacing = 8;
   views::Builder<SplitViewLocationBar>(this)
@@ -71,14 +64,14 @@ SplitViewLocationBar::SplitViewLocationBar(PrefService* prefs,
                   views::Builder<views::Label>()
                       .SetText(u"https")
                       .CopyAddressTo(&https_with_strike_)
-                      .SetEnabledColorId(kColorOmniboxSecurityChipDangerous))
+                      .SetEnabledColor(kColorOmniboxSecurityChipDangerous))
               .AddChild(views::Builder<views::Label>()
                             .SetText(u"://")
                             .CopyAddressTo(&scheme_separator_)
-                            .SetEnabledColorId(kColorBraveSplitViewUrl))
+                            .SetEnabledColor(kColorBraveSplitViewUrl))
               .AddChild(views::Builder<views::Label>()
                             .CopyAddressTo(&url_)
-                            .SetEnabledColorId(kColorBraveSplitViewUrl)))
+                            .SetEnabledColor(kColorBraveSplitViewUrl)))
       .BuildChildren();
 
   for (auto url_part : {https_with_strike_, scheme_separator_, url_}) {
@@ -116,8 +109,9 @@ SplitViewLocationBar::~SplitViewLocationBar() = default;
 views::Widget::InitParams SplitViewLocationBar::GetWidgetInitParams(
     gfx::NativeView parent_native_view,
     views::WidgetDelegateView* delegate) {
-  views::Widget::InitParams params(views::Widget::InitParams::TYPE_CONTROL);
-  params.ownership = views::Widget::InitParams::CLIENT_OWNS_WIDGET;
+  views::Widget::InitParams params(
+      views::Widget::InitParams::CLIENT_OWNS_WIDGET,
+      views::Widget::InitParams::TYPE_CONTROL);
   params.activatable = views::Widget::InitParams::Activatable::kNo;
   params.parent = parent_native_view;
   params.delegate = delegate;
@@ -132,6 +126,20 @@ void SplitViewLocationBar::SetWebContents(content::WebContents* new_contents) {
   location_bar_model_delegate_->set_web_contents(new_contents);
   Observe(new_contents);
   UpdateURLAndIcon();
+}
+
+void SplitViewLocationBar::SetParentWebView(views::View* parent_web_view) {
+  if (view_observation_.GetSource() == parent_web_view) {
+    return;
+  }
+
+  view_observation_.Reset();
+  view_observation_.Observe(parent_web_view);
+
+  if (GetWidget()) {
+    UpdateVisibility();
+    UpdateBounds();
+  }
 }
 
 void SplitViewLocationBar::AddedToWidget() {

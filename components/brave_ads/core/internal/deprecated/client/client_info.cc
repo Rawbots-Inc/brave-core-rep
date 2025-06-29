@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "base/check.h"
-#include "base/debug/crash_logging.h"
 #include "base/json/json_reader.h"
 #include "base/json/json_writer.h"
 #include "base/strings/string_number_conversions.h"
@@ -153,7 +152,7 @@ std::string ClientInfo::ToJson() const {
 bool ClientInfo::FromJson(const std::string& json) {
   TRACE_EVENT(kTraceEventCategory, "ClientInfo::FromJson");
 
-  const std::optional<base::Value::Dict> dict = base::JSONReader::ReadDict(
+  std::optional<base::Value::Dict> dict = base::JSONReader::ReadDict(
       json, base::JSON_PARSE_CHROMIUM_EXTENSIONS |
                 base::JSONParserOptions::JSON_PARSE_RFC);
   if (!dict) {

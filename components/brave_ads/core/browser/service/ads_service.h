@@ -12,6 +12,7 @@
 #include <string>
 #include <vector>
 
+#include "base/functional/callback_forward.h"
 #include "base/observer_list.h"
 #include "base/time/time.h"
 #include "brave/components/brave_ads/core/browser/service/ads_service_observer.h"
@@ -33,7 +34,7 @@ class AdsService : public KeyedService {
    public:
     virtual ~Delegate() = default;
 
-    virtual void InitNotificationHelper() = 0;
+    virtual void MaybeInitNotificationHelper(base::OnceClosure callback) = 0;
     virtual bool CanShowSystemNotificationsWhileBrowserIsBackgrounded() = 0;
     virtual bool DoesSupportSystemNotifications() = 0;
     virtual bool CanShowNotifications() = 0;
@@ -49,8 +50,7 @@ class AdsService : public KeyedService {
     virtual void CloseNotificationAd(const std::string& id, bool is_custom) = 0;
     virtual void OpenNewTabWithUrl(const GURL& url) = 0;
     virtual bool IsFullScreenMode() = 0;
-
-    virtual base::Value::Dict GetVirtualPrefs() = 0;
+    virtual std::string GetVariationsCountryCode() = 0;
   };
 
   explicit AdsService(std::unique_ptr<Delegate> delegate);
@@ -140,9 +140,14 @@ class AdsService : public KeyedService {
 
   // Called to parse and save creative new tab page ads. The callback takes one
   // argument - `bool` is set to `true` if successful otherwise `false`.
-  virtual void ParseAndSaveCreativeNewTabPageAds(
-      const base::Value::Dict& dict,
-      ParseAndSaveCreativeNewTabPageAdsCallback callback) = 0;
+  virtual void ParseAndSaveNewTabPageAds(
+      base::Value::Dict dict,
+      ParseAndSaveNewTabPageAdsCallback callback) = 0;
+
+  // Called to serve a new tab page ad. The callback takes one argument -
+  // `NewTabPageAdInfo` containing the info for the ad.
+  virtual void MaybeServeNewTabPageAd(
+      MaybeServeNewTabPageAdCallback callback) = 0;
 
   // Called when a user views or interacts with a new tab page ad to trigger a
   // `mojom_ad_event_type` event for the specified `placement_id` and
@@ -155,6 +160,7 @@ class AdsService : public KeyedService {
   virtual void TriggerNewTabPageAdEvent(
       const std::string& placement_id,
       const std::string& creative_instance_id,
+      bool should_metrics_fallback_to_p3a,
       mojom::NewTabPageAdEventType mojom_ad_event_type,
       TriggerAdEventCallback callback) = 0;
 

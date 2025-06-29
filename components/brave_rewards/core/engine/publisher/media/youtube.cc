@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/json/json_reader.h"
 #include "base/strings/escape.h"
 #include "base/strings/string_number_conversions.h"
@@ -301,7 +302,7 @@ void YouTube::OnMediaActivityError(const mojom::VisitData& visit_data,
     new_visit_data.path = "/";
     new_visit_data.name = name;
 
-    engine_->publisher()->GetPublisherActivityFromUrl(
+    engine_->publisher()->NotifyPublisherPageVisit(
         window_id, mojom::VisitData::New(new_visit_data), std::string());
   } else {
     engine_->LogError(FROM_HERE) << "Media activity error";

@@ -15,6 +15,7 @@
 #include "brave/components/brave_search_conversion/features.h"
 #include "brave/components/brave_shields/core/common/features.h"
 #include "brave/components/brave_sync/features.h"
+#include "brave/components/brave_user_agent/common/features.h"
 #include "brave/components/brave_wallet/common/buildflags.h"
 #include "brave/components/brave_wallet/common/features.h"
 #include "brave/components/de_amp/common/features.h"
@@ -26,6 +27,8 @@
 #include "brave/ios/browser/api/translate/features.h"
 #include "brave/ios/browser/playlist/features.h"
 #include "brave/ios/browser/ui/browser_menu/features.h"
+#include "brave/ios/browser/ui/commerce/features.h"
+#include "brave/ios/browser/ui/web_view/features.h"
 #import "build/blink_buildflags.h"
 #include "build/build_config.h"
 #include "net/base/features.h"
@@ -177,6 +180,12 @@
                                               kBraveNTPSuperReferralWallpaper];
 }
 
++ (Feature*)kBraveNTPBrandedWallpaperSurveyPanelist {
+  return [[Feature alloc]
+      initWithFeature:&ntp_background_images::features::
+                          kBraveNTPBrandedWallpaperSurveyPanelist];
+}
+
 + (Feature*)kBraveNewsCardPeekFeature {
   return [[Feature alloc]
       initWithFeature:&brave_news::features::kBraveNewsCardPeekFeature];
@@ -242,10 +251,6 @@
       initWithFeature:&brave_wallet::features::kBraveWalletZCashFeature];
 }
 
-+ (Feature*)kConstellation {
-  return [[Feature alloc] initWithFeature:&p3a::features::kConstellation];
-}
-
 + (Feature*)kConstellationEnclaveAttestation {
   return [[Feature alloc]
       initWithFeature:&p3a::features::kConstellationEnclaveAttestation];
@@ -287,18 +292,8 @@
       initWithFeature:&brave_wallet::features::kNativeBraveWalletFeature];
 }
 
-+ (Feature*)kOtherJSONDeprecation {
-  return
-      [[Feature alloc] initWithFeature:&p3a::features::kOtherJSONDeprecation];
-}
-
 + (Feature*)kSkusFeature {
   return [[Feature alloc] initWithFeature:&skus::features::kSkusFeature];
-}
-
-+ (Feature*)kTypicalJSONDeprecation {
-  return
-      [[Feature alloc] initWithFeature:&p3a::features::kTypicalJSONDeprecation];
 }
 
 + (Feature*)kUseDevUpdaterUrl {
@@ -337,6 +332,21 @@
 + (Feature*)kBraveAppleTranslateEnabled {
   return [[Feature alloc]
       initWithFeature:&brave::features::kBraveAppleTranslateEnabled];
+}
+
++ (Feature*)kUseBraveUserAgent {
+  return [[Feature alloc]
+      initWithFeature:&brave_user_agent::features::kUseBraveUserAgent];
+}
+
++ (Feature*)kUseChromiumWebViews {
+  return
+      [[Feature alloc] initWithFeature:&brave::features::kUseChromiumWebViews];
+}
+
++ (Feature*)kBraveAllowExternalPurchaseLinks {
+  return [[Feature alloc]
+      initWithFeature:&brave::features::kBraveAllowExternalPurchaseLinks];
 }
 
 @end

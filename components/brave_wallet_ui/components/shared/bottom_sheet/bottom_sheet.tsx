@@ -9,34 +9,47 @@ import {
   Background,
   BottomCard,
   CloseButton,
-  CloseIcon
+  CloseIcon,
 } from './bottom_sheet.style'
-import { Row } from '../style'
+import { Row, Text } from '../style'
 
 interface Props {
-  onClose?: () => void
   isOpen: boolean
+  title?: string
+  onClose?: () => void
   children?: React.ReactNode
 }
 
 export const BottomSheet = (props: Props) => {
-  const { onClose, isOpen, children } = props
+  const { title, onClose, isOpen, children } = props
 
   return (
     <>
-      <Background isOpen={isOpen} />
+      <Background
+        isOpen={isOpen}
+        onClick={onClose}
+      />
       <BottomCard
         fullWidth={true}
         isOpen={isOpen}
       >
-        {onClose && <Row
-          padding='16px 16px 0px 16px'
-          justifyContent='flex-end'
-        >
-          <CloseButton onClick={onClose}>
-            <CloseIcon />
-          </CloseButton>
-        </Row>}
+        {onClose && (
+          <Row
+            padding='16px 16px 0px 16px'
+            justifyContent='space-between'
+          >
+            <Text
+              isBold={true}
+              textSize='20px'
+              textColor='primary'
+            >
+              {title}
+            </Text>
+            <CloseButton onClick={onClose}>
+              <CloseIcon />
+            </CloseButton>
+          </Row>
+        )}
         {children}
       </BottomCard>
     </>

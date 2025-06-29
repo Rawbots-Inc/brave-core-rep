@@ -8,6 +8,8 @@
 #include <memory>
 #include <string>
 
+#include "base/check.h"
+#include "base/notreached.h"
 #include "base/strings/strcat.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/components/brave_player/common/buildflags/buildflags.h"
@@ -97,7 +99,7 @@ void BravePlayerActionIconView::UpdateBorder() {
   PageActionIconView::UpdateBorder();
 
   SetBorder(views::CreatePaddedBorder(
-      views::CreateThemedRoundedRectBorder(
+      views::CreateRoundedRectBorder(
           /*thickness*/ 1,
           /*corner_radius=*/8, kColorBravePlayerActionViewBorder),
       GetInsets()));

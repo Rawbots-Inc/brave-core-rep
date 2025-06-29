@@ -8,7 +8,10 @@
 #include <memory>
 #include <optional>
 #include <utility>
+#include <vector>
 
+#include "base/check.h"
+#include "base/check_op.h"
 #include "brave/browser/themes/brave_dark_mode_utils.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/browser/ui/tabs/brave_tab_prefs.h"
@@ -17,8 +20,8 @@
 #include "brave/browser/ui/tabs/shared_pinned_tab_service_factory.h"
 #include "brave/browser/ui/tabs/split_view_browser_data.h"
 #include "brave/browser/ui/views/frame/brave_browser_view.h"
-#include "brave/browser/ui/views/frame/vertical_tab_strip_region_view.h"
-#include "brave/browser/ui/views/frame/vertical_tab_strip_widget_delegate_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_region_view.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_strip_widget_delegate_view.h"
 #include "brave/browser/ui/views/tabs/brave_compound_tab_container.h"
 #include "brave/browser/ui/views/tabs/brave_tab.h"
 #include "brave/browser/ui/views/tabs/brave_tab_container.h"
@@ -27,9 +30,9 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/tabs/features.h"
-#include "chrome/browser/ui/tabs/tab_group.h"
 #include "chrome/browser/ui/tabs/tab_group_model.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/views/tabs/tab.h"
@@ -39,6 +42,7 @@
 #include "chrome/browser/ui/views/tabs/tab_strip_observer.h"
 #include "chrome/browser/ui/views/tabs/tab_strip_scroll_container.h"
 #include "components/tab_groups/tab_group_id.h"
+#include "components/tabs/public/tab_group.h"
 #include "third_party/skia/include/core/SkColor.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
 #include "ui/compositor/layer.h"
@@ -121,6 +125,17 @@ bool BraveTabStrip::ShouldDrawStrokes() const {
   const float contrast_ratio =
       color_utils::GetContrastRatio(background_color, frame_color);
   return contrast_ratio < kBraveMinimumContrastRatioForOutlines;
+}
+
+void BraveTabStrip::ShowHover(Tab* tab, TabStyle::ShowHoverStyle style) {
+  // Chromium asks hover style to all split tabs but we only set hover style
+  // to hovered tab.
+  tab->ShowHover(style);
+}
+
+void BraveTabStrip::HideHover(Tab* tab, TabStyle::HideHoverStyle style) {
+  // See the comment of ShowHover().
+  tab->HideHover(style);
 }
 
 void BraveTabStrip::UpdateHoverCard(Tab* tab, HoverCardUpdateType update_type) {
@@ -252,8 +267,8 @@ TabTiledState BraveTabStrip::GetTiledStateForTab(int index) const {
 }
 
 std::optional<TabTile> BraveTabStrip::GetTileForTab(const Tab* tab) const {
-  auto* browser = GetBrowser();
-  auto* data = SplitViewBrowserData::FromBrowser(browser);
+  auto* browser = const_cast<Browser*>(GetBrowser());
+  auto* data = browser->GetFeatures().split_view_browser_data();
   if (!data) {
     return std::nullopt;
   }
@@ -326,16 +341,62 @@ void BraveTabStrip::UpdateTabContainer() {
       GetDragContext()->DestroyLayer();
     }
 
+    // Update layout of TabContainer
+    auto* browser = GetBrowser();
+    DCHECK(browser);
+    if (using_vertical_tabs) {
+      auto* browser_view = static_cast<BraveBrowserView*>(
+          BrowserView::GetBrowserViewForBrowser(browser));
+      DCHECK(browser_view);
+      auto* vertical_region_view =
+          browser_view->vertical_tab_strip_widget_delegate_view()
+              ->vertical_tab_strip_region_view();
+      // `vertical_region_view` can be null if it's in destruction.
+      if (vertical_region_view) {
+        SetAvailableWidthCallback(base::BindRepeating(
+            &VerticalTabStripRegionView::GetAvailableWidthForTabContainer,
+            base::Unretained(vertical_region_view)));
+      }
+    } else {
+      if (base::FeatureList::IsEnabled(tabs::kScrollableTabStrip)) {
+        auto* browser_view = static_cast<BraveBrowserView*>(
+            BrowserView::GetBrowserViewForBrowser(browser));
+        DCHECK(browser_view);
+        auto* scroll_container = static_cast<TabStripScrollContainer*>(
+            browser_view->tab_strip_region_view()->tab_strip_container_);
+        DCHECK(scroll_container);
+        SetAvailableWidthCallback(base::BindRepeating(
+            &TabStripScrollContainer::GetTabStripAvailableWidth,
+            base::Unretained(scroll_container)));
+      } else {
+        SetAvailableWidthCallback(base::NullCallback());
+      }
+
+      if (should_use_compound_tab_container) {
+        // Upstream's compound tab container lay out its sub containers
+        // manually.
+        tab_container_->SetLayoutManager(nullptr);
+      }
+    }
+
     // Resets TabSlotViews for the new TabContainer.
     auto* model = GetBrowser()->tab_strip_model();
+    std::vector<TabContainer::TabInsertionParams> added_tabs;
     for (int i = 0; i < model->count(); i++) {
       auto* tab = original_container->GetTabAtModelIndex(i);
       // At this point, we don't have group views in the container. So before
       // restoring groups, clears group for tabs.
       tab->SetGroup(std::nullopt);
-      tab_container_->AddTab(
+      added_tabs.emplace_back(
           tab->parent()->RemoveChildViewT(tab), i,
           tab->data().pinned ? TabPinned::kPinned : TabPinned::kUnpinned);
+    }
+    tab_container_->AddTabs(std::move(added_tabs));
+
+    // This could be called if new window is created by detaching a tab.
+    // During the dragging, drag context should include all detached tabs.
+    for (int i = 0; i < model->count(); i++) {
+      auto* tab = tab_container_->GetTabAtModelIndex(i);
       if (tab->dragging()) {
         GetDragContext()->AddChildView(tab);
       }
@@ -382,43 +443,6 @@ void BraveTabStrip::UpdateTabContainer() {
     if (const auto& selection_model = model->selection_model();
         selection_model.active().has_value()) {
       SetSelection(selection_model);
-    }
-  }
-
-  // Update layout of TabContainer
-  auto* browser = GetBrowser();
-  DCHECK(browser);
-  if (using_vertical_tabs) {
-    auto* browser_view = static_cast<BraveBrowserView*>(
-        BrowserView::GetBrowserViewForBrowser(browser));
-    DCHECK(browser_view);
-    auto* vertical_region_view =
-        browser_view->vertical_tab_strip_widget_delegate_view()
-            ->vertical_tab_strip_region_view();
-    // `vertical_region_view` can be null if it's in destruction.
-    if (vertical_region_view) {
-      SetAvailableWidthCallback(base::BindRepeating(
-          &VerticalTabStripRegionView::GetAvailableWidthForTabContainer,
-          base::Unretained(vertical_region_view)));
-    }
-  } else {
-    if (base::FeatureList::IsEnabled(tabs::kScrollableTabStrip)) {
-      auto* browser_view = static_cast<BraveBrowserView*>(
-          BrowserView::GetBrowserViewForBrowser(browser));
-      DCHECK(browser_view);
-      auto* scroll_container = static_cast<TabStripScrollContainer*>(
-          browser_view->tab_strip_region_view()->tab_strip_container_);
-      DCHECK(scroll_container);
-      SetAvailableWidthCallback(base::BindRepeating(
-          &TabStripScrollContainer::GetTabStripAvailableWidth,
-          base::Unretained(scroll_container)));
-    } else {
-      SetAvailableWidthCallback(base::NullCallback());
-    }
-
-    if (should_use_compound_tab_container) {
-      // Upstream's compound tab container lay out its sub containers manually.
-      tab_container_->SetLayoutManager(nullptr);
     }
   }
 

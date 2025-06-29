@@ -37,7 +37,6 @@
               callback:(brave_ads::GetSiteHistoryCallback)callback;
 - (void)load:(const std::string&)name
     callback:(brave_ads::LoadCallback)callback;
-- (std::string)loadDataResource:(const std::string&)name;
 - (void)log:(const char*)file
             line:(int)line
     verboseLevel:(int)verbose_level
@@ -60,7 +59,6 @@
 - (void)clearLocalStatePref:(const std::string&)path;
 - (bool)hasLocalStatePrefPath:(const std::string&)path;
 - (base::Value::Dict)getVirtualPrefs;
-- (void)recordP2AEvents:(const std::vector<std::string>&)events;
 
 @end
 

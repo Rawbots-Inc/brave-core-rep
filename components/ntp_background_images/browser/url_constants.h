@@ -26,10 +26,7 @@ inline constexpr char kThemeNameKey[] = "themeName";
 inline constexpr char kLogoKey[] = "logo";
 
 inline constexpr char kCampaignIdKey[] = "campaignId";
-
-inline constexpr char kWallpaperConditionMatchersKey[] = "conditionMatchers";
-inline constexpr char kWallpaperConditionMatcherPrefPathKey[] = "prefPath";
-inline constexpr char kWallpaperConditionMatcherKey[] = "condition";
+inline constexpr char kCampaignMetricsKey[] = "metrics";
 
 inline constexpr char kImagesKey[] = "images";
 inline constexpr char kIsBackgroundKey[] = "isBackground";
@@ -52,6 +49,8 @@ inline constexpr char kIsSponsoredKey[] = "isSponsored";
 inline constexpr char kWallpaperURLKey[] = "wallpaperImageUrl";
 inline constexpr char kWallpaperFilePathKey[] = "wallpaperImagePath";
 inline constexpr char kWallpaperColorKey[] = "wallpaperColor";
+inline constexpr char kWallpaperShouldMetricsFallbackToP3aKey[] =
+    "shouldMetricsFallbackToP3a";
 inline constexpr char kWallpaperTypeKey[] = "type";
 inline constexpr char kWallpaperRandomKey[] = "random";
 inline constexpr char kWallpaperFocalPointXKey[] = "wallpaperFocalPointX";

@@ -13,7 +13,10 @@
 #include <utility>
 #include <vector>
 
+#include "base/check.h"
 #include "base/functional/bind.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "brave/components/brave_wallet/browser/account_resolver_delegate.h"
 #include "brave/components/brave_wallet/browser/blockchain_registry.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_constants.h"
@@ -165,9 +168,7 @@ void EthTxManager::AddUnapprovedEvmTransaction(
       mojom::TxData::New("", "", params->gas_limit, params->to, params->value,
                          params->data, false, std::nullopt);
 
-  if (!json_rpc_service_->network_manager()
-           ->IsEip1559Chain(params->chain_id)
-           .value_or(false)) {
+  if (!json_rpc_service_->network_manager()->IsEip1559Chain(params->chain_id)) {
     AddUnapprovedTransaction(params->chain_id, std::move(tx_data), params->from,
                              std::move(origin_val), std::move(callback));
   } else {

@@ -20,9 +20,10 @@
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/string_split.h"
+#include "base/strings/string_util.h"
 #include "base/test/gmock_callback_support.h"
 #include "brave/browser/brave_ads/ads_service_factory.h"
-#include "brave/components/brave_ads/browser/ads_service_mock.h"
+#include "brave/components/brave_ads/core/browser/service/ads_service_mock.h"
 #include "brave/components/brave_ads/core/public/prefs/pref_names.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/constants/brave_paths.h"
@@ -63,6 +64,7 @@
 #include "net/test/embedded_test_server/http_response.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
+#include "third_party/abseil-cpp/absl/strings/str_format.h"
 #include "url/gurl.h"
 
 // npm run test -- brave_browser_tests --filter=BraveAds*
@@ -138,18 +140,18 @@ constexpr char kSinglePageApplicationWebpageHtmlContent[] =
     "data-navigation-type=\"home\">Home</a></li>\n    <li><a "
     "href=\"same_document\" data-navigation-type=\"same_document\">Same "
     "Document</a></li>\n  </ul>\n\n\n\n</body></html>";
-constexpr char kSinglePageApplicationClickSelectors[] =
+constexpr char kSinglePageApplicationClickSelector[] =
     "[data-navigation-type='same_document']";
 
 constexpr char kAutoplayVideoWebpage[] = "/brave_ads/autoplay_video.html";
 constexpr char kVideoWebpage[] = "/brave_ads/video.html";
-constexpr char kVideoJavascriptDocumentQuerySelectors[] = "video";
+constexpr char kVideoJavascriptDocumentQuerySelector[] = "video";
 
 MATCHER_P(FileName, filename, "") {
   return arg.ExtractFileName() == filename;
 }
 
-class MediaWaiter : public content::WebContentsObserver {
+class MediaWaiter final : public content::WebContentsObserver {
  public:
   explicit MediaWaiter(content::WebContents* const web_contents)
       : content::WebContentsObserver(web_contents) {}
@@ -185,6 +187,73 @@ class MediaWaiter : public content::WebContentsObserver {
   base::RunLoop media_session_created_run_loop_;
 };
 
+std::unique_ptr<KeyedService> CreateAdsService(
+    content::BrowserContext* const /*context*/) {
+  return std::make_unique<AdsServiceMock>();
+}
+
+void OnWillCreateBrowserContextServices(
+    content::BrowserContext* const context) {
+  AdsServiceFactory::GetInstance()->SetTestingFactory(
+      context, base::BindRepeating(&CreateAdsService));
+}
+
+std::unique_ptr<net::test_server::HttpResponse> HandleHttpStatusCodeQueryKey(
+    const std::string& value) {
+  auto http_response = std::make_unique<net::test_server::BasicHttpResponse>();
+
+  int http_status_code_as_int;
+  EXPECT_TRUE(base::StringToInt(value, &http_status_code_as_int));
+  std::optional<net::HttpStatusCode> http_status_code =
+      net::TryToGetHttpStatusCode(http_status_code_as_int);
+  EXPECT_TRUE(http_status_code);
+  http_response->set_code(*http_status_code);
+
+  http_response->set_content_type("text/html");
+  const std::string http_status_code_page = absl::StrFormat(
+      R"(
+            <html>
+              <head>
+                <title>
+                  HTTP Status Code
+                </title>
+              </head>
+              <body>
+                %d (%s)
+              </body>
+            </html>)",
+      *http_status_code, http_response->reason());
+  http_response->set_content(http_status_code_page);
+
+  return http_response;
+}
+
+std::unique_ptr<net::test_server::HttpResponse> HandleRequest(
+    const net::test_server::HttpRequest& http_request) {
+  const GURL url = http_request.GetURL();
+  if (url.path() != kHandleRequestUrlPath) {
+    // Do not handle the request.
+    return nullptr;
+  }
+
+  // Handle request.
+  base::StringPairs key_value_pairs;
+  base::SplitStringIntoKeyValuePairs(url.query(), '=', '&', &key_value_pairs);
+
+  for (const auto& [key, value] : key_value_pairs) {
+    if (key == kHttpStatusCodeQueryKey) {
+      return HandleHttpStatusCodeQueryKey(value);
+    }
+  }
+
+  NOTREACHED() << "Query key not found. Unable to handle the request.";
+}
+
+base::FilePath GetTestDataDir() {
+  const base::ScopedAllowBlockingForTesting scoped_allow_blocking;
+  return base::PathService::CheckedGet(brave::DIR_TEST_DATA);
+}
+
 }  // namespace
 
 // We expect `is_visible=true` if both the browser and tab are active, and
@@ -214,30 +283,14 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
 
     callback_list_subscription_ =
         BrowserContextDependencyManager::GetInstance()
-            ->RegisterCreateServicesCallbackForTesting(base::BindRepeating(
-                &BraveAdsTabHelperTest::OnWillCreateBrowserContextServices,
-                base::Unretained(this)));
+            ->RegisterCreateServicesCallbackForTesting(
+                base::BindRepeating(&OnWillCreateBrowserContextServices));
   }
 
   void TearDownInProcessBrowserTestFixture() override {
     mock_cert_verifier_.TearDownInProcessBrowserTestFixture();
 
     PlatformBrowserTest::TearDownInProcessBrowserTestFixture();
-  }
-
-  void OnWillCreateBrowserContextServices(
-      content::BrowserContext* const context) {
-    AdsServiceFactory::GetInstance()->SetTestingFactory(
-        context, base::BindRepeating(&BraveAdsTabHelperTest::CreateAdsService,
-                                     base::Unretained(this)));
-  }
-
-  std::unique_ptr<KeyedService> CreateAdsService(
-      content::BrowserContext* const /*context*/) {
-    // Since we are mocking the `AdsService`, a delegate is not required. Note
-    // that we are not testing the `AdsService` itself, these tests are focused
-    // on the `AdsTabHelper`.
-    return std::make_unique<AdsServiceMock>(/*delegate*/ nullptr);
   }
 
   AdsServiceMock& GetAdsServiceMock() {
@@ -250,19 +303,17 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
 
   PrefService* GetPrefs() { return GetProfile()->GetPrefs(); }
 
-  base::FilePath GetTestDataDir() {
-    const base::ScopedAllowBlockingForTesting scoped_allow_blocking;
-    return base::PathService::CheckedGet(brave::DIR_TEST_DATA);
-  }
-
   void InitEmbeddedTestServer() {
     const base::FilePath test_data_dir = GetTestDataDir();
 
     test_server_.ServeFilesFromDirectory(test_data_dir);
-    test_server_.RegisterRequestHandler(base::BindRepeating(
-        &BraveAdsTabHelperTest::HandleRequest, base::Unretained(this)));
+    test_server_.RegisterRequestHandler(base::BindRepeating(&HandleRequest));
     test_server_handle_ = test_server_.StartAndReturnHandle();
     EXPECT_TRUE(test_server_handle_);
+  }
+
+  content::WebContents* GetActiveWebContents() {
+    return chrome_test_utils::GetActiveWebContents(this);
   }
 
   int32_t TabId() {
@@ -270,10 +321,6 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
     EXPECT_TRUE(web_contents);
 
     return sessions::SessionTabHelper::IdForTab(web_contents).id();
-  }
-
-  content::WebContents* GetActiveWebContents() {
-    return chrome_test_utils::GetActiveWebContents(this);
   }
 
   bool WaitForActiveWebContentsToLoad() {
@@ -290,13 +337,14 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
     chrome::CloseWebContents(browser(), web_contents, /*add_to_history=*/false);
   }
 
-  void NavigateToURL(std::string_view relative_url, bool has_user_gesture) {
+  void NavigateToRelativeURL(std::string_view relative_url,
+                             bool has_user_gesture) {
     content::WebContents* const web_contents = GetActiveWebContents();
     EXPECT_TRUE(web_contents);
 
     const GURL url = test_server_.GetURL(kHostName, relative_url);
 
-    content::NavigationController::LoadURLParams params(url);
+    const content::NavigationController::LoadURLParams params(url);
     if (has_user_gesture) {
       return content::NavigateToURLBlockUntilNavigationsComplete(
           web_contents, url, /*number_of_navigations=*/1,
@@ -310,7 +358,7 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
     const std::string relative_url =
         absl::StrFormat("%s?%s=%d", kHandleRequestUrlPath,
                         kHttpStatusCodeQueryKey, http_status_code);
-    NavigateToURL(relative_url, /*has_user_gesture=*/true);
+    NavigateToRelativeURL(relative_url, /*has_user_gesture=*/true);
   }
 
   ::testing::AssertionResult ExecuteJavaScript(const std::string& javascript,
@@ -350,24 +398,24 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
                                          /*check_for_repost=*/false);
   }
 
-  void SimulateClick(const std::string& selectors, bool has_user_gesture) {
+  void SimulateClick(const std::string& selector, bool has_user_gesture) {
     const std::string javascript = base::ReplaceStringPlaceholders(
-        R"(document.querySelector("$1").click();)", {selectors}, nullptr);
-    ExecuteJavaScript(javascript, has_user_gesture);
+        R"(document.querySelector("$1").click();)", {selector}, nullptr);
+    ASSERT_TRUE(ExecuteJavaScript(javascript, has_user_gesture));
   }
 
-  void StartVideoPlayback(const std::string& selectors) {
+  void StartVideoPlayback(const std::string& selector) {
     const std::string javascript = base::ReplaceStringPlaceholders(
-        R"(document.querySelector("$1")?.play();)", {selectors}, nullptr);
+        R"(document.querySelector("$1")?.play();)", {selector}, nullptr);
 
     // Video elements must be executed with a user gesture.
-    ExecuteJavaScript(javascript, /*has_user_gesture=*/true);
+    ASSERT_TRUE(ExecuteJavaScript(javascript, /*has_user_gesture=*/true));
   }
 
-  void PauseVideoPlayback(const std::string& selectors) {
+  void PauseVideoPlayback(const std::string& selector) {
     const std::string javascript = base::ReplaceStringPlaceholders(
-        R"(document.querySelector("$1")?.pause();)", {selectors}, nullptr);
-    ExecuteJavaScript(javascript, /*has_user_gesture=*/true);
+        R"(document.querySelector("$1")?.pause();)", {selector}, nullptr);
+    ASSERT_TRUE(ExecuteJavaScript(javascript, /*has_user_gesture=*/true));
   }
 
   void RestoreBrowser(Profile* const profile) {
@@ -380,58 +428,6 @@ class BraveAdsTabHelperTest : public PlatformBrowserTest {
     }
 
     SelectFirstBrowser();
-  }
-
-  std::unique_ptr<net::test_server::HttpResponse> HandleHttpStatusCodeQueryKey(
-      const std::string& value) const {
-    auto http_response =
-        std::make_unique<net::test_server::BasicHttpResponse>();
-
-    int http_status_code_as_int;
-    EXPECT_TRUE(base::StringToInt(value, &http_status_code_as_int));
-    const std::optional<net::HttpStatusCode> http_status_code =
-        net::TryToGetHttpStatusCode(http_status_code_as_int);
-    EXPECT_TRUE(http_status_code);
-    http_response->set_code(*http_status_code);
-
-    http_response->set_content_type("text/html");
-    const std::string http_status_code_page = absl::StrFormat(
-        R"(
-            <html>
-              <head>
-                <title>
-                  HTTP Status Code
-                </title>
-              </head>
-              <body>
-                %d (%s)
-              </body>
-            </html>)",
-        *http_status_code, http_response->reason());
-    http_response->set_content(http_status_code_page);
-
-    return http_response;
-  }
-
-  std::unique_ptr<net::test_server::HttpResponse> HandleRequest(
-      const net::test_server::HttpRequest& http_request) const {
-    const GURL url = http_request.GetURL();
-    if (url.path() != kHandleRequestUrlPath) {
-      // Do not handle the request.
-      return nullptr;
-    }
-
-    // Handle request.
-    base::StringPairs key_value_pairs;
-    base::SplitStringIntoKeyValuePairs(url.query(), '=', '&', &key_value_pairs);
-
-    for (const auto& [key, value] : key_value_pairs) {
-      if (key == kHttpStatusCodeQueryKey) {
-        return HandleHttpStatusCodeQueryKey(value);
-      }
-    }
-
-    NOTREACHED() << "Query key not found. Unable to handle the request.";
   }
 
   std::vector<GURL> RedirectChainExpectation(
@@ -458,7 +454,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyTabDidChange) {
                          /*is_new_navigation=*/true, /*is_restoring=*/false,
                          /*is_visible=*/::testing::_))
       .Times(::testing::AtLeast(1));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
@@ -473,7 +470,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
                          /*is_new_navigation=*/true, /*is_restoring=*/false,
                          /*is_visible=*/::testing::_))
       .Times(::testing::AtLeast(1));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 
   // Must occur before the browser is closed.
   Profile* const profile = GetProfile();
@@ -500,7 +498,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyTabDidLoad) {
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidLoad(TabId(), net::HTTP_OK));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
@@ -541,7 +540,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
           TabId(), RedirectChainExpectation(kMultiPageApplicationWebpage),
           kMultiPageApplicationWebpageHtmlContent))
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
 }
 
@@ -557,7 +557,8 @@ IN_PROC_BROWSER_TEST_F(
           TabId(), RedirectChainExpectation(kMultiPageApplicationWebpage),
           /*html=*/::testing::IsEmpty()))
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
 }
 
@@ -568,7 +569,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
   base::RunLoop run_loop;
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabHtmlContentDidChange)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
@@ -598,7 +600,8 @@ IN_PROC_BROWSER_TEST_F(
   base::RunLoop run_loop;
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabHtmlContentDidChange)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
@@ -636,7 +639,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
     base::RunLoop run_loop;
     EXPECT_CALL(GetAdsServiceMock(), NotifyTabHtmlContentDidChange)
         .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-    NavigateToURL(kSinglePageApplicationWebpage, /*has_user_gesture=*/true);
+    NavigateToRelativeURL(kSinglePageApplicationWebpage,
+                          /*has_user_gesture=*/true);
     run_loop.Run();
     ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
   }
@@ -648,7 +652,7 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
                     TabId(), ::testing::Contains(FileName("same_document")),
                     kSinglePageApplicationWebpageHtmlContent))
         .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-    SimulateClick(kSinglePageApplicationClickSelectors,
+    SimulateClick(kSinglePageApplicationClickSelector,
                   /*has_user_gesture=*/true);
     run_loop.Run();
   }
@@ -667,7 +671,8 @@ IN_PROC_BROWSER_TEST_F(
           TabId(), RedirectChainExpectation(kMultiPageApplicationWebpage),
           kMultiPageApplicationWebpageTextContent))
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
 }
 
@@ -676,7 +681,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
   GetPrefs()->SetBoolean(brave_rewards::prefs::kEnabled, false);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange).Times(0);
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(
@@ -686,7 +692,8 @@ IN_PROC_BROWSER_TEST_F(
   GetPrefs()->SetBoolean(prefs::kOptedInToNotificationAds, false);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange).Times(0);
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(
@@ -696,7 +703,8 @@ IN_PROC_BROWSER_TEST_F(
   GetPrefs()->SetBoolean(prefs::kOptedInToNotificationAds, false);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange).Times(0);
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
@@ -707,7 +715,8 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
   base::RunLoop run_loop;
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
@@ -738,7 +747,8 @@ IN_PROC_BROWSER_TEST_F(
   base::RunLoop run_loop;
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
@@ -779,12 +789,13 @@ IN_PROC_BROWSER_TEST_F(
   base::RunLoop run_loop;
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange)
       .WillOnce(base::test::RunOnceClosure(run_loop.QuitClosure()));
-  NavigateToURL(kSinglePageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kSinglePageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   run_loop.Run();
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabTextContentDidChange).Times(0);
-  SimulateClick(kSinglePageApplicationClickSelectors,
+  SimulateClick(kSinglePageApplicationClickSelector,
                 /*has_user_gesture=*/true);
 
   EXPECT_TRUE(WaitForActiveWebContentsToLoad());
@@ -798,7 +809,7 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
   MediaWaiter waiter(web_contents);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStartPlayingMedia);
-  NavigateToURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
 
   waiter.WaitForMediaStartedPlaying();
 }
@@ -812,7 +823,7 @@ IN_PROC_BROWSER_TEST_F(
   MediaWaiter waiter(web_contents);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStartPlayingMedia).Times(0);
-  NavigateToURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
 
   waiter.WaitForMediaSessionCreated();
 }
@@ -825,28 +836,28 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
   MediaWaiter waiter(web_contents);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStartPlayingMedia);
-  NavigateToURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kAutoplayVideoWebpage, /*has_user_gesture=*/true);
 
   waiter.WaitForMediaStartedPlaying();
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStopPlayingMedia);
-  PauseVideoPlayback(kVideoJavascriptDocumentQuerySelectors);
+  PauseVideoPlayback(kVideoJavascriptDocumentQuerySelector);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyTabDidStartPlayingMedia) {
-  NavigateToURL(kVideoWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kVideoWebpage, /*has_user_gesture=*/true);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStartPlayingMedia);
-  StartVideoPlayback(kVideoJavascriptDocumentQuerySelectors);
+  StartVideoPlayback(kVideoJavascriptDocumentQuerySelector);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyTabDidStopPlayingMedia) {
-  NavigateToURL(kVideoWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kVideoWebpage, /*has_user_gesture=*/true);
 
-  StartVideoPlayback(kVideoJavascriptDocumentQuerySelectors);
+  StartVideoPlayback(kVideoJavascriptDocumentQuerySelector);
 
   EXPECT_CALL(GetAdsServiceMock(), NotifyTabDidStopPlayingMedia);
-  PauseVideoPlayback(kVideoJavascriptDocumentQuerySelectors);
+  PauseVideoPlayback(kVideoJavascriptDocumentQuerySelector);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyDidCloseTab) {
@@ -857,20 +868,23 @@ IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyDidCloseTab) {
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest, NotifyUserGestureEventTriggered) {
   EXPECT_CALL(GetAdsServiceMock(), NotifyUserGestureEventTriggered)
       .Times(::testing::AtLeast(1));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
                        DoNotNotifyUserGestureEventTriggered) {
   EXPECT_CALL(GetAdsServiceMock(), NotifyUserGestureEventTriggered).Times(0);
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/false);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/false);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveAdsTabHelperTest,
                        DoNotNotifyUserGestureEventTriggeredIfTabWasRestored) {
   EXPECT_CALL(GetAdsServiceMock(), NotifyUserGestureEventTriggered)
       .Times(::testing::AtLeast(1));
-  NavigateToURL(kMultiPageApplicationWebpage, /*has_user_gesture=*/true);
+  NavigateToRelativeURL(kMultiPageApplicationWebpage,
+                        /*has_user_gesture=*/true);
   ::testing::Mock::VerifyAndClearExpectations(&GetAdsServiceMock());
 
   // Must occur before the browser is closed.

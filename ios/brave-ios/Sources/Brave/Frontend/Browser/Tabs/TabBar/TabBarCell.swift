@@ -5,6 +5,7 @@
 import Combine
 import Preferences
 import UIKit
+import Web
 
 class TabBarCell: UICollectionViewCell {
 
@@ -46,7 +47,7 @@ class TabBarCell: UICollectionViewCell {
         || currentIndex == (tabManager?.currentDisplayedIndex ?? 0) + 1
     }
   }
-  weak var tab: Tab?
+  weak var tab: (any TabState)?
   weak var tabManager: TabManager? {
     didSet {
       updateColors()
@@ -60,7 +61,7 @@ class TabBarCell: UICollectionViewCell {
     }
   }
 
-  var closeTabCallback: ((Tab) -> Void)?
+  var closeTabCallback: ((any TabState) -> Void)?
   private var cancellables: Set<AnyCancellable> = []
 
   override init(frame: CGRect) {
@@ -160,7 +161,7 @@ class TabBarCell: UICollectionViewCell {
   }
 
   fileprivate var titleUpdateScheduled = false
-  func updateTitleThrottled(for tab: Tab) {
+  func updateTitleThrottled(for tab: some TabState) {
     if titleUpdateScheduled {
       return
     }

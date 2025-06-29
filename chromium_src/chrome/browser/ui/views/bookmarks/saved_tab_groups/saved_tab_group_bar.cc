@@ -5,8 +5,18 @@
 
 #include "brave/browser/ui/views/bookmarks/saved_tab_groups/brave_saved_tab_group_button.h"
 
-#define SavedTabGroupButton BraveSavedTabGroupButton
+// Create a BraveSavedTabGroupButton instead of SavedTabGroupButton (we don't
+// want to replace SavedTabGroupButton everywhere in this file as that led to
+// unnecessary complications in upstream tests).
+#define AddChildViewAt(VIEW, INDEX)                                        \
+  AddChildViewAt(                                                          \
+      std::make_unique<BraveSavedTabGroupButton>(                          \
+          group,                                                           \
+          base::BindRepeating(&SavedTabGroupBar::OnTabGroupButtonPressed,  \
+                              base::Unretained(this), group.saved_guid()), \
+          browser_, animations_enabled_),                                  \
+      INDEX)
 
 #include "src/chrome/browser/ui/views/bookmarks/saved_tab_groups/saved_tab_group_bar.cc"
 
-#undef SavedTabGroupButton
+#undef AddChildViewAt

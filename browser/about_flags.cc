@@ -7,18 +7,14 @@
 
 #include <initializer_list>
 
-#include "base/strings/string_util.h"
 #include "brave/browser/brave_browser_features.h"
 #include "brave/browser/brave_features_internal_names.h"
-#include "brave/browser/ethereum_remote_client/buildflags/buildflags.h"
-#include "brave/browser/ethereum_remote_client/features.h"
 #include "brave/browser/ui/brave_ui_features.h"
 #include "brave/browser/ui/tabs/features.h"
 #include "brave/components/ai_chat/core/common/features.h"
 #include "brave/components/ai_rewriter/common/buildflags/buildflags.h"
 #include "brave/components/brave_ads/browser/ad_units/notification_ad/custom_notification_ad_feature.h"
 #include "brave/components/brave_ads/core/public/ad_units/notification_ad/notification_ad_feature.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/brave_component_updater/browser/features.h"
 #include "brave/components/brave_education/buildflags.h"
 #include "brave/components/brave_news/common/features.h"
@@ -28,6 +24,7 @@
 #include "brave/components/brave_vpn/common/buildflags/buildflags.h"
 #include "brave/components/brave_wallet/common/buildflags.h"
 #include "brave/components/brave_wallet/common/features.h"
+#include "brave/components/containers/buildflags/buildflags.h"
 #include "brave/components/de_amp/common/features.h"
 #include "brave/components/debounce/core/common/features.h"
 #include "brave/components/google_sign_in_permission/features.h"
@@ -39,14 +36,15 @@
 #include "brave/components/speedreader/common/buildflags/buildflags.h"
 #include "brave/components/webcompat/core/common/features.h"
 #include "build/build_config.h"
+#include "chrome/browser/buildflags.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "components/content_settings/core/common/features.h"
-#include "components/flags_ui/feature_entry.h"
-#include "components/flags_ui/feature_entry_macros.h"
-#include "components/flags_ui/flags_state.h"
 #include "components/history/core/browser/features.h"
 #include "components/omnibox/common/omnibox_features.h"
 #include "components/translate/core/browser/translate_prefs.h"
+#include "components/webui/flags/feature_entry.h"
+#include "components/webui/flags/feature_entry_macros.h"
+#include "components/webui/flags/flags_state.h"
 #include "net/base/features.h"
 #include "third_party/blink/public/common/features.h"
 
@@ -71,8 +69,8 @@
 #endif
 
 #if BUILDFLAG(IS_ANDROID)
-#include "brave/browser/android/background_video/features.h"
 #include "brave/browser/android/safe_browsing/features.h"
+#include "brave/browser/android/youtube_script_injector/features.h"
 #else
 #include "brave/components/commander/common/features.h"
 #include "brave/components/commands/common/features.h"
@@ -88,6 +86,14 @@
 
 #if BUILDFLAG(ENABLE_BRAVE_EDUCATION)
 #include "brave/components/brave_education/features.h"
+#endif
+
+#if BUILDFLAG(ENABLE_CONTAINERS)
+#include "brave/components/containers/core/common/features.h"
+#endif
+
+#if BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_UPDATER)
+#include "brave/browser/mac_features.h"
 #endif
 
 #define EXPAND_FEATURE_ENTRIES(...) __VA_ARGS__,
@@ -194,6 +200,14 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
               brave_wallet::features::kBraveWalletBitcoinFeature),            \
       },                                                                      \
       {                                                                       \
+          "brave-wallet-cardano",                                             \
+          "Enable Brave Wallet Cardano support",                              \
+          "Cardano support for native Brave Wallet",                          \
+          kOsDesktop,                                                         \
+          FEATURE_VALUE_TYPE(                                                 \
+              brave_wallet::features::kBraveWalletCardanoFeature),            \
+      },                                                                      \
+      {                                                                       \
           "brave-wallet-enable-ankr-balances",                                \
           "Enable Ankr balances",                                             \
           "Enable usage of Ankr Advanced API for fetching balances in Brave " \
@@ -229,22 +243,6 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
           kOsDesktop,                                                          \
           FEATURE_VALUE_TYPE(brave_news::features::kBraveNewsFeedUpdate),      \
       })
-
-#define CRYPTO_WALLETS_FEATURE_ENTRIES                                      \
-  IF_BUILDFLAG(                                                             \
-      ETHEREUM_REMOTE_CLIENT_ENABLED,                                       \
-      EXPAND_FEATURE_ENTRIES({                                              \
-          "ethereum_remote-client_new-installs",                            \
-          "Enable Crypto Wallets option in settings",                       \
-          "Crypto Wallets extension is deprecated but with this option it " \
-          "can "                                                            \
-          "still be enabled in settings. If it was previously used, this "  \
-          "flag is "                                                        \
-          "ignored.",                                                       \
-          kOsDesktop,                                                       \
-          FEATURE_VALUE_TYPE(ethereum_remote_client::features::             \
-                                 kCryptoWalletsForNewInstallsFeature),      \
-      }))
 
 #define PLAYLIST_FEATURE_ENTRIES                                       \
   IF_BUILDFLAG(                                                        \
@@ -283,6 +281,18 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
 #define BRAVE_COMMANDS_FEATURE_ENTRIES
 #endif
 
+#define CONTAINERS_FEATURE_ENTRIES                                             \
+  IF_BUILDFLAG(                                                                \
+      ENABLE_CONTAINERS,                                                       \
+      EXPAND_FEATURE_ENTRIES({                                                 \
+          "containers",                                                        \
+          "Enable Containers",                                                 \
+          "Allows websites to be opened in contained tabs, keeping different " \
+          "identities separate within the same browser profile",               \
+          kOsAll,                                                              \
+          FEATURE_VALUE_TYPE(containers::features::kContainers),               \
+      }))
+
 #if BUILDFLAG(IS_LINUX)
 #define BRAVE_CHANGE_ACTIVE_TAB_ON_SCROLL_EVENT_FEATURE_ENTRIES               \
   EXPAND_FEATURE_ENTRIES({                                                    \
@@ -302,8 +312,7 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
       "brave-background-video-playback",                                       \
       "Background video playback",                                             \
       "Enables play audio from video in background when tab is not active or " \
-      "device screen is turned off. Try to switch to desktop mode if this "    \
-      "feature is not working.",                                               \
+      "device screen is turned off.",                                          \
       kOsAndroid,                                                              \
       FEATURE_VALUE_TYPE(                                                      \
           preferences::features::kBraveBackgroundVideoPlayback),               \
@@ -387,6 +396,13 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
           FEATURE_VALUE_TYPE(ai_chat::features::kAIChat),                      \
       },                                                                       \
       {                                                                        \
+          "brave-ai-first",                                                    \
+          "Brave AI Chat First",                                               \
+          "Prioritize Leo vs Search within Brave",                             \
+          kOsWin | kOsMac | kOsLinux | kOsAndroid,                             \
+          FEATURE_VALUE_TYPE(ai_chat::features::kAIChatFirst),                 \
+      },                                                                       \
+      {                                                                        \
           "brave-ai-chat-history",                                             \
           "Brave AI Chat History",                                             \
           "Enables AI Chat History persistence and management",                \
@@ -406,15 +422,6 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
           "Enables AI Chat rewrite in place feature from the context menu",    \
           kOsDesktop,                                                          \
           FEATURE_VALUE_TYPE(ai_chat::features::kContextMenuRewriteInPlace),   \
-      },                                                                       \
-      {                                                                        \
-          "brave-ai-chat-page-content-refine",                                 \
-          "Brave AI Chat Page Content Refine",                                 \
-          "Enable local text embedding for long page content in order to "     \
-          "find "                                                              \
-          "most relevant parts to the prompt within context limit.",           \
-          kOsDesktop | kOsAndroid,                                             \
-          FEATURE_VALUE_TYPE(ai_chat::features::kPageContentRefine),           \
       },                                                                       \
       {                                                                        \
           "brave-ai-chat-allow-private-ips",                                   \
@@ -503,6 +510,19 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
   })
 #else
 #define BRAVE_EDUCATION_FEATURE_ENTRIES
+#endif
+
+#if BUILDFLAG(IS_MAC) && BUILDFLAG(ENABLE_UPDATER)
+#define BRAVE_UPDATER_FEATURE_ENTRIES                  \
+  EXPAND_FEATURE_ENTRIES({                             \
+      "brave-use-omaha4-alpha",                        \
+      "Use Omaha 4 Alpha",                             \
+      "Use the new automatic update system",           \
+      kOsDesktop | kOsMac,                             \
+      FEATURE_VALUE_TYPE(brave::kBraveUseOmaha4Alpha), \
+  })
+#else
+#define BRAVE_UPDATER_FEATURE_ENTRIES
 #endif
 
 // Keep the last item empty.
@@ -816,13 +836,6 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
               brave_rewards::features::kAllowSelfCustodyProvidersFeature),     \
       },                                                                       \
       {                                                                        \
-          "brave-rewards-new-rewards-ui",                                      \
-          "Show the new Rewards UI",                                           \
-          "Displays the new Rewards UI.",                                      \
-          kOsDesktop | kOsAndroid,                                             \
-          FEATURE_VALUE_TYPE(brave_rewards::features::kNewRewardsUIFeature),   \
-      },                                                                       \
-      {                                                                        \
           "brave-rewards-animated-background",                                 \
           "Show an animated background on the Rewards UI",                     \
           "Shows an animated background on the Rewards panel and page.",       \
@@ -837,45 +850,6 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
           kOsDesktop | kOsAndroid,                                             \
           FEATURE_VALUE_TYPE(                                                  \
               brave_rewards::features::kPlatformCreatorDetectionFeature),      \
-      },                                                                       \
-      {                                                                        \
-          "brave-ads-should-always-run-brave-ads-service",                     \
-          "Should always run Brave Ads service",                               \
-          "Always run Brave Ads service to support triggering ad events when " \
-          "Brave Private Ads are disabled.",                                   \
-          kOsAll,                                                              \
-          FEATURE_VALUE_TYPE(                                                  \
-              brave_ads::kShouldAlwaysRunBraveAdsServiceFeature),              \
-      },                                                                       \
-      {                                                                        \
-          "brave-ads-should-always-trigger-new-tab-page-ad-events",            \
-          "Should always trigger new tab page ad events",                      \
-          "Support triggering new tab page ad events if Brave Private Ads "    \
-          "are disabled. Requires "                                            \
-          "#brave-ads-should-always-run-brave-ads-service to be enabled.",     \
-          kOsAll,                                                              \
-          FEATURE_VALUE_TYPE(                                                  \
-              brave_ads::kShouldAlwaysTriggerBraveNewTabPageAdEventsFeature),  \
-      },                                                                       \
-      {                                                                        \
-          "brave-ads-should-support-search-result-ads",                        \
-          "Support Search Result Ads feature",                                 \
-          "Should be used in combination with "                                \
-          "#brave-ads-should-always-trigger-search-result-ad-events and "      \
-          "#brave-ads-should-always-run-brave-ads-service",                    \
-          kOsAll,                                                              \
-          FEATURE_VALUE_TYPE(brave_ads::kShouldSupportSearchResultAdsFeature), \
-      },                                                                       \
-      {                                                                        \
-          "brave-ads-should-always-trigger-search-result-ad-events",           \
-          "Should always trigger search result ad events",                     \
-          "Support triggering search result ad events if Brave Private Ads "   \
-          "are disabled. Requires "                                            \
-          "#brave-ads-should-always-run-brave-ads-service to be enabled.",     \
-          kOsAll,                                                              \
-          FEATURE_VALUE_TYPE(                                                  \
-              brave_ads::                                                      \
-                  kShouldAlwaysTriggerBraveSearchResultAdEventsFeature),       \
       },                                                                       \
       {                                                                        \
           "brave-ads-custom-push-notifications-ads",                           \
@@ -965,13 +939,6 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
           FEATURE_VALUE_TYPE(blink::features::kBraveRoundTimeStamps),          \
       },                                                                       \
       {                                                                        \
-          "translate",                                                         \
-          "Enable Chromium Translate feature",                                 \
-          "Should be used with brave-translate-go, see the description here.", \
-          kOsDesktop | kOsAndroid,                                             \
-          FEATURE_VALUE_TYPE(translate::kTranslate),                           \
-      },                                                                       \
-      {                                                                        \
           "restrict-event-source-pool",                                        \
           "Restrict Event Source Pool",                                        \
           "Limits simultaneous active WebSockets connections per eTLD+1",      \
@@ -1047,13 +1014,13 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
       })                                                                       \
   BRAVE_NATIVE_WALLET_FEATURE_ENTRIES                                          \
   BRAVE_NEWS_FEATURE_ENTRIES                                                   \
-  CRYPTO_WALLETS_FEATURE_ENTRIES                                               \
   BRAVE_REWARDS_GEMINI_FEATURE_ENTRIES                                         \
   SPEEDREADER_FEATURE_ENTRIES                                                  \
   REQUEST_OTR_FEATURE_ENTRIES                                                  \
   BRAVE_MODULE_FILENAME_PATCH                                                  \
   PLAYLIST_FEATURE_ENTRIES                                                     \
   BRAVE_COMMANDS_FEATURE_ENTRIES                                               \
+  CONTAINERS_FEATURE_ENTRIES                                                   \
   BRAVE_BACKGROUND_VIDEO_PLAYBACK_ANDROID                                      \
   BRAVE_SAFE_BROWSING_ANDROID                                                  \
   BRAVE_CHANGE_ACTIVE_TAB_ON_SCROLL_EVENT_FEATURE_ENTRIES                      \
@@ -1066,6 +1033,7 @@ const flags_ui::FeatureEntry::FeatureVariation kZCashFeatureVariations[] = {
   BRAVE_WORKAROUND_NEW_WINDOW_FLASH                                            \
   BRAVE_ADBLOCK_CUSTOM_SCRIPTLETS                                              \
   BRAVE_EDUCATION_FEATURE_ENTRIES                                              \
+  BRAVE_UPDATER_FEATURE_ENTRIES                                                \
   LAST_BRAVE_FEATURE_ENTRIES_ITEM  // Keep it as the last item.
 namespace flags_ui {
 namespace {

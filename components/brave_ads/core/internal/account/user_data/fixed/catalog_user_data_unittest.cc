@@ -24,21 +24,18 @@ class BraveAdsCatalogUserDataTest : public test::TestBase {
   }
 };
 
-TEST_F(BraveAdsCatalogUserDataTest, BuildCatalogUserDataForRewardsUser) {
-  // Act
-  const base::Value::Dict user_data = BuildCatalogUserData();
-
-  // Assert
+TEST_F(BraveAdsCatalogUserDataTest, BuildCatalogUserData) {
+  // Act & Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "catalog": [
                         {
                           "id": "29e5c8bc0ba319069980bb390d8e8f9b58c05a20"
                         }
                       ]
-                    })"),
-            user_data);
+                    })JSON"),
+            BuildCatalogUserData());
 }
 
 TEST_F(BraveAdsCatalogUserDataTest,
@@ -46,11 +43,8 @@ TEST_F(BraveAdsCatalogUserDataTest,
   // Arrange
   test::DisableBraveRewards();
 
-  // Act
-  const base::Value::Dict user_data = BuildCatalogUserData();
-
-  // Assert
-  EXPECT_THAT(user_data, ::testing::IsEmpty());
+  // Act & Assert
+  EXPECT_THAT(BuildCatalogUserData(), ::testing::IsEmpty());
 }
 
 }  // namespace brave_ads

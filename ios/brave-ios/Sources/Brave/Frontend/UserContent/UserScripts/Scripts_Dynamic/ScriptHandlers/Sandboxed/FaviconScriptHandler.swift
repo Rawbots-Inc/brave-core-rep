@@ -7,6 +7,7 @@ import BraveCore
 import Favicon
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -33,7 +34,7 @@ class FaviconScriptHandler: NSObject, TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -73,7 +74,7 @@ class FaviconScriptHandler: NSObject, TabContentScript {
   }
 
   private static func updateFavicon(
-    tab: Tab?,
+    tab: (any TabState)?,
     url: URL,
     isPrivate: Bool,
     icon: UIImage?,
@@ -111,7 +112,6 @@ class FaviconScriptHandler: NSObject, TabContentScript {
         await FaviconFetcher.updateCache(favicon, for: url, persistent: !isPrivate)
 
         tab.favicon = favicon
-        TabEvent.post(.didLoadFavicon(favicon), for: tab)
       }
     } else {
       if let iconUrl = iconUrl {
@@ -128,7 +128,6 @@ class FaviconScriptHandler: NSObject, TabContentScript {
 
         guard let tab = tab else { return }
         tab.favicon = favicon
-        TabEvent.post(.didLoadFavicon(nil), for: tab)
       }
     }
   }

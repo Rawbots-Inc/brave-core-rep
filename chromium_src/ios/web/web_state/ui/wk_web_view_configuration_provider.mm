@@ -3,6 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
+#include "base/notreached.h"
 #include "base/supports_user_data.h"
 
 // Replace the `WKWebViewConfigurationProvider` constructor call with the Brave
@@ -17,6 +18,17 @@ namespace web {
 
 void BraveWKWebViewConfigurationProvider::ResetWithWebViewConfiguration(
     WKWebViewConfiguration* configuration) {
+  if (configuration != nil) {
+    // We need to ensure that each tab has isolated WKUserContentController &
+    // WKPreferences, because as of now we specifically adjust these values per
+    // web view created rather than when the configuration is created.
+    //
+    // This must happen prior to WKWebView's creation.
+    configuration.userContentController =
+        [[WKUserContentController alloc] init];
+    configuration.preferences = [configuration.preferences copy];
+  }
+
   WKWebViewConfigurationProvider::ResetWithWebViewConfiguration(configuration);
 
   // Adjusts the underlying WKWebViewConfiguration for settings we don't want

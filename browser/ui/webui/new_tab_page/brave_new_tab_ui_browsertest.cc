@@ -126,7 +126,7 @@ IN_PROC_BROWSER_TEST_F(BraveNewTabUIBrowserTest, NewTabPageLocationOverride) {
   base::FilePath test_data_dir;
   GetTestDataDir(&test_data_dir);
   InstallExtensionSilently(extension_service(),
-      test_data_dir.AppendASCII("new_tab_override.crx"));
+                           test_data_dir.AppendASCII("new_tab_override.crx"));
 
   content::WebContents* web_contents = GetActiveWebContents();
   SimulateOpenNewTabAndWaitForLoad(web_contents);

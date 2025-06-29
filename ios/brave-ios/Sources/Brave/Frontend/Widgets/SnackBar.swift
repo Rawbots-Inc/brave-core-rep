@@ -8,6 +8,7 @@ import Foundation
 import Shared
 import SnapKit
 import UIKit
+import Web
 
 class SnackBarUX {
   static var maxWidth: CGFloat = 400
@@ -160,7 +161,7 @@ class SnackBar: UIView {
   /// Called to check if the snackbar should be removed or not. By default, Snackbars persist forever.
   /// Override this class or use a class like CountdownSnackbar if you want things expire
   /// - returns: true if the snackbar should be kept alive
-  func shouldPersist(_ tab: Tab) -> Bool {
+  func shouldPersist(_ tab: some TabState) -> Bool {
     return true
   }
 
@@ -215,29 +216,6 @@ class TimerSnackBar: SnackBar {
     fatalError("init(coder:) has not been implemented")
   }
 
-  static func showAppStoreConfirmationBar(forTab tab: Tab, appStoreURL: URL) {
-    let bar = TimerSnackBar(
-      text: Strings.externalLinkAppStoreConfirmationTitle,
-      img: Favicon.defaultImage
-    )
-    let openAppStore = SnackButton(
-      title: Strings.OKString,
-      accessibilityIdentifier: "ConfirmOpenInAppStore"
-    ) { bar in
-      tab.removeSnackbar(bar)
-      UIApplication.shared.open(appStoreURL)
-    }
-    let cancelButton = SnackButton(
-      title: Strings.cancelButtonTitle,
-      accessibilityIdentifier: "CancelOpenInAppStore"
-    ) { bar in
-      tab.removeSnackbar(bar)
-    }
-    bar.addButton(openAppStore)
-    bar.addButton(cancelButton)
-    tab.addSnackbar(bar)
-  }
-
   override func show() {
     self.timer = Timer(
       timeInterval: timeout,
@@ -254,7 +232,7 @@ class TimerSnackBar: SnackBar {
     self.timer = nil
   }
 
-  override func shouldPersist(_ tab: Tab) -> Bool {
+  override func shouldPersist(_ tab: some TabState) -> Bool {
     if !showing {
       return timer != nil
     }

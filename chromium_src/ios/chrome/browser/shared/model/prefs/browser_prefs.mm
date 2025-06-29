@@ -19,10 +19,12 @@
 #include "brave/components/decentralized_dns/core/utils.h"
 #include "brave/components/l10n/common/prefs.h"
 #include "brave/components/ntp_background_images/browser/ntp_background_images_service.h"
+#include "brave/components/ntp_background_images/common/view_counter_pref_registry.h"
 #include "brave/components/omnibox/browser/brave_omnibox_prefs.h"
 #include "brave/components/p3a/buildflags.h"
+#include "brave/components/p3a/metric_log_store.h"
 #include "brave/components/p3a/p3a_service.h"
-#include "brave/components/p3a/star_randomness_meta.h"
+#include "brave/components/p3a/rotation_scheduler.h"
 #include "brave/components/skus/browser/skus_utils.h"
 #include "brave/ios/browser/brave_stats/brave_stats_prefs.h"
 #include "components/pref_registry/pref_registry_syncable.h"
@@ -43,6 +45,8 @@ void BraveRegisterBrowserStatePrefs(
   ai_chat::ModelService::RegisterProfilePrefs(registry);
   omnibox::RegisterBraveProfilePrefs(registry);
   brave_news::prefs::RegisterProfilePrefs(registry);
+  ntp_background_images::RegisterProfilePrefs(registry);
+  ntp_background_images::RegisterProfilePrefsForMigration(registry);
 }
 
 void BraveRegisterLocalStatePrefs(PrefRegistrySimple* registry) {
@@ -53,13 +57,15 @@ void BraveRegisterLocalStatePrefs(PrefRegistrySimple* registry) {
   skus::RegisterLocalStatePrefs(registry);
 #if BUILDFLAG(BRAVE_P3A_ENABLED)
   p3a::P3AService::RegisterPrefs(registry, false);
-  p3a::StarRandomnessMeta::RegisterPrefsForMigration(registry);
+  p3a::MetricLogStore::RegisterLocalStatePrefsForMigration(registry);
+  p3a::RotationScheduler::RegisterLocalStatePrefsForMigration(registry);
 #endif
   ntp_background_images::NTPBackgroundImagesService::RegisterLocalStatePrefs(
       registry);
-  brave_l10n::RegisterL10nLocalStatePrefs(registry);
+  brave_l10n::RegisterLocalStatePrefsForMigration(registry);
   ai_chat::prefs::RegisterLocalStatePrefs(registry);
   ai_chat::AIChatMetrics::RegisterPrefs(registry);
+  ntp_background_images::RegisterLocalStatePrefs(registry);
 
   // brave_shields
   // Note this can be removed when we use the entire
@@ -97,12 +103,14 @@ void MigrateObsoleteProfilePrefs(PrefService* prefs) {
 
   brave_ads::MigrateObsoleteProfilePrefs(prefs);
   brave_wallet::MigrateObsoleteProfilePrefs(prefs);
+  ntp_background_images::MigrateObsoleteProfilePrefs(prefs);
 }
 
 void MigrateObsoleteLocalStatePrefs(PrefService* prefs) {
   MigrateObsoleteLocalStatePrefs_ChromiumImpl(prefs);
 
 #if BUILDFLAG(BRAVE_P3A_ENABLED)
-  p3a::StarRandomnessMeta::MigrateObsoleteLocalStatePrefs(prefs);
+  p3a::MetricLogStore::MigrateObsoleteLocalStatePrefs(prefs);
+  p3a::RotationScheduler::MigrateObsoleteLocalStatePrefs(prefs);
 #endif
 }

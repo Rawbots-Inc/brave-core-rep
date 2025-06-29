@@ -17,15 +17,13 @@
 #include "base/test/scoped_run_loop_timeout.h"
 #include "base/test/test_timeouts.h"
 #include "base/time/time.h"
-#include "brave/browser/brave_rewards/rewards_service_factory.h"
 #include "brave/browser/net/brave_network_audit_allowed_lists.h"
 #include "brave/browser/net/brave_network_audit_test_helper.h"
-#include "brave/browser/ui/brave_browser.h"
-#include "brave/components/brave_rewards/content/rewards_service_impl.h"
 #include "brave/components/playlist/common/buildflags/buildflags.h"
 #include "chrome/browser/password_manager/profile_password_store_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
+#include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "components/prefs/pref_service.h"
@@ -79,18 +77,6 @@ class BraveNetworkAuditTest : public InProcessBrowserTest {
     InProcessBrowserTest::SetUpOnMainThread();
 
     ASSERT_TRUE(embedded_test_server()->Start());
-
-    // Create and start the Rewards service
-    rewards_service_ = static_cast<brave_rewards::RewardsServiceImpl*>(
-        brave_rewards::RewardsServiceFactory::GetForProfile(profile()));
-    base::RunLoop run_loop;
-    rewards_service_->StartProcessForTesting(run_loop.QuitClosure());
-    run_loop.Run();
-  }
-
-  void TearDownOnMainThread() override {
-    rewards_service_->Shutdown();
-    InProcessBrowserTest::TearDownOnMainThread();
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {
@@ -115,18 +101,9 @@ class BraveNetworkAuditTest : public InProcessBrowserTest {
                           std::vector<std::string>());
   }
 
-  bool EnableBraveRewards() {
-    PrefService* pref_service = profile()->GetPrefs();
-    pref_service->SetInteger("brave.rewards.version", 7);
-    pref_service->SetBoolean("brave.rewards.enabled", true);
-    return pref_service->GetBoolean("brave.rewards.enabled");
-  }
-
   Profile* profile() { return browser()->profile(); }
 
  private:
-  raw_ptr<brave_rewards::RewardsServiceImpl, DanglingUntriaged>
-      rewards_service_ = nullptr;
   base::FilePath net_log_path_;
   base::FilePath audit_results_path_;
 
@@ -136,8 +113,7 @@ class BraveNetworkAuditTest : public InProcessBrowserTest {
 };
 
 // Loads brave://welcome first to simulate a first run and then loads another
-// URL, and finally enables brave rewards, waiting some time after each load to
-// allow gathering network requests.
+// URL, waiting some time after each load to allow gathering network requests.
 IN_PROC_BROWSER_TEST_F(BraveNetworkAuditTest, BasicTests) {
   // Load the Welcome page.
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL("brave://welcome")));
@@ -165,17 +141,11 @@ IN_PROC_BROWSER_TEST_F(BraveNetworkAuditTest, BasicTests) {
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), simple_url));
   WaitForTimeout(kMaxTimeoutPerLoadedURL);
 
-  // Finally, load brave://rewards and enable Brave Rewards.
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL("brave://rewards")));
-  ASSERT_TRUE(EnableBraveRewards());
-  WaitForTimeout(kMaxTimeoutPerLoadedURL);
-
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), GURL("brave://wallet")));
   WaitForTimeout(kMaxTimeoutPerLoadedURL);
 
 #if defined(TOOLKIT_VIEWS)
-  auto* sidebar_controller =
-      static_cast<BraveBrowser*>(browser())->sidebar_controller();
+  auto* sidebar_controller = browser()->GetFeatures().sidebar_controller();
   auto* sidebar_model = sidebar_controller->model();
   const auto& all_items = sidebar_model->GetAllSidebarItems();
   const int item_num = all_items.size();
@@ -184,7 +154,7 @@ IN_PROC_BROWSER_TEST_F(BraveNetworkAuditTest, BasicTests) {
   for (int i = 0; i < item_num; ++i) {
     auto item = all_items[i];
     // Load all builtin panel items.
-    if (sidebar::IsBuiltInType(item) && item.open_in_panel) {
+    if (item.is_built_in_type() && item.open_in_panel) {
       builtin_panel_item_count++;
       sidebar_controller->ActivateItemAt(i);
       WaitForTimeout(kMaxTimeoutPerLoadedURL);

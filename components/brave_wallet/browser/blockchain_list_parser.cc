@@ -10,9 +10,12 @@
 #include <tuple>
 #include <utility>
 
+#include "base/check.h"
 #include "base/json/json_reader.h"
 #include "base/logging.h"
 #include "base/strings/strcat.h"
+#include "base/strings/string_number_conversions.h"
+#include "base/strings/string_util.h"
 #include "base/strings/stringprintf.h"
 #include "brave/components/brave_wallet/browser/blockchain_list_schemas.h"
 #include "brave/components/brave_wallet/browser/brave_wallet_utils.h"
@@ -125,7 +128,9 @@ void AddDappListToMap(
     dapp->id = dapp_id;
 
     dapp->name = dapp_from_component.name;
-    dapp->description = dapp_from_component.description;
+    if (dapp_from_component.description.is_string()) {
+      dapp->description = dapp_from_component.description.GetString();
+    }
     dapp->logo = dapp_from_component.logo;
     dapp->website = dapp_from_component.website;
     dapp->chains = std::vector<std::string>(dapp_from_component.chains.begin(),

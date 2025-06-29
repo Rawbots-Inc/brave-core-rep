@@ -10,6 +10,7 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "brave/browser/net/brave_proxying_url_loader_factory.h"
 #include "brave/browser/net/brave_proxying_web_socket.h"
 #include "brave/browser/net/brave_request_handler.h"
@@ -58,13 +59,11 @@ void ResourceContextData::StartProxying(
 }
 
 // static
-BraveProxyingWebSocket* ResourceContextData::StartProxyingWebSocket(
+BraveProxyingWebSocket* ResourceContextData::CreateProxyingWebSocket(
     content::ContentBrowserClient::WebSocketFactory factory,
     const GURL& url,
     const net::SiteForCookies& site_for_cookies,
     const std::optional<std::string>& user_agent,
-    mojo::PendingRemote<network::mojom::WebSocketHandshakeClient>
-        handshake_client,
     content::BrowserContext* browser_context,
     int frame_id,
     content::FrameTreeNodeId frame_tree_node_id,
@@ -94,9 +93,8 @@ BraveProxyingWebSocket* ResourceContextData::StartProxyingWebSocket(
   request.request_initiator = origin;
 
   auto proxy = std::make_unique<BraveProxyingWebSocket>(
-      std::move(factory), request, std::move(handshake_client),
-      frame_tree_node_id, browser_context, self->request_id_generator_,
-      *self->request_handler_,
+      std::move(factory), request, frame_tree_node_id, browser_context,
+      self->request_id_generator_, *self->request_handler_,
       base::BindOnce(&ResourceContextData::RemoveProxyWebSocket,
                      self->weak_factory_.GetWeakPtr()));
 

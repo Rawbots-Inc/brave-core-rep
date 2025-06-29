@@ -5,6 +5,7 @@
 
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -68,7 +69,7 @@ class ReadyStateScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {

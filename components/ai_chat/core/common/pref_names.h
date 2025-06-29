@@ -67,6 +67,14 @@ inline constexpr char kBraveChatP3ARateLimitStops[] =
     "brave.ai_chat.p3a_rate_limit_stops";
 inline constexpr char kBraveChatP3AContextLimits[] =
     "brave.ai_chat.p3a_context_limits";
+inline constexpr char kTabFocusP3ATotalTabCount[] =
+    "brave.ai_chat.p3a_tab_focus_total_tab_count";
+inline constexpr char kTabFocusP3AMaxTabCount[] =
+    "brave.ai_chat.p3a_tab_focus_max_tab_count";
+inline constexpr char kTabFocusP3ASessionCount[] =
+    "brave.ai_chat.p3a_tab_focus_session_count";
+inline constexpr char kTabFocusP3ALastUsageTime[] =
+    "brave.ai_chat.p3a_tab_focus_last_usage_time";
 #if BUILDFLAG(IS_ANDROID)
 inline constexpr char kBraveChatSubscriptionActiveAndroid[] =
     "brave.ai_chat.subscription_active_android";
@@ -87,11 +95,16 @@ inline constexpr char kBraveAIChatContextMenuEnabled[] =
 // Indicates whether a toolbar button can be shown on a normal browser UI
 inline constexpr char kBraveAIChatShowToolbarButton[] =
     "brave.ai_chat.show_toolbar_button";
+inline constexpr char kBraveAIChatToolbarButtonOpensFullPage[] =
+    "brave.ai_chat.toolbar_button_opens_full_page";
 
 // Used to indicate whether the feature is enabled by group policy.
 inline constexpr char kEnabledByPolicy[] = "brave.ai_chat.enabled_by_policy";
 inline constexpr char kObseleteBraveChatAutoGenerateQuestions[] =
     "brave.ai_chat.auto_generate_questions";
+
+inline constexpr char kBraveAIChatTabOrganizationEnabled[] =
+    "brave.ai_chat.tab_organization_enabled";
 
 COMPONENT_EXPORT(AI_CHAT_COMMON)
 void RegisterProfilePrefs(PrefRegistrySimple* registry);

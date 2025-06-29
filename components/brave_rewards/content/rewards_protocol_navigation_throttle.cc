@@ -11,6 +11,8 @@
 #include <string_view>
 #include <vector>
 
+#include "base/check.h"
+#include "base/logging.h"
 #include "base/strings/escape.h"
 #include "base/strings/strcat.h"
 #include "base/strings/string_split.h"
@@ -38,23 +40,21 @@ using content::WebContents;
 namespace brave_rewards {
 
 // static
-std::unique_ptr<RewardsProtocolNavigationThrottle>
-RewardsProtocolNavigationThrottle::MaybeCreateThrottleFor(
-    content::NavigationHandle* navigation_handle) {
+void RewardsProtocolNavigationThrottle::MaybeCreateAndAdd(
+    content::NavigationThrottleRegistry& registry) {
   auto* pref_service = user_prefs::UserPrefs::Get(
-      navigation_handle->GetWebContents()->GetBrowserContext());
+      registry.GetNavigationHandle().GetWebContents()->GetBrowserContext());
   if (!pref_service->GetBoolean(brave_rewards::prefs::kEnabled)) {
-    return nullptr;
+    return;
   }
 
-  return std::make_unique<RewardsProtocolNavigationThrottle>(navigation_handle);
+  registry.AddThrottle(
+      std::make_unique<RewardsProtocolNavigationThrottle>(registry));
 }
 
 RewardsProtocolNavigationThrottle::RewardsProtocolNavigationThrottle(
-    NavigationHandle* handle)
-    : NavigationThrottle(handle) {
-  CHECK(handle);
-}
+    content::NavigationThrottleRegistry& registry)
+    : NavigationThrottle(registry) {}
 
 RewardsProtocolNavigationThrottle::~RewardsProtocolNavigationThrottle() =
     default;

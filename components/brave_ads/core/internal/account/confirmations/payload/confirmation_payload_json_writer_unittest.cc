@@ -41,7 +41,7 @@ TEST_F(BraveAdsConfirmationPayloadJsonWriterTest,
   test::MockTokenGenerator(/*count=*/1);
   test::RefillConfirmationTokens(/*count=*/1);
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -51,7 +51,7 @@ TEST_F(BraveAdsConfirmationPayloadJsonWriterTest,
 
   // Assert
   EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
+                R"JSON(
                     {
                       "blindedPaymentTokens": [
                         "Ev5JE4/9TZI/5TqyN9JWfJ1To0HBwQw2rWeAPcdjX3Q="
@@ -74,7 +74,7 @@ TEST_F(BraveAdsConfirmationPayloadJsonWriterTest,
                       "transactionId": "8b742869-6e4a-490c-ac31-31b49130098a",
                       "type": "view",
                       "versionNumber": "1.2.3.4"
-                    })"),
+                    })JSON"),
             base::test::ParseJsonDict(confirmation_payload));
 }
 
@@ -83,7 +83,7 @@ TEST_F(BraveAdsConfirmationPayloadJsonWriterTest,
   // Arrange
   test::DisableBraveRewards();
 
-  const std::optional<ConfirmationInfo> confirmation =
+  std::optional<ConfirmationInfo> confirmation =
       test::BuildNonRewardConfirmation(/*should_generate_random_uuids=*/false);
   ASSERT_TRUE(confirmation);
 
@@ -92,13 +92,11 @@ TEST_F(BraveAdsConfirmationPayloadJsonWriterTest,
       json::writer::WriteConfirmationPayload(*confirmation);
 
   // Assert
-  EXPECT_EQ(base::test::ParseJsonDict(
-                R"(
-                    {
-                      "creativeInstanceId": "546fe7b0-5047-4f28-a11c-81f14edcf0f6",
-                      "transactionId": "8b742869-6e4a-490c-ac31-31b49130098a",
-                      "type": "view"
-                    })"),
+  EXPECT_EQ(base::test::ParseJsonDict(R"JSON(
+              {
+                "creativeInstanceId": "546fe7b0-5047-4f28-a11c-81f14edcf0f6",
+                "type": "view"
+              })JSON"),
             base::test::ParseJsonDict(confirmation_payload));
 }
 

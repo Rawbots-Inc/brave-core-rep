@@ -9,28 +9,34 @@
 
 #include "base/feature_list.h"
 #include "base/metrics/field_trial_params.h"
+#include "brave/components/ai_chat/core/common/constants.h"
 #include "build/build_config.h"
 
 namespace ai_chat::features {
 
-BASE_FEATURE(kAIChat,
-             "AIChat",
-             base::FEATURE_ENABLED_BY_DEFAULT
-);
+BASE_FEATURE(kAIChat, "AIChat", base::FEATURE_ENABLED_BY_DEFAULT);
 const base::FeatureParam<std::string> kAIModelsDefaultKey{
-    &kAIChat, "default_model", "chat-leo-expanded"};
+#if BUILDFLAG(IS_IOS)
+    &kAIChat, "default_model", "chat-basic"};
+#else
+    &kAIChat, "default_model", "chat-automatic"};
+#endif
 const base::FeatureParam<std::string> kAIModelsPremiumDefaultKey{
-    &kAIChat, "default_premium_model", "chat-leo-expanded"};
+#if BUILDFLAG(IS_IOS)
+    &kAIChat, "default_premium_model", kClaudeSonnetModelKey};
+#else
+    &kAIChat, "default_premium_model", "chat-automatic"};
+#endif
 const base::FeatureParam<std::string> kAIModelsVisionDefaultKey{
-    &kAIChat, "default_vision_model", "chat-vision-basic"};
+    &kAIChat, "default_vision_model", kClaudeHaikuModelKey};
+const base::FeatureParam<std::string> kAIModelsPremiumVisionDefaultKey{
+    &kAIChat, "default_vision_model", kClaudeSonnetModelKey};
 const base::FeatureParam<bool> kFreemiumAvailable(&kAIChat,
                                                   "is_freemium_available",
                                                   true);
 const base::FeatureParam<bool> kAIChatSSE{&kAIChat, "ai_chat_sse", true};
 const base::FeatureParam<bool> kOmniboxOpensFullPage{
     &kAIChat, "omnibox_opens_full_page", true};
-const base::FeatureParam<bool> kConversationAPIEnabled{
-    &kAIChat, "conversation_api", true};
 const base::FeatureParam<double> kAITemperature{&kAIChat, "temperature", 0.2};
 
 bool IsAIChatEnabled() {
@@ -49,6 +55,12 @@ bool IsAIChatHistoryEnabled() {
   return base::FeatureList::IsEnabled(features::kAIChatHistory);
 }
 
+BASE_FEATURE(kAIChatFirst, "AIChatFirst", base::FEATURE_DISABLED_BY_DEFAULT);
+
+bool IsAIChatFirstEnabled() {
+  return base::FeatureList::IsEnabled(features::kAIChatFirst);
+}
+
 BASE_FEATURE(kCustomSiteDistillerScripts,
              "CustomSiteDistillerScripts",
              base::FEATURE_ENABLED_BY_DEFAULT);
@@ -62,14 +74,6 @@ BASE_FEATURE(kContextMenuRewriteInPlace,
              base::FEATURE_ENABLED_BY_DEFAULT);
 bool IsContextMenuRewriteInPlaceEnabled() {
   return base::FeatureList::IsEnabled(features::kContextMenuRewriteInPlace);
-}
-
-BASE_FEATURE(kPageContentRefine,
-             "PageContentRefine",
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsPageContentRefineEnabled() {
-  return base::FeatureList::IsEnabled(features::kPageContentRefine);
 }
 
 BASE_FEATURE(kAllowPrivateIPs,
@@ -98,6 +102,14 @@ BASE_FEATURE(kPageContextEnabledInitially,
 
 bool IsPageContextEnabledInitially() {
   return base::FeatureList::IsEnabled(features::kPageContextEnabledInitially);
+}
+
+BASE_FEATURE(kTabOrganization,
+             "BraveTabOrganization",
+             base::FEATURE_ENABLED_BY_DEFAULT);
+
+bool IsTabOrganizationEnabled() {
+  return base::FeatureList::IsEnabled(features::kTabOrganization);
 }
 
 }  // namespace ai_chat::features

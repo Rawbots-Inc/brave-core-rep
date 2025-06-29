@@ -12,6 +12,7 @@
 #include "base/run_loop.h"
 #include "base/strings/strcat.h"
 #include "base/test/bind.h"
+#include "base/test/test_future.h"
 #include "brave/browser/ai_chat/ai_chat_service_factory.h"
 #include "brave/components/ai_chat/content/browser/ai_chat_tab_helper.h"
 #include "brave/components/ai_chat/core/browser/constants.h"
@@ -21,6 +22,7 @@
 #include "brave/components/l10n/common/test/scoped_default_locale.h"
 #include "brave/components/text_recognition/common/buildflags/buildflags.h"
 #include "build/build_config.h"
+#include "chrome/browser/pdf/pdf_extension_test_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
@@ -209,6 +211,15 @@ class AIChatUIBrowserTest : public InProcessBrowserTest {
     return chat_tab_helper_->pending_get_page_content_callback_ ? true : false;
   }
 
+  std::optional<std::vector<ai_chat::mojom::UploadedFilePtr>>
+  GetScreenshotsSync() {
+    base::test::TestFuture<
+        std::optional<std::vector<ai_chat::mojom::UploadedFilePtr>>>
+        future;
+    chat_tab_helper_->GetScreenshots(future.GetCallback());
+    return future.Take();
+  }
+
  protected:
   net::test_server::EmbeddedTestServer https_server_;
   raw_ptr<ai_chat::AIChatTabHelper, DanglingUntriaged> chat_tab_helper_ =
@@ -299,6 +310,8 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, ExtractionPrintDialog) {
         // defined(ARCH_CPU_64_BITS)
 IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, MAYBE_PrintPreviewFallback) {
   NavigateURL(https_server_.GetURL("a.com", "/text_in_image.pdf"), false);
+  ASSERT_TRUE(
+      pdf_extension_test_util::EnsurePDFHasLoaded(GetActiveWebContents()));
   FetchPageContent(
       FROM_HERE, "This is the way.\n\nI have spoken.\nWherever I Go, He Goes.");
 
@@ -325,6 +338,36 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, FetchSearchQuerySummary_NoMetaTag) {
   // Test when meta tag is not present, should return null result.
   NavigateURL(https_server_.GetURL("search.brave.com", "/search?q=query"));
   FetchSearchQuerySummary(FROM_HERE, std::nullopt);
+}
+
+IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, FetchPageContentPDF) {
+  constexpr char kExpectedText[] = "This is the way\nI have spoken";
+  NavigateURL(https_server_.GetURL("a.com", "/dummy.pdf"));
+  ASSERT_TRUE(
+      pdf_extension_test_util::EnsurePDFHasLoaded(GetActiveWebContents()));
+  FetchPageContent(FROM_HERE, kExpectedText);
+
+  NavigateURL(https_server_.GetURL("a.com", "/empty_pdf.pdf"));
+  ASSERT_TRUE(
+      pdf_extension_test_util::EnsurePDFHasLoaded(GetActiveWebContents()));
+  FetchPageContent(FROM_HERE, "");
+
+  // Test pdf tab loaded in background.
+  ui_test_utils::NavigateToURLWithDisposition(
+      browser(), https_server_.GetURL("a.com", "/dummy.pdf"),
+      WindowOpenDisposition::NEW_BACKGROUND_TAB,
+      ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
+  ASSERT_EQ(2, browser()->tab_strip_model()->count());
+
+  browser()->tab_strip_model()->ActivateTabAt(1);
+  EXPECT_EQ(1, browser()->tab_strip_model()->active_index());
+  ASSERT_TRUE(
+      pdf_extension_test_util::EnsurePDFHasLoaded(GetActiveWebContents()));
+  // It needs update because it was created for tab 0 at setup
+  chat_tab_helper_ =
+      ai_chat::AIChatTabHelper::FromWebContents(GetActiveWebContents());
+  ASSERT_TRUE(chat_tab_helper_);
+  FetchPageContent(FROM_HERE, kExpectedText);
 }
 
 IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
@@ -383,4 +426,16 @@ IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest,
   FetchSearchQuerySummary(FROM_HERE, std::vector<ai_chat::SearchQuerySummary>(
                                          {{"test query", "test summary"},
                                           {"test query 2", "test summary 2"}}));
+}
+
+IN_PROC_BROWSER_TEST_F(AIChatUIBrowserTest, PdfScreenshot) {
+  NavigateURL(https_server_.GetURL("a.com", "/text_in_image.pdf"));
+  ASSERT_TRUE(
+      pdf_extension_test_util::EnsurePDFHasLoaded(GetActiveWebContents()));
+
+  auto result = GetScreenshotsSync();
+  ASSERT_TRUE(result);
+  EXPECT_EQ(result->size(), 4u);
+  EXPECT_TRUE(std::ranges::any_of(
+      result.value(), [](const auto& entry) { return !entry->data.empty(); }));
 }

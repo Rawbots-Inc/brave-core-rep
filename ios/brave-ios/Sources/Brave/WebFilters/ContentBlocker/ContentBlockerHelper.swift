@@ -8,6 +8,7 @@ import Collections
 import Combine
 import Data
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -65,7 +66,7 @@ struct BlockedRequestInfo: Hashable, Identifiable {
 }
 
 class ContentBlockerHelper: ObservableObject {
-  private(set) weak var tab: Tab?
+  private(set) weak var tab: (any TabState)?
 
   /// The rule lists that are loaded into the current tab
   private var setRuleLists: Set<WKContentRuleList> = []
@@ -73,9 +74,6 @@ class ContentBlockerHelper: ObservableObject {
   var stats: TPPageStats = TPPageStats() {
     didSet {
       guard let tab = self.tab else { return }
-      if stats.total <= 1 {
-        TabEvent.post(.didChangeContentBlocking, for: tab)
-      }
       statsDidChange?(stats)
     }
   }
@@ -87,7 +85,7 @@ class ContentBlockerHelper: ObservableObject {
   /// Cached aggressive selectors. Key is the URL's `baseDomain`.
   private var hiddenAggressiveSelectors: [String: Set<String>] = [:]
 
-  init(tab: Tab) {
+  init(tab: (any TabState)?) {
     self.tab = tab
   }
 
@@ -99,14 +97,14 @@ class ContentBlockerHelper: ObservableObject {
     // Remove unwanted rule lists
     for ruleList in setRuleLists.subtracting(ruleLists) {
       // It's added but we don't want it. So we remove it.
-      tab?.webView?.configuration.userContentController.remove(ruleList)
+      tab?.configuration.userContentController.remove(ruleList)
       setRuleLists.remove(ruleList)
       removedIds.append(ruleList.identifier)
     }
 
     // Add missing rule lists
     for ruleList in ruleLists.subtracting(setRuleLists) {
-      tab?.webView?.configuration.userContentController.add(ruleList)
+      tab?.configuration.userContentController.add(ruleList)
       setRuleLists.insert(ruleList)
       addedIds.append(ruleList.identifier)
     }

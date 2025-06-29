@@ -251,6 +251,25 @@ extension Preferences {
       key: "chromium.last.bookmark.folder.node.id",
       default: nil
     )
+    /// The last feature flag value for kUseChromiumWebViews
+    ///
+    /// Allows us to invalidate the session restore data for web views when changed by griffin or
+    /// the user via flags
+    public static let lastWebViewsFlagState = Option<Bool?>(
+      key: "chromium.last.webviewsflagstate",
+      default: nil
+    )
+    /// Whether or not we've invalidated session restoration data the first time the user is
+    /// upgraded to use Chromium web views
+    public static let invalidatedRestorationOnUpgrade = Option<Bool>(
+      key: "chromium.invalidated-restoration-on-upgrade",
+      default: false
+    )
+    /// Sync Device Restoration Token
+    public static let hasSyncDeviceRestorationToken = Option<Bool>(
+      key: "chromium.sync.hasSyncDeviceRestorationToken",
+      default: false
+    )
   }
 
   public final class Debug {

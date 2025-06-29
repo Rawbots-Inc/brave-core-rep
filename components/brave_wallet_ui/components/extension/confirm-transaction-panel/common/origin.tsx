@@ -12,7 +12,7 @@ import BraveIcon from '../../../../assets/svg-icons/brave-icon.svg'
 import { SiteOrigin } from '../../../shared/create-site-origin'
 import {
   ChainInfo,
-  InlineViewOnBlockExplorerIconButton
+  InlineViewOnBlockExplorerIconButton,
 } from './view_on_explorer_button'
 import { CopyTooltip } from '../../../shared/copy-tooltip/copy-tooltip'
 
@@ -25,7 +25,7 @@ import {
   InlineContractRow,
   OriginIndicatorIconWrapper,
   OriginURLText,
-  OriginWarningIndicator
+  OriginWarningIndicator,
 } from './origin.style'
 
 // Types
@@ -35,7 +35,7 @@ import { BraveWallet } from '../../../../constants/types'
 import { reduceAddress } from '../../../../utils/reduce-address'
 import {
   getIsBraveWalletOrigin,
-  isComponentInStorybook
+  isComponentInStorybook,
 } from '../../../../utils/string-utils'
 import { getLocale } from '../../../../../common/locale'
 
@@ -43,21 +43,21 @@ interface Props {
   originInfo: BraveWallet.OriginInfo
 }
 
-const isStorybook = isComponentInStorybook()
+const getFaviconSrc = (originInfo: BraveWallet.OriginInfo) => {
+  if (getIsBraveWalletOrigin(originInfo)) {
+    return BraveIcon
+  }
+  if (isComponentInStorybook()) {
+    return `${originInfo.originSpec}/favicon.png`
+  }
+  return `chrome://favicon2?size=64&pageUrl=${encodeURIComponent(originInfo.originSpec)}`
+}
 
 export function Origin(props: Props) {
   const { originInfo } = props
   return (
     <>
-      <FavIcon
-        src={
-          getIsBraveWalletOrigin(originInfo)
-            ? BraveIcon
-            : isStorybook
-            ? `${originInfo.originSpec}/favicon.png`
-            : `chrome://favicon/size/64@1x/${originInfo.originSpec}`
-        }
-      />
+      <FavIcon src={getFaviconSrc(originInfo)} />
       <URLText>
         <SiteOrigin
           originSpec={originInfo.originSpec}
@@ -72,7 +72,7 @@ export function TransactionOrigin({
   contractAddress,
   originInfo,
   isFlagged,
-  network
+  network,
 }: Props & {
   contractAddress?: string
   network: ChainInfo
@@ -98,13 +98,7 @@ export function TransactionOrigin({
         <IconsWrapper marginRight='0px'>
           <FavIcon
             height='30px'
-            src={
-              isBraveWalletOrigin
-                ? BraveIcon
-                : isStorybook
-                ? `${originInfo.originSpec}/favicon.png`
-                : `chrome://favicon/size/64@1x/${originInfo.originSpec}`
-            }
+            src={getFaviconSrc(originInfo)}
           />
           {!isBraveWalletOrigin && isFlagged && (
             <OriginIndicatorIconWrapper>

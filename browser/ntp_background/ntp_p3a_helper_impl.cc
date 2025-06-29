@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "base/check.h"
-#include "base/feature_list.h"
 #include "base/functional/bind.h"
 #include "base/json/values_util.h"
 #include "base/metrics/histogram_functions.h"
@@ -23,11 +22,9 @@
 #include "base/time/time.h"
 #include "base/types/cxx23_to_underlying.h"
 #include "brave/components/brave_ads/core/mojom/brave_ads.mojom.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 #include "brave/components/brave_ads/core/public/user_engagement/site_visit/site_visit_feature.h"
 #include "brave/components/brave_rewards/core/pref_names.h"
 #include "brave/components/ntp_background_images/browser/ntp_sponsored_images_data.h"
-#include "brave/components/p3a/features.h"
 #include "brave/components/p3a/metric_log_type.h"
 #include "brave/components/p3a/p3a_service.h"
 #include "components/prefs/pref_registry_simple.h"
@@ -39,14 +36,11 @@ namespace ntp_background_images {
 namespace {
 
 constexpr char kNewTabPageEventCountDictPref[] =
-    "brave.brave_ads.p3a.ntp_event_count";
+    "brave.brave_ads.p3a.ntp_event_count";  // DEPRECATED
 constexpr char kNewTabPageEventCountConstellationDictPref[] =
     "brave.brave_ads.p3a.ntp_event_count_constellation";
 constexpr char kNewTabPageKnownCampaignsDictPref[] =
     "brave.brave_ads.p3a.ntp_known_campaigns";
-constexpr auto kAllCreativeCountDicts = std::to_array<std::string_view>(
-    {kNewTabPageEventCountDictPref,
-     kNewTabPageEventCountConstellationDictPref});
 
 constexpr int kCountBuckets[] = {0, 1, 2, 3, 8, 12, 16};
 
@@ -69,20 +63,8 @@ constexpr char kExpireTimeKey[] = "expiry_time";
 
 constexpr base::TimeDelta kCountExpiryTime = base::Days(30);
 
-constexpr base::TimeDelta kStartLandingCheckTime = base::Milliseconds(750);
-
-bool IsRewardsDisabled(PrefService* prefs) {
-  return !prefs->GetBoolean(brave_rewards::prefs::kEnabled) &&
-         !base::FeatureList::IsEnabled(
-             brave_ads::kShouldAlwaysTriggerBraveNewTabPageAdEventsFeature);
-}
-
-const char* GetCountDictPref(bool is_constellation) {
-  if (is_constellation) {
-    return kNewTabPageEventCountConstellationDictPref;
-  } else {
-    return kNewTabPageEventCountDictPref;
-  }
+bool IsRewardsEnabled(PrefService* prefs) {
+  return prefs->GetBoolean(brave_rewards::prefs::kEnabled);
 }
 
 std::string BuildCreativeHistogramName(const std::string& creative_instance_id,
@@ -117,14 +99,8 @@ NTPP3AHelperImpl::NTPP3AHelperImpl(
     PrefService* local_state,
     p3a::P3AService* p3a_service,
     NTPBackgroundImagesService* ntp_background_images_service,
-    PrefService* prefs,
-    bool use_uma_for_testing)
-    : local_state_(local_state),
-      p3a_service_(p3a_service),
-      prefs_(prefs),
-      is_json_deprecated_(
-          p3a::features::IsJSONDeprecated(p3a::MetricLogType::kExpress)),
-      use_uma_for_testing_(use_uma_for_testing) {
+    PrefService* prefs)
+    : local_state_(local_state), p3a_service_(p3a_service), prefs_(prefs) {
   DCHECK(local_state);
   DCHECK(p3a_service);
   DCHECK(prefs);
@@ -153,9 +129,19 @@ NTPP3AHelperImpl::NTPP3AHelperImpl(
 NTPP3AHelperImpl::~NTPP3AHelperImpl() = default;
 
 void NTPP3AHelperImpl::RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
-  registry->RegisterDictionaryPref(kNewTabPageEventCountDictPref);
   registry->RegisterDictionaryPref(kNewTabPageEventCountConstellationDictPref);
   registry->RegisterDictionaryPref(kNewTabPageKnownCampaignsDictPref);
+}
+
+void NTPP3AHelperImpl::RegisterLocalStatePrefsForMigration(
+    PrefRegistrySimple* registry) {
+  // Added 06/2025
+  registry->RegisterDictionaryPref(kNewTabPageEventCountDictPref);
+}
+
+void NTPP3AHelperImpl::MigrateObsoleteLocalStatePrefs(
+    PrefService* local_state) {
+  local_state->ClearPref(kNewTabPageEventCountDictPref);
 }
 
 void NTPP3AHelperImpl::RecordView(const std::string& creative_instance_id,
@@ -172,7 +158,7 @@ void NTPP3AHelperImpl::RecordView(const std::string& creative_instance_id,
     UpdateCampaignMetric(campaign_id, kCampaignViewedEventKey);
   }
 
-  if (!IsRewardsDisabled(prefs_)) {
+  if (IsRewardsEnabled(prefs_)) {
     return;
   }
   UpdateMetricCount(creative_instance_id, kCreativeViewEventKey);
@@ -181,7 +167,7 @@ void NTPP3AHelperImpl::RecordView(const std::string& creative_instance_id,
 void NTPP3AHelperImpl::RecordNewTabPageAdEvent(
     brave_ads::mojom::NewTabPageAdEventType mojom_ad_event_type,
     const std::string& creative_instance_id) {
-  if (!p3a_service_->IsP3AEnabled() || !IsRewardsDisabled(prefs_)) {
+  if (!p3a_service_->IsP3AEnabled() || IsRewardsEnabled(prefs_)) {
     return;
   }
 
@@ -197,10 +183,7 @@ void NTPP3AHelperImpl::RecordNewTabPageAdEvent(
 
     case brave_ads::mojom::NewTabPageAdEventType::kClicked: {
       UpdateMetricCount(creative_instance_id, kCreativeClickEventKey);
-      landing_check_timer_.Start(
-          FROM_HERE, kStartLandingCheckTime,
-          base::BindOnce(&NTPP3AHelperImpl::OnLandingStartCheck,
-                         base::Unretained(this), creative_instance_id));
+      last_clicked_creative_instance_id_ = creative_instance_id;
       break;
     }
 
@@ -226,19 +209,21 @@ void NTPP3AHelperImpl::RecordNewTabPageAdEvent(
   }
 }
 
-void NTPP3AHelperImpl::SetLastTabURL(const GURL& url) {
-  last_tab_hostname_ = url.host();
+void NTPP3AHelperImpl::OnNavigationDidFinish(const GURL& url) {
+  last_url_ = url;
+
+  MaybeLand(url);
 }
 
-void NTPP3AHelperImpl::OnP3ARotation(p3a::MetricLogType log_type,
-                                     bool is_constellation) {
+void NTPP3AHelperImpl::OnP3ARotation(p3a::MetricLogType log_type) {
   if (log_type != p3a::MetricLogType::kExpress) {
     return;
   }
 
   CleanOldCampaignsAndCreatives();
 
-  ScopedDictPrefUpdate update(local_state_, GetCountDictPref(is_constellation));
+  ScopedDictPrefUpdate update(local_state_,
+                              kNewTabPageEventCountConstellationDictPref);
   base::Value::Dict& update_dict = update.Get();
 
   if (!p3a_service_->IsP3AEnabled()) {
@@ -259,8 +244,7 @@ void NTPP3AHelperImpl::OnP3ARotation(p3a::MetricLogType log_type,
       int count = value.GetInt();
       inflight_dict->Set(key, count);
       RecordCreativeMetric(
-          BuildCreativeHistogramName(creative_instance_id, key), count,
-          is_constellation);
+          BuildCreativeHistogramName(creative_instance_id, key), count);
       is_active_creative = true;
     }
     if (is_active_creative) {
@@ -269,14 +253,13 @@ void NTPP3AHelperImpl::OnP3ARotation(p3a::MetricLogType log_type,
   }
   // Always send the creative total if ads are disabled (as per spec),
   // or send the total if there were outstanding events sent
-  if (IsRewardsDisabled(prefs_) || total_active_creatives > 0) {
+  if (!IsRewardsEnabled(prefs_) || total_active_creatives > 0) {
     RecordCreativeMetric(kCreativeTotalCountHistogramName,
-                         total_active_creatives, is_constellation);
+                         total_active_creatives);
   }
 }
 
-void NTPP3AHelperImpl::OnP3AMetricCycled(const std::string& histogram_name,
-                                         bool is_constellation) {
+void NTPP3AHelperImpl::OnP3AMetricCycled(const std::string& histogram_name) {
   if (!histogram_name.starts_with(p3a::kCreativeMetricPrefix)) {
     return;
   }
@@ -293,7 +276,7 @@ void NTPP3AHelperImpl::OnP3AMetricCycled(const std::string& histogram_name,
 
   [&]() {
     ScopedDictPrefUpdate update(local_state_,
-                                GetCountDictPref(is_constellation));
+                                kNewTabPageEventCountConstellationDictPref);
     base::Value::Dict& update_dict = update.Get();
 
     base::Value::Dict* creative_dict =
@@ -357,65 +340,77 @@ void NTPP3AHelperImpl::CleanOldCampaignsAndCreatives() {
     it = update->erase(it);
   }
 
-  for (auto dict_pref : kAllCreativeCountDicts) {
-    ScopedDictPrefUpdate creative_update(local_state_, dict_pref);
+  ScopedDictPrefUpdate creative_update(
+      local_state_, kNewTabPageEventCountConstellationDictPref);
 
-    for (auto it = creative_update->begin(); it != creative_update->end();) {
-      const auto& creative_instance_id = it->first;
-      base::Value::Dict* creative_instance_dict = it->second.GetIfDict();
-      if (!CheckExpiry(now, creative_instance_dict)) {
-        it++;
-        continue;
-      }
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeClickEventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeViewEventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeLandEventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeInteractionEventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeMediaPlayEventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeMedia25EventKey));
-      p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
-          creative_instance_id, kCreativeMedia100EventKey));
-      it = creative_update->erase(it);
+  for (auto it = creative_update->begin(); it != creative_update->end();) {
+    const auto& creative_instance_id = it->first;
+    base::Value::Dict* creative_instance_dict = it->second.GetIfDict();
+    if (!CheckExpiry(now, creative_instance_dict)) {
+      it++;
+      continue;
     }
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeClickEventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeViewEventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeLandEventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeInteractionEventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeMediaPlayEventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeMedia25EventKey));
+    p3a_service_->RemoveDynamicMetric(BuildCreativeHistogramName(
+        creative_instance_id, kCreativeMedia100EventKey));
+    it = creative_update->erase(it);
+  }
+}
+
+void NTPP3AHelperImpl::MaybeLand(const GURL& url) {
+  if (!last_clicked_creative_instance_id_) {
+    // The user did not click on a new tab page ad, so there is no need to check
+    // for a page landing.
+    return;
+  }
+
+  page_land_timer_.Start(
+      FROM_HERE, brave_ads::kPageLandAfter.Get(),
+      base::BindOnce(&NTPP3AHelperImpl::MaybeLandCallback,
+                     base::Unretained(this),
+                     *last_clicked_creative_instance_id_, url));
+
+  last_clicked_creative_instance_id_.reset();
+}
+
+void NTPP3AHelperImpl::MaybeLandCallback(
+    const std::string& creative_instance_id,
+    const GURL& url) {
+  if (last_url_ && last_url_->host() == url.host()) {
+    UpdateMetricCount(creative_instance_id, kCreativeLandEventKey);
   }
 }
 
 void NTPP3AHelperImpl::RecordCreativeMetric(const std::string& histogram_name,
-                                            int count,
-                                            bool is_constellation) {
+                                            int count) {
   const int* it_count =
       std::lower_bound(kCountBuckets, std::end(kCountBuckets), count);
   int answer = it_count - kCountBuckets;
-  if (use_uma_for_testing_) {
-    if (!is_constellation) {
-      base::UmaHistogramExactLinear(histogram_name, answer,
-                                    std::size(kCountBuckets) + 1);
-    }
-    return;
-  }
-  p3a_service_->UpdateMetricValueForSingleFormat(histogram_name, answer,
-                                                 is_constellation);
+  base::UmaHistogramExactLinear(histogram_name, answer,
+                                std::size(kCountBuckets) + 1);
 }
 
 void NTPP3AHelperImpl::RemoveMetricIfInstanceDoesNotExist(
     const std::string& histogram_name,
     const std::string& event_type,
     const std::string& creative_instance_id) {
+  const auto& count_dict =
+      local_state_->GetDict(kNewTabPageEventCountConstellationDictPref);
+  const auto* creative_dict = count_dict.FindDict(creative_instance_id);
   bool creative_instance_exists =
-      std::ranges::any_of(kAllCreativeCountDicts, [&](auto dict_pref_name) {
-        const auto& count_dict = local_state_->GetDict(dict_pref_name);
-        const auto* creative_dict = count_dict.FindDict(creative_instance_id);
-        if (creative_dict == nullptr) {
-          return false;
-        }
-        return creative_dict->contains(event_type);
-      });
+      creative_dict && creative_dict->contains(event_type);
+
   if (!creative_instance_exists) {
     p3a_service_->RemoveDynamicMetric(histogram_name);
   }
@@ -430,35 +425,26 @@ void NTPP3AHelperImpl::UpdateMetricCount(
   p3a_service_->RegisterDynamicMetric(histogram_name,
                                       p3a::MetricLogType::kExpress);
 
-  // Perform updates for both JSON & Constellation dictionaries
-  // The counts need to be monitored separately, as JSON and Constellation
-  // epochs do not perfectly align.
-  // TODO(djandries): Remove JSON counts once transition to Constellation
-  // is complete
-  for (auto dict_pref : kAllCreativeCountDicts) {
-    if (dict_pref == kNewTabPageEventCountDictPref && is_json_deprecated_) {
-      continue;
-    }
-    ScopedDictPrefUpdate update(local_state_, dict_pref);
-    base::Value::Dict& update_dict = update.Get();
+  ScopedDictPrefUpdate update(local_state_,
+                              kNewTabPageEventCountConstellationDictPref);
+  base::Value::Dict& update_dict = update.Get();
 
-    base::Value::Dict* creative_instance_dict =
-        update_dict.FindDict(creative_instance_id);
-    if (creative_instance_dict == nullptr) {
-      creative_instance_dict = update_dict.EnsureDict(creative_instance_id);
-      creative_instance_dict->EnsureDict(kInflightDictKey);
-    }
-
-    const std::optional<int> current_value =
-        creative_instance_dict->FindInt(event_type);
-
-    const int count = current_value.value_or(0) + 1;
-
-    creative_instance_dict->Set(event_type, count);
-    const base::Time new_expiry_time = base::Time::Now() + kCountExpiryTime;
-    creative_instance_dict->Set(kExpireTimeKey,
-                                base::TimeToValue(new_expiry_time).GetString());
+  base::Value::Dict* creative_instance_dict =
+      update_dict.FindDict(creative_instance_id);
+  if (creative_instance_dict == nullptr) {
+    creative_instance_dict = update_dict.EnsureDict(creative_instance_id);
+    creative_instance_dict->EnsureDict(kInflightDictKey);
   }
+
+  const std::optional<int> current_value =
+      creative_instance_dict->FindInt(event_type);
+
+  const int count = current_value.value_or(0) + 1;
+
+  creative_instance_dict->Set(event_type, count);
+  const base::Time new_expiry_time = base::Time::Now() + kCountExpiryTime;
+  creative_instance_dict->Set(kExpireTimeKey,
+                              base::TimeToValue(new_expiry_time).GetString());
 }
 
 void NTPP3AHelperImpl::UpdateCampaignMetric(const std::string& campaign_id,
@@ -469,28 +455,6 @@ void NTPP3AHelperImpl::UpdateCampaignMetric(const std::string& campaign_id,
   p3a_service_->RegisterDynamicMetric(histogram_name,
                                       p3a::MetricLogType::kExpress);
   base::UmaHistogramBoolean(histogram_name, true);
-}
-
-void NTPP3AHelperImpl::OnLandingStartCheck(
-    const std::string& creative_instance_id) {
-  if (!last_tab_hostname_.has_value()) {
-    return;
-  }
-  landing_check_timer_.Start(
-      FROM_HERE, brave_ads::kPageLandAfter.Get(),
-      base::BindOnce(&NTPP3AHelperImpl::OnLandingEndCheck,
-                     base::Unretained(this), creative_instance_id,
-                     *last_tab_hostname_));
-}
-
-void NTPP3AHelperImpl::OnLandingEndCheck(
-    const std::string& creative_instance_id,
-    const std::string& expected_hostname) {
-  if (!last_tab_hostname_.has_value() ||
-      last_tab_hostname_ != expected_hostname) {
-    return;
-  }
-  UpdateMetricCount(creative_instance_id, kCreativeLandEventKey);
 }
 
 void NTPP3AHelperImpl::OnSponsoredImagesDataDidUpdate(

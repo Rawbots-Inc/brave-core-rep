@@ -5,11 +5,12 @@
 
 package org.chromium.chrome.browser.bookmarks;
 
-import android.content.ComponentName;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.chromium.chrome.browser.price_tracking.PriceDropNotificationManager;
 import org.chromium.chrome.browser.profiles.Profile;
 import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
 import org.chromium.ui.base.ActivityWindowAndroid;
@@ -19,21 +20,23 @@ public class BraveBookmarkManagerCoordinator extends BookmarkManagerCoordinator 
     private BookmarkManagerMediator mMediator;
 
     public BraveBookmarkManagerCoordinator(
-            Context context,
-            ComponentName openBookmarkComponentName,
+            @NonNull Context context,
             boolean isDialogUi,
-            SnackbarManager snackbarManager,
-            Profile profile,
-            BookmarkUiPrefs bookmarkUiPrefs,
-            @Nullable Runnable bookmarkOpenedCallback) {
+            @NonNull SnackbarManager snackbarManager,
+            @NonNull Profile profile,
+            @NonNull BookmarkUiPrefs bookmarkUiPrefs,
+            @NonNull BookmarkOpener bookmarkOpener,
+            @Nullable BookmarkManagerOpener bookmarkManagerOpener,
+            @NonNull PriceDropNotificationManager priceDropNotificationManager) {
         super(
                 context,
-                openBookmarkComponentName,
                 isDialogUi,
                 snackbarManager,
                 profile,
                 bookmarkUiPrefs,
-                bookmarkOpenedCallback);
+                bookmarkOpener,
+                bookmarkManagerOpener,
+                priceDropNotificationManager);
     }
 
     public void setWindow(ActivityWindowAndroid window) {

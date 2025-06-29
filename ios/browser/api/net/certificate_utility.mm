@@ -3,12 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifdef UNSAFE_BUFFERS_BUILD
-// TODO(https://github.com/brave/brave-browser/issues/41661): Remove this and
-// convert code to safer constructs.
-#pragma allow_unsafe_buffers
-#endif
-
 #import "brave/ios/browser/api/net/certificate_utility.h"
 
 #include <limits>
@@ -17,12 +11,12 @@
 
 #import "base/apple/foundation_util.h"
 #include "base/base64.h"
+#include "base/compiler_specific.h"
 #include "base/containers/span.h"
 #include "base/functional/bind.h"
 #include "base/logging.h"
 #include "base/memory/ref_counted.h"
 #include "base/memory/scoped_refptr.h"
-#import "base/notreached.h"
 #include "base/strings/sys_string_conversions.h"
 #include "net/base/net_errors.h"
 #include "net/base/network_anonymization_key.h"
@@ -59,8 +53,9 @@ namespace {
   for (std::size_t i = 0; i < sizeof(net::kBraveAcceptableCerts) /
                                   sizeof(net::kBraveAcceptableCerts[0]);
        ++i) {
-    if (net::kBraveAcceptableCerts[i]) {
-      std::string data = std::string(net::kBraveAcceptableCerts[i]);
+    if (UNSAFE_TODO(net::kBraveAcceptableCerts[i])) {
+      std::string data =
+          std::string(UNSAFE_TODO(net::kBraveAcceptableCerts[i]));
       if (data.size() > 0) {
         [result addObject:[NSData dataWithBytes:&data[0] length:data.size()]];
       }

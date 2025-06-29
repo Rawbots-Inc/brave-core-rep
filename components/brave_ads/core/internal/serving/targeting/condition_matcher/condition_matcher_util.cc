@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
-#include "brave/components/brave_ads/core/public/serving/targeting/condition_matcher/condition_matcher_util.h"
+#include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/condition_matcher_util.h"
 
 #include <algorithm>
 #include <cstddef>
@@ -17,7 +17,6 @@
 #include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/matchers/pattern_condition_matcher_util.h"
 #include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/matchers/regex_condition_matcher_util.h"
 #include "brave/components/brave_ads/core/internal/serving/targeting/condition_matcher/prefs/condition_matcher_pref_util.h"
-#include "brave/components/brave_ads/core/public/prefs/pref_provider_interface.h"
 
 namespace brave_ads {
 
@@ -48,18 +47,16 @@ bool MatchCondition(std::string_view value, std::string_view condition) {
 
 }  // namespace
 
-bool MatchConditions(const PrefProviderInterface* const pref_provider,
+bool MatchConditions(const base::Value::Dict& virtual_prefs,
                      const ConditionMatcherMap& condition_matchers) {
-  CHECK(pref_provider);
-
   return std::ranges::all_of(
-      condition_matchers, [pref_provider](const auto& condition_matcher) {
+      condition_matchers, [&virtual_prefs](const auto& condition_matcher) {
         const auto& [pref_path, condition] = condition_matcher;
 
         const std::string stripped_pref_path =
             MaybeStripOperatorPrefix(pref_path);
-        const std::optional<std::string> value =
-            MaybeGetPrefValueAsString(pref_provider, stripped_pref_path);
+        std::optional<std::string> value =
+            MaybeGetPrefValueAsString(virtual_prefs, stripped_pref_path);
 
         if (HasNotOperator(pref_path)) {
           // Match if the pref path does not exist.

@@ -4,6 +4,7 @@
 
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -39,7 +40,7 @@ class PrintScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -50,7 +51,7 @@ class PrintScriptHandler: TabContentScript {
       return
     }
 
-    if let webView = tab.webView, let url = webView.url {
+    if let url = tab.visibleURL, let viewPrintFormatter = tab.viewPrintFormatter {
       // If the main-frame's URL has changed
       if let domain = url.baseDomain, domain != currentDomain, message.frameInfo.isMainFrame {
         isBlocking = false
@@ -67,7 +68,7 @@ class PrintScriptHandler: TabContentScript {
         self?.isPresentingController = true
 
         let printController = UIPrintInteractionController.shared
-        printController.printFormatter = webView.viewPrintFormatter()
+        printController.printFormatter = viewPrintFormatter
         printController.present(
           animated: true,
           completionHandler: { _, _, _ in
@@ -112,10 +113,10 @@ class PrintScriptHandler: TabContentScript {
         if UIDevice.current.userInterfaceIdiom == .pad,
           let popoverController = suppressSheet.popoverPresentationController
         {
-          popoverController.sourceView = webView
+          popoverController.sourceView = tab.view
           popoverController.sourceRect = CGRect(
-            x: webView.bounds.midX,
-            y: webView.bounds.midY,
+            x: tab.view.bounds.midX,
+            y: tab.view.bounds.midY,
             width: 0,
             height: 0
           )

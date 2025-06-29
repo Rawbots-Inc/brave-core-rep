@@ -85,20 +85,17 @@
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "Blokker alle";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "Hvis du blokkerer alle informasjonskapsler, vil enkelte nettsteder ikke fungere riktig.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "Vil du blokkere alle informasjonskapsler?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "Blokkere alle informasjonskapsler?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "Shields blokkerer allerede informasjonskapsler fra tredjeparter. Denne innstillingen fører til at alle informasjonskapsler og nettstedsdata slettes, noe som kan bety at enkelte nettsteder ikke fungerer.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "Alternativet kan ikke endres. Prøv senere.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "Blokker samtykkemeldinger om informasjonskapsler";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "Dette hindrer nettsteder i å lagre informasjon om tidligere besøk.\nAlternativet «Blokker alle informasjonskapsler» er utdatert. Hvis du vil vite hvordan du tvangsaktiverer det, kan du besøke [hjelpesiden vår](https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "Blokkeringsoversikt";
@@ -490,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "Bekreft";
 
-/* Cookie settings option title */
-"CookieControl" = "Informasjonskapsel-kontroll";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "Informasjonskapsler og nettsteddata";
 
@@ -523,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "Søkemotorer som for tiden er i bruk";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "Legg til en tilpasset søkemotor";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "Skriv søkeadressen og erstatt spørringen med %1$s.\nFor eksempel: https://youtube.com/search?q=%2$s \n(Hvis nettstedet støtter OpenSearch, vil det gis et alternativ for å legge til automatisk når du redigerer dette feltet.)";
 
@@ -540,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "Det finnes allerede en annen søkemotor med samme navn.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "Skriv inn navnet på søkemotoren";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "Usikker egendefinert søkemal for";
@@ -661,9 +661,6 @@
 /* No comment provided by engineer. */
 "Done" = "Ferdig";
 
-/* cookie settings option */
-"DontBlockCookies" = "Ikke blokker informasjonskapsler";
-
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "Ikke send";
 
@@ -702,6 +699,9 @@
 
 /* Title for editing a folder */
 "EditFolderTitle" = "Rediger mappe";
+
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "Rediger søkemotorer";
 
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "Aktiver Dra-for-oppdatering";
@@ -787,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "Ferdig";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "Finn «%@»";
+/* Find `search query` */
+"FindInPageFormat" = "Finn ";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "Neste resultat på side";
@@ -879,6 +879,9 @@
 
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "HTTPS-oppgraderinger";
+
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "Importer nettleserdata";
 
 /* title for per-site shield toggles */
 "IndividualControls" = "Individuelle kontroller";
@@ -1052,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "Skjul sponsede bilder";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "«Sponset» er ytterligere merkeprofilerte bakgrunner du kan tjene på med Brave-belønninger aktivert.";
+"ntp.imageTypeSelectionDescription" = "Sponsede bilder er bakgrunner som vises i nye faner i nettleseren din. Når du aktiverer slike bilder, bidrar du til å støtte Braves overordnede mål.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "Lær mer";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "Lær mer om Brave Rewards";
@@ -2131,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "Skjul";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "Lim inn og gå videre";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "på";
 
@@ -2150,10 +2153,13 @@
 "RecentSearchScannerTitle" = "Skann QR-kode";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "Nylige søk lar deg få privat tilgang til tidligere søk. Vil du aktivere nylige søk?";
+"RecentSearchSectionDescription" = "Ønsker du å aktivere Nylige søk?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "Nylige søk";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "Nylige søk";
+"RecentSearchSectionTitle" = "Nylige søk gir deg privat tilgang til tidligere søk.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "Vis";
@@ -2498,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "Søker etter forslaget";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "Åpne faner, bokmerker og logg";
+"SearchHistorySectionHeader" = "På enheten din";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "Fjern søk";
@@ -2511,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "Søk";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "Søk etter «%@»";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "Legg til tilpasset søkemotor";
@@ -2547,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "Søkeforslag";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "Vil du aktivere søkeforslag?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "Søk med Brave";
@@ -2625,9 +2637,6 @@
 
 /* Header for the YouTube settings section */
 "settings.youtube" = "YouTube";
-
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "Kunne ikke laste inn side.";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "Lisenser";
@@ -3211,9 +3220,6 @@
 /* Word count title */
 "sync.wordCount" = "Antall ord: %i";
 
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "Importerte bokmerker";
-
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "Lukk";
 
@@ -3271,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "Ikke sikker";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "Lim inn og gå videre";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "Spilleliste";
 
@@ -3292,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "Stopp";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "Talesøk";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3539,7 +3548,7 @@
 "ToggleReaderMode" = "Aktiver/deaktiver lesermodus";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "Oversett";
+"TranslatePage" = "Oversett siden";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "Slå på søkeforslag?";

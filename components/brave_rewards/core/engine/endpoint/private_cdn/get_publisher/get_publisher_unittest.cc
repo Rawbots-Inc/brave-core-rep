@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 
+#include "base/check.h"
 #include "base/containers/span.h"
 #include "base/numerics/byte_conversions.h"
 #include "brave/components/brave_rewards/core/engine/publisher/protos/channel_response.pb.h"
@@ -51,7 +52,7 @@ class RewardsGetPublisherTest : public RewardsEngineTest {
     uint32_t length = out.length();
     out.insert(0, 4, ' ');
     base::as_writable_byte_span(out).first<4u>().copy_from(
-        base::numerics::U32ToBigEndian(length));
+        base::U32ToBigEndian(length));
 
     return out;
   }

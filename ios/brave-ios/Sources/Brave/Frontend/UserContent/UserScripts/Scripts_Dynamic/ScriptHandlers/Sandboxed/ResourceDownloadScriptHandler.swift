@@ -6,6 +6,7 @@
 import BraveShared
 import Data
 import Foundation
+import Web
 import WebKit
 
 struct DownloadedResourceResponse: Decodable {
@@ -56,7 +57,7 @@ class ResourceDownloadScriptHandler: TabContentScript {
   }()
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -71,8 +72,8 @@ class ResourceDownloadScriptHandler: TabContentScript {
     }
   }
 
-  static func downloadResource(for tab: Tab, url: URL) {
-    tab.webView?.evaluateSafeJavaScript(
+  static func downloadResource(for tab: some TabState, url: URL) {
+    tab.evaluateJavaScript(
       functionName: "window.__firefox__.downloadManager.download",
       args: [url.absoluteString],
       contentWorld: self.scriptSandbox

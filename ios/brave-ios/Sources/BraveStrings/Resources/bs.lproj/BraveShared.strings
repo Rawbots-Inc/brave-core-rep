@@ -85,20 +85,17 @@
 /* block all cookies settings action title */
 "BlockAllCookiesAction" = "Blokiraj sve";
 
-/* Information displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertInfo" = "Blokiranjem svih kolačića sprečava se pravilan rad nekih mrežnih mjesta.";
+/* Title of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesAlertTitle" = "Blokirati sve kolačiće?";
 
-/* Title of alert displayed to user when block all cookie is enabled. */
-"BlockAllCookiesAlertTitle" = "Blokirati sve kolačiće?";
+/* Description of confirmation alert displayed to user when block all cookie toggle is enabled. */
+"blockAllCookiesDescription" = "Funkcionalnost Štitovi već blokira kolačiće treće strane. Ova postavka za blokiranje SVIH kolačića uklonit će postojeće kolačiće i podatke mrežnih sjedišta i mogla bi pokvariti internetske stranice.";
 
 /* Message of alert displayed to user when block all cookie operation fails */
 "BlockAllCookiesFailedAlertMsg" = "Postavljanje preferencije nije uspjelo. Pokušajte ponovno.";
 
 /* A title for a setting that enables cookie consent notices */
 "BlockCookieConsentNotices" = "Blokiranje obavijesti o davanju privole za kolačiće";
-
-/* No comment provided by engineer. */
-"BlockCookiesDescription" = "Sprečava mrežna mjesta da pohranjuju podatke o vašim prethodnim posjetima.\nOpcija „Blokiraj sve kolačiće\" je zastarjela. Kako biste doznali kako prisilno omogućiti ovu opciju posjetite [našu stranicu za pomoć] (https://github.com/brave/brave-browser/wiki/Block-all-cookies-global-Shields-setting)";
 
 /* title for section showing page blocking statistics */
 "BlockingMonitor" = "Nadzornik blokiranja";
@@ -150,6 +147,9 @@
 
 /* No comment provided by engineer. */
 "BraveRewardsOpen" = "Otvori";
+
+/* Brave Rewards title in settings */
+"BraveRewardsSettingsTitle" = "Nagrade Brave";
 
 /* Brave Rewards title */
 "BraveRewardsTitle" = "Nagrade Brave";
@@ -225,6 +225,12 @@
 
 /* Title for the search field in the navigation bar for the translate language selection page. The user can search for a language to translate to or from. */
 "BraveTranslate.searchInputTitle" = "Pretraži";
+
+/* This text is for the settings menu for all Brave-Translate options. */
+"BraveTranslate.settingsMenuTitle" = "Brave Prevoditelj";
+
+/* This text is for the translate settings screen. It's the title of the settings menu. */
+"BraveTranslate.settingsScreenTitle" = "Brave Prevoditelj";
 
 /* This text is for a Toggle that allows the user to enable or disable page translation. */
 "BraveTranslate.settingsTranslateEnabledOptionDescription" = "Kad je uključena, funkcionalnost Brave Translate automatski prepoznaje jezik vaše stranice i pokazuje gumb za prijevod u polju za URL.";
@@ -481,9 +487,6 @@
 /* No comment provided by engineer. */
 "Confirm" = "Potvrdi";
 
-/* Cookie settings option title */
-"CookieControl" = "Upravljanje kolačićima";
-
 /* Settings item for clearing cookies and site data */
 "Cookies" = "Kolačići i podaci web-lokacije";
 
@@ -514,6 +517,9 @@
 /* Currently usedd search engines section name. */
 "CurrentlyUsedSearchEngines" = "Trenutačno upotrebljavane tražilice";
 
+/* Accessibility Title for the button that adds a new custom search engine to the browser. */
+"customSearchEngine.addCustomSearchEngineAccessibilityTitle" = "Dodavanje prilagođene tražilice";
+
 /* Label explaining how to add search engine. */
 "customSearchEngine.addEngineDescription" = "Upišite URL za pretraživanje i zamijenite upit sljedećim: %1$s.\nPrimjerice: https://youtube.com/search?q=%2$s\n(Ako se mrežnim mjestom podržava OpenSearch, tijekom uređivanja ovog polja dostupna je mogućnost za automatsko dodavanje.)";
 
@@ -531,6 +537,9 @@
 
 /* The warning description shown to user when custom search engine already exists. */
 "customSearchEngine.engineAlertExistsAlertDescription" = "Tražilica s jednakim imenom već postoji.";
+
+/* A placeholder in the text filed for user to input the custom search engine name. */
+"customSearchEngine.engineTitlePlaceholder" = "Unesite ime tražilice";
 
 /* A description explaining that search template url is insecure, it is used for instance - Insecure Custom Search Template for Brave Search, Brave Search is a search engineand on a new seperate line */
 "customSearchEngine.insecureSearchTemplateURLErrorDescription" = "Nesiguran predložak prilagođenog pretraživanja za:";
@@ -652,9 +661,6 @@
 /* No comment provided by engineer. */
 "Done" = "Završeno";
 
-/* cookie settings option */
-"DontBlockCookies" = "Ne blokiraj kolačiće";
-
 /* Used as a button label for crash dialog prompt */
 "DontSendButtonTitle" = "Ne šalji";
 
@@ -693,6 +699,9 @@
 
 /* Title for editing a folder */
 "EditFolderTitle" = "Uredi mapu";
+
+/* Accessibility Title for the button that edits the quick-search engines list. */
+"EditQuickSearchEnginesAccessibilityTitle" = "Uredi brze tražilice";
 
 /* Describes whether or not the feature that allows the user to pull down from the top of a web page a certain amount before it triggers a page refresh */
 "enablePullToRefresh" = "Omogući povlačenje za osvježavanje";
@@ -778,8 +787,8 @@
 /* Done button in Find in Page Toolbar. */
 "FindInPageDoneButtonAccessibilityLabel" = "Završeno";
 
-/* Find %@ text in page. */
-"FindInPageFormat" = "Pronađi „%@”";
+/* Find `search query` */
+"FindInPageFormat" = "Pronađi ";
 
 /* Accessibility label for next result button in Find in Page Toolbar. */
 "FindInPageNextResultButtonAccessibilityLabel" = "Sljedeći rezultat na stranici";
@@ -871,6 +880,9 @@
 /* individual blocking statistic title */
 "HTTPSUpgrades" = "Nadogradnje HTTPS-a";
 
+/* Title of the button in settings where the user can import browsing data from other browsers. */
+"importBrowsingDataSettingsMenuTitle" = "Uvezi podatke o pregledavanju";
+
 /* title for per-site shield toggles */
 "IndividualControls" = "Pojedinačne kontrole";
 
@@ -885,6 +897,9 @@
 
 /* No comment provided by engineer. */
 "learnMore" = "Saznaj više";
+
+/* Title for Brave Leo menu item. Brave Leo is the name of a product and should not be translated */
+"LeoMenuItem" = "Leo";
 
 /* The message displayed in alert when a login entry deleted */
 "login.loginEntryDeleteAlertMessage" = "Spremljena prijava uklanja se trajno.";
@@ -1040,7 +1055,10 @@
 "ntp.hideSponsoredImages" = "Sakrij sponzorirane slike";
 
 /* The text description of image type which is being used NTP */
-"ntp.imageTypeSelectionDescription" = "„Sponzorirano” označava dodatne markirane pozadine koje može zaraditi kada su omogućene Nagrade Brave.";
+"ntp.imageTypeSelectionDescription" = "Sponzorirani vizuali su brendirane pozadine koje se pokazuju u novootvorenim karticama u pregledniku. Omogućite li ove sponzorirane vizuale pomoći ćete Braveovoj misiji.";
+
+/* The text label of image type learn more link */
+"ntp.imageTypeSelectionDescriptionLearnMore" = "Saznaj više";
 
 /* No comment provided by engineer. */
 "ntp.learnMoreAboutRewards" = "Doznajte više o značajki Nagrade Brave";
@@ -1374,6 +1392,9 @@
 
 /* The subtitle description of menu item Brave VPN */
 "optionsMenu.braveVPNItemDescription" = "Zaštitite cijeli uređaj na mreži";
+
+/* Brave VPN Item Menu title */
+"optionsMenu.braveVPNItemTitle" = "VPN";
 
 /* The subtitle description of menu item Brave Wallet */
 "optionsMenu.braveWalletItemDescription" = "Siguran kriptonovčanik, ne trebaju vam proširenja";
@@ -2026,6 +2047,9 @@
 /* Accessibility label for button increasing font size in display settings of reader mode */
 "ReaderModeBiggerFontButtonAccessibilityLabel" = "Povećaj veličinu teksta";
 
+/* Button for larger reader font size. Keep this extremely short! This is shown in the reader mode toolbar. */
+"ReaderModeBiggerFontButtonTitle" = "+";
+
 /* Accessibility label for brightness adjustment slider in Reader Mode display settings */
 "ReaderModeBrightSliderAccessibilityLabel" = "Svjetlina";
 
@@ -2034,6 +2058,15 @@
 
 /* Error displayed when reader mode cannot be enabled */
 "ReaderModeErrorConvertDisplayText" = "Nastala je pogreška pri pretvaranju stranice";
+
+/* Font type setting in the reading view settings */
+"ReaderModeFontButtonSansSerifTitle" = "Sans-serif";
+
+/* Font type setting in the reading view settings */
+"ReaderModeFontButtonSerifTitle" = "Serif";
+
+/* Button for reader mode font size. Keep this extremely short! This is shown in the reader mode toolbar. */
+"ReaderModeFontSizeLabelText" = "Aa";
 
 /* Accessibility hint for the font type buttons in reader mode display settings */
 "ReaderModeFontTypeButtonAccessibilityHint" = "Mijenja se vrsta fonta.";
@@ -2052,6 +2085,9 @@
 
 /* Accessibility label for button decreasing font size in display settings of reader mode */
 "ReaderModeSmallerFontButtonAccessibilityLabel" = "Smanji veličinu teksta";
+
+/* Button for smaller reader font size. Keep this extremely short! This is shown in the reader mode toolbar. */
+"ReaderModeSmallerFontButtonTitle" = "-";
 
 /* Accessibility hint for the color theme setting buttons in reader mode display settings */
 "ReaderModeThemeButtonAccessibilityHint" = "Mijenja se tema boje.";
@@ -2101,9 +2137,6 @@
 /* Recent Search Hide Button */
 "RecentSearchHide" = "Sakrij";
 
-/* Recent Search Paste & Go Button Title */
-"RecentSearchPasteAndGo" = "Zalijepi i idi";
-
 /* Recent Search 'on' text when a user searches 'on' a website */
 "RecentSearchQuickSearchOnWebsite" = "uključeno";
 
@@ -2120,10 +2153,13 @@
 "RecentSearchScannerTitle" = "Skeniraj kôd QR";
 
 /* Recent Search Section Description */
-"RecentSearchSectionDescription" = "Nedavnim pretraživanjima omogućava se privatan pristup prošlim pretraživanjima. Želite li omogućiti Nedavna pretraživanja?";
+"RecentSearchSectionDescription" = "Želite li omogućiti Nedavne pretrage?";
+
+/* Recent Search Section Header Title */
+"recentSearchSectionHeaderTitle" = "Nedavna pretraživanja";
 
 /* Recent Search Section Title */
-"RecentSearchSectionTitle" = "Nedavna pretraživanja";
+"RecentSearchSectionTitle" = "Funkcionalnost Nedavne pretrage omogućuje da privatno pristupite prošlim pretraživanjima.";
 
 /* Recent Search Show Button */
 "RecentSearchShow" = "Prikaži";
@@ -2468,7 +2504,7 @@
 "SearchesForSuggestionButtonAccessibilityText" = "Pretraživanja za prijedlog";
 
 /* Section header for history and bookmarks and open tabs option */
-"SearchHistorySectionHeader" = "Otvaranje kartica, knjižnih oznaka i povijesti";
+"SearchHistorySectionHeader" = "Na vašem uređaju";
 
 /* Accessibility message e.g. spoken by VoiceOver after the user taps the close button in the search field to clear the search and exit search mode */
 "SearchInputViewClearButtonTitle" = "Čišćenje pretraživanja";
@@ -2481,6 +2517,9 @@
 
 /* Title for the search field at the top of the Logins list screen */
 "SearchInputViewTitle" = "Pretraži";
+
+/* The prefix of a user input search query displayed in the quick bar which is on the top of the search suggestion list. */
+"searchQuickBarPrefix" = "Traži „%@”";
 
 /* Add Custom Search Engine Table Cell Row Title */
 "searchSettingAddCustomEngineCellTitle" = "Dodavanje prilagođene tražilice";
@@ -2517,6 +2556,9 @@
 
 /* Section header for search suggestions option */
 "SearchSuggestionsSectionHeader" = "Prijedlozi za pretraživanje";
+
+/* Search suggestions optin subtitle when prompting to turn on suggestions */
+"searchSuggestionsSubtitle" = "Želite li omogućiti Prijedloge pretrage?";
 
 /* Title of an action that allows user to perform a one-click web search for selected text */
 "SearchWithBrave" = "Pretražujte preglednikom Brave";
@@ -2593,8 +2635,8 @@
 /* Title to explain the daily usage ping toggle */
 "settings.sendUsagePingTitle" = "Automatski šalji ping dnevne uporabe Braveu";
 
-/* Error message that is shown in settings when there was a problem loading */
-"SettingsContentLoadErrorMessage" = "Nije moguće učitati stranicu.";
+/* Header for the YouTube settings section */
+"settings.youtube" = "YouTube";
 
 /* Row name for licenses. */
 "SettingsLicenses" = "Licence";
@@ -2950,6 +2992,9 @@
 /* Error title explaining the sync code is expired and it must be genrated all over again. */
 "sync.codeExpirationTitleLabel" = "Kôd je istekao. Generirajte novi pritiskom na gumb u nastavku.";
 
+/* The unit abbreviation used for minutes when showing code validity. Ex: This temporary code is valid for the next 2 min */
+"sync.codeTimeMinutesAbbreviation" = "min";
+
 /* The unit text used for multiple hours when showing code validity. Ex: This temporary code is valid for the next 2 hours */
 "sync.codeTimeMultipleHourText" = "sati";
 
@@ -3175,9 +3220,6 @@
 /* Word count title */
 "sync.wordCount" = "Broj riječi: %i";
 
-/* Folder name for where bookmarks are imported into when the root folder is not empty. */
-"SyncImportFolderName" = "Uvezene knjižne oznake";
-
 /* Accessibility label for action denoting closing a tab in tab list (tray) */
 "TabAccessibilityCloseActionLabel" = "Zatvori";
 
@@ -3235,6 +3277,9 @@
 /* A label shown next to a URL that loaded in some insecure way */
 "tabToolbarNotSecureTitle" = "Nije sigurno";
 
+/* Accessibility Label for the tab toolbar paste and go button */
+"tabToolbarPasteAndGoButtonAccessibilityLabel" = "Zalijepi i idi";
+
 /* Accessibility Label for the tab toolbar Playlist button */
 "TabToolbarPlaylistButtonAccessibilityLabel" = "Popis za reprodukciju";
 
@@ -3256,7 +3301,7 @@
 /* Accessibility Label for the tab toolbar Stop button */
 "TabToolbarStopButtonAccessibilityLabel" = "Zaustavi";
 
-/* Accessibility Label for the tab toolbar Reload button */
+/* Accessibility Label for the tab toolbar voice search button */
 "tabToolbarVoiceSearchButtonAccessibilityLabel" = "Glasovno pretraživanje";
 
 /* Accessibility label for the lock icon, which is only present if the connection is insecure */
@@ -3503,7 +3548,7 @@
 "ToggleReaderMode" = "Uključi/isključi način čitača";
 
 /* Title of an action that allows the user to translate the current web-page to another language */
-"TranslatePage" = "Prevedi";
+"TranslatePage" = "Prevedi stranicu";
 
 /* Prompt shown before enabling provider search queries */
 "Turn on search suggestions?" = "Uključiti prijedloge za pretraživanje?";
@@ -3513,6 +3558,9 @@
 
 /* Error message if list of Payment Instruments doesn't include BAT */
 "unsupportedInstrumentMessage" = "Nepodržani instrumenti plaćanja";
+
+/* Bookmark URL */
+"URL" = "URL";
 
 /* Accessibility label for address and search field, both words (Address, Search) are therefore nouns. */
 "URLBarViewLocationTextViewAccessibilityLabel" = "Adresa i pretraživanje";

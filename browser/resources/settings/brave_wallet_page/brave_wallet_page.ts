@@ -110,19 +110,24 @@ class SettingsBraveWalletPage extends SettingsBraveWalletPageBase {
         type: Boolean,
         value: false,
       },
+
+      isZCashShieldedTxEnabled_: {
+        type: Boolean
+      },
     }
   }
 
-  private ethereum_provider_options_: Option[]
-  private solana_provider_options_: SolanaProvider[]
-  private transaction_simulation_opt_in_options_: Option[]
-  private cryptocurrency_list_: CurrencyType[]
-  private currency_list_: CurrencyType[]
-  private isNativeWalletEnabled_: boolean
-  private isNetworkEditor_: boolean
-  private isTransactionSimulationsFeatureEnabled: boolean
-  private isPrivateWindowsEnabled_: chrome.settingsPrivate.PrefObject<boolean>
-  private showRestartToast_: boolean
+  private declare ethereum_provider_options_: Option[]
+  private declare solana_provider_options_: SolanaProvider[]
+  private declare transaction_simulation_opt_in_options_: Option[]
+  private declare cryptocurrency_list_: CurrencyType[]
+  private declare currency_list_: CurrencyType[]
+  private declare isNativeWalletEnabled_: boolean
+  private declare isNetworkEditor_: boolean
+  private declare isTransactionSimulationsFeatureEnabled: boolean
+  private declare isPrivateWindowsEnabled_: chrome.settingsPrivate.PrefObject<boolean>
+  private declare showRestartToast_: boolean
+  private declare isZCashShieldedTxEnabled_: boolean
 
   private browserProxy_: BraveWalletBrowserProxy =
     BraveWalletBrowserProxyImpl.getInstance()
@@ -156,6 +161,9 @@ class SettingsBraveWalletPage extends SettingsBraveWalletPageBase {
         type: chrome.settingsPrivate.PrefType.BOOLEAN,
         value: val,
       }
+    })
+    this.browserProxy_.isZCashShieldedTxEnabled().then(val => {
+      this.isZCashShieldedTxEnabled_ = val
     })
 
     this.cryptocurrency_list_ = [
@@ -257,6 +265,15 @@ class SettingsBraveWalletPage extends SettingsBraveWalletPageBase {
     }
     this.browserProxy_.resetWallet()
     window.alert(this.i18n('walletResetConfirmed'))
+  }
+
+  private onResetZCashSyncState_() {
+    const message = this.i18n('resetZCashSyncStateConfirmation')
+    if (window.prompt(message) !== this.i18n('walletResetConfirmationPhrase')) {
+      return
+    }
+    this.browserProxy_.resetZCashSyncState()
+    window.alert(this.i18n('resetZCashSyncStateConfirmed'))
   }
 
   private onResetTransactionInfo_() {

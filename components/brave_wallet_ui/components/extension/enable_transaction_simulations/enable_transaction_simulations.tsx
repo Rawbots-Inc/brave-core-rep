@@ -10,12 +10,12 @@ import Icon from '@brave/leo/react/icon'
 import { BraveWallet } from '../../../constants/types'
 
 // utils
-import { getLocale, getLocaleWithTags } from '../../../../common/locale'
+import { getLocale, formatLocale } from '$web-common/locale'
 import { openTab } from '../../../utils/routes-utils'
 
 // hooks
 import {
-  useSetIsTxSimulationOptInStatusMutation //
+  useSetIsTxSimulationOptInStatusMutation, //
 } from '../../../common/slices/api.slice'
 
 // components
@@ -26,7 +26,7 @@ import {
   Column,
   LeoSquaredButton,
   Row,
-  VerticalDivider
+  VerticalDivider,
 } from '../../shared/style'
 import {
   BulletPoints,
@@ -37,7 +37,7 @@ import {
   OptionsRow,
   TermsText,
   Title,
-  errorIconColor
+  errorIconColor,
 } from './enable_transaction_simulations.styles'
 
 const TX_SIMULATION_LEARN_MORE_LINK =
@@ -104,30 +104,24 @@ export const EnableTransactionSimulations: React.FC = () => {
 
             <TermsText>
               <span>
-                {getLocaleWithTags(
-                  'braveWalletTransactionSimulationTerms',
-                  3
-                ).map((text, index) => {
-                  return (
-                    <span key={text.duringTag ?? index}>
-                      {text.beforeTag}
-                      {index === 0 ? (
-                        <strong>{text.duringTag}</strong>
-                      ) : (
-                        <a
-                          href='#'
-                          onClick={() =>
-                            index === 1
-                              ? openTab(BLOWFISH_TERMS_URL)
-                              : openTab(BLOWFISH_PRIVACY_POLICY_URL)
-                          }
-                        >
-                          {text.duringTag}
-                        </a>
-                      )}
-                      {text.afterTag}
-                    </span>
-                  )
+                {formatLocale('braveWalletTransactionSimulationTerms', {
+                  $1: (content) => <strong>{content}</strong>,
+                  $2: (content) => (
+                    <a
+                      href='#'
+                      onClick={() => openTab(BLOWFISH_TERMS_URL)}
+                    >
+                      {content}
+                    </a>
+                  ),
+                  $3: (content) => (
+                    <a
+                      href='#'
+                      onClick={() => openTab(BLOWFISH_PRIVACY_POLICY_URL)}
+                    >
+                      {content}
+                    </a>
+                  ),
                 })}
               </span>
             </TermsText>
@@ -138,7 +132,7 @@ export const EnableTransactionSimulations: React.FC = () => {
               kind='outline'
               onClick={async () => {
                 await optInOrOut(
-                  BraveWallet.BlowfishOptInStatus.kDenied
+                  BraveWallet.BlowfishOptInStatus.kDenied,
                 ).unwrap()
               }}
             >
@@ -148,7 +142,7 @@ export const EnableTransactionSimulations: React.FC = () => {
               kind='filled'
               onClick={async () => {
                 await optInOrOut(
-                  BraveWallet.BlowfishOptInStatus.kAllowed
+                  BraveWallet.BlowfishOptInStatus.kAllowed,
                 ).unwrap()
               }}
             >

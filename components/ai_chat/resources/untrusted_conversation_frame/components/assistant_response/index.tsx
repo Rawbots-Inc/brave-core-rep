@@ -13,6 +13,9 @@ import { useUntrustedConversationContext } from '../../untrusted_conversation_co
 import MarkdownRenderer from '../markdown_renderer'
 import WebSourcesEvent from './web_sources_event'
 import styles from './style.module.scss'
+import {
+  removeReasoning //
+} from '../conversation_entries/conversation_entries_utils'
 
 function SearchSummary (props: { searchQueries: string[] }) {
   const context = useUntrustedConversationContext()
@@ -26,7 +29,7 @@ function SearchSummary (props: { searchQueries: string[] }) {
     context.uiHandler?.openLearnMoreAboutBraveSearchWithLeo()
   }
 
-  const message = formatMessage(getLocale('searchQueries'), {
+  const message = formatMessage(getLocale(S.CHAT_UI_SEARCH_QUERIES), {
     placeholders: {
       $1: props.searchQueries.map((query, i, a) => (
         <React.Fragment key={i}>
@@ -42,29 +45,47 @@ function SearchSummary (props: { searchQueries: string[] }) {
     <div className={styles.searchSummary}>
       <Icon name="brave-icon-search-color" />
       <span>
-        {message} <a className={styles.searchLearnMoreLink} href='#' onClick={handleLearnMore}>{getLocale('learnMore')}</a>
+        {message} <a className={styles.searchLearnMoreLink} href='#' onClick={handleLearnMore}>{getLocale(S.CHAT_UI_LEARN_MORE)}</a>
       </span>
     </div>
   )
 }
 
-function AssistantEvent(props: { event: Mojom.ConversationEntryEvent, hasCompletionStarted: boolean, isEntryInProgress: boolean }) {
-  if (props.event.completionEvent) {
+function AssistantEvent(props: {
+  event: Mojom.ConversationEntryEvent,
+  hasCompletionStarted: boolean,
+  isEntryInProgress: boolean,
+  allowedLinks: string[],
+  isLeoModel: boolean
+}) {
+  const { allowedLinks, event, isEntryInProgress, isLeoModel } = props;
+
+  if (event.completionEvent) {
+    const numberedLinks =
+      allowedLinks.length > 0
+        ? allowedLinks.map((url: string, index: number) =>
+                           `[${index + 1}]: ${url}`).join('\n') + '\n\n'
+        : '';
+
+    // Replaces 2 consecutive citations with a separator and also
+    // adds a space before the citation and the text.
+     const completion =
+       event.completionEvent.completion.replace(/(\w|\S)\[(\d+)\]/g, '$1 [$2]')
+
+    const fullText = `${numberedLinks}${removeReasoning(completion)}`;
+
     return (
       <MarkdownRenderer
-        shouldShowTextCursor={props.isEntryInProgress}
-        text={props.event.completionEvent.completion}
+        shouldShowTextCursor={isEntryInProgress}
+        text={fullText}
+        allowedLinks={allowedLinks}
+        disableLinkRestrictions={!isLeoModel}
       />
     )
   }
   if (props.event.searchStatusEvent && props.isEntryInProgress && !props.hasCompletionStarted) {
     return (
       <div className={styles.actionInProgress}><ProgressRing />Improving answer with Brave Search…</div>
-    )
-  }
-  if (props.event.pageContentRefineEvent && props.isEntryInProgress && !props.hasCompletionStarted) {
-    return (
-      <div className={styles.actionInProgress}><ProgressRing />{getLocale('pageContentRefinedInProgress')}</div>
     )
   }
   // TODO(petemill): Consider displaying in-progress queries if the API
@@ -79,7 +100,12 @@ function AssistantEvent(props: { event: Mojom.ConversationEntryEvent, hasComplet
   return null
 }
 
-export default function AssistantResponse(props: { entry: Mojom.ConversationTurn, isEntryInProgress: boolean }) {
+export default function AssistantResponse(props: {
+  entry: Mojom.ConversationTurn,
+  isEntryInProgress: boolean,
+  allowedLinks: string[],
+  isLeoModel: boolean
+}) {
   // Extract certain events which need to render at specific locations (e.g. end of the events)
   const searchQueriesEvent = props.entry.events?.find(event => event.searchQueriesEvent)?.searchQueriesEvent
   const sourcesEvent = props.entry.events?.find(event => !!event.sourcesEvent)?.sourcesEvent
@@ -95,6 +121,8 @@ export default function AssistantResponse(props: { entry: Mojom.ConversationTurn
         event={event}
         hasCompletionStarted={hasCompletionStarted}
         isEntryInProgress={props.isEntryInProgress}
+        allowedLinks={props.allowedLinks}
+        isLeoModel={props.isLeoModel}
       />
     )
   }
@@ -102,8 +130,10 @@ export default function AssistantResponse(props: { entry: Mojom.ConversationTurn
   {
     !props.isEntryInProgress &&
     <>
-      {searchQueriesEvent && <SearchSummary searchQueries={searchQueriesEvent.searchQueries} />}
       {sourcesEvent && <WebSourcesEvent sources={sourcesEvent.sources} />}
+      {searchQueriesEvent &&
+        <SearchSummary searchQueries={searchQueriesEvent.searchQueries} />
+      }
     </>
   }
   </>)

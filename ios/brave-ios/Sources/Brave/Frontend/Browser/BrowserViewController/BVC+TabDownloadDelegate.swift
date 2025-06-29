@@ -3,18 +3,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this file,
 // You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import BraveCore
 import BraveShared
+import BraveStrings
 import Foundation
+import OSLog
 import PassKit
 import SafariServices
 import Shared
 import UniformTypeIdentifiers
+import Web
 import WebKit
-
-protocol TabDownloadDelegate: AnyObject {
-  func tab(_ tab: Tab, didCreateDownload download: Download)
-  func tab(_ tab: Tab, didFinishDownload download: Download, error: Error?)
-}
 
 extension UTType {
   static let textCalendar = UTType(mimeType: "text/calendar")!  // Not the same as `calendarEvent`
@@ -22,8 +21,8 @@ extension UTType {
 }
 
 extension BrowserViewController: TabDownloadDelegate {
-  func tab(_ tab: Tab, didCreateDownload download: Download) {
-    guard tab.isTabVisible() else {
+  public func tab(_ tab: some TabState, didCreateDownload download: Download) {
+    guard tab.isVisible else {
       download.cancel()
       return
     }
@@ -105,21 +104,22 @@ extension BrowserViewController: TabDownloadDelegate {
     }
   }
 
-  func tab(_ tab: Tab, didFinishDownload download: Download, error: (any Error)?) {
+  public func tab(_ tab: some TabState, didFinishDownload download: Download, error: (any Error)?) {
     guard let destinationURL = download.destinationURL, error == nil else {
       downloadQueue.download(download, didCompleteWithError: error)
 
+      if let error, (error as NSError).code == URLError.cancelled.rawValue {
+        // If the download was cancelled then we can ignore the error
+        return
+      }
+
       // display an error
       let alertController = UIAlertController(
-        title: Strings.unableToAddPassErrorTitle,
-        message: Strings.unableToAddPassErrorMessage,
+        title: Strings.unableToDownloadFileErrorTitle,
+        message: Strings.unableToDownloadFileErrorMessage,
         preferredStyle: .alert
       )
-      alertController.addAction(
-        UIAlertAction(title: Strings.unableToAddPassErrorDismiss, style: .cancel) { (action) in
-          // Do nothing.
-        }
-      )
+      alertController.addAction(UIAlertAction(title: Strings.OKString, style: .cancel) { _ in })
       present(alertController, animated: true, completion: nil)
 
       return
@@ -168,13 +168,13 @@ extension BrowserViewController: TabDownloadDelegate {
   ///
   /// The user unfortunately has to  dismiss it manually after they have handled the file.
   /// Chrome iOS does the same
-  private func handleLinkWithSafariViewController(_ url: URL, tab: Tab) {
+  private func handleLinkWithSafariViewController(_ url: URL, tab: some TabState) {
     let vc = SFSafariViewController(url: url, configuration: .init())
     vc.modalPresentationStyle = .formSheet
     self.present(vc, animated: true)
 
     // If the website opened this URL in a separate tab, remove the empty tab
-    if tab.url == nil || tab.url?.absoluteString == "about:blank" {
+    if tab.visibleURL == nil || tab.visibleURL?.absoluteString == "about:blank" {
       tabManager.removeTab(tab)
     }
   }
@@ -182,21 +182,41 @@ extension BrowserViewController: TabDownloadDelegate {
   @MainActor
   private func downloadAlert(
     for download: Download,
-    tab: Tab,
+    tab: some TabState,
     suggestedFileName: String
   ) async -> Bool {
-    // Only download if there is a valid host
-    guard let host = download.originalURL?.host() else {
-      return false
-    }
-
     // Never present the download alert on a tab that isn't visible
     guard tab === tabManager.selectedTab
     else {
       return false
     }
 
-    let filename = Download.stripUnicode(fromFilename: suggestedFileName)
+    // The following logic for the title and url is from Chromium: https://github.com/brave/brave-browser/issues/45988
+    // and https://hackerone.com/reports/3175265
+    // Title has a max length of 33 characters and can be truncated in the middle to allow showing
+    // the beginning of the file name as well as the extension.
+    // URL has a max length of 40, otherwise fall-back to the eTLD+1 (may or may not be >= 40)
+
+    let host = download.originalURL?.host() ?? tab.lastCommittedURL?.host() ?? ""
+    let url =
+      download.originalURL?.isWebPage(includeDataURIs: false) == true
+      ? download.originalURL : tab.lastCommittedURL
+    var formattedUrl = URLFormatter.formatURLOrigin(
+      forSecurityDisplay: url?.absoluteString ?? host,
+      schemeDisplay: .omitHttpAndHttps
+    )
+
+    // Fallback to eTLD+1 - Origin is too long
+    if formattedUrl.isEmpty || formattedUrl.count > 40 {
+      formattedUrl = url?.baseDomain ?? host  // eTLD+1
+    }
+
+    // Truncate the file-name after stripping any unicode control characters
+    // Max file name length of 33 characters (same as Chromium)
+    let filename = suggestedFileName
+      .strippingUnicodeControlCharacters
+      .truncatingMiddle(maxLength: 33)
+
     let totalBytesExpected = download.totalBytesExpected
 
     let expectedSize =
@@ -204,7 +224,7 @@ extension BrowserViewController: TabDownloadDelegate {
       ? ByteCountFormatter.string(fromByteCount: totalBytesExpected!, countStyle: .file)
       : nil
 
-    let title = "\(filename) - \(host)"
+    let title = host.isEmpty ? "\(filename)" : "\(filename) - \(host)"
 
     var downloadActionText = Strings.download
     if let expectedSize = expectedSize {

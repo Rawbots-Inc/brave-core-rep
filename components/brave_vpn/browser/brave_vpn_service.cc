@@ -9,6 +9,7 @@
 #include <optional>
 
 #include "base/base64.h"
+#include "base/check.h"
 #include "base/check_is_test.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
@@ -46,13 +47,14 @@ BraveVpnService::BraveVpnService(
     scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
     PrefService* local_prefs,
     PrefService* profile_prefs,
+    base::WeakPtr<misc_metrics::UptimeMonitor> uptime_monitor,
     base::RepeatingCallback<mojo::PendingRemote<skus::mojom::SkusService>()>
         skus_service_getter)
     : local_prefs_(local_prefs),
       profile_prefs_(profile_prefs),
       skus_service_getter_(skus_service_getter),
       api_request_(new BraveVpnAPIRequest(url_loader_factory)),
-      brave_vpn_metrics_(local_prefs, profile_prefs) {
+      brave_vpn_metrics_(local_prefs, profile_prefs, uptime_monitor, this) {
   DCHECK(IsBraveVPNFeatureEnabled());
 #if !BUILDFLAG(IS_ANDROID)
   DCHECK(connection_manager);
@@ -123,6 +125,10 @@ BraveVpnService::MakeRemote() {
 
 std::string BraveVpnService::GetCurrentEnvironment() const {
   return local_prefs_->GetString(prefs::kBraveVPNEnvironment);
+}
+
+bool BraveVpnService::is_purchased_user() const {
+  return GetPurchasedInfoSync().state == mojom::PurchasedState::PURCHASED;
 }
 
 void BraveVpnService::ReloadPurchasedState() {

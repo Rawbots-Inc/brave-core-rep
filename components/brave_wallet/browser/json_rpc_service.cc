@@ -17,9 +17,11 @@
 #include "base/check_is_test.h"
 #include "base/containers/extend.h"
 #include "base/containers/flat_set.h"
+#include "base/containers/map_util.h"
 #include "base/functional/bind.h"
 #include "base/no_destructor.h"
 #include "base/notreached.h"
+#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
 #include "brave/components/brave_wallet/browser/blockchain_registry.h"
@@ -138,11 +140,13 @@ constexpr char kSnsDomainPattern[] = R"(^(?:[a-z0-9-]+\.)+sol$)";
 // Then one of fixed suffixes(should match `supportedUDExtensions` array from
 // domain-extensions.ts).
 constexpr char kUDPattern[] =
-    "(?:[a-z0-9-]+)\\.(?:crypto|x|nft|dao|wallet|blockchain|bitcoin|zil|"
-    "altimist|anime|klever|manga|polygon|unstoppable|pudgy|tball|stepn|secret|"
-    "raiin|pog|clay|metropolis|witg|ubu|kryptic|farms|dfz|kresus|binanceus|"
-    "austin|bitget|wrkx|bald|benji|chomp|dream|ethermail|lfg|propykeys|"
-    "smobler)";
+    "(?:[a-z0-9-]+)\\.(?:altimist|anime|ask|austin|bald|basenji|bay|benji|"
+    "binanceus|bitcoin|bitget|bitscrunch|blockchain|boomer|brave|calicoin|caw|"
+    "chomp|clay|crypto|dao|dfz|doga|donut|dream|emir|ethermail|farms|grow|her|"
+    "kingdom|klever|kresus|kryptic|lfg|ltc|manga|metropolis|miku|ministry|moon|"
+    "mumu|nft|nibi|npc|onchain|pastor|podcast|pog|polygon|privacy|propykeys|"
+    "pudgy|quantum|rad|raiin|secret|smobler|south|stepn|tball|tea|tribe|u|ubu|"
+    "unstoppable|wallet|wifi|witg|wrkx|x|xec|xmr|zil)";
 
 net::NetworkTrafficAnnotationTag GetNetworkTrafficAnnotationTag() {
   return net::DefineNetworkTrafficAnnotation("json_rpc_service", R"(
@@ -290,26 +294,16 @@ T* GetCustomEVMNetworkFromPrefsDict(const std::string& chain_id,
 // https://github.com/solana-labs/solana/blob/f7b2951c79cd07685ed62717e78ab1c200924924/rpc/src/rpc.rs#L1717
 constexpr char kAccountNotCreatedError[] = "could not find account";
 
-std::optional<std::string> GetAnkrBlockchainFromChainId(
-    const std::string& chain_id) {
-  auto& blockchains = GetAnkrBlockchains();
-  if (blockchains.contains(chain_id)) {
-    return blockchains.at(chain_id);
-  }
-
-  return std::nullopt;
-}
-
 bool HasDuplicateNftIds(
     const std::vector<mojom::NftIdentifierPtr>& nft_identifiers) {
   return base::flat_set<mojom::NftIdentifierPtr>(CloneVector(nft_identifiers))
              .size() != nft_identifiers.size();
 }
 
-std::optional<std::string> GetEthBalanceScannerContractAddressForChain(
-    const std::string& chain_id) {
-  if (auto it = GetEthBalanceScannerContractAddresses().find(chain_id);
-      it != GetEthBalanceScannerContractAddresses().end()) {
+std::optional<std::string_view> GetEthBalanceScannerContractAddressForChain(
+    const std::string_view& chain_id) {
+  if (auto it = kEthBalanceScannerContractAddresses.find(chain_id);
+      it != kEthBalanceScannerContractAddresses.end()) {
     return it->second;
   }
   return std::nullopt;
@@ -790,20 +784,20 @@ void JsonRpcService::OnGetFilStateSearchMsgLimited(
     GetFilStateSearchMsgLimitedCallback callback,
     const std::string& cid,
     APIRequestResult api_request_result) {
-  int64_t exit_code = -1;
   if (!api_request_result.Is2XXResponseCode()) {
     std::move(callback).Run(
-        exit_code, mojom::FilecoinProviderError::kInternalError,
+        std::nullopt, mojom::FilecoinProviderError::kInternalError,
         l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
     return;
   }
-  if (!ParseFilStateSearchMsgLimited(api_request_result.value_body(), cid,
-                                     &exit_code)) {
+  std::optional<int64_t> exit_code =
+      ParseFilStateSearchMsgLimited(api_request_result.value_body(), cid);
+  if (!exit_code) {
     mojom::FilecoinProviderError error;
     std::string error_message;
     ParseErrorResult<mojom::FilecoinProviderError>(
         api_request_result.value_body(), &error, &error_message);
-    std::move(callback).Run(exit_code, error, error_message);
+    std::move(callback).Run(std::nullopt, error, error_message);
     return;
   }
 
@@ -1003,17 +997,19 @@ void JsonRpcService::OnGetFilBlockHeight(GetFilBlockHeightCallback callback,
         l10n_util::GetStringUTF8(IDS_WALLET_INTERNAL_ERROR));
     return;
   }
-  uint64_t height = 0;
-  if (!ParseFilGetChainHead(api_request_result.value_body(), &height)) {
+
+  std::optional<uint64_t> height =
+      ParseFilGetChainHead(api_request_result.value_body());
+  if (!height) {
     mojom::FilecoinProviderError error;
     std::string error_message;
     ParseErrorResult<mojom::FilecoinProviderError>(
         api_request_result.value_body(), &error, &error_message);
-    std::move(callback).Run(height, error, error_message);
+    std::move(callback).Run(0, error, error_message);
     return;
   }
 
-  std::move(callback).Run(height, mojom::FilecoinProviderError::kSuccess, "");
+  std::move(callback).Run(*height, mojom::FilecoinProviderError::kSuccess, "");
 }
 
 void JsonRpcService::GetFilTransactionCount(const std::string& chain_id,
@@ -1327,10 +1323,10 @@ void JsonRpcService::GetERC20TokenBalances(
     return;
   }
 
-  ProcessNextERC20Batch(token_addresses, user_address,
-                        *balance_scanner_contract_address, network_url,
-                        std::vector<mojom::ERC20BalanceResultPtr>(),
-                        std::move(callback));
+  ProcessNextERC20Batch(
+      token_addresses, user_address,
+      std::string(*balance_scanner_contract_address), network_url,
+      std::vector<mojom::ERC20BalanceResultPtr>(), std::move(callback));
 }
 
 void JsonRpcService::ProcessNextERC20Batch(
@@ -1916,11 +1912,10 @@ void JsonRpcService::OnGetFilEstimateGas(GetFilEstimateGasCallback callback,
     return;
   }
 
-  std::string gas_fee_cap;
-  int64_t gas_limit = 0;
-  std::string gas_premium;
-  if (!ParseFilEstimateGas(api_request_result.value_body(), &gas_premium,
-                           &gas_fee_cap, &gas_limit)) {
+  std::optional<ParseFilEstimateGasResult> parse_result =
+      ParseFilEstimateGas(api_request_result.value_body());
+
+  if (!parse_result) {
     mojom::FilecoinProviderError error;
     std::string error_message;
     ParseErrorResult<mojom::FilecoinProviderError>(
@@ -1929,7 +1924,9 @@ void JsonRpcService::OnGetFilEstimateGas(GetFilEstimateGasCallback callback,
     return;
   }
 
-  std::move(callback).Run(gas_premium, gas_fee_cap, gas_limit,
+  std::move(callback).Run(std::move(parse_result->gas_premium),
+                          std::move(parse_result->gas_fee_cap),
+                          parse_result->gas_limit,
                           mojom::FilecoinProviderError::kSuccess, "");
 }
 
@@ -2389,7 +2386,7 @@ void JsonRpcService::OnEthGetLogs(EthGetLogsCallback callback,
 
 void JsonRpcService::GetSupportsInterface(
     const std::string& contract_address,
-    const std::string& interface_id,
+    std::string_view interface_id,
     const std::string& chain_id,
     GetSupportsInterfaceCallback callback) {
   auto network_url = GetNetworkURL(chain_id, mojom::CoinType::ETH);
@@ -2444,7 +2441,7 @@ void JsonRpcService::OnGetSupportsInterface(
 void JsonRpcService::GetEthNftStandard(
     const std::string& contract_address,
     const std::string& chain_id,
-    const std::vector<std::string>& interfaces,
+    base::span<const std::string_view> interfaces,
     GetEthNftStandardCallback callback,
     size_t index) {
   auto network_url = GetNetworkURL(chain_id, mojom::CoinType::ETH);
@@ -2464,7 +2461,7 @@ void JsonRpcService::GetEthNftStandard(
   }
 
   // Check the next interface
-  const std::string& interface_id = interfaces[index];
+  std::string_view interface_id = interfaces[index];
   auto internal_callback = base::BindOnce(
       &JsonRpcService::OnGetEthNftStandard, weak_ptr_factory_.GetWeakPtr(),
       contract_address, chain_id, interfaces, index, std::move(callback));
@@ -2476,7 +2473,7 @@ void JsonRpcService::GetEthNftStandard(
 void JsonRpcService::OnGetEthNftStandard(
     const std::string& contract_address,
     const std::string& chain_id,
-    const std::vector<std::string>& interfaces,
+    base::span<const std::string_view> interfaces,
     size_t index,
     GetEthNftStandardCallback callback,
     bool is_supported,
@@ -2487,9 +2484,8 @@ void JsonRpcService::OnGetEthNftStandard(
     return;
   }
 
-  const std::string& interface_id_checked = interfaces[index];
   if (is_supported) {
-    std::move(callback).Run(interface_id_checked,
+    std::move(callback).Run(std::string(interfaces[index]),
                             mojom::ProviderError::kSuccess, "");
     return;
   }
@@ -3087,8 +3083,9 @@ void JsonRpcService::OnSendFilecoinTransaction(
     return;
   }
 
-  std::string cid;
-  if (!ParseSendFilecoinTransaction(api_request_result.value_body(), &cid)) {
+  std::optional<std::string> cid =
+      ParseSendFilecoinTransaction(api_request_result.value_body());
+  if (!cid) {
     mojom::FilecoinProviderError error;
     std::string error_message;
     ParseErrorResult<mojom::FilecoinProviderError>(
@@ -3097,7 +3094,7 @@ void JsonRpcService::OnSendFilecoinTransaction(
     return;
   }
 
-  std::move(callback).Run(cid, mojom::FilecoinProviderError::kSuccess, "");
+  std::move(callback).Run(*cid, mojom::FilecoinProviderError::kSuccess, "");
 }
 
 void JsonRpcService::SendSolanaTransaction(
@@ -3487,8 +3484,9 @@ void JsonRpcService::AnkrGetAccountBalances(
   // ignored.
   std::vector<std::string> blockchains;
   for (const auto& chain_id : chain_ids) {
-    if (auto blockchain = GetAnkrBlockchainFromChainId(chain_id->chain_id)) {
-      blockchains.push_back(*blockchain);
+    if (const auto* blockchain =
+            base::FindOrNull(kAnkrBlockchains, chain_id->chain_id)) {
+      blockchains.push_back(std::string(*blockchain));
     }
   }
 

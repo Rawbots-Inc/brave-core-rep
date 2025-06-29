@@ -8,7 +8,10 @@
 #include <algorithm>
 #include <utility>
 
+#include "base/check.h"
 #include "base/files/file_path.h"
+#include "base/logging.h"
+#include "base/strings/string_util.h"
 #include "brave/browser/brave_browser_process.h"
 #include "brave/browser/ntp_background/constants.h"
 #include "brave/browser/ntp_background/custom_background_file_manager.h"
@@ -74,8 +77,8 @@ void BraveNTPCustomBackgroundServiceDelegate::MigrateCustomImage(
 
 bool BraveNTPCustomBackgroundServiceDelegate::IsCustomImageBackgroundEnabled()
     const {
-  if (profile_->GetPrefs()->IsManagedPreference(GetThemePrefNameInMigration(
-          ThemePrefInMigration::kNtpCustomBackgroundDict))) {
+  if (profile_->GetPrefs()->IsManagedPreference(
+          prefs::kNtpCustomBackgroundDict)) {
     return false;
   }
 

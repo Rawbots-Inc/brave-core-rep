@@ -6,6 +6,7 @@
 import Data
 import Foundation
 import Shared
+import Web
 import WebKit
 import os.log
 
@@ -31,7 +32,7 @@ class CosmeticFiltersScriptHandler: TabContentScript {
   static let userScript: WKUserScript? = nil
 
   func tab(
-    _ tab: Tab,
+    _ tab: some TabState,
     receivedScriptMessage message: WKScriptMessage,
     replyHandler: @escaping (Any?, String?) -> Void
   ) {
@@ -88,8 +89,8 @@ class CosmeticFiltersScriptHandler: TabContentScript {
         }
 
         // cache blocked selectors
-        if let url = tab.url {
-          tab.contentBlocker.cacheSelectors(
+        if let url = tab.visibleURL {
+          tab.contentBlocker?.cacheSelectors(
             for: url,
             standardSelectors: standardSelectors,
             aggressiveSelectors: aggressiveSelectors

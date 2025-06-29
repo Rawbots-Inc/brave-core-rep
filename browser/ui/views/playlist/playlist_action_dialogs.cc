@@ -8,7 +8,14 @@
 #include <algorithm>
 #include <string>
 #include <utility>
+#include <variant>
 
+#include "base/check.h"
+#include "base/check_op.h"
+#include "base/logging.h"
+#include "base/notreached.h"
+#include "base/strings/stringprintf.h"
+#include "base/strings/utf_string_conversions.h"
 #include "brave/browser/playlist/playlist_service_factory.h"
 #include "brave/browser/ui/color/brave_color_id.h"
 #include "brave/browser/ui/playlist/playlist_browser_finder.h"
@@ -65,7 +72,7 @@ class TiledItemsView : public views::BoxLayoutView {
     DCHECK_GE(items.size(), 1u);
 
     SetPreferredSize(gfx::Size(464, 72));
-    SetBorder(views::CreateThemedRoundedRectBorder(
+    SetBorder(views::CreateRoundedRectBorder(
         /*thickness=*/1, kCornerRadius, kColorBravePlaylistListBorder));
     SetInsideBorderInsets(gfx::Insets(8));
     SetBetweenChildSpacing(16);
@@ -262,7 +269,7 @@ class PlaylistLabelButton : public views::LabelButton {
   PlaylistLabelButton(views::Button::PressedCallback callback = {},
                       const std::u16string& text = std::u16string())
       : LabelButton(std::move(callback), text) {
-    SetEnabledTextColorIds(kColorBravePlaylistTextInteractive);
+    SetEnabledTextColors(kColorBravePlaylistTextInteractive);
     const int size_diff = 13 - label()->font_list().GetFontSize();
     label()->SetFontList(label()->font_list().Derive(
         size_diff, gfx::Font::FontStyle::NORMAL, gfx::Font::Weight::SEMIBOLD));
@@ -335,7 +342,7 @@ PlaylistNewPlaylistDialog::PlaylistNewPlaylistDialog(
         container_label->font_list().DeriveWithSizeDelta(
             container_label->font_list().GetFontSize() -
             container_label_font_size));
-    container_label->SetEnabledColorId(container_label_color_id);
+    container_label->SetEnabledColor(container_label_color_id);
     return container;
   };
 
@@ -366,7 +373,7 @@ PlaylistNewPlaylistDialog::PlaylistNewPlaylistDialog(
         std::make_unique<views::ScrollView>());
     scroll_view->ClipHeightTo(/*min_height=*/0, /*max_height=*/224);
     scroll_view->SetDrawOverflowIndicator(false);
-    scroll_view->SetBorder(views::CreateThemedRoundedRectBorder(
+    scroll_view->SetBorder(views::CreateRoundedRectBorder(
         /*thickness=*/1,
         /*corner_radius=*/4.f, kColorBravePlaylistListBorder));
 
@@ -487,7 +494,7 @@ PlaylistMoveDialog::PlaylistMoveDialog(PassKey, MoveParam param)
     : PlaylistMoveDialog(std::move(param)) {}
 
 PlaylistMoveDialog::PlaylistMoveDialog(
-    absl::variant<raw_ptr<playlist::PlaylistTabHelper>, MoveParam> source)
+    std::variant<raw_ptr<playlist::PlaylistTabHelper>, MoveParam> source)
     : source_(std::move(source)) {
   thumbnail_provider_ =
       is_from_tab_helper()
@@ -548,7 +555,7 @@ void PlaylistMoveDialog::EnterChoosePlaylistMode() {
   auto* description = contents_container_->AddChildView(
       std::make_unique<views::Label>(l10n_util::GetStringUTF16(
           IDS_PLAYLIST_MOVE_MEDIA_DIALOG_DESCRIPTION)));
-  description->SetEnabledColorId(kColorBravePlaylistMoveDialogDescription);
+  description->SetEnabledColor(kColorBravePlaylistMoveDialogDescription);
   description->SetPreferredSize(gfx::Size(kContentsWidth, 17));
   description->SetHorizontalAlignment(gfx::HorizontalAlignment::ALIGN_LEFT);
 
@@ -556,7 +563,7 @@ void PlaylistMoveDialog::EnterChoosePlaylistMode() {
       contents_container_->AddChildView(std::make_unique<views::ScrollView>());
   scroll_view->ClipHeightTo(/*min_height=*/0, /*max_height=*/224);
   scroll_view->SetDrawOverflowIndicator(false);
-  scroll_view->SetBorder(views::CreateThemedRoundedRectBorder(
+  scroll_view->SetBorder(views::CreateRoundedRectBorder(
       /*thickness=*/1,
       /*corner_radius=*/4.f, kColorBravePlaylistListBorder));
   list_view_ =
@@ -613,7 +620,7 @@ void PlaylistMoveDialog::EnterCreatePlaylistMode() {
   auto* title = contents_container_->AddChildView(
       std::make_unique<views::Label>(l10n_util::GetStringUTF16(
           IDS_PLAYLIST_MOVE_MEDIA_DIALOG_PLAYLIST_NAME)));
-  title->SetEnabledColorId(
+  title->SetEnabledColor(
       kColorBravePlaylistMoveDialogCreatePlaylistAndMoveTitle);
   title->SetHorizontalAlignment(gfx::HorizontalAlignment::ALIGN_LEFT);
 

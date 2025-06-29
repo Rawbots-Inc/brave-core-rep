@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "base/containers/contains.h"
+#include "base/strings/string_number_conversions.h"
 #include "brave/components/brave_ads/content/browser/creatives/search_result_ad/creative_search_result_ad_constants.h"
 #include "brave/components/brave_ads/content/browser/creatives/search_result_ad/creative_search_result_ad_mojom_test_util.h"
 #include "brave/components/brave_ads/content/browser/creatives/search_result_ad/creative_search_result_ad_test_constants.h"
@@ -146,9 +147,9 @@ CreativeSearchResultAdMojomWebPageEntitiesWithProperty(std::string_view name,
       constructor.GetMojomWebPageEntities();
   const auto& mojom_property = mojom_web_page_entities[0]->properties[0];
   auto& mojom_entity = mojom_property->values->get_entity_values()[0];
-  test::AddMojomProperty<std::string>(&mojom_entity->properties,
-                                      /*name=*/std::string(name),
-                                      /*value=*/std::string(value));
+  AddMojomProperty<std::string>(&mojom_entity->properties,
+                                /*name=*/std::string(name),
+                                /*value=*/std::string(value));
   return mojom_web_page_entities;
 }
 

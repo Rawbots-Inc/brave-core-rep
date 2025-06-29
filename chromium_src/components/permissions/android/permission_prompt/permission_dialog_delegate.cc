@@ -8,11 +8,13 @@
       JNIEnv* env, const base::android::JavaRef<jobject>& obj); \
   virtual void CreateJavaDelegate
 #include "components/permissions/android/permission_prompt/permission_dialog_delegate.h"
+
+#include "base/check.h"
+#include "base/notreached.h"
 #undef CreateJavaDelegate
 
 #include "base/android/jni_array.h"
 #include "base/android/jni_string.h"
-#include "brave/components/l10n/common/localization_util.h"
 #include "brave/components/permissions/android/jni_headers/BravePermissionDialogDelegate_jni.h"
 #include "brave/components/permissions/permission_lifetime_utils.h"
 #include "brave/components/permissions/permission_widevine_utils.h"
@@ -22,6 +24,7 @@
 #include "components/permissions/features.h"
 #include "components/strings/grit/components_strings.h"
 #include "third_party/widevine/cdm/buildflags.h"
+#include "ui/base/l10n/l10n_util.h"
 
 namespace permissions {
 namespace {
@@ -35,7 +38,7 @@ void SetLifetimeOptions(const base::android::JavaRef<jobject>& j_delegate) {
   Java_BravePermissionDialogDelegate_setLifetimeOptionsText(
       env, j_delegate,
       base::android::ConvertUTF16ToJavaString(
-          env, brave_l10n::GetLocalizedResourceUTF16String(
+          env, l10n_util::GetStringUTF16(
                    IDS_PERMISSIONS_BUBBLE_LIFETIME_COMBOBOX_LABEL)));
 
   std::vector<PermissionLifetimeOption> lifetime_options =
@@ -78,8 +81,7 @@ void ApplyDontAskAgainOption(JNIEnv* env,
 
   const bool dont_ask_again =
       Java_BravePermissionDialogDelegate_getDontAskAgain(env, obj);
-  PermissionRequest* request =
-      permission_prompt->delegate_public()->Requests()[0];
+  const auto& request = permission_prompt->delegate_public()->Requests()[0];
   request->set_dont_ask_again(dont_ask_again);
 }
 

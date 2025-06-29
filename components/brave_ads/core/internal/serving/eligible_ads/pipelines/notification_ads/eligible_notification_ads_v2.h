@@ -28,6 +28,7 @@ class EligibleNotificationAdsV2 final : public EligibleNotificationAdsBase {
   EligibleNotificationAdsV2(
       const SubdivisionTargeting& subdivision_targeting,
       const AntiTargetingResource& anti_targeting_resource);
+
   ~EligibleNotificationAdsV2() override;
 
   void GetForUserModel(
@@ -62,17 +63,14 @@ class EligibleNotificationAdsV2 final : public EligibleNotificationAdsBase {
       EligibleAdsCallback<CreativeNotificationAdList> callback,
       bool success,
       const SegmentList& segments,
-      const CreativeNotificationAdList& creative_ads);
+      CreativeNotificationAdList creative_ads);
 
   void FilterAndMaybePredictCreativeAd(
       const UserModelInfo& user_model,
-      const CreativeNotificationAdList& creative_ads,
+      CreativeNotificationAdList creative_ads,
       const AdEventList& ad_events,
       const SiteHistoryList& site_history,
       EligibleAdsCallback<CreativeNotificationAdList> callback);
-  void FilterIneligibleCreativeAds(CreativeNotificationAdList& creative_ads,
-                                   const AdEventList& ad_events,
-                                   const SiteHistoryList& site_history);
 
   const database::table::CreativeNotificationAds creative_ads_database_table_;
 

@@ -7,6 +7,7 @@
 
 #include <optional>
 
+#include "base/check.h"
 #include "brave/components/brave_ads/core/internal/ads_client/ads_client_util.h"
 #include "brave/components/brave_ads/core/internal/common/logging_util.h"
 #include "brave/components/brave_ads/core/internal/common/subdivision/subdivision_util.h"
@@ -14,7 +15,6 @@
 #include "brave/components/brave_ads/core/internal/prefs/pref_path_util.h"
 #include "brave/components/brave_ads/core/internal/settings/settings.h"
 #include "brave/components/brave_ads/core/public/ads_client/ads_client.h"
-#include "brave/components/brave_ads/core/public/ads_feature.h"
 
 namespace brave_ads {
 
@@ -22,18 +22,14 @@ namespace {
 
 bool DoesRequireResourceForNewTabPageAds() {
   // Require resource only if:
-  // - The user has opted into new tab page ads and has either joined Brave
-  //   Rewards or new tab page ad events should always be triggered.
-  return UserHasOptedInToNewTabPageAds() &&
-         (UserHasJoinedBraveRewards() ||
-          ShouldAlwaysTriggerNewTabPageAdEvents());
+  // - The user has opted into new tab page ads and joined Brave Rewards.
+  return UserHasJoinedBraveRewards() && UserHasOptedInToNewTabPageAds();
 }
 
 bool DoesRequireResource() {
   // Require resource only if:
   // - The user has opted into Brave News ads.
-  // - The user has opted into new tab page ads and has either joined Brave
-  //   Rewards or new tab page ad events should always be triggered.
+  // - The user has opted into new tab page ads and and joined Brave Rewards.
   // - The user has joined Brave Rewards and opted into notification ads.
   return UserHasOptedInToBraveNewsAds() ||
          DoesRequireResourceForNewTabPageAds() ||
@@ -116,10 +112,9 @@ void Subdivision::OnNotifyPrefDidChange(const std::string& path) {
 void Subdivision::OnDidFetchSubdivision(const std::string& subdivision) {
   CHECK(!subdivision.empty());
 
-  const std::optional<std::string> country_code =
+  std::optional<std::string> country_code =
       GetSubdivisionCountryCode(subdivision);
-  const std::optional<std::string> subdivision_code =
-      GetSubdivisionCode(subdivision);
+  std::optional<std::string> subdivision_code = GetSubdivisionCode(subdivision);
 
   if (!country_code || !subdivision_code) {
     return;

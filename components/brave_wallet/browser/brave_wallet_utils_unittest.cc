@@ -13,7 +13,6 @@
 #include <utility>
 #include <vector>
 
-#include "base/strings/string_number_conversions.h"
 #include "base/strings/string_util.h"
 #include "base/test/gtest_util.h"
 #include "base/test/scoped_feature_list.h"
@@ -347,6 +346,7 @@ TEST(BraveWalletUtilsUnitTest, BitcoinNativeAssets) {
         "is_erc721": false,
         "spl_token_program": 1,
         "is_nft": false,
+        "is_shielded": false,
         "is_spam": false,
         "logo": "btc.png",
         "name": "Bitcoin",
@@ -371,6 +371,7 @@ TEST(BraveWalletUtilsUnitTest, BitcoinNativeAssets) {
         "is_erc721": false,
         "spl_token_program": 1,
         "is_nft": false,
+        "is_shielded": false,
         "is_spam": false,
         "logo": "btc.png",
         "name": "Bitcoin",
@@ -396,6 +397,7 @@ TEST(BraveWalletUtilsUnitTest, ZcashNativeAssets) {
         "is_erc721": false,
         "spl_token_program": 1,
         "is_nft": false,
+        "is_shielded": false,
         "is_spam": false,
         "logo": "zec.png",
         "name": "Zcash",
@@ -419,6 +421,7 @@ TEST(BraveWalletUtilsUnitTest, ZcashNativeAssets) {
         "is_erc721": false,
         "spl_token_program": 1,
         "is_nft": false,
+        "is_shielded": false,
         "is_spam": false,
         "logo": "zec.png",
         "name": "Zcash",
@@ -448,7 +451,7 @@ TEST(BraveWalletUtilsUnitTest, DefaultZCashShieldedAssets_FeatureEnabled) {
                  item->coin == mojom::CoinType::ZEC;
         });
 
-    EXPECT_EQ(2, count);
+    EXPECT_EQ(0, count);
   }
 
   {

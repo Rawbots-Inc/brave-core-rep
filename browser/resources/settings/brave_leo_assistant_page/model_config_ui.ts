@@ -94,22 +94,23 @@ export class ModelConfigUI extends ModelConfigUIBase {
     }
   }
 
-  label: string
-  modelRequestName: string
-  contextSize: number
-  modelSystemPrompt: string | null
-  promptTokensEstimate: number
-  promptTokensEstimateString: string
-  endpointUrl: string
-  apiKey: string
-  modelItem: mojom.Model | null
-  isEditing_: boolean
-  isUrlInvalid: boolean
-  shouldShowUnsafeEndpointLabel: boolean
+  declare label: string
+  declare modelRequestName: string
+  declare contextSize: number
+  declare modelSystemPrompt: string | null
+  declare promptTokensEstimate: number
+  declare promptTokensEstimateString: string
+  declare endpointUrl: string
+  declare apiKey: string
+  declare modelItem: mojom.Model | null
+  declare isEditing_: boolean
+  declare buttonLabel_: string
+  declare isUrlInvalid: boolean
+  declare shouldShowUnsafeEndpointLabel: boolean
   isValidAsPrivateEndpoint: boolean
-  shouldShowUnsafeEndpointModal: boolean
-  invalidUrlErrorMessage: string
-  hasVisionSupport: boolean
+  declare shouldShowUnsafeEndpointModal: boolean
+  declare invalidUrlErrorMessage: string
+  declare hasVisionSupport: boolean
 
   override ready() {
     super.ready()
@@ -121,7 +122,7 @@ export class ModelConfigUI extends ModelConfigUIBase {
     this.checkEndpointValidity_()
   }
 
-  async handleClick_() {
+  handleClick_() {
     // If the user is attempting to use a private endpoint, we should show a
     // modal warning instructing them to enable the optional feature in order
     // to proceed
@@ -159,7 +160,8 @@ export class ModelConfigUI extends ModelConfigUIBase {
       },
       key: modelKey,
       displayName: this.label,
-      visionSupport: this.hasVisionSupport
+      visionSupport: this.hasVisionSupport,
+      supportsTools: false
     }
 
     this.fire('save', { modelConfig })

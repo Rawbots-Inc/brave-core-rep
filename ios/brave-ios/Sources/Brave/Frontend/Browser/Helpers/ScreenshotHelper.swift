@@ -5,6 +5,7 @@
 import Foundation
 import Shared
 import UIKit
+import Web
 import WebKit
 import os.log
 
@@ -18,34 +19,31 @@ class ScreenshotHelper {
     self.tabManager = tabManager
   }
 
-  func takeScreenshot(_ tab: Tab) {
-    guard let webView = tab.webView, let url = tab.url else {
+  func takeScreenshot(_ tab: some TabState) {
+    guard let url = tab.visibleURL else {
       Logger.module.error("Tab webView or url is nil")
-      tab.setScreenshot(nil)
+      tab.browserData?.setScreenshot(nil)
       return
     }
 
     if InternalURL(url)?.isAboutHomeURL == true {
       if let homePanel = tabManager?.selectedTab?.newTabPageViewController {
         let screenshot = homePanel.view.screenshot(quality: UIConstants.activeScreenshotQuality)
-        tab.setScreenshot(screenshot)
+        tab.browserData?.setScreenshot(screenshot)
       } else {
-        tab.setScreenshot(nil)
+        tab.browserData?.setScreenshot(nil)
       }
     } else {
-      let configuration = WKSnapshotConfiguration()
-      // This is for a bug in certain iOS 13 versions, snapshots cannot be taken correctly without this boolean being set
-      configuration.afterScreenUpdates = false
-
-      webView.takeSnapshot(with: configuration) { [weak tab] image, error in
+      if !tab.canTakeSnapshot {
+        return
+      }
+      tab.takeSnapshot(rect: .null) { [weak tab] image in
+        guard let tab else { return }
         if let image = image {
-          tab?.setScreenshot(image)
-        } else if let error = error {
-          Logger.module.error("\(error.localizedDescription)")
-          tab?.setScreenshot(nil)
+          tab.browserData?.setScreenshot(image)
         } else {
           Logger.module.error("Cannot snapshot Tab Screenshot - No error description")
-          tab?.setScreenshot(nil)
+          tab.browserData?.setScreenshot(nil)
         }
       }
     }
@@ -54,7 +52,7 @@ class ScreenshotHelper {
   /// Takes a screenshot after a small delay.
   /// Trying to take a screenshot immediately after didFinishNavigation results in a screenshot
   /// of the previous page, presumably due to an iOS bug. Adding a brief delay fixes this.
-  func takeDelayedScreenshot(_ tab: Tab) {
+  func takeDelayedScreenshot(_ tab: some TabState) {
     let time = DispatchTime.now() + Double(Int64(100 * NSEC_PER_MSEC)) / Double(NSEC_PER_SEC)
     DispatchQueue.main.asyncAfter(deadline: time) {
       // If the view controller isn't visible, the screenshot will be blank.
@@ -68,8 +66,8 @@ class ScreenshotHelper {
     }
   }
 
-  func takePendingScreenshots(_ tabs: [Tab]) {
-    for tab in tabs where tab.pendingScreenshot {
+  func takePendingScreenshots(_ tabs: [any TabState]) {
+    for tab in tabs where tab.pendingScreenshot == true {
       tab.pendingScreenshot = false
       takeDelayedScreenshot(tab)
     }

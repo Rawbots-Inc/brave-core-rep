@@ -6,10 +6,12 @@
 #include <tuple>
 #include <vector>
 
+#include "base/check.h"
 #include "base/path_service.h"
 #include "brave/browser/profile_resetter/brave_profile_resetter.h"
 #include "brave/browser/profiles/brave_profile_manager.h"
 #include "brave/browser/profiles/profile_util.h"
+#include "brave/browser/search_engines/pref_names.h"
 #include "brave/browser/search_engines/search_engine_provider_service_factory.h"
 #include "brave/browser/search_engines/search_engine_provider_util.h"
 #include "brave/browser/ui/browser_commands.h"
@@ -22,7 +24,7 @@
 #include "chrome/browser/profile_resetter/profile_resetter_test_base.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/profile_window.h"
-#include "chrome/browser/search_engine_choice/search_engine_choice_service_factory.h"
+#include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
 #include "chrome/browser/ui/browser.h"
 #include "chrome/browser/ui/browser_list.h"
@@ -35,7 +37,9 @@
 #include "chrome/test/base/ui_test_utils.h"
 #include "components/country_codes/country_codes.h"
 #include "components/prefs/pref_service.h"
-#include "components/search_engines/search_engine_choice/search_engine_choice_service.h"
+#include "components/regional_capabilities/regional_capabilities_country_id.h"
+#include "components/regional_capabilities/regional_capabilities_service.h"
+#include "components/regional_capabilities/regional_capabilities_switches.h"
 #include "components/search_engines/search_engines_pref_names.h"
 #include "components/search_engines/search_engines_test_util.h"
 #include "components/search_engines/template_url_data_util.h"
@@ -80,10 +84,11 @@ TemplateURLData CreateTestSearchEngine() {
 
 std::string GetBraveSearchProviderSyncGUID(Profile* profile) {
   CHECK(profile);
-  search_engines::SearchEngineChoiceService* search_engine_choice_service =
-      search_engines::SearchEngineChoiceServiceFactory::GetForProfile(profile);
   auto data = TemplateURLPrepopulateData::GetPrepopulatedEngine(
-      profile->GetPrefs(), search_engine_choice_service,
+      *profile->GetPrefs(),
+      regional_capabilities::RegionalCapabilitiesServiceFactory::GetForProfile(
+          profile)
+          ->GetRegionalPrepopulatedEngines(),
       TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_BRAVE);
   DCHECK(data);
   return data->sync_guid;
@@ -279,6 +284,76 @@ INSTANTIATE_TEST_SUITE_P(
         {"ko_KR", true, false},
         {"ko_KR", false, false}}));
 
+class MigrateSearchEnginePrefsInJPTest : public InProcessBrowserTest {
+ public:
+  MigrateSearchEnginePrefsInJPTest() = default;
+  ~MigrateSearchEnginePrefsInJPTest() override = default;
+
+  void SetUpCommandLine(base::CommandLine* command_line) override {
+    InProcessBrowserTest::SetUpCommandLine(command_line);
+
+    command_line->AppendSwitchASCII(switches::kSearchEngineChoiceCountry, "JP");
+  }
+
+  TemplateURLService* service() {
+    return TemplateURLServiceFactory::GetForProfile(browser()->profile());
+  }
+
+  PrefService* prefs() { return browser()->profile()->GetPrefs(); }
+
+ private:
+  const brave_l10n::test::ScopedDefaultLocale default_locale{"ja_JP"};
+};
+
+IN_PROC_BROWSER_TEST_F(MigrateSearchEnginePrefsInJPTest,
+                       PRE_PRE_DefaultSearchProviderUpdateTest) {
+  EXPECT_TRUE(VerifyTemplateURLServiceLoad(service()));
+
+  // To simulate existing user at next launch, set 31
+  // as we set yahoo as a default in jp at 31.
+  // At the next launch, default provider will be yahoo with this setting.
+  prefs()->SetInteger(prefs::kBraveDefaultSearchVersion, 31);
+
+  // To run migration code again at the next launch.
+  prefs()->ClearPref(kMigratedSearchDefaultInJP);
+  prefs()->SetBoolean(prefs::kSearchSuggestEnabled, true);
+}
+
+// To verify migration code doesn't touch search suggestions if current provider
+// is yahoo jp.
+IN_PROC_BROWSER_TEST_F(MigrateSearchEnginePrefsInJPTest,
+                       PRE_DefaultSearchProviderUpdateTest) {
+  EXPECT_TRUE(VerifyTemplateURLServiceLoad(service()));
+
+  const int provider_id =
+      service()->GetDefaultSearchProvider()->prepopulate_id();
+  EXPECT_EQ(provider_id,
+            static_cast<int>(
+                TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_YAHOO_JP));
+  EXPECT_TRUE(prefs()->GetBoolean(prefs::kSearchSuggestEnabled));
+
+  // To simulate existing user at next launch, set older version than 31
+  // as we set yahoo as a default in jp at 31.
+  // At the next launch, default provider will be non-yahoo by setting old
+  // version number.
+  prefs()->SetInteger(prefs::kBraveDefaultSearchVersion, 30);
+
+  // To make migration code run at the next launch, clear related prefs.
+  prefs()->ClearPref(kMigratedSearchDefaultInJP);
+}
+
+IN_PROC_BROWSER_TEST_F(MigrateSearchEnginePrefsInJPTest,
+                       DefaultSearchProviderUpdateTest) {
+  EXPECT_TRUE(VerifyTemplateURLServiceLoad(service()));
+
+  const int provider_id =
+      service()->GetDefaultSearchProvider()->prepopulate_id();
+  EXPECT_EQ(provider_id,
+            static_cast<int>(
+                TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_YAHOO_JP));
+  EXPECT_FALSE(prefs()->GetBoolean(prefs::kSearchSuggestEnabled));
+}
+
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 
 namespace extensions {
@@ -300,12 +375,12 @@ constexpr int kTestExtensionPrepopulatedId = 83;
 // chrome/test/data/extensions/settings_override/manifest.json
 std::unique_ptr<TemplateURLData> TestExtensionSearchEngine(Profile* profile) {
   PrefService* prefs = profile->GetPrefs();
-  search_engines::SearchEngineChoiceService* search_engine_choice_service =
-      search_engines::SearchEngineChoiceServiceFactory::GetForProfile(profile);
   // Enforcing that `kTestExtensionPrepopulatedId` is not part of the
   // prepopulated set for the current profile's country.
   for (auto& data : TemplateURLPrepopulateData::GetPrepopulatedEngines(
-           prefs, search_engine_choice_service)) {
+           *prefs, regional_capabilities::RegionalCapabilitiesServiceFactory::
+                       GetForProfile(profile)
+                           ->GetRegionalPrepopulatedEngines())) {
     EXPECT_NE(data->prepopulate_id, kTestExtensionPrepopulatedId);
   }
 
@@ -325,7 +400,11 @@ std::unique_ptr<TemplateURLData> TestExtensionSearchEngine(Profile* profile) {
 
   std::unique_ptr<TemplateURLData> prepopulated =
       TemplateURLPrepopulateData::GetPrepopulatedEngineFromFullList(
-          prefs, search_engine_choice_service, kTestExtensionPrepopulatedId);
+          *prefs,
+          regional_capabilities::RegionalCapabilitiesServiceFactory::
+              GetForProfile(profile)
+                  ->GetRegionalPrepopulatedEngines(),
+          kTestExtensionPrepopulatedId);
   CHECK(prepopulated);
   // Values below do not exist in extension manifest and are taken from
   // prepopulated engine with prepopulated_id set in extension manifest.

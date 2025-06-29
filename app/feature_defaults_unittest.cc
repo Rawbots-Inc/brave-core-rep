@@ -7,10 +7,10 @@
 #include "base/feature_list.h"
 #include "base/feature_override.h"
 #include "base/features.h"
-#include "base/logging.h"
 #include "chrome/browser/browser_features.h"
 #include "chrome/browser/devtools/features.h"
 #include "chrome/browser/history_embeddings/history_embeddings_utils.h"
+#include "chrome/browser/policy/policy_util.h"
 #include "chrome/browser/preloading/preloading_features.h"
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_features.h"
@@ -52,8 +52,9 @@
 #include "components/user_education/common/user_education_features.h"
 #include "components/webapps/browser/features.h"
 #include "content/common/features.h"
+#include "content/public/common/btm_utils.h"
+#include "content/public/common/buildflags.h"
 #include "content/public/common/content_features.h"
-#include "content/public/common/dips_utils.h"
 #include "gpu/config/gpu_finch_features.h"
 #include "media/base/media_switches.h"
 #include "net/base/features.h"
@@ -66,9 +67,7 @@
 #if BUILDFLAG(IS_ANDROID)
 #include "android_webview/common/aw_features.h"
 #include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "components/password_manager/core/common/password_manager_features.h"
 #else
-#include "chrome/browser/apps/link_capturing/link_capturing_features.h"
 #include "chrome/browser/enterprise/connectors/analysis/content_analysis_features.h"
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
 #include "components/device_signals/core/common/signals_features.h"
@@ -85,6 +84,7 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &android_webview::features::kWebViewMediaIntegrityApiBlinkExtension,
 #endif
       &attribution_reporting::features::kConversionMeasurement,
+      &autofill::features::kAutofillAiServerModel,
       &autofill::features::kAutofillEnableCardBenefitsForAmericanExpress,
       &autofill::features::kAutofillEnableCardBenefitsForBmo,
       &autofill::features::test::kAutofillServerCommunication,
@@ -95,8 +95,6 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &blink::features::kAllowURNsInIframes,
       &blink::features::kAttributionReportingInBrowserMigration,
       &blink::features::kBackgroundResourceFetch,
-      &blink::features::kBiddingAndScoringDebugReportingAPI,
-      &blink::features::kBrowsingTopics,
       &blink::features::kControlledFrame,
       &blink::features::kCssSelectorFragmentAnchor,
       &blink::features::kFencedFrames,
@@ -104,12 +102,9 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &blink::features::kFledgeBiddingAndAuctionServer,
       &blink::features::kFledgeConsiderKAnonymity,
       &blink::features::kFledgeEnforceKAnonymity,
-      &blink::features::kInterestGroupStorage,
       &blink::features::kParakeet,
       &blink::features::kPrerender2,
       &blink::features::kPrivateAggregationApi,
-      &blink::features::kSharedStorageAPI,
-      &blink::features::kSpeculationRulesPrefetchFuture,
 #if BUILDFLAG(IS_ANDROID)
       &chrome::android::kAdaptiveButtonInTopToolbarCustomizationV2,
 #endif
@@ -126,6 +121,7 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
 #if !BUILDFLAG(IS_ANDROID)
       &enterprise_signals::features::kDeviceSignalsConsentDialog,
       &extensions_features::kExtensionManifestV2DeprecationWarning,
+      &extensions_features::kExtensionManifestV2Disabled,
       &extensions_features::kExtensionManifestV2Unsupported,
       &extensions_features::kExtensionsManifestV3Only,
 #endif
@@ -133,15 +129,15 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &feature_engagement::kIPHGMCCastStartStopFeature,
       &feature_engagement::kIPHPasswordsManagementBubbleAfterSaveFeature,
 #endif
-#if !BUILDFLAG(IS_ANDROID)
-      &features::kToolbarPinning,
-#endif
       &features::kBookmarkTriggerForPrerender2,
       &features::kChromeStructuredMetrics,
       &features::kCookieDeprecationFacilitatedTesting,
 #if !BUILDFLAG(IS_ANDROID)
       &features::kDevToolsConsoleInsights,
 #endif  // !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_DEVTOOLS_FRONTEND)
+      &features::kDevToolsNewPermissionDialog,
+#endif  // BUILDFLAG(ENABLE_DEVTOOLS_FRONTEND)
       &features::kDevToolsPrivacyUI,
       &features::kDigitalGoodsApi,
       &features::kFedCm,
@@ -149,7 +145,6 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &features::kFewerUpdateConfirmations,
       &features::kShortcutsNotApps,
 #endif
-      &features::kGlic,
       &features::kHttpsFirstBalancedMode,
       &features::kIdentifiabilityStudyMetaExperiment,
       &features::kIdleDetection,
@@ -163,8 +158,10 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &features::kReportPakFileIntegrity,
 #endif
       &features::kSCTAuditing,
+      &features::kScrimForBrowserWindowModal,
+      &features::KScrimForTabModal,
       &features::kServiceWorkerAutoPreload,
-      &features::kSupportSearchSuggestionForPrerender2,
+      &features::kSideBySide,
       &features::kTabHoverCardImages,
 #if !BUILDFLAG(IS_ANDROID)
       &features::kTrustSafetySentimentSurvey,
@@ -189,19 +186,18 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &history_embeddings::kHistoryEmbeddings,
       &history_embeddings::kHistoryEmbeddingsAnswers,
       &history_embeddings::kLaunchedHistoryEmbeddings,
-#if BUILDFLAG(ENABLE_MIRROR)
-      &kVerifyRequestInitiatorForMirrorHeaders,
-#endif
       &lens::features::kLensOverlay,
       &lens::features::kLensStandalone,
       &manta::features::kMantaService,
       &media::kLiveCaption,
-      &metrics::structured::kEnabledStructuredMetricsService,
       &metrics::structured::kPhoneHubStructuredMetrics,
       &net::features::kEnableWebTransportDraft07,
       &net::features::kTopLevelTpcdOriginTrial,
       &net::features::kTpcdMetadataGrants,
       &net::features::kWaitForFirstPartySetsInit,
+      &network::features::kBrowsingTopics,
+      &network::features::kInterestGroupStorage,
+      &network::features::kSharedStorageAPI,
       &network_time::kNetworkTimeServiceQuerying,
       &ntp_features::kCustomizeChromeSidePanelExtensionsCard,
       &ntp_features::kCustomizeChromeWallpaperSearch,
@@ -221,24 +217,22 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
           kRemoteOptimizationGuideFetchingAnonymousDataConsent,
       &page_image_service::kImageService,
       &page_image_service::kImageServiceSuggestPoweredImages,
-#if BUILDFLAG(IS_ANDROID)
-      &password_manager::features::
-          kUnifiedPasswordManagerLocalPasswordsMigrationWarning,
-#endif
-      &permissions::features::kOneTimePermission,
+      &permissions::features::kCpssUseTfliteSignatureRunner,
 #if !BUILDFLAG(IS_ANDROID)
       &permissions::features::kPermissionsPromptSurvey,
 #endif
       &permissions::features::kPermissionOnDeviceNotificationPredictions,
       &permissions::features::kPermissionPredictionsV2,
-      &permissions::features::kPermissionPredictionsV3,
       &permissions::features::kShowRelatedWebsiteSetsPermissionGrants,
       &plus_addresses::features::kPlusAddressesEnabled,
+      &policy::kDevicePolicyInvalidationWithDirectMessagesEnabled,
+      &policy::kDeviceLocalAccountPolicyInvalidationWithDirectMessagesEnabled,
+      &policy::kCbcmPolicyInvalidationWithDirectMessagesEnabled,
+      &policy::kUserPolicyInvalidationWithDirectMessagesEnabled,
       &privacy_sandbox::kEnforcePrivacySandboxAttestations,
+      &privacy_sandbox::kFingerprintingProtectionUx,
       &privacy_sandbox::kOverridePrivacySandboxSettingsLocalTesting,
-      &privacy_sandbox::kPrivacySandboxFirstPartySetsUI,
       &privacy_sandbox::kPrivacySandboxSettings4,
-      &privacy_sandbox::kTrackingProtectionContentSettingUbControl,
       &safe_browsing::kDownloadsPageReferrerUrl,
       &safe_browsing::kExtensionTelemetryForEnterprise,
       &safe_browsing::kGooglePlayProtectInApkTelemetry,
@@ -248,7 +242,9 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
       &segmentation_platform::features::kSegmentationPlatformTimeDelaySampling,
       &shared_highlighting::kSharedHighlightingManager,
       &subresource_filter::kAdTagging,
-      &syncer::kSyncEnableBookmarksInTransportMode,
+      &switches::kEnableImprovedGuestProfileMenu,
+      &switches::kSyncEnableBookmarksInTransportMode,
+      &syncer::kSyncAutofillLoyaltyCard,
 #if !BUILDFLAG(IS_ANDROID)
       &translate::kTFLiteLanguageDetectionEnabled,
 #endif
@@ -262,14 +258,17 @@ TEST(FeatureDefaultsTest, DisabledFeatures) {
 
 TEST(FeatureDefaultsTest, EnabledFeatures) {
   const base::Feature* enabled_features[] = {
+      &omnibox::kAblateSearchProviderWarmup,
       &blink::features::kPrefetchPrivacyChanges,
       &blink::features::kReducedReferrerGranularity,
       &blink::features::kReduceUserAgentMinorVersion,
       &blink::features::kUACHOverrideBlank,
       &features::kCertificateTransparencyAskBeforeEnabling,
+      &features::kDesktopPWAsTabStripSettings,
 #if !BUILDFLAG(IS_ANDROID)
       &features::kLocationProviderManager,
 #endif
+      &features::kTabstripComboButton,
       &media::kEnableTabMuting,
       &net::features::kPartitionConnectionsByNetworkIsolationKey,
 #if BUILDFLAG(IS_ANDROID)
@@ -290,5 +289,24 @@ TEST(FeatureDefaultsTest, DefaultFeatureParameters) {
   EXPECT_EQ(features::kLocationProviderManagerParam.default_value,
             device::mojom::LocationProviderManagerMode::kPlatformOnly);
 #endif
-  EXPECT_FALSE(features::kShowDefaultBrowserAppMenuItem.default_value);
 }
+
+// This feature flag is not exposed in a header file, so we must explicitly test
+// it via its helper function
+TEST(FeatureDefaultsTest, IsOmniboxEntryPointEnabled) {
+  EXPECT_FALSE(lens::features::IsOmniboxEntryPointEnabled());
+}
+
+TEST(FeatureDefaultsTest, HasTabSearchToolbarButton) {
+  EXPECT_TRUE(features::HasTabSearchToolbarButton());
+}
+
+#if !BUILDFLAG(IS_ANDROID)
+TEST(FeatureDefaultsTest, IsScreenAIMainContentExtractionEnabled) {
+  EXPECT_FALSE(features::IsScreenAIMainContentExtractionEnabled());
+}
+
+TEST(FeatureDefaultsTest, IsScreenAIOCREnabled) {
+  EXPECT_FALSE(features::IsScreenAIOCREnabled());
+}
+#endif  // !BUILDFLAG(IS_ANDROID)

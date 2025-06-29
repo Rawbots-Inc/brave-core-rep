@@ -5,27 +5,19 @@
 
 #include "brave/browser/brave_ads/ads_service_delegate.h"
 
-#include <cstddef>
 #include <utility>
 
-#include "base/check_deref.h"
-#include "base/json/json_reader.h"
-#include "base/strings/utf_string_conversions.h"
-#include "base/version_info/channel.h"
-#include "base/version_info/version_info.h"
 #include "brave/browser/brave_ads/ad_units/notification_ad/notification_ad_platform_bridge.h"
 #include "brave/browser/brave_ads/application_state/notification_helper/notification_helper.h"
 #include "brave/browser/ui/brave_ads/notification_ad.h"
 #include "brave/components/brave_adaptive_captcha/brave_adaptive_captcha_service.h"
-#include "brave/components/l10n/common/locale_util.h"
-#include "brave/components/skus/browser/pref_names.h"
 #include "build/build_config.h"
+#include "chrome/browser/browser_process.h"
 #include "chrome/browser/notifications/notification_display_service.h"
 #include "chrome/browser/notifications/notification_display_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
-#include "chrome/common/channel_info.h"
-#include "components/search_engines/template_url_prepopulate_data.h"
+#include "components/variations/service/variations_service.h"
+#include "components/variations/service/variations_service_utils.h"
 #include "ui/message_center/public/cpp/notification.h"
 #include "ui/message_center/public/cpp/notification_types.h"
 #include "ui/message_center/public/cpp/notifier_id.h"
@@ -44,69 +36,7 @@
 namespace brave_ads {
 
 namespace {
-
-constexpr char kSkuEnvironmentPrefix[] = "skus:";
-constexpr char kSkuOrdersKey[] = "orders";
-constexpr char kSkuOrderLocationKey[] = "location";
-constexpr char kSkuOrderCreatedAtKey[] = "created_at";
-constexpr char kSkuOrderExpiresAtKey[] = "expires_at";
-constexpr char kSkuOrderLastPaidAtKey[] = "last_paid_at";
-constexpr char kSkuOrderStatusKey[] = "status";
 constexpr char kNotificationAdUrlPrefix[] = "https://www.brave.com/ads/?";
-
-std::string StripSkuEnvironmentPrefix(const std::string& environment) {
-  const size_t pos = environment.find(':');
-  return environment.substr(pos + 1);
-}
-
-std::string NormalizeSkuStatus(const std::string& status) {
-  return status == "cancelled" ? "canceled" : status;
-}
-
-base::Value::Dict ParseSkuOrder(const base::Value::Dict& dict) {
-  base::Value::Dict order;
-
-  if (const auto* const created_at = dict.FindString(kSkuOrderCreatedAtKey)) {
-    order.Set(kSkuOrderCreatedAtKey, *created_at);
-  }
-
-  if (const auto* const expires_at = dict.FindString(kSkuOrderExpiresAtKey)) {
-    order.Set(kSkuOrderExpiresAtKey, *expires_at);
-  }
-
-  if (const auto* const last_paid_at =
-          dict.FindString(kSkuOrderLastPaidAtKey)) {
-    order.Set(kSkuOrderLastPaidAtKey, *last_paid_at);
-  }
-
-  if (const auto* const status = dict.FindString(kSkuOrderStatusKey)) {
-    const std::string normalized_status = NormalizeSkuStatus(*status);
-    order.Set(kSkuOrderStatusKey, normalized_status);
-  }
-
-  return order;
-}
-
-base::Value::Dict ParseSkuOrders(const base::Value::Dict& dict) {
-  base::Value::Dict orders;
-
-  for (const auto [/*id*/ _, value] : dict) {
-    const base::Value::Dict* const order = value.GetIfDict();
-    if (!order) {
-      continue;
-    }
-
-    const std::string* const location = order->FindString(kSkuOrderLocationKey);
-    if (!location) {
-      continue;
-    }
-
-    orders.Set(*location, ParseSkuOrder(*order));
-  }
-
-  return orders;
-}
-
 }  // namespace
 
 AdsServiceDelegate::AdsServiceDelegate(
@@ -118,61 +48,11 @@ AdsServiceDelegate::AdsServiceDelegate(
         notification_ad_platform_bridge)
     : profile_(profile),
       local_state_(local_state),
-      search_engine_choice_service_(
-          *profile_->GetPrefs(),
-          local_state_,
-          CHECK_DEREF(
-              regional_capabilities::RegionalCapabilitiesServiceFactory::
-                  GetForProfile(&profile)),
-          /*is_profile_eligible_for_dse_guest_propagation=*/false),
       adaptive_captcha_service_(adaptive_captcha_service),
       notification_ad_platform_bridge_(
           std::move(notification_ad_platform_bridge)) {}
 
 AdsServiceDelegate::~AdsServiceDelegate() {}
-
-std::string AdsServiceDelegate::GetDefaultSearchEngineName() {
-  const auto template_url_data =
-      TemplateURLPrepopulateData::GetPrepopulatedFallbackSearch(
-          profile_->GetPrefs(), &search_engine_choice_service_);
-
-  const std::u16string& default_search_engine_name =
-      template_url_data ? template_url_data->short_name() : u"";
-  return base::UTF16ToUTF8(default_search_engine_name);
-}
-
-base::Value::Dict AdsServiceDelegate::GetSkus() const {
-  base::Value::Dict skus;
-
-  if (!local_state_->FindPreference(skus::prefs::kSkusState)) {
-    // No SKUs in local state.
-    return skus;
-  }
-
-  const base::Value::Dict& skus_state =
-      local_state_->GetDict(skus::prefs::kSkusState);
-  for (const auto [environment, value] : skus_state) {
-    if (!environment.starts_with(kSkuEnvironmentPrefix)) {
-      continue;
-    }
-
-    // Parse the SKUs JSON because it is stored as a string in local state.
-    const std::optional<base::Value::Dict> sku_state =
-        base::JSONReader::ReadDict(value.GetString());
-    if (!sku_state) {
-      continue;
-    }
-
-    const base::Value::Dict* const orders = sku_state->FindDict(kSkuOrdersKey);
-    if (!orders) {
-      continue;
-    }
-
-    skus.Set(StripSkuEnvironmentPrefix(environment), ParseSkuOrders(*orders));
-  }
-
-  return skus;
-}
 
 void AdsServiceDelegate::OpenNewTabWithUrl(const GURL& url) {
 #if BUILDFLAG(IS_ANDROID)
@@ -195,8 +75,10 @@ void AdsServiceDelegate::OpenNewTabWithUrl(const GURL& url) {
 #endif
 }
 
-void AdsServiceDelegate::InitNotificationHelper() {
-  NotificationHelper::GetInstance()->InitForProfile(&*profile_);
+void AdsServiceDelegate::MaybeInitNotificationHelper(
+    base::OnceClosure callback) {
+  NotificationHelper::GetInstance()->MaybeInitForProfile(&*profile_,
+                                                         std::move(callback));
 }
 
 bool AdsServiceDelegate::
@@ -236,7 +118,7 @@ void AdsServiceDelegate::ShowNotificationAd(const std::string& id,
                                             bool is_custom) {
   if (is_custom) {
     notification_ad_platform_bridge_->ShowNotificationAd(
-        NotificationAd(id, title, body, nullptr));
+        NotificationAd(id, title, body, /*delegate=*/nullptr));
   } else {
     message_center::RichNotificationData notification_data;
     notification_data.context_message = u" ";
@@ -295,26 +177,25 @@ bool AdsServiceDelegate::IsFullScreenMode() {
 #endif
 }
 
-base::Value::Dict AdsServiceDelegate::GetVirtualPrefs() {
-  return base::Value::Dict()
-      .Set("[virtual]:browser",
-           base::Value::Dict()
-               .Set("build_channel",
-                    version_info::GetChannelString(chrome::GetChannel()))
-               .Set("version", version_info::GetVersionNumber()))
-      .Set("[virtual]:operating_system",
-           base::Value::Dict()
-               .Set("locale",
-                    base::Value::Dict()
-                        .Set("language",
-                             brave_l10n::GetDefaultISOLanguageCodeString())
-                        .Set("region",
-                             brave_l10n::GetDefaultISOCountryCodeString()))
-               .Set("name", version_info::GetOSType()))
-      .Set(
-          "[virtual]:search_engine",
-          base::Value::Dict().Set("default_name", GetDefaultSearchEngineName()))
-      .Set("[virtual]:skus", GetSkus());
+std::string AdsServiceDelegate::GetVariationsCountryCode() {
+  std::string country_code;
+
+  variations::VariationsService* variations_service =
+      g_browser_process->variations_service();
+
+  if (variations_service) {
+    country_code = variations_service->GetLatestCountry();
+  }
+
+  if (country_code.empty()) {
+    // May be empty on first run after a fresh install, so fall back to the
+    // permanently stored variations or device country code on first run.
+    country_code = variations::GetCurrentCountryCode(variations_service);
+  }
+
+  // Convert the country code to an ISO 3166-1 alpha-2 format. This ensures the
+  // country code is in uppercase, as required by the standard.
+  return base::ToUpperASCII(country_code);
 }
 
 NotificationDisplayService*

@@ -25,7 +25,8 @@ ExtensionFunctionalTest::InstallExtensionSilently(
   size_t num_before = registry->enabled_extensions().size();
 
   TestExtensionRegistryObserver registry_observer(registry);
-  scoped_refptr<CrxInstaller> installer(CrxInstaller::CreateSilent(service));
+  scoped_refptr<CrxInstaller> installer(
+      CrxInstaller::CreateSilent(service->profile()));
   installer->set_is_gallery_install(false);
   installer->set_allow_silent_install(true);
   installer->set_install_source(extensions::mojom::ManifestLocation::kInternal);
@@ -34,7 +35,7 @@ ExtensionFunctionalTest::InstallExtensionSilently(
 
   installer->InstallCrx(path);
   EXPECT_TRUE(registry_observer.WaitForExtensionInstalled());
-  EXPECT_TRUE(observer_->WaitForExtensionViewsToLoad());
+  EXPECT_TRUE(test_notification_observer()->WaitForExtensionViewsToLoad());
 
   size_t num_after = registry->enabled_extensions().size();
   EXPECT_EQ(num_before + 1, num_after);

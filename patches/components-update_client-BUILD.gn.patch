@@ -1,8 +1,8 @@
 diff --git a/components/update_client/BUILD.gn b/components/update_client/BUILD.gn
-index aa23adbe74a3cda387fd8d8c41ba8e419b17907a..45b5aaea2f437f7ab985c2da80d0765459afcd58 100644
+index a0f35874277a25cb7d091dafa54730915962439d..d15b797053c03a1c2d192d12158c2524d09510f7 100644
 --- a/components/update_client/BUILD.gn
 +++ b/components/update_client/BUILD.gn
-@@ -186,6 +186,7 @@ static_library("update_client") {
+@@ -199,6 +199,7 @@ static_library("update_client") {
        "background_downloader_win.h",
      ]
    }

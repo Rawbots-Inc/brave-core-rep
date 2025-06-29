@@ -12,9 +12,11 @@ import WebKit
 
 public enum AIChatModelKey: String {
   case chatBasic = "chat-basic"
-  case chatExpanded = "chat-leo-expanded"
+  case chatQwen = "chat-qwen"
   case chatClaudeHaiku = "chat-claude-haiku"
   case chatClaudeSonnet = "chat-claude-sonnet"
+  case chatVisionBasic = "chat-vision-basic"
+  case chatDeepseekR1 = "chat-deepseek-r1"
 }
 
 public protocol AIChatWebDelegate: AnyObject {
@@ -44,7 +46,7 @@ public class AIChatViewModel: NSObject, ObservableObject {
   private let braveTalkScript: AIChatBraveTalkJavascript?
   var querySubmited: String?
 
-  @Published var siteInfo: AiChat.AssociatedContent?
+  @Published var siteInfo: [AiChat.AssociatedContent] = []
   @Published var _shouldSendPageContents: Bool = true
   @Published var _canShowPremiumPrompt: Bool = false
   @Published var premiumStatus: AiChat.PremiumStatus = .inactive
@@ -133,7 +135,7 @@ public class AIChatViewModel: NSObject, ObservableObject {
   }
 
   public init(
-    braveCore: BraveCoreMain,
+    braveCore: BraveProfileController,
     webDelegate: AIChatWebDelegate?,
     braveTalkScript: AIChatBraveTalkJavascript?,
     querySubmited: String? = nil
@@ -339,7 +341,7 @@ extension AIChatViewModel: AIChatDelegate {
   }
 
   public func onPageHasContent(
-    _ siteInfo: AiChat.AssociatedContent,
+    _ siteInfo: [AiChat.AssociatedContent],
     shouldSendContent shouldSendPageContents: Bool
   ) {
     self.siteInfo = siteInfo
@@ -348,5 +350,59 @@ extension AIChatViewModel: AIChatDelegate {
 
   public func onServiceStateChanged(_ state: AiChat.ServiceState) {
     self._canShowPremiumPrompt = state.canShowPremiumPrompt
+  }
+}
+
+extension AiChat.Model {
+  var introMessage: String {
+    guard let modelKey = AIChatModelKey(rawValue: self.key) else {
+      return String(format: Strings.AIChat.introMessageGenericMessageDescription, self.displayName)
+    }
+
+    switch modelKey {
+    case .chatBasic:
+      return Strings.AIChat.introMessageLlamaMessageDescription
+
+    case .chatQwen:
+      return Strings.AIChat.introMessageQwenMessageDescription
+
+    case .chatClaudeHaiku:
+      return Strings.AIChat.introMessageClaudeHaikuMessageDescription
+
+    case .chatClaudeSonnet:
+      return Strings.AIChat.introMessageClaudeSonnetMessageDescription
+
+    case .chatVisionBasic:
+      return Strings.AIChat.introMessageLlamaVisionMessageDescription
+
+    case .chatDeepseekR1:
+      return Strings.AIChat.introMessageDeepSeekR1MessageDescription
+    }
+  }
+
+  var purposeDescription: String {
+    guard let modelKey = AIChatModelKey(rawValue: self.key) else {
+      return self.displayName
+    }
+
+    switch modelKey {
+    case .chatBasic:
+      return Strings.AIChat.introMessageLlamaModelPurposeDescription
+
+    case .chatQwen:
+      return Strings.AIChat.introMessageQwenModelPurposeDescription
+
+    case .chatClaudeHaiku:
+      return Strings.AIChat.introMessageClaudeHaikuModelPurposeDescription
+
+    case .chatClaudeSonnet:
+      return Strings.AIChat.introMessageClaudeSonnetModelPurposeDescription
+
+    case .chatVisionBasic:
+      return Strings.AIChat.introMessageLlamaVisionModelPurposeDescription
+
+    case .chatDeepseekR1:
+      return Strings.AIChat.introMessageDeepSeekR1ModelPurposeDescription
+    }
   }
 }

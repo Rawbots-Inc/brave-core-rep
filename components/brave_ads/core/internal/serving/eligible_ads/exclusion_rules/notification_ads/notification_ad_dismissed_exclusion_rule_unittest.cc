@@ -47,11 +47,14 @@ TEST_F(BraveAdsDismissedExclusionRuleTest, ShouldAlwaysInclude) {
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest, ShouldIncludeIfThereAreNoAdEvents) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad;
   creative_ad.creative_instance_id = test::kCreativeInstanceId;
   creative_ad.campaign_id = test::kCampaignId;
@@ -59,7 +62,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest, ShouldIncludeIfThereAreNoAdEvents) {
   const NotificationAdDismissedExclusionRule exclusion_rule(/*ad_events=*/{});
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -92,7 +95,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(
@@ -137,7 +140,7 @@ TEST_F(
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -171,7 +174,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -208,7 +211,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
                  (base::Minutes(5) * mojom_confirmation_types.size()));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -242,7 +245,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -279,7 +282,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
                  (base::Minutes(5) * mojom_confirmation_types.size()));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -317,7 +320,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   AdvanceClockBy(base::Days(2));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -353,11 +356,11 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_FALSE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
-       ShouldIncludeWithSameCampaignIdIfClickedThenDismissedTwiceWhenDisabled) {
+       ShouldIncludeWithSameCampaignIdIfClickedThenDismissedTwiceIfZeroTime) {
   // Arrange
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitAndEnableFeatureWithParameters(
@@ -388,7 +391,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
@@ -426,12 +429,15 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
   const NotificationAdDismissedExclusionRule exclusion_rule(ad_events);
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1));
 }
 
 TEST_F(BraveAdsDismissedExclusionRuleTest,
        ShouldIncludeWithDifferentCampaignIdAfter2Days) {
   // Arrange
+  const base::test::ScopedFeatureList scoped_feature_list(
+      kExclusionRulesFeature);
+
   CreativeAdInfo creative_ad_1;
   creative_ad_1.creative_instance_id = test::kCreativeInstanceId;
   creative_ad_1.campaign_id = test::kCampaignId;
@@ -462,7 +468,7 @@ TEST_F(BraveAdsDismissedExclusionRuleTest,
                  (base::Minutes(5) * mojom_confirmation_types.size()));
 
   // Act & Assert
-  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1).has_value());
+  EXPECT_TRUE(exclusion_rule.ShouldInclude(creative_ad_1));
 }
 
 }  // namespace brave_ads

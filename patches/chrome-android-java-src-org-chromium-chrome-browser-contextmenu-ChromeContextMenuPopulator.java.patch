@@ -1,26 +1,25 @@
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java b/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
-index 86d47316899b1872d4d6751f5154f3d6f469e25f..9d57752110c2d69538550c05e856054821ed9120 100644
+index 0f3ffe8db8c1d8e43386b4871dcff73edf8c8216..8f3fdcef404e576c5d447577384e10570f34acc7 100644
 --- a/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/contextmenu/ChromeContextMenuPopulator.java
-@@ -172,7 +172,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
-             Action.SHARE_HIGHLIGHT,
-             Action.REMOVE_HIGHLIGHT,
-             Action.LEARN_MORE,
--            Action.OPEN_IN_NEW_TAB_IN_GROUP
-+            Action.OPEN_IN_NEW_TAB_IN_GROUP, Action.COPY_CLEAN_LINK
+@@ -183,6 +183,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
+             Action.PRINT_PAGE,
+             Action.INSPECT_ELEMENT,
+             Action.SHOW_INTEREST_IN_ELEMENT,
++            Action.COPY_CLEAN_LINK,
          })
          @Retention(RetentionPolicy.SOURCE)
          public @interface Action {
-@@ -217,7 +217,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
-             int LEARN_MORE = 38;
-             int OPEN_IN_NEW_TAB_IN_GROUP = 39;
-             int OPEN_IN_NEW_WINDOW = 40;
--            int NUM_ENTRIES = 41;
-+            int COPY_CLEAN_LINK = 41;int NUM_ENTRIES = 42;
+@@ -235,7 +236,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
+             // int RELOAD = 46;  Deprecated since 05/2025.
+             int INSPECT_ELEMENT = 47;
+             int SHOW_INTEREST_IN_ELEMENT = 48;
+-            int NUM_ENTRIES = 49;
++            int COPY_CLEAN_LINK = 49;int NUM_ENTRIES = 50;
          }
-     }
  
-@@ -374,6 +374,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
+         // LINT.ThenChange(/tools/metrics/histograms/enums.xml:ContextMenuOptionAndroid)
+@@ -410,6 +411,7 @@ public class ChromeContextMenuPopulator implements ContextMenuPopulator {
              if (!MailTo.isMailTo(mParams.getLinkUrl().getSpec())
                      && !UrlUtilities.isTelScheme(mParams.getLinkUrl())) {
                  linkGroup.add(createListItem(Item.COPY_LINK_ADDRESS));

@@ -27,7 +27,6 @@ var package = Package(
     .library(name: "BraveWidgetsModels", targets: ["BraveWidgetsModels"]),
     .library(name: "Strings", targets: ["Strings"]),
     .library(name: "BraveStrings", targets: ["BraveStrings"]),
-    .library(name: "BraveVPN", targets: ["BraveVPN"]),
     .library(name: "BraveNews", targets: ["BraveNews"]),
     .library(name: "AIChat", targets: ["AIChat"]),
     .library(name: "BraveStore", targets: ["BraveStore"]),
@@ -38,7 +37,6 @@ var package = Package(
     .library(name: "Growth", targets: ["Growth"]),
     .library(name: "RuntimeWarnings", targets: ["RuntimeWarnings"]),
     .library(name: "CodableHelpers", targets: ["CodableHelpers"]),
-    .library(name: "GRDWireGuardKit", targets: ["GRDWireGuardKit"]),
     .library(name: "Preferences", targets: ["Preferences"]),
     .library(name: "PrivateCDN", targets: ["PrivateCDN"]),
     .library(name: "CertificateUtilities", targets: ["CertificateUtilities"]),
@@ -69,7 +67,6 @@ var package = Package(
     .package(url: "https://github.com/apple/swift-algorithms", from: "1.0.0"),
     .package(url: "https://github.com/devxoul/Then", from: "2.7.0"),
     .package(url: "https://github.com/mkrd/Swift-BigInt", from: "2.3.0"),
-    .package(url: "https://github.com/GuardianFirewall/GuardianConnect", exact: "2.0.1"),
     .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "0.6.0"),
     .package(
       url: "https://github.com/venmo/Static",
@@ -110,7 +107,7 @@ var package = Package(
     .target(
       name: "Growth",
       dependencies: [
-        "BraveVPN", "Shared", "BraveShared", "Strings", "SnapKit", "CertificateUtilities",
+        "Shared", "BraveShared", "Strings", "SnapKit", "CertificateUtilities",
         .product(name: "OrderedCollections", package: "swift-collections"),
       ],
       plugins: ["LoggerPlugin"]
@@ -152,10 +149,6 @@ var package = Package(
     .binaryTarget(
       name: "MaterialComponents",
       path: "../../../out/ios_current_link/MaterialComponents.xcframework"
-    ),
-    .binaryTarget(
-      name: "GRDWireGuardKit",
-      path: "../../third_party/ios_deps/GRDWireGuardKit/GRDWireGuardKit.xcframework"
     ),
     .target(
       name: "Storage",
@@ -221,21 +214,6 @@ var package = Package(
       plugins: ["IntentBuilderPlugin", "LoggerPlugin"]
     ),
     .target(name: "TestHelpers", dependencies: ["Data", "BraveShared"]),
-    .target(
-      name: "BraveVPN",
-      dependencies: [
-        "BraveStore",
-        "BraveStrings",
-        "SnapKit",
-        "Then",
-        "Data",
-        "GuardianConnect",
-        "BraveUI",
-        .product(name: "Lottie", package: "lottie-spm"),
-      ],
-      resources: [.copy("Resources/vpncheckmark.json")],
-      plugins: ["LoggerPlugin"]
-    ),
     .target(
       name: "BraveNews",
       dependencies: [
@@ -375,10 +353,6 @@ var package = Package(
       dependencies: ["BraveShared", "Preferences"]
     ),
     .testTarget(
-      name: "BraveVPNTests",
-      dependencies: ["BraveVPN", "BraveShared", "GuardianConnect"]
-    ),
-    .testTarget(
       name: "BraveWalletTests",
       dependencies: [
         "BraveWallet",
@@ -423,7 +397,7 @@ var package = Package(
     .testTarget(name: "PrivateCDNTests", dependencies: ["PrivateCDN"]),
     .testTarget(
       name: "GrowthTests",
-      dependencies: ["Growth", "Shared", "BraveShared", "BraveVPN"]
+      dependencies: ["Growth", "Shared", "BraveShared"]
     ),
     .target(
       name: "PlaylistUI",
@@ -442,8 +416,7 @@ var package = Package(
     .target(
       name: "BrowserMenu",
       dependencies: [
-        "DesignSystem", "BraveUI", "Preferences", "Strings", "BraveStrings", "BraveVPN",
-        "GuardianConnect", "BraveWallet",
+        "DesignSystem", "BraveUI", "Preferences", "Strings", "BraveStrings","BraveWallet"
       ]
     ),
     .testTarget(name: "BrowserMenuTests", dependencies: ["BrowserMenu"]),
@@ -479,7 +452,6 @@ var braveTarget: PackageDescription.Target = .target(
     "SwiftyJSON",
     "BrowserIntentsModels",
     "BraveWidgetsModels",
-    "BraveVPN",
     "BraveNews",
     "AIChat",
     "BraveStore",

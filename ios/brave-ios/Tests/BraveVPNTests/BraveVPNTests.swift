@@ -9,7 +9,6 @@ import GuardianConnect
 import Preferences
 import XCTest
 
-@testable import BraveVPN
 
 class BraveVPNTests: XCTestCase {
 

@@ -2,7 +2,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import BraveVPN
 import SnapKit
 import UIKit
 
@@ -24,10 +23,6 @@ public class VPNLogsViewController: UIViewController {
     formatter.timeStyle = .long
 
     var logs = ""
-
-    BraveVPN.errorLog.forEach {
-      logs.append("\(formatter.string(from: $0.date)): \($0.message)\n")
-    }
 
     logsTextView.text = logs
   }

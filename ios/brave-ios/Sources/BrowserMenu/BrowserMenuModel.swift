@@ -5,7 +5,6 @@
 
 import Combine
 import Foundation
-import GuardianConnect
 import NetworkExtension
 import Preferences
 import SwiftUI

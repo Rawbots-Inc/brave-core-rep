@@ -4,7 +4,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import BraveShared
-import BraveVPN
 import Foundation
 import Shared
 import os.log
@@ -111,32 +110,8 @@ class BraveSkusWebHelper {
   }
 
   /// Takes credential passed from the Brave SKUs and extract a proper credential to pass to the GuardianConnect framework.
-  static func fetchVPNCredential(_ credential: String, domain: String) -> BraveVPNSkusCredential? {
-    guard let unescapedCredential = credential.unescape(),
-      let env = environment(domain: domain),
-      let sampleUrl = URL(string: "https://brave.com")
-    else { return nil }
-
-    guard
-      let cookie = HTTPCookie.cookies(
-        withResponseHeaderFields: ["Set-Cookie": unescapedCredential],
-        for: sampleUrl
-      ).first
-    else {
+  static func fetchVPNCredential(_ credential: String, domain: String) ->String? {
       return nil
-    }
-
-    let guardianCredential = cookie.value
-
-    guard let expirationDate = cookie.expiresDate else {
-      return nil
-    }
-
-    return .init(
-      guardianCredential: guardianCredential,
-      environment: env,
-      expirationDate: expirationDate
-    )
   }
 
   static func milisecondsOptionalDate(from stringDate: String) -> Date? {

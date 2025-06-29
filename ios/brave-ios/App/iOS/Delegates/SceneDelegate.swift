@@ -7,7 +7,6 @@ import Brave
 import BraveCore
 import BraveNews
 import BraveShared
-import BraveVPN
 import BraveWidgetsModels
 import BrowserIntentsModels
 import Combine
@@ -295,7 +294,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func sceneDidEnterBackground(_ scene: UIScene) {
     AppState.shared.profile.shutdown()
-    BraveVPN.sendVPNWorksInBackgroundNotification()
   }
 
   func scene(_ scene: UIScene, openURLContexts contexts: Set<UIOpenURLContext>) {

@@ -6,7 +6,6 @@
 import BraveShared
 import BraveUI
 import DesignSystem
-import GuardianConnect
 import Strings
 import SwiftUI
 
@@ -122,7 +121,7 @@ public struct BrowserMenu: View {
         )
         if case .connected(let region) = model.vpnStatus {
           Button {
-            handlePresentation(.vpnRegionPicker)
+            
           } label: {
             Label {
               HStack {

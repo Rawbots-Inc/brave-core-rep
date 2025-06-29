@@ -3,7 +3,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import BraveVPN
 import Data
 import Foundation
 import Preferences
@@ -54,7 +53,6 @@ public struct PrivacyReportsManager {
     let timeInterval = AppConstants.isOfficialBuild ? 5.minutes : 1.minutes
     vpnAlertsTimer = Timer.scheduledTimer(withTimeInterval: timeInterval, repeats: true) { _ in
       if Preferences.PrivacyReports.captureVPNAlerts.value {
-        BraveVPN.processVPNAlerts()
       }
     }
   }

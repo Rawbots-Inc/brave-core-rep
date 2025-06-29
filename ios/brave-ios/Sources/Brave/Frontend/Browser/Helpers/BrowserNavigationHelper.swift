@@ -4,7 +4,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import BraveShared
-import BraveVPN
 import Foundation
 import Shared
 import SwiftUI
@@ -80,31 +79,6 @@ class BrowserNavigationHelper {
     open(vc, doneButton: DoneButton(style: .done, position: .right))
   }
 
-  func openVPNBuyScreen(iapObserver: BraveVPNInAppPurchaseObserver) {
-    guard BraveVPN.vpnState.isPaywallEnabled else { return }
-
-    let vpnPaywallView = BraveVPNPaywallView(
-      openVPNAuthenticationInNewTab: { [weak bvc] in
-        guard let bvc = bvc else { return }
-
-        bvc.popToBVC()
-
-        bvc.openURLInNewTab(
-          .brave.braveVPNRefreshCredentials,
-          isPrivate: bvc.privateBrowsingManager.isPrivateBrowsing,
-          isPrivileged: false
-        )
-      },
-      installVPNProfile: { [weak bvc] in
-        guard let bvc = bvc else { return }
-        bvc.popToBVC()
-        bvc.openInsideSettingsNavigation(with: BraveVPNInstallViewController())
-      }
-    )
-
-    let vpnPaywallHostingVC = BraveVPNPaywallHostingController(paywallView: vpnPaywallView)
-    bvc?.present(UINavigationController(rootViewController: vpnPaywallHostingVC), animated: true)
-  }
 
   func openShareSheet() {
     guard let bvc = bvc else { return }

@@ -81,7 +81,7 @@ extension BrowserViewController {
         //      self.navigationController?.pushViewController(toc, animated: true)
        
         if url.contains("internal://local/about") {
-            let  url = URL(string: "https://rep.run?currentTabUrl=newtab")!
+            let  url = URL(string: "https://dev.rep.run?currentTabUrl=newtab")!
             let config = SFSafariViewController.Configuration()
             config.entersReaderIfAvailable = false
             config.barCollapsingEnabled = true
@@ -95,7 +95,7 @@ extension BrowserViewController {
 //            print("URL chứa 'internal://local/about'")
         } else {
             let urlTransform = transformToDesktopURL(url)
-            let  url = URL(string: "https://rep.run?currentTabUrl=" + urlTransform)!
+            let  url = URL(string: "https://dev.rep.run?currentTabUrl=" + urlTransform)!
             let config = SFSafariViewController.Configuration()
             config.entersReaderIfAvailable = false
             config.barCollapsingEnabled = true

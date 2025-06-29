@@ -40,7 +40,7 @@ public struct VPNLinkReceiptView: View {
       .buttonStyle(BraveFilledButtonStyle(size: .large))
 
       HStack(spacing: 8) {
-        Text(Strings.VPN.poweredBy)
+        Text("")
           .font(.footnote)
           .foregroundColor(Color(.bravePrimary))
           .multilineTextAlignment(.center)

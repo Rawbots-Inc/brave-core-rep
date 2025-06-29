@@ -6,7 +6,6 @@
 import BraveCore
 import BraveShared
 import BraveUI
-import BraveVPN
 import BraveWallet
 import BrowserMenu
 import Data
@@ -20,59 +19,7 @@ import os.log
 extension BrowserViewController {
   func featuresMenuSection(_ menuController: MenuViewController) -> some View {
     VStack(alignment: .leading, spacing: 5) {
-      VPNMenuButton(
-        retryStateActive: Preferences.VPN.vpnReceiptStatus.value
-          == BraveVPN.ReceiptResponse.Status.retryPeriod.rawValue,
-        vpnProductInfo: self.vpnProductInfo,
-        displayVPNDestination: { [unowned self] vc in
-          self.dismiss(animated: true) {
-            self.present(UINavigationController(rootViewController: vc), animated: true)
-          }
-        },
-        enableInstalledVPN: { [unowned menuController] in
-          // Donate Enable VPN Activity for suggestions
-          let enableVPNActivity = ActivityShortcutManager.shared.createShortcutActivity(
-            type: .enableBraveVPN
-          )
-          menuController.userActivity = enableVPNActivity
-          enableVPNActivity.becomeCurrent()
-        },
-        displayAlert: { [unowned menuController] alert in
-          menuController.present(alert, animated: true)
-        },
-        openURL: { [weak self] url in
-          guard let self = self else { return }
-
-          popToBVC()
-
-          self.openURLInNewTab(
-            url,
-            isPrivate: self.privateBrowsingManager.isPrivateBrowsing,
-            isPrivileged: false
-          )
-        },
-        installVPNProfile: { [unowned self] in
-          self.popToBVC(isAnimated: true) {
-            self.present(BraveVPNInstallViewController(), animated: true)
-          }
-        }
-      )
-
       // Region Button is populated without current selected detail title for features menu
-      RegionMenuButton(
-        settingTitleEnabled: false,
-        regionSelectAction: { [unowned menuController] in
-          let vpnRegionListView = BraveVPNRegionListView(
-            onServerRegionSet: { _ in
-              self.presentVPNServerRegionPopup()
-            }
-          )
-          let vc = UIHostingController(rootView: vpnRegionListView)
-          vc.title = Strings.VPN.vpnRegionListServerScreenTitle
-
-          menuController.pushInnerMenu(vc)
-        }
-      )
     }
   }
 
@@ -84,57 +31,8 @@ extension BrowserViewController {
         .padding(.horizontal, 14)
         .padding(.bottom, 5)
 
-      VPNMenuButton(
-        retryStateActive: Preferences.VPN.vpnReceiptStatus.value
-          == BraveVPN.ReceiptResponse.Status.retryPeriod.rawValue,
-        vpnProductInfo: self.vpnProductInfo,
-        description: Strings.OptionsMenu.braveVPNItemDescription,
-        displayVPNDestination: { [unowned self] vc in
-          self.dismiss(animated: true) {
-            self.present(UINavigationController(rootViewController: vc), animated: true)
-          }
-        },
-        enableInstalledVPN: { [unowned menuController] in
-          // Donate Enable VPN Activity for suggestions
-          let enableVPNActivity = ActivityShortcutManager.shared.createShortcutActivity(
-            type: .enableBraveVPN
-          )
-          menuController.userActivity = enableVPNActivity
-          enableVPNActivity.becomeCurrent()
-        },
-        displayAlert: { [unowned self] alert in
-          self.popToBVC()
-          self.present(alert, animated: true)
-        },
-        openURL: { [unowned self] url in
-          self.popToBVC()
-          self.openURLInNewTab(
-            url,
-            isPrivate: self.privateBrowsingManager.isPrivateBrowsing,
-            isPrivileged: false
-          )
-        },
-        installVPNProfile: { [unowned self] in
-          self.popToBVC(isAnimated: true) {
-            self.present(BraveVPNInstallViewController(), animated: true)
-          }
-        }
-      )
 
       // Region Button is populated including the details for privacy feature menu
-      RegionMenuButton(
-        regionSelectAction: { [unowned menuController] in
-          let vpnRegionListView = BraveVPNRegionListView(
-            onServerRegionSet: { _ in
-              self.presentVPNServerRegionPopup()
-            }
-          )
-          let vc = UIHostingController(rootView: vpnRegionListView)
-          vc.title = Strings.VPN.vpnRegionListServerScreenTitle
-
-          menuController.pushInnerMenu(vc)
-        }
-      )
 
       Divider()
 
@@ -340,24 +238,6 @@ extension BrowserViewController {
   }
 
   // Present a popup when VPN server region has been changed
-  private func presentVPNServerRegionPopup() {
-    let controller = PopupViewController(
-      rootView: BraveVPNRegionConfirmationView(
-        country: BraveVPN.serverLocationDetailed.country,
-        city: BraveVPN.serverLocationDetailed.city,
-        countryISOCode: BraveVPN.serverLocation.isoCode
-      ),
-      isDismissable: true
-    )
-    if let presentedViewController {
-      presentedViewController.present(controller, animated: true)
-    } else {
-      present(controller, animated: true)
-    }
-    Timer.scheduledTimer(withTimeInterval: 2, repeats: false) { [weak controller] _ in
-      controller?.dismiss(animated: true)
-    }
-  }
 
   struct PageActionsMenuSection: View {
     var browserViewController: BrowserViewController
@@ -564,24 +444,9 @@ extension BrowserViewController {
           self.dismiss(animated: true) {
             self.presentSettingsNavigation(with: vc)
           }
-        case .vpnRegionPicker:
-          let vc = UIHostingController(
-            rootView: BraveVPNRegionListView(
-              onServerRegionSet: { _ in
-                self.presentVPNServerRegionPopup()
-              }
-            )
-          )
-          vc.title = Strings.VPN.vpnRegionListServerScreenTitle
-          self.dismiss(animated: true) {
-            self.presentSettingsNavigation(with: vc)
-          }
         }
       }
     )
-    if UIDevice.current.userInterfaceIdiom == .pad {
-      browserMenu.modalPresentationStyle = .popover
-    }
     browserMenu.popoverPresentationController?.sourceView = sourceView
     browserMenu.popoverPresentationController?.sourceRect = sourceView.bounds
     browserMenu.popoverPresentationController?.popoverLayoutMargins = .init(equalInset: 4)
@@ -684,111 +549,8 @@ extension BrowserViewController {
     return actions
   }
 
-  private var vpnMenuAction: Action {
-    func alertForExpiredState() -> UIAlertController? {
-      if !BraveSkusManager.keepShowingSessionExpiredState {
-        return nil
-      }
-      return BraveSkusManager.sessionExpiredStateAlert(loginCallback: { _ in
-        self.openURLInNewTab(
-          .brave.account,
-          isPrivate: self.privateBrowsingManager.isPrivateBrowsing,
-          isPrivileged: false
-        )
-      })
-    }
-
-    let vpnState = BraveVPN.vpnState
-    switch vpnState {
-    case .notPurchased, .expired:
-      return .init(id: .vpn) { @MainActor [unowned self] _ in
-        if !BraveVPNProductInfo.isComplete {
-          // Reattempt to connect to the App Store to get VPN prices.
-          vpnProductInfo.load()
-          return .none
-        }
-
-        if let alert = alertForExpiredState() {
-          self.dismiss(animated: true) {
-            self.present(alert, animated: true)
-          }
-          return .none
-        }
-
-        // Expired Subcriptions can cause glitch because of connect on demand
-        // Disconnect VPN before showing Purchase
-        BraveVPN.disconnect(skipChecks: true)
-        guard BraveVPN.vpnState.isPaywallEnabled else { return .none }
-
-        let vpnPaywallView = BraveVPNPaywallView(
-          openVPNAuthenticationInNewTab: { [weak self] in
-            guard let self else { return }
-
-            self.popToBVC()
-
-            self.openURLInNewTab(
-              .brave.braveVPNRefreshCredentials,
-              isPrivate: self.privateBrowsingManager.isPrivateBrowsing,
-              isPrivileged: false
-            )
-          },
-          installVPNProfile: { [weak self] in
-            guard let self else { return }
-            self.popToBVC()
-            self.openInsideSettingsNavigation(with: BraveVPNInstallViewController())
-          }
-        )
-
-        let vc = BraveVPNPaywallHostingController(paywallView: vpnPaywallView)
-        let container = UINavigationController(rootViewController: vc)
-        self.dismiss(animated: true) {
-          self.present(container, animated: true)
-        }
-        return .none
-      }
-    case .purchased:
-      let isConnected = BraveVPN.isConnected || BraveVPN.isConnecting
-      return .init(
-        id: .vpn,
-        title: isConnected ? Strings.VPN.vpnOnMenuButtonTitle : Strings.VPN.vpnOffMenuButtonTitle,
-        state: isConnected
-      ) { @MainActor [unowned self] _ in
-        if let alert = alertForExpiredState() {
-          self.dismiss(animated: true) {
-            self.present(alert, animated: true)
-          }
-          return .none
-        }
-
-        if BraveVPN.isConnected || BraveVPN.isConnecting {
-          await withCheckedContinuation { continuation in
-            BraveVPN.disconnect { error in
-              continuation.resume()
-            }
-          }
-        } else {
-          await withCheckedContinuation { continuation in
-            BraveVPN.reconnect { success in
-              continuation.resume()
-            }
-          }
-          // FIXME: VPN activity donation
-          // Donate Enable VPN Activity for suggestions
-          // let enableVPNActivity = ActivityShortcutManager.shared.createShortcutActivity(
-          //   type: .enableBraveVPN
-          // )
-          // Does this need to be attached to the menu specifically?
-          // browserMenuController.userActivity = enableVPNActivity
-          // enableVPNActivity.becomeCurrent()
-        }
-        try? await Task.sleep(for: .milliseconds(100))
-        return .updateAction(vpnMenuAction)
-      }
-    }
-  }
-
   private func destinationMenuActions(for pageURL: URL?) -> [Action] {
-    let isPrivateBrowsing = privateBrowsingManager.isPrivateBrowsing
+      _ = privateBrowsingManager.isPrivateBrowsing
     return [
       .init(id: .bookmarks) { @MainActor [unowned self] _ in
         let vc = BookmarksViewController(

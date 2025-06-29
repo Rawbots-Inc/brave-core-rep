@@ -8,7 +8,6 @@ import BraveNews
 import BraveShared
 import BraveShields
 import BraveUI
-import BraveVPN
 import BraveWallet
 import CertificateUtilities
 import CoreData
@@ -231,8 +230,6 @@ public class BrowserViewController: UIViewController {
   let notificationsPresenter = BraveNotificationsPresenter()
   var publisher: BraveCore.BraveRewards.PublisherInfo?
 
-  let vpnProductInfo = BraveVPNProductInfo()
-
   /// Window Protection instance which will be used for controller requires biometric authentication
   public var windowProtection: WindowProtection?
 
@@ -271,7 +268,6 @@ public class BrowserViewController: UIViewController {
   var topToolbarDidPressReloadTask: Task<(), Never>?
 
   /// In app purchase obsever for VPN Subscription action
-  let iapObserver: BraveVPNInAppPurchaseObserver
 
   private let ntpP3AHelper: NewTabPageP3AHelper
 
@@ -343,13 +339,11 @@ public class BrowserViewController: UIViewController {
       environment: BraveRewards.Configuration.current().environment
     )
 
-    iapObserver = BraveVPN.iapObserver
     ntpP3AHelper = .init(p3aUtils: braveCore.p3aUtils, rewards: rewards)
 
     super.init(nibName: nil, bundle: nil)
     didInit()
 
-    iapObserver.delegate = self
 
     rewards.rewardsServiceDidStart = { [weak self] _ in
       self?.setupLedger()
@@ -583,7 +577,7 @@ public class BrowserViewController: UIViewController {
 
     // P3A Record
     maybeRecordInitialShieldsP3A()
-    recordVPNUsageP3A(vpnEnabled: BraveVPN.isConnected)
+    recordVPNUsageP3A(vpnEnabled: false)
     recordAccessibilityDisplayZoomEnabledP3A()
     recordAccessibilityDocumentsDirectorySizeP3A()
     recordTimeBasedNumberReaderModeUsedP3A(activated: false)
@@ -792,11 +786,6 @@ public class BrowserViewController: UIViewController {
 
   @objc func vpnConfigChanged() {
     // Load latest changes to the vpn.
-//    NEVPNManager.shared().loadFromPreferences { _ in }
-
-//    if case .purchased(let enabled) = BraveVPN.vpnState, enabled {
-//      recordVPNUsageP3A(vpnEnabled: true)
-//    }
   }
 
   @objc func sceneDidBecomeActiveNotification(_ notification: NSNotification) {
@@ -972,18 +961,6 @@ public class BrowserViewController: UIViewController {
       await BraveSkusManager(isPrivateMode: self.privateBrowsingManager.isPrivateBrowsing)?
         .refreshVPNCredentials()
 
-      self.vpnProductInfo.load()
-      if let customCredential = Preferences.VPN.skusCredential.value,
-        let customCredentialDomain = Preferences.VPN.skusCredentialDomain.value,
-        let vpnCredential = BraveSkusWebHelper.fetchVPNCredential(
-          customCredential,
-          domain: customCredentialDomain
-        )
-      {
-        BraveVPN.initialize(customCredential: vpnCredential)
-      } else {
-        BraveVPN.initialize(customCredential: nil)
-      }
     }
 
     // Schedule Default Browser Local Notification
@@ -1026,8 +1003,6 @@ public class BrowserViewController: UIViewController {
         switch featureLinkageType {
         case .playlist:
           self.presentPlaylistController()
-        case .vpn:
-          self.navigationHelper.openVPNBuyScreen(iapObserver: self.iapObserver)
         default:
           return
         }
@@ -3314,24 +3289,6 @@ extension BrowserViewController {
   }
 }
 
-extension BrowserViewController: BraveVPNInAppPurchaseObserverDelegate {
-  public func purchasedOrRestoredProduct(validateReceipt: Bool) {
-    // No-op
-  }
-
-  public func purchaseFailed(error: BraveVPNInAppPurchaseObserver.PurchaseError) {
-    // No-op
-  }
-
-  public func handlePromotedInAppPurchase() {
-    // Open VPN Buy Screen before system triggers buy action
-    // Delaying the VPN Screen launch delibrately to syncronize promoted purchase launch
-    Task.delayed(bySeconds: 2.0) { @MainActor in
-      self.popToBVC()
-      self.navigationHelper.openVPNBuyScreen(iapObserver: self.iapObserver)
-    }
-  }
-}
 
 // Certificate info
 extension BrowserViewController {

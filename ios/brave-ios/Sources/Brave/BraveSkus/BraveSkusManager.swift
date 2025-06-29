@@ -5,7 +5,6 @@
 
 import AIChat
 import BraveCore
-import BraveVPN
 import Foundation
 import Preferences
 import Shared
@@ -28,10 +27,7 @@ public class BraveSkusManager {
 
   @MainActor
   public func refreshVPNCredentials() async {
-    if let domain = Preferences.VPN.skusCredentialDomain.value {
-      // Always refresh credentials and trust the credentials from Brave-Core rather than cached credentials
-      _ = await credentialSummary(for: domain)
-    }
+   
   }
 
   // MARK: - Handling SKU methods.
@@ -65,14 +61,6 @@ public class BraveSkusManager {
     let credential = await sku.prepareCredentialsPresentation(domain: domain, path: path).message
     if !credential.isEmpty {
       switch credentialType {
-      case .vpn:
-        if let vpnCredential = BraveSkusWebHelper.fetchVPNCredential(credential, domain: domain) {
-          Preferences.VPN.skusCredential.value = credential
-          Preferences.VPN.skusCredentialDomain.value = domain
-          Preferences.VPN.expirationDate.value = vpnCredential.expirationDate
-
-          BraveVPN.setCustomVPNCredential(vpnCredential)
-        }
       case .leo:
         if let cookie = CredentialCookie.from(credential: credential, domain: domain) {
           Preferences.AIChat.subscriptionExpirationDate.value = cookie.expirationDate
@@ -80,7 +68,7 @@ public class BraveSkusManager {
         break
       case .unknown:
         Logger.module.debug("[SkusManager] - Unknown Credentials")
-        break
+          break 
       }
     }
 
@@ -110,9 +98,6 @@ public class BraveSkusManager {
       case .valid:
         let credentialType = CredentialType.from(domain: domain)
         switch credentialType {
-        case .vpn:
-          Logger.module.debug("[SkusManager] - Preparing VPN Credentials")
-          _ = await prepareCredentialsPresentation(for: domain, path: "*")
         case .leo:
           if Preferences.AIChat.subscriptionOrderId.value != nil {
             Logger.module.debug("[SkusManager] - Preparing Leo Credentials")
@@ -151,22 +136,22 @@ public class BraveSkusManager {
     loginCallback: @escaping (UIAlertAction) -> Void
   ) -> UIAlertController {
     let alert = UIAlertController(
-      title: Strings.VPN.sessionExpiredTitle,
-      message: Strings.VPN.sessionExpiredDescription,
+      title: "",
+      message: "",
       preferredStyle: .alert
     )
-
-    let loginButton = UIAlertAction(
-      title: Strings.VPN.sessionExpiredLoginButton,
-      style: .default,
-      handler: loginCallback
-    )
-    let dismissButton = UIAlertAction(
-      title: Strings.VPN.sessionExpiredDismissButton,
-      style: .cancel
-    )
-    alert.addAction(loginButton)
-    alert.addAction(dismissButton)
+//
+//    let loginButton = UIAlertAction(
+//      title: Strings.VPN.sessionExpiredLoginButton,
+//      style: .default,
+//      handler: loginCallback
+//    )
+//    let dismissButton = UIAlertAction(
+//      title: Strings.VPN.sessionExpiredDismissButton,
+//      style: .cancel
+//    )
+//    alert.addAction(loginButton)
+//    alert.addAction(dismissButton)
 
     return alert
   }
@@ -174,12 +159,10 @@ public class BraveSkusManager {
 
 private enum CredentialType {
   case unknown
-  case vpn
   case leo
 
   static func from(domain: String) -> CredentialType {
     switch domain {
-    case "vpn.brave.software", "vpn.bravesoftware.com", "vpn.brave.com": return .vpn
     case "leo.brave.software", "leo.bravesoftware.com", "leo.brave.com": return .leo
     default:
       return .unknown

@@ -5,7 +5,6 @@
 
 import BraveCore
 import BraveNews
-import BraveVPN
 import BrowserIntentsModels
 import CoreSpotlight
 import Data
@@ -177,14 +176,6 @@ public class ActivityShortcutManager: NSObject {
       )
       bvc.popToBVC()
 
-      switch BraveVPN.vpnState {
-      case .notPurchased, .expired:
-        bvc.presentCorrespondingVPNViewController()
-      case .purchased(let connected):
-        if !connected {
-          BraveVPN.reconnect()
-        }
-      }
     case .openBraveNews:
       // Do nothing as browser when browser to PB only and Brave News isn't available on private tabs
       guard !Preferences.Privacy.privateBrowsingOnly.value else {

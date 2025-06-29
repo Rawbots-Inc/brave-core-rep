@@ -10,7 +10,6 @@ import BraveNews
 import BraveShared
 import BraveShields
 import BraveStore
-import BraveVPN
 import BraveWallet
 import Combine
 import CoreSpotlight
@@ -75,7 +74,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     setUserAgent()
 
     // Fetching details of GRDRegion for Automatic Region selection
-    BraveVPN.fetchLastUsedRegionDetail()
 
     // Start the keyboard helper to monitor and cache keyboard state.
     KeyboardHelper.defaultHelper.startObserving()
@@ -132,12 +130,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // IAPs can trigger on the app as soon as it launches,
     // for example when a previous transaction was not finished and is in pending state.
-    SKPaymentQueue.default().add(BraveVPN.iapObserver)
     // Editing Product Promotion List
-    Task { @MainActor in
-      await BraveVPN.updateStorePromotionOrder()
-      await BraveVPN.hideActiveStorePromotion()
-    }
 
     // Brave Store SDK - Initialization
     BraveStoreSDK.shared.refreshAllSkusOrders()
@@ -239,7 +232,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // VPN credentials are kept in keychain and persist between app reinstalls.
       // To avoid unexpected problems we clear all vpn keychain items.
       // New set of keychain items will be created on purchase or iap restoration.
-      BraveVPN.clearCredentials()
+
 
       // Always load YouTube in Brave for new users
       Preferences.General.keepYouTubeInBrave.value = true
@@ -352,7 +345,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func applicationWillTerminate(_ application: UIApplication) {
     AppState.shared.profile.shutdown()
 
-    SKPaymentQueue.default().remove(BraveVPN.iapObserver)
 
     // Clean up BraveCore
     AppState.shared.braveCore.syncAPI.removeAllObservers()

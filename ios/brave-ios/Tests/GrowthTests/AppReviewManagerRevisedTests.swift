@@ -3,7 +3,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import BraveVPN
 import Preferences
 import XCTest
 
@@ -163,7 +162,6 @@ class AppReviewManagerTests: XCTestCase {
     Preferences.Review.launchCount.reset()
     Preferences.Review.daysInUse.reset()
     Preferences.AppState.backgroundedCleanly.reset()
-    Preferences.VPN.expirationDate.value = nil
     Preferences.Review.numberBookmarksAdded.reset()
     Preferences.Review.dateWalletConnectedToDapp.value = nil
     Preferences.Review.numberPlaylistItemsAdded.reset()
@@ -229,7 +227,6 @@ class AppReviewManagerTests: XCTestCase {
       Preferences.Review.numberBookmarksAdded.value = 1
       Preferences.Review.dateWalletConnectedToDapp.value = nil
       Preferences.Review.numberPlaylistItemsAdded.value = 3
-      Preferences.VPN.expirationDate.value = Date().addingTimeInterval(-5.days)
       Preferences.Chromium.syncOpenTabsEnabled.value = false
       Preferences.Chromium.syncEnabled.value = false
       return
@@ -247,7 +244,7 @@ class AppReviewManagerTests: XCTestCase {
         Preferences.Chromium.syncOpenTabsEnabled.value = true
         Preferences.Chromium.syncEnabled.value = true
       case .paidVPNSubscription:
-        Preferences.VPN.expirationDate.value = Date().addingTimeInterval(5.days)
+//        Preferences.VPN.expirationDate.value = Date().addingTimeInterval(5.days)
       }
     }
   }

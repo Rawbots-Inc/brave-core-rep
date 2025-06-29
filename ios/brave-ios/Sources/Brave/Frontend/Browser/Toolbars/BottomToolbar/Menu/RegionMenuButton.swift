@@ -5,9 +5,7 @@
 
 import BraveShared
 import BraveUI
-import BraveVPN
 import Foundation
-import GuardianConnect
 import Shared
 import SwiftUI
 
@@ -18,8 +16,7 @@ struct RegionMenuButton: View {
   /// A closure executed when the region select is clicked
   var regionSelectAction: () -> Void
 
-  @State private var isVPNEnabled = BraveVPN.isConnected
-  @State private var vpnRegionInfo: GRDRegion? = BraveVPN.activatedRegion
+  @State private var isVPNEnabled = false
 
   /// Subtitle generation according to menu selection
   private var subTitle: String? {
@@ -27,20 +24,15 @@ struct RegionMenuButton: View {
       return nil
     }
 
-    return vpnRegionInfo?.settingTitle
-      ?? String(
-        format: Strings.VPN.vpnRegionSelectorButtonSubTitle,
-        Strings.VPN.regionPickerAutomaticModeCellText
-      )
-  }
+    return ""  }
 
   var body: some View {
     HStack {
       if isVPNEnabled {
         HStack {
           MenuItemHeaderView(
-            icon: vpnRegionInfo?.regionFlag ?? Image(braveSystemName: "leo.globe"),
-            title: Strings.VPN.vpnRegionSelectorButtonTitle,
+            icon:  Image(braveSystemName: "leo.globe"),
+            title: "",
             subtitle: subTitle
           )
           Spacer()
@@ -60,14 +52,10 @@ struct RegionMenuButton: View {
         .accessibilityElement()
         .accessibility(addTraits: .isButton)
         .accessibility(
-          label: Text(Strings.VPN.vpnRegionSelectorButtonTitle)
+          label: Text("")
         )
       }
 
-    }
-    .onReceive(NotificationCenter.default.publisher(for: .NEVPNStatusDidChange)) { _ in
-      isVPNEnabled = BraveVPN.isConnected
-      vpnRegionInfo = BraveVPN.activatedRegion
     }
   }
 }

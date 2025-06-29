@@ -3,7 +3,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import BraveVPN
 import Combine
 import Foundation
 import Preferences
@@ -133,11 +132,11 @@ public class AppReviewManager: ObservableObject {
         return
       }
 
-      DispatchQueue.main.async {
-        if let windowScene = controller.currentScene {
-          SKStoreReviewController.requestReview(in: windowScene)
-        }
-      }
+//      DispatchQueue.main.async {
+//        if let windowScene = controller.currentScene {
+//          SKStoreReviewController.requestReview(in: windowScene)
+//        }
+//      }
     }
   }
 
@@ -294,9 +293,6 @@ public class AppReviewManager: ObservableObject {
     case .numberOfBookmarks:
       return Preferences.Review.numberBookmarksAdded.value >= Constants.bookmarksCountLimit
     case .paidVPNSubscription:
-      if case .purchased(_) = BraveVPN.vpnState {
-        return true
-      }
       return false
     case .walletConnectedDapp:
       guard let connectedDappDate = Preferences.Review.dateWalletConnectedToDapp.value else {

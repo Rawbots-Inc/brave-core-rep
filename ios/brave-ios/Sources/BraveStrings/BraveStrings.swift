@@ -188,14 +188,14 @@ extension Strings {
     "SendCrashReportAlertTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Oops! Rep Social crashed",
+    value: "Oops! RepSky crashed",
     comment: "Title for prompt displayed to user after the app crashes"
   )
   public static let sendCrashReportAlertMessage = NSLocalizedString(
     "SendCrashReportAlertMessage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Send a crash report so Rep Social can fix the problem?",
+    value: "Send a crash report so RepSky can fix the problem?",
     comment:
       "Message displayed in the crash dialog above the buttons used to select when sending reports"
   )
@@ -224,14 +224,14 @@ extension Strings {
     "RestoreTabOnCrashAlertTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Closed Unexpectedly.",
+    value: "RepSky Closed Unexpectedly.",
     comment: "Restore Tabs Prompt Title"
   )
   public static let restoreTabOnCrashAlertMessage = NSLocalizedString(
     "RestoreTabOnCrashAlertMessage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Unfortunately, Rep Social crashed or did not close properly.\nRestore your tabs?",
+    value: "Unfortunately, RepSky crashed or did not close properly.\nRestore your tabs?",
     comment: "Restore Tabs Prompt Description"
   )
   public static let restoreTabNegativeButtonTitle = NSLocalizedString(
@@ -450,7 +450,7 @@ extension Strings {
     "AuthenticationLoginsTouchReason",
     tableName: "BraveShared",
     bundle: .module,
-    value: "This authenticates your access to Rep Social",
+    value: "This authenticates your access to RepSky",
     comment:
       "Touch ID or PIN entry prompt subtitle when accessing Brave with the Browser Lock feature enabled"
   )
@@ -484,7 +484,7 @@ extension Strings {
     "AccessPhotoDeniedAlertTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social would like to access your Photos",
+    value: "RepSky would like to access your Photos",
     comment: "See http://mzl.la/1G7uHo7"
   )
   public static let accessPhotoDeniedAlertMessage = NSLocalizedString(
@@ -639,7 +639,7 @@ extension Strings {
         "defaultBrowserCallout.introTertiaryText",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Settings, tap Default Browser App, and select Rep Social.",
+        value: "Open Settings, tap Default Browser App, and select RepSky.",
         comment: "Tertiary text on default browser popup screen"
       )
     public static let introOpenSettingsButtonText =
@@ -663,7 +663,7 @@ extension Strings {
         "defaultBrowserCallout.notificationTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Get Rep Social protection, on every link",
+        value: "Get RepSky protection, on every link",
         comment: "Notification title to promote setting Brave app as default browser"
       )
 
@@ -672,7 +672,7 @@ extension Strings {
         "defaultBrowserCallout.notificationBody",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Set Rep Social as your default browser",
+        value: "Set RepSky as your default browser",
         comment: "Notification body to promote setting Brave app as default browser"
       )
   }
@@ -695,7 +695,7 @@ extension Strings {
         "callout.defaultBrowserCalloutDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "With Rep Social, every web page you visit, has a wall you can post your thoughts on.",
+        value: "With RepSky, every web page you visit, has a wall you can post your thoughts on.",
         comment: "Subtitle - Description for Default Browser Full Screen Callout"
       )
     public static let defaultBrowserCalloutButtonDescription =
@@ -703,7 +703,7 @@ extension Strings {
         "callout.defaultBrowserCalloutButtonDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Set Rep Social as Default Browser?",
+        value: "Set RepSky as Default Browser?",
         comment:
           "Description - Description used for main button in Default Browser Full Screen Callout"
       )
@@ -745,7 +745,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Get Rep Social privacy on your computer or tablet, and sync bookmarks & extensions between devices.",
+          "Get RepSky privacy on your computer or tablet, and sync bookmarks & extensions between devices.",
         comment: "Subtitle - Description for Privacy Everywhere Full Screen Callout"
       )
     public static let privacyEverywhereCalloutPrimaryButtonTitle =
@@ -779,7 +779,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "This helps us learn what Rep Social features are used most often. Change at any time in Rep Social Settings under ‘Brave Shields and Other Privacy Settings.",
+          "This helps us learn what RepSky features are used most often. Change at any time in RepSky Settings under ‘Brave Shields and Other Privacy Settings.",
         comment: "Subtitle - Description for p3a (Privacy Preserving Analytics) Full Screen Callout"
       )
     public static let p3aCalloutToggleTitle =
@@ -813,7 +813,7 @@ extension Strings {
         "callout.bottomBarCalloutTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Customize Rep Social Tabs Bar",
+        value: "Customize RepSky Tabs Bar",
         comment: "Title for Bottom Bar Callout View"
       )
     public static let bottomBarCalloutDescription =
@@ -852,7 +852,7 @@ extension Strings {
         "onboarding.welcomeScreenTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Welcome to Rep Social",
+        value: "Welcome to RepSky",
         comment: "Title for Welcome Screen in Onboarding"
       )
     public static let ntpOnboardingPopOverTrackerDescription =
@@ -868,7 +868,7 @@ extension Strings {
         "onboarding.blockedAdsOnboardingInstructionsText",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Tap to view Rep Social Shields",
+        value: "Tap to view RepSky Shields",
         comment: "The text describing user where they should press in order to open Shield panel"
       )
     public static let blockedAdsOnboardingFootnoteText =
@@ -876,7 +876,7 @@ extension Strings {
         "onboarding.blockedAdsOnboardingFootnoteText",
         tableName: "BraveShared",
         bundle: .module,
-        value: "See all the bad stuff Rep Social blocked, on every page, with Shields.",
+        value: "See all the bad stuff RepSky blocked, on every page, with Shields.",
         comment: "The footnote indicating what Brave shields is blocking"
       )
     public static let blockedAdsOnboardingNoBigTechInformationText =
@@ -927,7 +927,7 @@ extension Strings {
         "onboarding.omniboxOnboardingPopOverDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "With Rep Social, every webpage turns into a community hub.",
+        value: "With RepSky, every webpage turns into a community hub.",
         comment: "Description for the Omnibox (URL Bar) pop-over that describes faster load times."
       )
 
@@ -936,7 +936,7 @@ extension Strings {
         "onboarding.linkReceiptTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Extend your Rep Social Firewall + VPN protection",
+        value: "Extend your RepSky Firewall + VPN protection",
         comment: "Popup title to let users know they can use the vpn on all their devices"
       )
 
@@ -946,7 +946,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Your Rep Social VPN subscription can protect up to 10 devices, across Android, iOS, and desktop. Just link your App Store subscription to your Rep Social account.",
+          "Your RepSky VPN subscription can protect up to 10 devices, across Android, iOS, and desktop. Just link your App Store subscription to your RepSky account.",
         comment: "Popup description to let users know they can use the vpn on all their devices"
       )
 
@@ -1840,7 +1840,7 @@ extension Strings {
       "optionsMenu.menuSectionTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Features",
+      value: "RepSky Features",
       comment: "Privacy Features Section title"
     )
     public static let braveVPNItemTitle = NSLocalizedString(
@@ -1855,7 +1855,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Protect your entire device online",
-      comment: "The subtitle description of menu item Rep Social VPN"
+      comment: "The subtitle description of menu item RepSky VPN"
     )
     public static let braveTalkItemTitle = NSLocalizedString(
       "optionsMenu.braveTalkItemTitle",
@@ -1869,7 +1869,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Private video calls, right in your browser",
-      comment: "The subtitle description of menu item Rep Social Talk"
+      comment: "The subtitle description of menu item RepSky Talk"
     )
     public static let braveLeoItemDescription = NSLocalizedString(
       "optionsMenu.braveLeoItemDescription",
@@ -1905,14 +1905,14 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Keep an offline playlist of any video/stream",
-      comment: "The subtitle description of menu item Rep Social Playlist"
+      comment: "The subtitle description of menu item RepSky Playlist"
     )
     public static let braveWalletItemDescription = NSLocalizedString(
       "optionsMenu.braveWalletItemDescription",
       tableName: "BraveShared",
       bundle: .module,
       value: "The secure crypto wallet, no extension required",
-      comment: "The subtitle description of menu item Rep Social Wallet"
+      comment: "The subtitle description of menu item RepSky Wallet"
     )
   }
 }
@@ -1926,21 +1926,21 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Support independent search with better privacy",
-      comment: "Rep Social Search Banner Promotion title in Search Suggestions"
+      comment: "RepSky Search Banner Promotion title in Search Suggestions"
     )
     public static let braveSearchPromotionBannerDescription = NSLocalizedString(
       "braveSearchPromotion.bannerDescription",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Search doesn't profile you.",
-      comment: "Rep Social Search Banner Promotion description content in Search Suggestions"
+      value: "RepSky Search doesn't profile you.",
+      comment: "RepSky Search Banner Promotion description content in Search Suggestions"
     )
     public static let braveSearchPromotionBannerTryButtonTitle = NSLocalizedString(
       "braveSearchPromotion.bannerTryButtonTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Try Rep Social Search",
-      comment: "Rep Social Search Banner Promotion title for try button in Search Suggestions"
+      value: "Try RepSky Search",
+      comment: "RepSky Search Banner Promotion title for try button in Search Suggestions"
     )
     public static let braveSearchPromotionBannerMaybeLaterButtonTitle = NSLocalizedString(
       "braveSearchPromotion.bannerMaybeLaterButtonTitle",
@@ -1948,7 +1948,7 @@ extension Strings {
       bundle: .module,
       value: "Maybe later",
       comment:
-        "Rep Social Search Banner Promotion title for maybe later button to activate promotion later in Search Suggestions"
+        "RepSky Search Banner Promotion title for maybe later button to activate promotion later in Search Suggestions"
     )
     public static let braveSearchPromotionBannerDismissButtonTitle = NSLocalizedString(
       "braveSearchPromotion.braveSearchPromotionBannerDismissButtonTitle",
@@ -1956,7 +1956,7 @@ extension Strings {
       bundle: .module,
       value: "Dismiss",
       comment:
-        "Rep Social Search Banner Promotion title for dismiss button to remove promotion in Search Suggestions"
+        "RepSky Search Banner Promotion title for dismiss button to remove promotion in Search Suggestions"
     )
   }
 }
@@ -2111,29 +2111,29 @@ extension Strings {
     "BraveRewardsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social",
-    comment: "Rep Social title"
+    value: "RepSky",
+    comment: "RepSky title"
   )
   public static let braveRewardsSettingsTitle = NSLocalizedString(
     "BraveRewardsSettingsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social",
-    comment: "Rep Social title in settings"
+    value: "RepSky",
+    comment: "RepSky title in settings"
   )
   public static let hideRewardsIcon = NSLocalizedString(
     "HideRewardsIcon",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Hide Rep Social Icon",
+    value: "Hide RepSky Icon",
     comment: "Hides the rewards icon"
   )
   public static let hideRewardsIconSubtitle = NSLocalizedString(
     "HideRewardsIconSubtitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Hides the Rep Social Rewards icon when Rep Social is not enabled",
-    comment: "Hide the Rep Social icon explination."
+    value: "Hides the RepSky Rewards icon when RepSky is not enabled",
+    comment: "Hide the RepSky icon explination."
   )
   public static let walletCreationDate = NSLocalizedString(
     "WalletCreationDate",
@@ -2160,8 +2160,8 @@ extension Strings {
     "OpenBraveRewardsSettings",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Open Rep Social Settings",
-    comment: "Button title for opening the Rep Social panel to settings"
+    value: "Open RepSky Settings",
+    comment: "Button title for opening the RepSky panel to settings"
   )
   public static let setDefaultBrowserSettingsCell =
     NSLocalizedString(
@@ -2169,14 +2169,14 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Set as Default Browser",
-      comment: "Settings item to set the Rep Social as a default browser on the iOS device."
+      comment: "Settings item to set the RepSky as a default browser on the iOS device."
     )
   public static let setDefaultBrowserCalloutTitle =
     NSLocalizedString(
       "setDefaultBrowserCalloutTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social can now be set as your default browser in iOS. Tap here to open settings.",
+      value: "RepSky can now be set as your default browser in iOS. Tap here to open settings.",
       comment: ""
     )
   public static let defaultBrowserCalloutCloseAccesabilityLabel =
@@ -2221,7 +2221,7 @@ extension Strings {
         "settings.autocloseTabsSettingFooter",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Allow Rep Social to automatically close tabs that haven't recently been viewed.",
+        value: "Allow RepSky to automatically close tabs that haven't recently been viewed.",
         comment: "Description of autoclose tabs feature."
       )
     public static let autocloseTabsManualOption =
@@ -2290,8 +2290,8 @@ extension Strings {
         "settings.openYouTubeInBrave",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open YouTube links in Rep Social",
-        comment: "A toggle label which lets the user always open YouTube urls in Rep Social"
+        value: "Open YouTube links in RepSky",
+        comment: "A toggle label which lets the user always open YouTube urls in RepSky"
       )
 
     public static let highestQualityPlayback =
@@ -2380,7 +2380,7 @@ extension Strings {
         "settings.sendUsagePingTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Automatically send daily usage ping to Rep Social",
+        value: "Automatically send daily usage ping to RepSky",
         comment: "Title to explain the daily usage ping toggle"
       )
 
@@ -2389,7 +2389,7 @@ extension Strings {
         "settings.sendUsagePingDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "This private ping lets Rep Social estimate active users.",
+        value: "This private ping lets RepSky estimate active users.",
         comment: "Description to explain the daily usage ping toggle"
       )
 
@@ -2526,7 +2526,7 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value:
-      "%@ normally uses encryption to protect your information. When Rep Social tried to connect to %@ this time, the website sent back unusual and incorrect credentials. This may happen when an attacker is trying to pretend to be %@, or a Wi-Fi sign-in screen has interrupted the connection. Your information is still secure because Rep Social stopped the connection before any data was exchanged.<br />You cannot visit %@ right now because the website uses certificate pinning. Network errors and attacks are usually temporary, so this page will probably work later.",
+      "%@ normally uses encryption to protect your information. When RepSky tried to connect to %@ this time, the website sent back unusual and incorrect credentials. This may happen when an attacker is trying to pretend to be %@, or a Wi-Fi sign-in screen has interrupted the connection. Your information is still secure because RepSky stopped the connection before any data was exchanged.<br />You cannot visit %@ right now because the website uses certificate pinning. Network errors and attacks are usually temporary, so this page will probably work later.",
     comment:
       "Additional warning text when clicking the Advanced button on error pages. %@ is a placeholder, do not localize it. Do not localize <br />."
   )
@@ -2845,7 +2845,7 @@ extension Strings {
     "SearchWithBrave",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Search with Rep Social",
+    value: "Search with RepSky",
     comment:
       "Title of an action that allows user to perform a one-click web search for selected text"
   )
@@ -2987,7 +2987,7 @@ extension Strings {
     "BraveShieldsAndPrivacy",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Shields & Privacy",
+    value: "RepSky Shields & Privacy",
     comment: ""
   )
   public static let braveShieldsAndPrivacySettingsTitle = NSLocalizedString(
@@ -3103,7 +3103,7 @@ extension Strings {
     "PersistentPrivateBrowsingAlertMessage",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Allows Rep Social to restore private browsing tabs, even if you close / re-open the app",
+    value: "Allows RepSky to restore private browsing tabs, even if you close / re-open the app",
     comment: "Persistent private browsing alert message to existing users"
   )
   public static let persistentPrivateBrowsing = NSLocalizedString(
@@ -3117,7 +3117,7 @@ extension Strings {
     "ShieldsDefaults",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Shields Global Defaults",
+    value: "RepSky Shields Global Defaults",
     comment: "Section title for adbblock, tracking protection, HTTPS-E, and cookies"
   )
   public static let shieldsDefaultsFooter = NSLocalizedString(
@@ -3252,7 +3252,7 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value: "Version %@ (%@)",
-    comment: "Version number of Rep Social shown in settings"
+    comment: "Version number of RepSky shown in settings"
   )
   public static let deviceTemplate = NSLocalizedString(
     "DeviceTemplate",
@@ -3352,8 +3352,8 @@ extension Strings {
     "RateBrave",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rate Rep Social",
-    comment: "Open the App Store to rate Rep Social."
+    value: "Rate RepSky",
+    comment: "Open the App Store to rate RepSky."
   )
   public static let reportABug = NSLocalizedString(
     "ReportABug",
@@ -3374,14 +3374,14 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value: "Terms of Use",
-    comment: "Show Rep Social Browser TOS page from the Privacy section in the settings."
+    comment: "Show RepSky Browser TOS page from the Privacy section in the settings."
   )
   public static let privateTabBody = NSLocalizedString(
     "PrivateTabBody",
     tableName: "BraveShared",
     bundle: .module,
     value:
-      "Private Tabs aren’t saved in Rep Social, but they don’t make you anonymous online. Sites you visit in a private tab won’t show up in your history and their cookies always vanish when you close them — there won’t be any trace of them left in Rep Social. However, downloads will be saved.\nYour mobile carrier (or the owner of the Wi-Fi network or VPN you’re connected to) can see which sites you visit and those sites will learn your public IP address, even in Private Tabs.",
+      "Private Tabs aren’t saved in RepSky, but they don’t make you anonymous online. Sites you visit in a private tab won’t show up in your history and their cookies always vanish when you close them — there won’t be any trace of them left in RepSky. However, downloads will be saved.\nYour mobile carrier (or the owner of the Wi-Fi network or VPN you’re connected to) can see which sites you visit and those sites will learn your public IP address, even in Private Tabs.",
     comment: "Private tab details"
   )
   public static let privateTabDetails = NSLocalizedString(
@@ -3389,7 +3389,7 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value:
-      "Using Private Tabs only changes what Rep Social does on your device, it doesn't change anyone else's behavior.\n\nSites always learn your IP address when you visit them. From this, they can often guess roughly where you are — typically your city. Sometimes that location guess can be much more specific. Sites also know everything you specifically tell them, such as search terms. If you log into a site, they'll know you're the owner of that account. You'll still be logged out when you close the Private Tabs because Rep Social will throw away the cookie which keeps you logged in.\n\nWhoever connects you to the Internet (your ISP) can see all of your network activity. Often, this is your mobile carrier. If you're connected to a Wi-Fi network, this is the owner of that network, and if you're using a VPN, then it's whoever runs that VPN. Your ISP can see which sites you visit as you visit them. If those sites use HTTPS, they can't make much more than an educated guess about what you do on those sites. But if a site only uses HTTP then your ISP can see everything: your search terms, which pages you read, and which links you follow.\n\nIf an employer manages your device, they might also keep track of what you do with it. Using Private Tabs probably won't stop them from knowing which sites you've visited. Someone else with access to your device could also have installed software which monitors your activity, and Private Tabs won't protect you from this either.",
+      "Using Private Tabs only changes what RepSky does on your device, it doesn't change anyone else's behavior.\n\nSites always learn your IP address when you visit them. From this, they can often guess roughly where you are — typically your city. Sometimes that location guess can be much more specific. Sites also know everything you specifically tell them, such as search terms. If you log into a site, they'll know you're the owner of that account. You'll still be logged out when you close the Private Tabs because RepSky will throw away the cookie which keeps you logged in.\n\nWhoever connects you to the Internet (your ISP) can see all of your network activity. Often, this is your mobile carrier. If you're connected to a Wi-Fi network, this is the owner of that network, and if you're using a VPN, then it's whoever runs that VPN. Your ISP can see which sites you visit as you visit them. If those sites use HTTPS, they can't make much more than an educated guess about what you do on those sites. But if a site only uses HTTP then your ISP can see everything: your search terms, which pages you read, and which links you follow.\n\nIf an employer manages your device, they might also keep track of what you do with it. Using Private Tabs probably won't stop them from knowing which sites you've visited. Someone else with access to your device could also have installed software which monitors your activity, and Private Tabs won't protect you from this either.",
     comment: "Private tab detail text"
   )
   public static let privateTabLink = NSLocalizedString(
@@ -3412,14 +3412,14 @@ extension Strings {
     "BravePanel",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Panel",
-    comment: "Button to show the Rep Social panel"
+    value: "RepSky Panel",
+    comment: "Button to show the RepSky panel"
   )
   public static let rewardsPanel = NSLocalizedString(
     "RewardsPanel",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Panel",
+    value: "RepSky Panel",
     comment: "Button to show the rewards panel"
   )
   public static let individualControls = NSLocalizedString(
@@ -3441,7 +3441,7 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value: "Shields",
-    comment: "Rep Social panel topmost title"
+    comment: "RepSky panel topmost title"
   )
   public static let adsAndTrackers = NSLocalizedString(
     "AdsAndTrackers",
@@ -3693,14 +3693,14 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value: "Allow",
-    comment: "Allow Rep Social to open the external app URL"
+    comment: "Allow RepSky to open the external app URL"
   )
   public static let openExternalAppURLDontAllow = NSLocalizedString(
     "ExternalAppURLDontAllow",
     tableName: "BraveShared",
     bundle: .module,
     value: "Don't Allow",
-    comment: "Don't allow Rep Social to open the external app URL"
+    comment: "Don't allow RepSky to open the external app URL"
   )
   public static let openMobileConfigurationAlertTitle = NSLocalizedString(
     "OpenMobileConfigurationAlertTitle",
@@ -3838,15 +3838,15 @@ extension Strings {
       "defaultThemeName",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social default",
-      comment: "Name for default Rep Social theme."
+      value: "RepSky default",
+      comment: "Name for default RepSky theme."
     )
   public static let themeQRCodeShareTitle =
     NSLocalizedString(
       "themeQRCodeShareTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Share Rep Social with your friends!",
+      value: "Share RepSky with your friends!",
       comment: "Title for QR popup encouraging users to share the code with their friends."
     )
   public static let themeQRCodeShareButton =
@@ -3919,21 +3919,21 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value: "Join",
-    comment: "Button to join Rep Social."
+    comment: "Button to join RepSky."
   )
   public static let OBTurnOnButton = NSLocalizedString(
     "OBTurnOnButton",
     tableName: "BraveShared",
     bundle: .module,
     value: "Start",
-    comment: "Button to show Rep Social."
+    comment: "Button to show RepSky."
   )
   public static let OBShowMeButton = NSLocalizedString(
     "OBShowMeButton",
     tableName: "BraveShared",
     bundle: .module,
     value: "Show Me",
-    comment: "Button to show the Rep Social ."
+    comment: "Button to show the RepSky ."
   )
   public static let OBDidntSeeAdButton = NSLocalizedString(
     "OBDidntSeeAdButton",
@@ -3946,7 +3946,7 @@ extension Strings {
     "OBSearchEngineTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Welcome to Rep Social Browser",
+    value: "Welcome to RepSky Browser",
     comment: "Title for search engine onboarding screen"
   )
   public static let OBSearchEngineDetail = NSLocalizedString(
@@ -3960,7 +3960,7 @@ extension Strings {
     "OBShieldsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Shields",
+    value: "RepSky Shields",
     comment: "Title for shields onboarding screen"
   )
   public static let OBShieldsDetail = NSLocalizedString(
@@ -3975,29 +3975,29 @@ extension Strings {
     "OBRewardsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social",
+    value: "RepSky",
     comment: "Title for rewards onboarding screen"
   )
   public static let OBAdsOptInTitle = NSLocalizedString(
     "OBAdsOptInTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social Ads is here!",
-    comment: "Title when opting into Rep Social Ads when region becomes available"
+    value: "RepSky Ads is here!",
+    comment: "Title when opting into RepSky Ads when region becomes available"
   )
   public static let OBAdsOptInMessage = NSLocalizedString(
     "OBAdsOptInMessage",
     tableName: "BraveShared",
     bundle: .module,
     value: "Earn tokens and reward creators for great content while you browse.",
-    comment: "Message when opting into Rep Social Ads when region becomes available"
+    comment: "Message when opting into RepSky Ads when region becomes available"
   )
   public static let OBAdsOptInMessageJapan = NSLocalizedString(
     "OBAdsOptInMessageJapan",
     tableName: "BraveShared",
     bundle: .module,
     value: "Earn points and reward creators for great content while you browse.",
-    comment: "Message when opting into Rep Social Ads when region becomes available"
+    comment: "Message when opting into RepSky Ads when region becomes available"
   )
   public static let OBRewardsDetailInAdRegion = NSLocalizedString(
     "OBRewardsDetailInAdRegion",
@@ -4011,14 +4011,14 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value:
-      "Opting into Rep Social Private Ads supports publishers and content creators with every ad viewed.",
+      "Opting into RepSky Private Ads supports publishers and content creators with every ad viewed.",
     comment: "Detail text for rewards onboarding screen"
   )
   public static let OBRewardsAgreementTitle = NSLocalizedString(
     "OBRewardsAgreementTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social",
+    value: "RepSky",
     comment: "Title for rewards agreement onboarding screen"
   )
   public static let OBRewardsAgreementDetail = NSLocalizedString(
@@ -4053,7 +4053,7 @@ extension Strings {
     "OBAdsTitle",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Rep Social will show your first ad in",
+    value: "RepSky will show your first ad in",
     comment: "Title for ads onboarding screen"
   )
   public static let OBCompleteTitle = NSLocalizedString(
@@ -4096,14 +4096,14 @@ extension Strings {
     tableName: "BraveShared",
     bundle: .module,
     value:
-      "You may have downloaded Rep Social in support of your referrer. To detect your referrer, Rep Social performs a one-time check of your clipboard for the matching referral code. This check is limited to the code only and no other personal data will be transmitted.  If you opt out, your referrer won’t receive rewards from Rep Social.",
+      "You may have downloaded RepSky in support of your referrer. To detect your referrer, RepSky performs a one-time check of your clipboard for the matching referral code. This check is limited to the code only and no other personal data will be transmitted.  If you opt out, your referrer won’t receive rewards from RepSky.",
     comment: ""
   )
   public static let OBPrivacyConsentClipboardPermission = NSLocalizedString(
     "OBPrivacyConsentClipboardPermission",
     tableName: "BraveShared",
     bundle: .module,
-    value: "Allow Rep Social to check my clipboard for a matching referral code",
+    value: "Allow RepSky to check my clipboard for a matching referral code",
     comment: ""
   )
   public static let OBPrivacyConsentYesButton = NSLocalizedString(
@@ -4207,8 +4207,8 @@ extension Strings {
         "ntp.earningsReport",
         tableName: "BraveShared",
         bundle: .module,
-        value: "You earned %@ by browsing with Rep Social.",
-        comment: "Placeholder example: 'You earned 42 BAT by browsing with Rep Social.'"
+        value: "You earned %@ by browsing with RepSky.",
+        comment: "Placeholder example: 'You earned 42 BAT by browsing with RepSky.'"
       )
     public static let claimRewards =
       NSLocalizedString(
@@ -4224,7 +4224,7 @@ extension Strings {
         "ntp.learnMoreAboutRewards",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Learn more about Rep Social",
+        value: "Learn more about RepSky",
         comment: ""
       )
 
@@ -4242,8 +4242,8 @@ extension Strings {
         "ntp.braveSupportFavoriteTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social Support",
-        comment: "Bookmark title for Rep Social Support"
+        value: "RepSky Support",
+        comment: "Bookmark title for RepSky Support"
       )
 
     public static let imageTypeSelectionDescription =
@@ -4252,7 +4252,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "'Sponsored' are additional branded backgrounds you can earn from with Rep Social enabled.",
+          "'Sponsored' are additional branded backgrounds you can earn from with RepSky enabled.",
         comment: "The text description of image type which is being used NTP"
       )
     public static let imageTypeSelectionDescriptionLearnMore =
@@ -4350,29 +4350,29 @@ extension Strings {
       "BraveShieldsToggleHint",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Double-tap to toggle Rep Social Shields",
+      value: "Double-tap to toggle RepSky Shields",
       comment: "The accessibility hint spoken when focused on the main shields toggle"
     )
     public static let statusTitle = NSLocalizedString(
       "BraveShieldsStatusTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Shields",
-      comment: "Context: 'Rep Social Shields Up' or 'Rep Social Shields Down'"
+      value: "RepSky Shields",
+      comment: "Context: 'RepSky Shields Up' or 'RepSky Shields Down'"
     )
     public static let statusValueUp = NSLocalizedString(
       "BraveShieldsStatusValueUp",
       tableName: "BraveShared",
       bundle: .module,
       value: "Up",
-      comment: "Context: The 'Up' in 'Rep Social Shields Up'"
+      comment: "Context: The 'Up' in 'RepSky Shields Up'"
     )
     public static let statusValueDown = NSLocalizedString(
       "BraveShieldsStatusValueDown",
       tableName: "BraveShared",
       bundle: .module,
       value: "Down",
-      comment: "Context: The 'Down' in 'Rep Social Shields Down'"
+      comment: "Context: The 'Down' in 'RepSky Shields Down'"
     )
     public static let blockedCountLabel = NSLocalizedString(
       "BraveShieldsBlockedCountLabel",
@@ -4407,23 +4407,23 @@ extension Strings {
       "AboutBraveShields",
       tableName: "BraveShared",
       bundle: .module,
-      value: "About Rep Social Shields",
-      comment: "The title of the screen explaining Rep Social Shields"
+      value: "About RepSky Shields",
+      comment: "The title of the screen explaining RepSky Shields"
     )
     public static let aboutBraveShieldsBody = NSLocalizedString(
       "AboutBraveShieldsBody",
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web — tracking what you do on every site.\n\nRep Social blocks these things so that you can browse without being followed around.",
-      comment: "The body of the screen explaining Rep Social Shields"
+        "Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web — tracking what you do on every site.\n\nRepSky blocks these things so that you can browse without being followed around.",
+      comment: "The body of the screen explaining RepSky Shields"
     )
     public static let shieldsDownDisclaimer = NSLocalizedString(
       "ShieldsDownDisclaimer",
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "You're browsing this site without Rep Social's privacy protections. Does it not work right with Shields up?",
+        "You're browsing this site without RepSky's privacy protections. Does it not work right with Shields up?",
       comment: ""
     )
     public static let globalControls = NSLocalizedString(
@@ -4452,7 +4452,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "Thanks for letting Rep Social's developers know that there's something wrong with this site. We'll do our best to fix it!",
+        "Thanks for letting RepSky's developers know that there's something wrong with this site. We'll do our best to fix it!",
       comment: ""
     )
 
@@ -4468,7 +4468,7 @@ extension Strings {
       "ReportBrokenSiteBody1",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Let Rep Social's developers know that this site doesn't work properly with Shields:",
+      value: "Let RepSky's developers know that this site doesn't work properly with Shields:",
       comment:
         "First part of the report a broken site copy. After the colon is a new line and then a website address"
     )
@@ -4477,7 +4477,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "Note: The report sent to Rep Social servers will include the site address, Rep Social version number, Shields settings, VPN status, and language settings.",
+        "Note: The report sent to RepSky servers will include the site address, RepSky version number, Shields settings, VPN status, and language settings.",
       comment:
         "This is the info text that is presented when a user is submitting a web-compatibility report."
     )
@@ -4564,7 +4564,7 @@ extension Strings {
         "shieldEducation.trackerAdWarningSubTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social Shields just protected your online privacy.",
+        value: "RepSky Shields just protected your online privacy.",
         comment: "Subtitle for Shield Education Tracker Ad Warning"
       )
 
@@ -4654,8 +4654,8 @@ extension Strings {
         "socialSharing.shareDescriptionTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Every day I save data by browsing the web with Rep Social.",
-        comment: "Text used for social sharing together with Rep Social Shield values"
+        value: "Every day I save data by browsing the web with RepSky.",
+        comment: "Text used for social sharing together with RepSky Shield values"
       )
 
     public static let domainSpecificDataSavedTitle =
@@ -4663,7 +4663,7 @@ extension Strings {
         "socialSharing.domainSpecificDataSavedTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Every day I save data by browsing the web with Rep Social.",
+        value: "Every day I save data by browsing the web with RepSky.",
         comment: "Title used when in warning pop-over when domain specific data save appears "
       )
 
@@ -4826,7 +4826,7 @@ extension Strings {
         "playList.addToPlayListAlertTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Add to Rep Social Playlist",
+        value: "Add to RepSky Playlist",
         comment: "Alert Title for adding videos to playlist"
       )
 
@@ -4872,7 +4872,7 @@ extension Strings {
         "playList.noItemLabelDetailLabel",
         tableName: "BraveShared",
         bundle: .module,
-        value: "You can add items to your Rep Social Playlist within the browser",
+        value: "You can add items to your RepSky Playlist within the browser",
         comment: "Detail Text when there are no items in the playlist"
       )
 
@@ -4946,7 +4946,7 @@ extension Strings {
         "playList.toastExitingItemPlaylistTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "View in Rep Social Playlist",
+        value: "View in RepSky Playlist",
         comment:
           "The title for the toast that shows up on a page when an item that has already been added, was updated."
       )
@@ -5005,7 +5005,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Adds a playlist button beside the address bar in the Rep Social browser. This button gives you quick access to open Playlist, or add or remove media.",
+          "Adds a playlist button beside the address bar in the RepSky browser. This button gives you quick access to open Playlist, or add or remove media.",
         comment: "Footer for option to disable URL-Bar button"
       )
 
@@ -5014,7 +5014,7 @@ extension Strings {
         "playlist.sharePlaylistActionTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social Playlist Menu",
+        value: "RepSky Playlist Menu",
         comment: "Title of the ActionSheet/Alert when sharing a playlist item from the Swipe-Action"
       )
 
@@ -5341,7 +5341,7 @@ extension Strings {
         "playlist.carplayTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social Playlist",
+        value: "RepSky Playlist",
         comment: "The title of the playlist when in Carplay mode"
       )
 
@@ -5629,7 +5629,7 @@ extension Strings {
         bundle: .module,
         value: "%@ and 1 more item",
         comment:
-          "%@ Should NOT be localized. It is a placeholder. Example: Rep Social Folder and 1 more item."
+          "%@ Should NOT be localized. It is a placeholder. Example: RepSky Folder and 1 more item."
       )
 
     public static let playlistFolderMoveMultipleItemDescription =
@@ -5639,7 +5639,7 @@ extension Strings {
         bundle: .module,
         value: "%@ and %lld more items",
         comment:
-          "%@ and %lld Should NOT be localized. They are placeholders. Example: Rep Social Folder and 3 more items. Music and 2 more items."
+          "%@ and %lld Should NOT be localized. They are placeholders. Example: RepSky Folder and 3 more items. Music and 2 more items."
       )
 
     public static let playlistFolderMoveItemWithNoNameTitle =
@@ -5707,7 +5707,7 @@ extension Strings {
         "playlistFolderSharing.addButtonAccessibilityTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Add to Rep Social Playlist Button",
+        value: "Add to RepSky Playlist Button",
         comment: "Accessibility Title for the button that adds the playlist to the database."
       )
 
@@ -5834,7 +5834,7 @@ extension Strings {
         "playList.playlistSharedFolderAlreadyExistsBody",
         tableName: "BraveShared",
         bundle: .module,
-        value: "This folder already exists in your Rep Social Playlist",
+        value: "This folder already exists in your RepSky Playlist",
         comment: "Body for the error message that shows when a playlist folder already exists"
       )
 
@@ -6041,7 +6041,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value: "Organization",
-        comment: "Title of the section for Name of the Company. Example: Rep Social Inc."
+        comment: "Title of the section for Name of the Company. Example: RepSky Inc."
       )
 
     public static let organizationalUnitTitle =
@@ -6241,7 +6241,7 @@ extension Strings {
       NSLocalizedString(
         "storekitReceiptViewer.vpnMonthlySubscriptionName",
         bundle: .module,
-        value: "Rep Social VPN Monthly",
+        value: "RepSky VPN Monthly",
         comment: "The title of the product subscription the user purchased (Monthly subscription)"
       )
 
@@ -6249,7 +6249,7 @@ extension Strings {
       NSLocalizedString(
         "storekitReceiptViewer.vpnYearlySubscriptionName",
         bundle: .module,
-        value: "Rep Social VPN Yearly",
+        value: "RepSky VPN Yearly",
         comment: "The title of the product subscription the user purchased (Yearly subscription)"
       )
 
@@ -6257,7 +6257,7 @@ extension Strings {
       NSLocalizedString(
         "storekitReceiptViewer.leoMonthlySubscriptionName",
         bundle: .module,
-        value: "Rep Social Leo Monthly",
+        value: "RepSky Leo Monthly",
         comment: "The title of the product subscription the user purchased (Monthly subscription)"
       )
 
@@ -6265,7 +6265,7 @@ extension Strings {
       NSLocalizedString(
         "storekitReceiptViewer.leoYearlySubscriptionName",
         bundle: .module,
-        value: "Rep Social Leo Yearly",
+        value: "RepSky Leo Yearly",
         comment: "The title of the product subscription the user purchased (Yearly subscription)"
       )
 
@@ -6410,7 +6410,7 @@ extension Strings {
         "shortcuts.activityTypeOpenBookmarksTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social Browser Bookmarks",
+        value: "Open RepSky Browser Bookmarks",
         comment: ""
       )
 
@@ -6419,7 +6419,7 @@ extension Strings {
         "shortcuts.activityTypeOpenHistoryListTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social Browser History",
+        value: "Open RepSky Browser History",
         comment: ""
       )
 
@@ -6428,7 +6428,7 @@ extension Strings {
         "shortcuts.activityTypeClearHistoryTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Clear Rep Social Browsing History",
+        value: "Clear RepSky Browsing History",
         comment: ""
       )
 
@@ -6437,7 +6437,7 @@ extension Strings {
         "shortcuts.activityTypeEnableVPNTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social Browser and Enable VPN",
+        value: "Open RepSky Browser and Enable VPN",
         comment: ""
       )
 
@@ -6446,7 +6446,7 @@ extension Strings {
         "shortcuts.activityTypeOpenBraveNewsTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social News",
+        value: "Open RepSky News",
         comment: ""
       )
 
@@ -6473,7 +6473,7 @@ extension Strings {
         "shortcuts.activityTypeTabDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Start Searching the Web Securely with Rep Social",
+        value: "Start Searching the Web Securely with RepSky",
         comment: ""
       )
 
@@ -6518,7 +6518,7 @@ extension Strings {
         "shortcuts.activityTypeBraveNewsDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social News and Check Today's Top Stories",
+        value: "Open RepSky News and Check Today's Top Stories",
         comment: ""
       )
 
@@ -6536,7 +6536,7 @@ extension Strings {
         "shortcuts.activityTypeOpenSyncedTabsDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social Tabs Open in Other Devices",
+        value: "Open RepSky Tabs Open in Other Devices",
         comment: ""
       )
 
@@ -6599,7 +6599,7 @@ extension Strings {
         "shortcuts.activityTypeOpenBraveTodaySuggestedPhrase",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social News",
+        value: "Open RepSky News",
         comment: ""
       )
 
@@ -6770,7 +6770,7 @@ extension Strings {
         "shortcuts.shortcutSettingsOpenBraveNewsTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Open Rep Social News",
+        value: "Open RepSky News",
         comment: ""
       )
 
@@ -6779,8 +6779,8 @@ extension Strings {
         "shortcuts.shortcutSettingsOpenBraveNewsDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Use Shortcuts to open a new tab & show Rep Social News Feed via Siri - Voice Assistant",
-        comment: "Description of Open Rep Social News Siri Shortcut in Settings Screen"
+        value: "Use Shortcuts to open a new tab & show RepSky News Feed via Siri - Voice Assistant",
+        comment: "Description of Open RepSky News Siri Shortcut in Settings Screen"
       )
 
     public static let shortcutSettingsOpenPlaylistTitle =
@@ -6834,8 +6834,8 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "This option will open Rep Social Settings. In order to change various Siri options, please select 'Siri & Search' menu item and customize your choices.",
-        comment: "Description for opening Rep Social Settings for altering Siri shortcut."
+          "This option will open RepSky Settings. In order to change various Siri options, please select 'Siri & Search' menu item and customize your choices.",
+        comment: "Description for opening RepSky Settings for altering Siri shortcut."
       )
   }
 }
@@ -7229,7 +7229,7 @@ extension Strings {
         "opentabs.noSyncSessionPlaceHolderViewTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "This space shows Rep Social tabs open in other devices",
+        value: "This space shows RepSky tabs open in other devices",
         comment: "The title of the view showing no synced sessions"
       )
     public static let noSyncChainPlaceHolderViewDescription =
@@ -7294,7 +7294,7 @@ extension Strings {
         "opentabs.noSyncSessionPlaceHolderViewAdditionalDescription",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Manage what Rep Social syncs in Settings.",
+        value: "Manage what RepSky syncs in Settings.",
         comment: "The additional description of the view describing tab syncing should be enabled."
       )
     public static let noDevicesSyncChainPlaceholderViewTitle =
@@ -7386,7 +7386,7 @@ extension Strings {
       "today.braveToday",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social News",
+      value: "RepSky News",
       comment: "The name of the feature"
     )
     public static let braveNewsTitle = NSLocalizedString(
@@ -7407,7 +7407,7 @@ extension Strings {
       "today.turnOnBraveToday",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Turn on Rep Social News",
+      value: "Turn on RepSky News",
       comment: ""
     )
     public static let learnMoreTitle = NSLocalizedString(
@@ -7421,17 +7421,17 @@ extension Strings {
       "today.introCardTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Turn on Rep Social News, and never miss a story",
-      comment: "Shown above a button that turns on the \"Rep Social News\" product in the app."
+      value: "Turn on RepSky News, and never miss a story",
+      comment: "Shown above a button that turns on the \"RepSky News\" product in the app."
     )
     public static let introCardBody = NSLocalizedString(
       "today.introCardBody",
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "Follow your favorite sources, in a single feed. Just open a tab in Rep Social, scroll down, and… voila!\nRep Social News is ad-supported with private, anonymized ads.",
+        "Follow your favorite sources, in a single feed. Just open a tab in RepSky, scroll down, and… voila!\nRepSky News is ad-supported with private, anonymized ads.",
       comment:
-        "Shown above a button that turns on the \"Rep Social News\" product in the app. by sources & feeds they mean websites & blogs."
+        "Shown above a button that turns on the \"RepSky News\" product in the app. by sources & feeds they mean websites & blogs."
     )
     public static let refresh = NSLocalizedString(
       "today.refresh",
@@ -7494,14 +7494,14 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Hide content from %@",
-      comment: "'%@' will turn into the name of a publisher (verbatim), for example: Rep Social Blog"
+      comment: "'%@' will turn into the name of a publisher (verbatim), for example: RepSky Blog"
     )
     public static let enablePublisherContent = NSLocalizedString(
       "today.enablePublisherContent",
       tableName: "BraveShared",
       bundle: .module,
       value: "Allow content from %@",
-      comment: "'%@' will turn into the name of a publisher (verbatim), for example: Rep Social Blog"
+      comment: "'%@' will turn into the name of a publisher (verbatim), for example: RepSky Blog"
     )
     public static let disabledAlertTitle = NSLocalizedString(
       "today.disabledAlertTitle",
@@ -7514,14 +7514,14 @@ extension Strings {
       "today.disabledAlertBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social News will stop showing content from %@",
-      comment: "'%@' will turn into the name of a publisher (verbatim), for example: Rep Social Blog"
+      value: "RepSky News will stop showing content from %@",
+      comment: "'%@' will turn into the name of a publisher (verbatim), for example: RepSky Blog"
     )
     public static let isEnabledToggleLabel = NSLocalizedString(
       "today.isEnabledToggleLabel",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Show Rep Social News",
+      value: "Show RepSky News",
       comment: ""
     )
     public static let contentAvailableButtonTitle = NSLocalizedString(
@@ -7535,8 +7535,8 @@ extension Strings {
       "today.moreBraveOffers",
       tableName: "BraveShared",
       bundle: .module,
-      value: "More Rep Social Offers",
-      comment: "'Rep Social Offers' is a product name"
+      value: "More RepSky Offers",
+      comment: "'RepSky Offers' is a product name"
     )
     public static let promoted = NSLocalizedString(
       "today.promoted",
@@ -7549,7 +7549,7 @@ extension Strings {
       "today.addSourceShareTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Add Source to Rep Social News",
+      value: "Add Source to RepSky News",
       comment: "The action title displayed in the iOS share menu"
     )
     public static let addSourceFailureTitle = NSLocalizedString(
@@ -7773,7 +7773,7 @@ extension Strings {
       "today.rateBraveCardRateActionTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rate Rep Social",
+      value: "Rate RepSky",
       comment:
         "Button title / Title for long press action that will perform an action which open AppStore Rate screen"
     )
@@ -7782,28 +7782,28 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Hide",
-      comment: "Title for long press action that will hide Rep Social Rate Card"
+      comment: "Title for long press action that will hide RepSky Rate Card"
     )
     public static let rateBraveCardActionSheetTitle = NSLocalizedString(
       "today.rateBraveCardActionSheetTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rate Rep Social in App Store",
+      value: "Rate RepSky in App Store",
       comment: "Title for long press action sheet list which has item for rate / hide"
     )
     public static let rateBraveCardTitle = NSLocalizedString(
       "today.rateBraveCardTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Liking Rep Social?",
-      comment: "Title shown on the Rate Rep Social Card "
+      value: "Liking RepSky?",
+      comment: "Title shown on the Rate RepSky Card "
     )
     public static let rateBraveCardSubtitle = NSLocalizedString(
       "today.rateBraveCardSubtitle",
       tableName: "BraveShared",
       bundle: .module,
       value: "Tell us what you think!",
-      comment: "Subtitle shown on the Rate Rep Social Card"
+      comment: "Subtitle shown on the Rate RepSky Card"
     )
   }
 }
@@ -7816,7 +7816,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Rewards Internals",
-      comment: "'Rewards' as in 'Rep Social Rewards'"
+      comment: "'Rewards' as in 'RepSky Rewards'"
     )
     public static let walletInfoHeader = NSLocalizedString(
       "RewardsInternalsWalletInfoHeader",
@@ -8095,7 +8095,7 @@ extension Strings {
       "RewardsInternalsContributionProcessorBraveTokens",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Tokens",
+      value: "RepSky Tokens",
       comment: ""
     )
     public static let contributionProcessorUserFunds = NSLocalizedString(
@@ -8255,21 +8255,21 @@ extension Strings {
       "rewards.enabledBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "You are helping support Rep Social and the BAT community.",
-      comment: "Displayed when Rep Social is enabled"
+      value: "You are helping support RepSky and the BAT community.",
+      comment: "Displayed when RepSky is enabled"
     )
     public static let disabledBody = NSLocalizedString(
       "rewards.disabledBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Turn on to help support Rep Social and the BAT community.",
-      comment: "Displayed when Rep Social is disabled"
+      value: "Turn on to help support RepSky and the BAT community.",
+      comment: "Displayed when RepSky is disabled"
     )
     public static let supportingPublisher = NSLocalizedString(
       "rewards.supportingPublisher",
       tableName: "BraveShared",
       bundle: .module,
-      value: "This content creator is verified with Rep Social Creators",
+      value: "This content creator is verified with RepSky Creators",
       comment: "Displayed under verified publishers"
     )
     public static let unverifiedPublisher = NSLocalizedString(
@@ -8283,7 +8283,7 @@ extension Strings {
       "rewards.enabledStatusBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Thank you for helping support Rep Social and the BAT community!",
+      value: "Thank you for helping support RepSky and the BAT community!",
       comment:
         "Displayed in the status container when rewards is enabled but you're not currently supporting any publishers (0 AC count)"
     )
@@ -8291,7 +8291,7 @@ extension Strings {
       "rewards.disabledStatusBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Using Rep Social helps support Rep Social and the BAT community.",
+      value: "Using RepSky helps support RepSky and the BAT community.",
       comment: "Displayed in the status container when rewards is disabled"
     )
     public static let totalSupportedCount = NSLocalizedString(
@@ -8305,7 +8305,7 @@ extension Strings {
       "rewards.settingsToggleTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Enable Rep Social",
+      value: "Enable RepSky",
       comment: ""
     )
     public static let settingsToggleMessage = NSLocalizedString(
@@ -8313,7 +8313,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "Help support Rep Social and the BAT community by enabling Rep Social and seeing Rep Social Ads.",
+        "Help support RepSky and the BAT community by enabling RepSky and seeing RepSky Ads.",
       comment: ""
     )
     public static let onProviderText = NSLocalizedString(
@@ -8328,8 +8328,8 @@ extension Strings {
         "rewards.braveTalkRewardsOptInTitle",
         tableName: "BraveShared",
         bundle: .module,
-        value: "To start a free call, turn on Rep Social",
-        comment: "Title for Rep Social Talk rewards opt-in screen"
+        value: "To start a free call, turn on RepSky",
+        comment: "Title for RepSky Talk rewards opt-in screen"
       )
 
     public static let braveTalkRewardsOptInBody =
@@ -8338,8 +8338,8 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "With Rep Social, you can view privacy-preserving ads from the Rep Social Ads network. No trackers. No slowdowns. And your data stays totally safe.",
-        comment: "Body for Rep Social Talk rewards opt-in screen"
+          "With RepSky, you can view privacy-preserving ads from the RepSky Ads network. No trackers. No slowdowns. And your data stays totally safe.",
+        comment: "Body for RepSky Talk rewards opt-in screen"
       )
 
     public static let braveTalkRewardsOptInButtonTitle =
@@ -8348,7 +8348,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value: "Turn on Rewards",
-        comment: "Title for Rep Social Talk rewards opt-in screen button"
+        comment: "Title for RepSky Talk rewards opt-in screen button"
       )
 
     public static let braveTalkRewardsOptInDisclaimer =
@@ -8367,7 +8367,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value: "You can now start a free call",
-        comment: "Title for successful Rep Social Talk rewards opt-in"
+        comment: "Title for successful RepSky Talk rewards opt-in"
       )
 
     public static let braveTalkRewardsOptInSuccessBody =
@@ -8375,8 +8375,8 @@ extension Strings {
         "rewards.braveTalkRewardsOptInSuccessBody",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Click anywhere on the screen to continue to Rep Social Talk.",
-        comment: "Body for successful Rep Social Talk rewards opt-in"
+        value: "Click anywhere on the screen to continue to RepSky Talk.",
+        comment: "Body for successful RepSky Talk rewards opt-in"
       )
   }
 }
@@ -8388,7 +8388,7 @@ extension Strings {
       "bravetalk.braveTalkTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Talk",
+      value: "RepSky Talk",
       comment: "The name of the feature"
     )
   }
@@ -8401,7 +8401,7 @@ extension Strings {
       "MyFirstAdTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "This is your first Rep Social ad",
+      value: "This is your first RepSky ad",
       comment: ""
     )
     public static let myFirstAdBody = NSLocalizedString(
@@ -8422,7 +8422,7 @@ extension Strings {
       "BraveRewardsAdNotificationTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social",
+      value: "RepSky",
       comment: ""
     )
 
@@ -8431,9 +8431,9 @@ extension Strings {
         "ads.braveAdsDataToggleOption",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social Ads Data",
+        value: "RepSky Ads Data",
         comment:
-          "Text for the toggle switch to clear 'Rep Social Ads' data in settings"
+          "Text for the toggle switch to clear 'RepSky Ads' data in settings"
       )
 
     public static let searchResultAdClickedInfoBarMessage =
@@ -8847,7 +8847,7 @@ extension Strings {
       "privacyHub.mostFrequentTrackerAndAdBody",
       tableName: "BraveShared",
       bundle: .module,
-      value: "**%@** was blocked by Rep Social Shields on **%lld** sites",
+      value: "**%@** was blocked by RepSky Shields on **%lld** sites",
       comment:
         "Do NOT localize asterisk('*') characters, they are used to make the text bold in the app. It says which tracker was blocked on how many websites, example usage: 'Google Analytics was blocked by Brave Shields on 42 sites'"
     )
@@ -8882,7 +8882,7 @@ extension Strings {
       "privacyHub.vpnAlertsHeader",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Firewall + VPN Alerts",
+      value: "RepSky Firewall + VPN Alerts",
       comment:
         "Section title, this section displays vpn alerts: items which the vpn managed to block on users behalf."
     )
@@ -8893,7 +8893,7 @@ extension Strings {
       bundle: .module,
       value: "All alerts",
       comment:
-        "Text for a button to display a list of all alerts caught by the Rep Social VPN. VPN alert is a notificaion of what item has been blocked by the vpn, similar to a regular adblocker"
+        "Text for a button to display a list of all alerts caught by the RepSky VPN. VPN alert is a notificaion of what item has been blocked by the vpn, similar to a regular adblocker"
     )
 
     public static let allTimeListsHeader = NSLocalizedString(
@@ -8954,7 +8954,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Trackers & ads",
-      comment: "Title of a section to show total count of trackers blocked by Rep Social"
+      comment: "Title of a section to show total count of trackers blocked by RepSky"
     )
 
     public static let allTimeListsWebsitesView = NSLocalizedString(
@@ -8971,7 +8971,7 @@ extension Strings {
       bundle: .module,
       value: "Blocked by",
       comment:
-        "Text which explain by what type of ad blocker a given resource was blocked. Context is like: 'Blocked by Rep Social Shields', 'Blocked by Rep Social VPN"
+        "Text which explain by what type of ad blocker a given resource was blocked. Context is like: 'Blocked by RepSky Shields', 'Blocked by RepSky VPN"
     )
 
     public static let allTimeListTrackersHeaderTitle = NSLocalizedString(
@@ -9013,7 +9013,7 @@ extension Strings {
       bundle: .module,
       value: "Firewall + VPN",
       comment:
-        "This label says about Rep Social VPN, as a source of by what the resource was blocked by. Think of it in context of 'Blocked by VPN'"
+        "This label says about RepSky VPN, as a source of by what the resource was blocked by. Think of it in context of 'Blocked by VPN'"
     )
 
     public static let blockedLabel = NSLocalizedString(
@@ -9086,7 +9086,7 @@ extension Strings {
       "privacyHub.notificationMessage",
       tableName: "BraveShared",
       bundle: .module,
-      value: "A recap of how Rep Social protected you online this week.",
+      value: "A recap of how RepSky protected you online this week.",
       comment:
         "Message of a notification we show to the user, on tapping it, the Privacy Hub screen will open."
     )
@@ -9096,7 +9096,7 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value: "Show Shields Data",
-      comment: "Title of a setting that lets Rep Social monitor blocked network requests"
+      comment: "Title of a setting that lets RepSky monitor blocked network requests"
     )
 
     public static let settingsEnableShieldsFooter = NSLocalizedString(
@@ -9105,7 +9105,7 @@ extension Strings {
       bundle: .module,
       value:
         "Privacy Hub shows a count of what Shields blocked. Setting will not affect Shields counter on new tab page. Shields data is not counted in private windows.",
-      comment: "This text explains a setting that lets Rep Social monitor blocked network requests"
+      comment: "This text explains a setting that lets RepSky monitor blocked network requests"
     )
 
     public static let settingsEnableVPNAlertsTitle = NSLocalizedString(
@@ -9114,7 +9114,7 @@ extension Strings {
       bundle: .module,
       value: "Show VPN Alerts",
       comment:
-        "Title of a setting that lets Rep Social monitor blocked network requests captured by Rep Social VPN"
+        "Title of a setting that lets RepSky monitor blocked network requests captured by RepSky VPN"
     )
 
     public static let settingsEnableVPNAlertsFooter = NSLocalizedString(
@@ -9123,7 +9123,7 @@ extension Strings {
       bundle: .module,
       value: "Setting only applies if you've purchased VPN subscription.",
       comment:
-        "This text explains a setting that lets Rep Social monitor blocked network requests captured by Rep Social VPN"
+        "This text explains a setting that lets RepSky monitor blocked network requests captured by RepSky VPN"
     )
 
     public static let settingsSlearDataTitle = NSLocalizedString(
@@ -9229,8 +9229,8 @@ extension Strings {
       tableName: "BraveShared",
       bundle: .module,
       value:
-        "These private responses help Rep Social estimate the overall usage of certain features and make them better for you.",
-      comment: "A subtitle shown on the setting that toggles analytics on Rep Social."
+        "These private responses help RepSky estimate the overall usage of certain features and make them better for you.",
+      comment: "A subtitle shown on the setting that toggles analytics on RepSky."
     )
 
     public static let continueButton = NSLocalizedString(
@@ -9407,7 +9407,7 @@ extension Strings {
         "voice.search.screen.disclaimer",
         tableName: "BraveShared",
         bundle: .module,
-        value: "Rep Social does not store or share your voice searches.",
+        value: "RepSky does not store or share your voice searches.",
         comment: "Disclaimer for screen to search using voice."
       )
 
@@ -9426,7 +9426,7 @@ extension Strings {
         tableName: "BraveShared",
         bundle: .module,
         value:
-          "Please allow Microphone Access in iOS System Settings for Rep Social to use anonymous voice search.",
+          "Please allow Microphone Access in iOS System Settings for RepSky to use anonymous voice search.",
         comment: "Explanation for warning alert why the microphone access required."
       )
   }
@@ -9592,7 +9592,7 @@ extension Strings {
     public static let showShieldsTitle = NSLocalizedString(
       "showShieldsTitle",
       bundle: .module,
-      value: "Open Rep Social Shields",
+      value: "Open RepSky Shields",
       comment:
         "Label to display in the Discoverability overlay for keyboard shortcuts which is for Showing Brave Shields"
     )
@@ -9712,13 +9712,13 @@ extension Strings {
       "paywall.alreadyPurchasedTitle",
       bundle: .module,
       value: "Already purchased on rep.com?",
-      comment: "Title label text for refreshing credentials from Rep Social site."
+      comment: "Title label text for refreshing credentials from RepSky site."
     )
     public static let refreshCredentialsButtonTitle = NSLocalizedString(
       "paywall.refreshCredentialsButtonTitle",
       bundle: .module,
       value: "Refresh your credentials",
-      comment: "Button action text for refreshing credentials from Rep Social site."
+      comment: "Button action text for refreshing credentials from RepSky site."
     )
     public static let havePromoCodeTitle = NSLocalizedString(
       "paywall.havePromoCodeTitle",
@@ -9805,7 +9805,7 @@ extension Strings {
     public static let braveIconsHeader = NSLocalizedString(
       "altAppIcon.braveIconsHeader",
       bundle: .module,
-      value: "Rep Social Icons",
+      value: "RepSky Icons",
       comment: "A label shown above a list of icons designed by Brave"
     )
     public static let errorTitle = NSLocalizedString(
@@ -9863,15 +9863,15 @@ extension Strings {
       "BraveTranslate.settingsMenuTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Translate",
-      comment: "This text is for the settings menu for all Rep Social-Translate options."
+      value: "RepSky Translate",
+      comment: "This text is for the settings menu for all RepSky-Translate options."
     )
 
     public static let settingsScreenTitle = NSLocalizedString(
       "BraveTranslate.settingsScreenTitle",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Rep Social Translate",
+      value: "RepSky Translate",
       comment: "This text is for the translate settings screen. It's the title of the settings menu."
     )
 
@@ -9887,7 +9887,7 @@ extension Strings {
       "BraveTranslate.settingsTranslateEnabledOptionDescription",
       tableName: "BraveShared",
       bundle: .module,
-      value: "When enabled, Rep Social Translate will automatically detect your page's current language, and display a translate button in the URL bar.",
+      value: "When enabled, RepSky Translate will automatically detect your page's current language, and display a translate button in the URL bar.",
       comment: "This text is for a Toggle that allows the user to enable or disable page translation."
     )
 

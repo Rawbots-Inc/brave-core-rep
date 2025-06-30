@@ -917,7 +917,7 @@ class SettingsViewController: TableViewController {
       )
     }
     let coreVersion =
-      "Rep Social \(BraveCoreVersionInfo.braveCoreVersion) (\(BraveCoreVersionInfo.chromiumVersion))"
+      "RepSky \(BraveCoreVersionInfo.braveCoreVersion) (\(BraveCoreVersionInfo.chromiumVersion))"
     return Static.Section(
       header: .autoLayoutView(titleLabel),
       rows: [

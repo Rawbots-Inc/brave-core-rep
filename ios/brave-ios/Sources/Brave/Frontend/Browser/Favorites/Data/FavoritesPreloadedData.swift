@@ -44,7 +44,7 @@ struct FavoritesPreloadedData {
   }
 
   /// Returns a list of websites that should be preloaded for specific region. Currently all users get the same websites.
-  static func getList() -> [FavoriteSite] {
+    static func getList() async -> [FavoriteSite] {
     func appendPopularEnglishWebsites() -> [FavoriteSite] {
       var list = [FavoriteSite]()
 

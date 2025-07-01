@@ -131,7 +131,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // IAPs can trigger on the app as soon as it launches,
     // for example when a previous transaction was not finished and is in pending state.
-    // Editing Product Promotion List
 
     // Brave Store SDK - Initialization
     BraveStoreSDK.shared.refreshAllSkusOrders()
@@ -247,8 +246,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       // VPN credentials are kept in keychain and persist between app reinstalls.
       // To avoid unexpected problems we clear all vpn keychain items.
       // New set of keychain items will be created on purchase or iap restoration.
-
-
       // Always load YouTube in Brave for new users
       Preferences.General.keepYouTubeInBrave.value = true
 
@@ -362,9 +359,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   #endif
 
   func applicationWillTerminate(_ application: UIApplication) {
-    AppState.shared.profile.shutdown()
-
-
     // Clean up BraveCore
     AppState.shared.braveCore.profileController?.syncAPI.removeAllObservers()
 

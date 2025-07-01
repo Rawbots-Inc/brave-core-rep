@@ -1074,123 +1074,13 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
       let localSearchQuery = dataSource.searchQuery.lowercased()
       searchDelegate?.searchViewController(self, shouldFindInPage: localSearchQuery)
     case .openTabsAndHistoryAndBookmarks:
-      // Check for History Bookmarks Open Tabs suggestions
-      // Show Browser Suggestions Preference effects all the modes
-      if !Preferences.Search.showBrowserSuggestions.value {
-        return 0
-      }
-
-      // Private Browsing Mode (PBM) should *not* show items from normal mode History etc
-      // when search suggestions is not enabled
-      if Preferences.Privacy.privateBrowsingOnly.value,
-        dataSource.searchEngines?.shouldShowSearchSuggestions == false
-      {
-        return 0
-      }
-
-      return data.isEmpty ? 0 : 2.0 * headerHeight
-    case .findInPage:
-      if let sd = searchDelegate, sd.searchViewControllerAllowFindInPage() {
-        return headerHeight
-      }
-      return 0.0
-    }
-  }
-
-  func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-    return UIView()
-  }
-
-  func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-    guard let searchSection = dataSource.availableSections[safe: section] else { return 0 }
-    let footerHeight: CGFloat = 10.0
-
-    switch searchSection {
-    case .quickBar, .searchSuggestions, .findInPage, .openTabsAndHistoryAndBookmarks:
-      return CGFloat.leastNormalMagnitude
-    case .searchSuggestionsOptIn:
-      return footerHeight
-    case .aiChat:
-      return footerHeight
-    }
-  }
-
-  override public func tableView(
-    _ tableView: UITableView,
-    cellForRowAt indexPath: IndexPath
-  ) -> UITableViewCell {
-    func createSearchSuggestionPromotionCell() -> UITableViewCell {
-      let cell = tableView.dequeueReusableCell(
-        withIdentifier: BraveSearchPromotionCell.identifier,
-        for: indexPath
-      )
-      if let promotionSearchCell = cell as? BraveSearchPromotionCell {
-        promotionSearchCell.trySearchEngineTapped = { [weak self] in
-          self?.submitSeachTemplateQuery(isBraveSearchPromotion: true)
-        }
-
-        promotionSearchCell.dismissTapped = { [weak self] in
-          self?.changeBraveSearchPromotionState()
-          tableView.reloadData()
-        }
-      }
-
-      return cell
-    }
-
-    guard let section = dataSource.availableSections[safe: indexPath.section] else {
-      return UITableViewCell()
-    }
-
-    switch section {
-    case .quickBar:
-      let cell = TwoLineTableViewCell().then {
-        $0.textLabel?.text = dataSource.searchQuery
-        $0.textLabel?.textColor = .bravePrimary
-        $0.imageView?.image = UIImage(
-          named: "search_bar_find_in_page_icon",
-          in: .module,
-          compatibleWith: nil
-        )?.withRenderingMode(.alwaysTemplate)
-        $0.imageView?.tintColor = browserColors.iconDefault
-        $0.imageView?.contentMode = .center
-        $0.backgroundColor = .clear
-      }
-
-      return cell
-    case .aiChat:
-      let cell = TwoLineTableViewCell().then {
-          $0.backgroundColor = .clear
-//        $0.textLabel?.text =
-//          "\(dataSource.searchQuery) - \(Strings.AIChat.askLeoSearchSuggestionTitle)"
-//        $0.textLabel?.textColor = .bravePrimary
-//        $0.imageView?.image = UIImage(named: "aichat-avatar", in: .module, compatibleWith: nil)
-//        $0.imageView?.tintColor = browserColors.iconDefault
-//        $0.imageView?.contentMode = .center
-//        $0.backgroundColor = .clear
-      }
-
-      return cell
-    case .searchSuggestionsOptIn:
-      var cell: UITableViewCell?
-
-      if isBraveSearchPrompt(for: indexPath) {
-        cell = createSearchSuggestionPromotionCell()
-      } else {
-        cell = tableView.dequeueReusableCell(
-          withIdentifier: SearchSuggestionPromptCell.identifier,
-          for: indexPath
-        )
-        if let promptCell = cell as? SearchSuggestionPromptCell {
-          promptCell.selectionStyle = .none
-          promptCell.onOptionSelected = { [weak self] option in
-            guard let self = self else { return }
-
-            self.dataSource.searchEngines?.shouldShowSearchSuggestions = option
-            self.dataSource.searchEngines?.shouldShowSearchSuggestionsOptIn = false
-
-            if option {
-              self.dataSource.querySuggestClient()
+      let onYourDeviceItem = availableOnYourDeviceItems[indexPath.row]
+      if let site = onYourDeviceItem.site {
+        if let url = URL(string: site.url) {
+          if site.siteType == .tab {
+            var tabId: UUID?
+            if let siteId = site.tabID {
+              tabId = UUID(uuidString: siteId)
             }
             searchDelegate?.searchViewController(self, didSelectOpenTab: (tabId, url))
           } else {

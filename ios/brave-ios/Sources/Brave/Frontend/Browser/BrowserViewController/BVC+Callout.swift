@@ -12,6 +12,7 @@ import SafariServices
 import Shared
 import StoreKit
 import SwiftUI
+import DataImporter
 
 // MARK: - Callouts
 

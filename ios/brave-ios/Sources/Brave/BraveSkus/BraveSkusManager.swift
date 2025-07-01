@@ -5,6 +5,7 @@
 
 import AIChat
 import BraveCore
+import BraveStore
 import Foundation
 import Preferences
 import Shared
@@ -27,7 +28,6 @@ public class BraveSkusManager {
 
   @MainActor
   public func refreshVPNCredentials() async {
-   
   }
 
   // MARK: - Handling SKU methods.
@@ -65,7 +65,7 @@ public class BraveSkusManager {
         break
       case .unknown:
         Logger.module.debug("[SkusManager] - Unknown Credentials")
-          break 
+        break
       }
     }
 
@@ -143,19 +143,6 @@ public class BraveSkusManager {
       message: "",
       preferredStyle: .alert
     )
-//
-//    let loginButton = UIAlertAction(
-//      title: Strings.VPN.sessionExpiredLoginButton,
-//      style: .default,
-//      handler: loginCallback
-//    )
-//    let dismissButton = UIAlertAction(
-//      title: Strings.VPN.sessionExpiredDismissButton,
-//      style: .cancel
-//    )
-//    alert.addAction(loginButton)
-//    alert.addAction(dismissButton)
-
     return alert
   }
 }

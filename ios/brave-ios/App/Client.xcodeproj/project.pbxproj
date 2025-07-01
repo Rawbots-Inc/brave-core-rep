@@ -2182,6 +2182,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
+				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -2210,7 +2211,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_MODULE_NAME = Client;
@@ -2409,6 +2410,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
+				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -2440,7 +2442,7 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				MOZ_BUNDLE_DISPLAY_NAME = "Rep-Social";
@@ -3352,6 +3354,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
+				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3384,7 +3387,7 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				MOZ_BUNDLE_DISPLAY_NAME = "Rep-Social";
@@ -3455,6 +3458,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
+				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3483,7 +3487,7 @@
 				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_MODULE_NAME = Client;
@@ -3576,7 +3580,7 @@
 				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_MODULE_NAME = Client;
@@ -3640,6 +3644,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
+				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3670,7 +3675,7 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Social";
+				INFOPLIST_KEY_CFBundleDisplayName = RepSky;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rawbots.browser.RepSkyBrowserBeta;

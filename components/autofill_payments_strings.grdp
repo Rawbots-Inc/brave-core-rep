@@ -725,12 +725,12 @@
   </message>
   <if expr="_google_chrome">
   <message name="IDS_AUTOFILL_MANDATORY_REAUTH_OPT_IN_EXPLANATION" desc="Explanation text for the mandatory reauth opt-in prompt that is displayed to the user after filling in payment method information. Mandatory reauth requires the user to unlock their device or pass a biometric auth when autofilling payment method information." formatter_data="android_java">
-    If you share this device, Rep Social can ask you to verify every time you pay using autofill
+    If you share this device, RepSky can ask you to verify every time you pay using autofill
   </message>
   </if>
   <if expr="not _google_chrome">
   <message name="IDS_AUTOFILL_MANDATORY_REAUTH_OPT_IN_EXPLANATION" desc="Explanation text for the mandatory reauth opt-in prompt that is displayed to the user after filling in payment method information. Mandatory reauth requires the user to unlock their device or pass a biometric auth when autofilling payment method information." formatter_data="android_java">
-    If you share this device, Rep Social can ask you to verify every time you pay using autofill
+    If you share this device, RepSky can ask you to verify every time you pay using autofill
   </message>
   </if>
   <message name="IDS_AUTOFILL_MANDATORY_REAUTH_ICON_TOOLTIP" desc="The tooltip message for the omnibox icon for the mandatory reauth opt-in bubble on Desktop. This bubble prompts users if they would like to enroll in mandatory reauth. Mandatory reauth requires the user to unlock their device or pass a biometric auth when autofilling payment method information.">

@@ -26,24 +26,24 @@
   </message>
   <if expr="_google_chrome">
     <message name="IDS_AUTOFILL_DELETE_AUTOCOMPLETE_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete an autocomplete form history suggestion.">
-      Remove form suggestion from Rep Social?
+      Remove form suggestion from RepSky?
     </message>
     <message name="IDS_AUTOFILL_DELETE_CREDIT_CARD_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete a credit card from Autofill.">
-      Remove credit card from Rep Social?
+      Remove credit card from RepSky?
     </message>
     <message name="IDS_AUTOFILL_DELETE_PROFILE_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete an address from Autofill.">
-      Remove address from Rep Social?
+      Remove address from RepSky?
     </message>
   </if>
   <if expr="not _google_chrome">
     <message name="IDS_AUTOFILL_DELETE_AUTOCOMPLETE_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete an autocomplete form history suggestion.">
-      Remove form suggestion from Rep Social?
+      Remove form suggestion from RepSky?
     </message>
     <message name="IDS_AUTOFILL_DELETE_CREDIT_CARD_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete a credit card from Autofill.">
-      Remove credit card from Rep Social?
+      Remove credit card from RepSky?
     </message>
     <message name="IDS_AUTOFILL_DELETE_PROFILE_SUGGESTION_CONFIRMATION_BODY" desc="Text in a dialog to confirm that the user wants to delete an address from Autofill.">
-      Remove address from Rep Social?
+      Remove address from RepSky?
     </message>
   </if>
   <message name="IDS_AUTOFILL_DELETE_AUTOCOMPLETE_SUGGESTION_TOOLTIP" desc="Tooltip shown when hovering over a small button with a trash-can logo next to an Autocomplete entry in the Autofill popup.">
@@ -228,7 +228,7 @@
   </if>
 
   <message name="IDS_AUTOFILL_SHOW_ACCOUNT_CARDS" desc="Text shown as an option in the Autofill dropdown. Imperative. When clicked, additional payment cards (e.g., credit/debit cards) that were previously saved in the user's Brave sync chain will be added to the list of suggestions being displayed.">
-    Show cards from your Rep Social sync chain
+    Show cards from your RepSky sync chain
   </message>
 
   <if expr="not is_android">
@@ -238,7 +238,7 @@
   </if>
 
   <message name="IDS_AUTOFILL_IPH_EXTERNAL_ACCOUNT_PROFILE_SUGGESTION" desc="IPH bubble for a suggestion item with an account profile that was created somewhere outside Brave (e.g. Google Pay)." formatter_data="android_java">
-    You can now use addresses from your Rep Social sync chain
+    You can now use addresses from your RepSky sync chain
   </message>
   <message name="IDS_AUTOFILL_IPH_MANUAL_FALLBACK" desc="IPH bubble for triggering autofill from the context menu.">
     Right click to autofill saved info, like your name or address, on any form
@@ -287,7 +287,7 @@
     Fills in payment forms with your saved payment methods
   </message>
   <message name="IDS_AUTOFILL_DELETE_ACCOUNT_ADDRESS_RECORD_TYPE_NOTICE" desc="The notice/warning for the user before the address deletion." formatter_data="android_java">
-    This address will be deleted from your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>
+    This address will be deleted from your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>
   </message>
   <message name="IDS_AUTOFILL_DELETE_SYNC_ADDRESS_RECORD_TYPE_NOTICE" desc="The notice/warning for the user before the address deletion (with syncing enabled)." formatter_data="android_java">
     This address will be deleted from this and your other signed-in devices
@@ -296,16 +296,16 @@
     This address will be deleted from this device
   </message>
   <message name="IDS_AUTOFILL_SAVE_IN_ACCOUNT_MESSAGE_ADDRESS_RECORD_TYPE_NOTICE" desc="The notice/warning message for the user that this address is going to be stored in their account.">
-    In your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>
+    In your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>
   </message>
   <message name="IDS_AUTOFILL_SAVE_IN_ACCOUNT_MESSAGE_ADDRESS_MIGRATION_RECORD_TYPE_NOTICE" desc="The notice/warning message for the user that this address is going to be migrated in their account.">
-    You will be able to use it across Rep Social products
+    You will be able to use it across RepSky products
   </message>
   <message name="IDS_AUTOFILL_ADDRESS_ALREADY_SAVED_IN_ACCOUNT_RECORD_TYPE_NOTICE" desc="The footer message used to notify user that their address is stored in their account." formatter_data="android_java">
-    You can use saved addresses across Rep Social products. This address is saved in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    You can use saved addresses across RepSky products. This address is saved in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_ADDRESS_WILL_BE_SAVED_IN_ACCOUNT_RECORD_TYPE_NOTICE" desc="The footer message used to notify user that their address will be saved in their account." formatter_data="android_java">
-    You can use saved addresses across Rep Social products. This address will be saved in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    You can use saved addresses across RepSky products. This address will be saved in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_EDIT_ADDRESS_REQUIRED_FIELD_FORM_ERROR" desc="The form error message shown to the user in case of a single required field missing.">
     A required field is empty. Fill it before saving.
@@ -317,7 +317,7 @@
     Address is available only on this device
   </message>
   <message name="IDS_AUTOFILL_SYNC_TOGGLE_LABEL" desc="The Sync Autofill toggle label on the Autofill Settings page.">
-    Use and save Addresses from your Rep Social sync chain
+    Use and save Addresses from your RepSky sync chain
   </message>
   <if expr="not is_ios">
     <then>
@@ -365,16 +365,16 @@
   </if>
   <if expr="is_android">
     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT" desc="Title of the option to use the default Brave autofill experience." formatter_data="android_java">
-      Autofill with Rep Social
+      Autofill with RepSky
     </message>
     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN" desc="Title of the option to use third-party autofill in Brave." formatter_data="android_java">
       Autofill using another service
     </message>
     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_DEFAULT_DESCRIPTION" desc="Description shown on the option to use the default Brave autofill experience." formatter_data="android_java">
-      Use Rep Social Password Manager and Rep Social Autofill to save and fill passwords, payment methods, and addresses
+      Use RepSky Password Manager and RepSky Autofill to save and fill passwords, payment methods, and addresses
     </message>
     <message name="IDS_AUTOFILL_THIRD_PARTY_FILLING_OPT_IN_DESCRIPTION" desc="Description shown on the option enabling the use of third-party autofill in Brave." formatter_data="android_java">
-      To use another autofill service in Rep Social, turn it on in Android settings and here
+      To use another autofill service in RepSky, turn it on in Android settings and here
     </message>
   </if>
 
@@ -438,16 +438,16 @@
     No thanks
   </message>
   <message name="IDS_AUTOFILL_SAVE_IN_ACCOUNT_PROMPT_ADDRESS_SOURCE_NOTICE" desc="The footer message in the 'Save address' prompt informing the user that this address will be stored in their account.">
-    You can use saved addresses across Rep Social products. This address will be saved in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    You can use saved addresses across RepSky products. This address will be saved in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_UPDATE_PROMPT_ACCOUNT_ADDRESS_SOURCE_NOTICE" desc="The footer message in the 'Update address' prompt informing the user that this address is stored in their account.">
-    You can use saved addresses across Rep Social products. This address is saved in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    You can use saved addresses across RepSky products. This address is saved in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_SYNCABLE_PROFILE_MIGRATION_PROMPT_NOTICE" desc="The syncable profile prompt body text.">
-    This address is currently saved to Rep Social. To use it across Rep Social products, save it in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    This address is currently saved to RepSky. To use it across RepSky products, save it in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_LOCAL_PROFILE_MIGRATION_PROMPT_NOTICE" desc="The local profile prompt body text.">
-    This address is currently saved to this device. To use it across Rep Social products, save it in your Rep Social sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
+    This address is currently saved to this device. To use it across RepSky products, save it in your RepSky sync chain, <ph name="ACCOUNT">$1<ex>alexpark@gmail.com</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_SAVE_PROMPT_ADDRESS_SECTION_A11Y_LABEL" desc="The 'Save address' prompt address summary section a11y announcement, accompanied with a label to make it clear that the content being read is an address.">
     Address: <ph name="ADDRESS">$1<ex>345 Spear street</ex></ph>.
@@ -509,13 +509,13 @@
       Save Address in Account
     </message>
     <message name="IDS_IOS_AUTOFILL_SAVE_ADDRESS_IN_ACCOUNT_MESSAGE_SUBTITLE" desc="Subtitle shown in the messages UI view when a new profile is asked to be saved in the Brave sync chain">
-       In your Rep Social sync chain, <ph name="USER_EMAIL">$1<ex>janedoe@google.com</ex></ph>
+       In your RepSky sync chain, <ph name="USER_EMAIL">$1<ex>janedoe@google.com</ex></ph>
     </message>
     <message name="IDS_IOS_AUTOFILL_MIGRATE_ADDRESS_IN_ACCOUNT_MESSAGE_SUBTITLE" desc="Subtitle shown in the messages UI view when an existing profile is asked to be migrated to the Brave sync chain">
-       You can use it across Rep Social products
+       You can use it across RepSky products
     </message>
     <message name="IDS_IOS_AUTOFILL_SAVE_ADDRESS_IN_ACCOUNT_FOOTER" desc="Footer text shown in the save modal for saving a new address profile or migrating it in the Brave sync chain">
-      You can use saved addresses across Rep Social products. This address will be saved in your Rep Social sync chain, <ph name="USER_EMAIL">$1<ex>janedoe@google.com</ex></ph>.
+      You can use saved addresses across RepSky products. This address will be saved in your RepSky sync chain, <ph name="USER_EMAIL">$1<ex>janedoe@google.com</ex></ph>.
     </message>
   </if>
   <!-- Used on Desktop: -->
@@ -539,10 +539,10 @@
       Add address
     </message>
     <message name="IDS_AUTOFILL_ADD_NEW_ADDRESS_INTO_CHROME_PROMPT_BODY_TEXT" desc="The 'Add new address' bubble body text if the address will be saved in Brave (locally or syncable among Braves on different devices).">
-      You don't have any addresses saved. Add an address to use it in Rep Social.
+      You don't have any addresses saved. Add an address to use it in RepSky.
     </message>
     <message name="IDS_AUTOFILL_ADD_NEW_ADDRESS_INTO_ACCOUNT_PROMPT_BODY_TEXT" desc="The 'Add new address' bubble body text if the address will be save in the user's Brave account.">
-      You don't have any addresses saved. Add an address to use it across Rep Social products.
+      You don't have any addresses saved. Add an address to use it across RepSky products.
     </message>
     <message name="IDS_AUTOFILL_UPDATE_ADDRESS_PROMPT_CANCEL_BUTTON_LABEL" desc="Label of the Cancel button in the prompt that offers the user to update an existing address.">
       No thanks

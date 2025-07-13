@@ -1,16 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "repsky_welcome.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Group 14.png",
+      "filename" : "repsky_welcome 1.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Group 15.png",
+      "filename" : "repsky_welcome 2.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

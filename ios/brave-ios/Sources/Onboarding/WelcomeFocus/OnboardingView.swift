@@ -195,15 +195,18 @@ struct OnboardingView: View {
         step: steps[activeStepIndex],
         isSplashVisible: isSplashVisible,
         onContinue: {
-          let nextStep = activeStepIndex + 1
-          if nextStep == steps.endIndex {
             onCompletion()
             dismiss()
             return
-          }
-          withAnimation(.bouncy) {
-            activeStepIndex = nextStep
-          }
+//          let nextStep = activeStepIndex + 1
+//          if nextStep == steps.endIndex {
+//            onCompletion()
+//            dismiss()
+//            return
+//          }
+//          withAnimation(.bouncy) {
+//            activeStepIndex = nextStep
+//          }
         }
       )
       .overlay(alignment: .topTrailing) {

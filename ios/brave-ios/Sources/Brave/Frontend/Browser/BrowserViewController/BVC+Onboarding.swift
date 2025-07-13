@@ -106,26 +106,27 @@ extension BrowserViewController {
           }
         }
       )
-    } else {
-      if Preferences.FocusOnboarding.urlBarIndicatorShowBeShown.value {
-        Preferences.FocusOnboarding.urlBarIndicatorShowBeShown.reset()
-
-        controller = FocusNTPOnboardingViewController().then {
-          $0.setText(
-            title: Strings.FocusOnboarding.urlBarIndicatorTitle,
-            details: Strings.FocusOnboarding.urlBarIndicatorDescription
-          )
-        }
-
-        presentFavouriteURLBarPopover(
-          controller: controller,
-          onDismiss: { [weak self] in
-            guard let self = self else { return }
-//            self.triggerPromotedInAppPurchase(savedPayment: self.iapObserver.savedPayment)
-          }
-        )
-      }
     }
+//      else {
+//      if Preferences.FocusOnboarding.urlBarIndicatorShowBeShown.value {
+//        Preferences.FocusOnboarding.urlBarIndicatorShowBeShown.reset()
+//
+//        controller = FocusNTPOnboardingViewController().then {
+//          $0.setText(
+//            title: Strings.FocusOnboarding.urlBarIndicatorTitle,
+//            details: Strings.FocusOnboarding.urlBarIndicatorDescription
+//          )
+//        }
+//
+//        presentFavouriteURLBarPopover(
+//          controller: controller,
+//          onDismiss: { [weak self] in
+//            guard let self = self else { return }
+////            self.triggerPromotedInAppPurchase(savedPayment: self.iapObserver.savedPayment)
+//          }
+//        )
+//      }
+//    }
 
     func presentFavouriteURLBarPopover(
       controller: UIViewController & PopoverContentComponent,

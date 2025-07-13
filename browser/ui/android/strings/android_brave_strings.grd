@@ -1373,10 +1373,10 @@ Are you sure you want to do this?
         To sync passwords, please enable biometrics/passcode authentication on your Android device. This extra security measure helps keep your passwords safe.
       </message>
       <message name="IDS_BRAVE_PRIVACY_NOTICE_URL" desc="URL for the Brave privacy notice" translateable="false">
-        https://rep.run/privacy/privacy-policy
+        https://rsky.ai/privacy-and-security?type=openNewTab
       </message>
       <message name="IDS_BRAVE_TERMS_OF_SERVICE_URL" desc="URL for Brave Terms of Service" translateable="false">
-        https://rep.run/privacy/terms-of-service
+        https://rsky.ai/privacy-and-security?type=openNewTab
       </message>
       <message name="IDS_BRAVE_LICENSE_TEXT" desc="Title for Brave License">
         RepSky License

@@ -349,7 +349,7 @@ extension Strings {
       "sync.grantCameraAccess",
       tableName: "BraveShared",
       bundle: .module,
-      value: "Next",
+      value: "Continue",
       comment: "Grand camera access"
     )
     public static let removeDevice = NSLocalizedString(

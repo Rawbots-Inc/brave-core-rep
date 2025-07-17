@@ -5,8 +5,8 @@
 NFCReaderUsageDescription = "The application needs access to NFC reading to communicate with your Yubikey.";
 NSLocationWhenInUseUsageDescription = "Websites you visit may request your location.";
 NSPhotoLibraryAddUsageDescription = "This lets you save photos.";
-NSCameraUsageDescription = "This lets you take and upload photos.";
-NSMicrophoneUsageDescription = "This allows Brave to submit search queries using your voice.";
+NSCameraUsageDescription = "RepSky needs access to your camera to scan QR codes and to let websites you visit start video calls. The raw camera feed is never stored or sent to our servers.";
+NSMicrophoneUsageDescription = "This allows RepSky to submit search queries using your voice.";
 ShortcutItemTitleNewTab = "New Tab";
 ShortcutItemTitleNewPrivateTab = "New Private Tab";
 ShortcutItemTitleQRCode = "Scan QR Code";

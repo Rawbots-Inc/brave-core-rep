@@ -1302,7 +1302,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
  @SuppressWarnings("UnusedVariable")
     private void openRepSocialForLogin(String url) {
-          String targetUrl = url + "?currentTabUrl=newtab";
+          String targetUrl = url + "?currentTabUrl=chrome://newtab/";
         CustomTabActivity.showInfoPage(getContext(), targetUrl);
     }
 
@@ -1316,14 +1316,14 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
       .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
       String targetUrl = (url != null && !url.isEmpty()) ?
       "https://dev-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://dev-extension.rsky.ai?currentTabUrl=newtab";
+      "https://dev-extension.rsky.ai?currentTabUrl=chrome://newtab/";
     showOnBoarding(targetUrl);
    
   } else {
     Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
       "https://dev-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://dev-extension.rsky.ai?currentTabUrl=newtab";
+      "https://dev-extension.rsky.ai?currentTabUrl=chrome://newtab/";
     CustomTabActivity.showInfoPage(getContext(), targetUrl);
     
 

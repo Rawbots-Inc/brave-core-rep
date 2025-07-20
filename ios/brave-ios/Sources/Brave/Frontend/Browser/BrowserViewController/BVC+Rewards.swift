@@ -81,7 +81,7 @@ extension BrowserViewController {
         //      self.navigationController?.pushViewController(toc, animated: true)
        
         if url.contains("internal://local/about") {
-            let  url = URL(string: "https://dev-extension.rsky.ai?currentTabUrl=chrome://newtab/")!
+            let  url = URL(string: "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/")!
             let config = SFSafariViewController.Configuration()
             config.entersReaderIfAvailable = false
             config.barCollapsingEnabled = true
@@ -89,13 +89,13 @@ extension BrowserViewController {
             safariVC.dismissButtonStyle = .close ;
             present(safariVC, animated: true, completion: nil)
 //            let webVC = RepViewController()
-//            webVC.url = URL(string: "https://dev-extension.rsky.ai?currentTabUrl=newtab")! // URL cần load
+//            webVC.url = URL(string: "https://prod-extension.rsky.ai?currentTabUrl=newtab")! // URL cần load
 //            let navController = UINavigationController(rootViewController: webVC)
 //            present(navController, animated: true)
 //            print("URL chứa 'internal://local/about'")
         } else {
             let urlTransform = transformToDesktopURL(url)
-            let  url = URL(string: "https://dev-extension.rsky.ai?currentTabUrl=" + urlTransform)!
+            let  url = URL(string: "https://prod-extension.rsky.ai?currentTabUrl=" + urlTransform)!
             let config = SFSafariViewController.Configuration()
             config.entersReaderIfAvailable = false
             config.barCollapsingEnabled = true

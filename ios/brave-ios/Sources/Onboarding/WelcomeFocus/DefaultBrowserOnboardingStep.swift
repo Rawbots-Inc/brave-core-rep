@@ -34,8 +34,11 @@ struct DefaultBrowserGraphicView: View {
     // Giả sử bạn chỉ có một ảnh “focus-icon-brave”, không phân biệt theme:
     Image("repsky_welcome", bundle: .module)            // nạp từ Swift Package
       .resizable()
-      .scaledToFill()                                     // phủ kín, giữ tỉ lệ
-      .ignoresSafeArea()                                  // bao trọn tai thỏ / cạnh dưới
+      .aspectRatio(contentMode: .fit)    // GIỮ tỉ lệ gốc, không crop
+          .frame(maxWidth: .infinity)
+          .cornerRadius(16) 
+      // phủ kín, giữ tỉ lệ
+//      .ignoresSafeArea()                                  // bao trọn tai thỏ / cạnh dưới
   }
 }
 

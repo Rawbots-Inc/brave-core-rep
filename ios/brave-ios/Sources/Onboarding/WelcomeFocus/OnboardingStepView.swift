@@ -80,14 +80,14 @@ struct OnboardingStepView: View {
           AnyView(step.makeGraphic())
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .clipShape(.rect(cornerRadius: 16, style: .continuous))
-            .background(
-              Color(braveSystemName: .iosBrowserBackgroundIos)
-                .shadow(.drop(color: Color(braveSystemName: .elevationPrimary), radius: 0, y: 1))
-                .shadow(
-                  .drop(color: Color(braveSystemName: .elevationSecondary), radius: 4, y: 1)
-                ),
-              in: .rect(cornerRadius: 16, style: .continuous)
-            )
+//            .background(
+//              Color(braveSystemName: .iosBrowserBackgroundIos)
+//                .shadow(.drop(color: Color(braveSystemName: .elevationPrimary), radius: 0, y: 1))
+//                .shadow(
+//                  .drop(color: Color(braveSystemName: .elevationSecondary), radius: 4, y: 1)
+//                ),
+//              in: .rect(cornerRadius: 16, style: .continuous)
+//            )
             .transition(.push(from: .trailing))
         }
         AnyView(step.makeActions(continueHandler: {}))
@@ -118,35 +118,35 @@ struct OnboardingStepView: View {
           .id(step.id)
           .buttonStyle(BraveFilledButtonStyle(size: .large))
           .padding(layoutStyle.isInset && horizontalSizeClass == .regular ? 40 : 20)
-          .background {
-            let color =
-              layoutStyle.isInset
-              ? Color(braveSystemName: .iosBrowserElevatedIos)
-              : Color(braveSystemName: .iosBrowserChromeBackgroundIos)
-            LinearGradient(
-              stops: [
-                .init(color: color.opacity(0), location: 0),
-                .init(color: color.opacity(1), location: 0.15),
-                .init(color: color.opacity(1), location: 1),
-              ],
-              startPoint: .top,
-              endPoint: .bottom
-            )
-          }
+//          .background {
+//            let color =
+//              layoutStyle.isInset
+//              ? Color(braveSystemName: .iosBrowserElevatedIos)
+//              : Color(braveSystemName: .iosBrowserChromeBackgroundIos)
+//            LinearGradient(
+//              stops: [
+//                .init(color: color.opacity(0), location: 0),
+//                .init(color: color.opacity(1), location: 0.15),
+//                .init(color: color.opacity(1), location: 1),
+//              ],
+//              startPoint: .top,
+//              endPoint: .bottom
+//            )
+//          }
           .opacity(isSplashVisible ? 0 : 1)
       }
       if layoutStyle == .columnInset {
         AnyView(step.makeGraphic())
           .frame(maxHeight: .infinity)
-          .background(Color(braveSystemName: .iosBrowserBackgroundIos))
+//          .background(Color(braveSystemName: .iosBrowserBackgroundIos))
       }
     }
     .frame(maxWidth: layoutIdealSize?.width, maxHeight: layoutIdealSize?.height)
-    .background {
-      if layoutStyle.isInset {
-        Color(braveSystemName: .iosBrowserElevatedIos)
-      }
-    }
+//    .background {
+//      if layoutStyle.isInset {
+//        Color(braveSystemName: .iosBrowserElevatedIos)
+//      }
+//    }
     .clipShape(.rect(cornerRadius: layoutStyle.isInset ? 24 : 0, style: .continuous))
   }
 }

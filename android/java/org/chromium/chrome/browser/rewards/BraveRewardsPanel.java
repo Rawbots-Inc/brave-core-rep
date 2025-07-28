@@ -97,7 +97,7 @@ public class BraveRewardsPanel
         implements BraveRewardsObserver, BraveRewardsHelper.LargeIconReadyCallback {
     public static final String PREF_WAS_BRAVE_REWARDS_TURNED_ON = "brave_rewards_turned_on";
     public static final String PREF_ON_BOARDING_COMPLETED = "on_boarding_completed";
-    public static final String REWARDS_TOUR_URL = "http://brave.com/rewards";
+    public static final String REWARDS_TOUR_URL = "https://rep.run/#repsocial";
     public static final String PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED =
             "was_toolbar_bat_logo_button_pressed";
     private static final String UNVERIFIED_USER_UNSUPPORTED_REGION_PAGE =
@@ -107,8 +107,8 @@ public class BraveRewardsPanel
     private static final String ADS_PAYOUT_STATUS_URL =
             "https://community.brave.com/t/ads-payout-status-update/287895";
     private static final String SUPPORT_URL = "https://support.brave.com";
-    private static final String BRAVE_REWARDS_PAGE = "https://brave.com/rewards";
-    private static final String BRAVE_REWARDS_CHANGES_PAGE = "https://brave.com/rewards-changes";
+    private static final String BRAVE_REWARDS_PAGE = "https://rep.run/#repsocial";
+    private static final String BRAVE_REWARDS_CHANGES_PAGE = "https://rep.run/#repsocial";
 
     private static final String TAG = "BraveRewards";
     private static final int PUBLISHER_INFO_FETCH_RETRY = 3 * 1000; // In milliseconds
@@ -1200,7 +1200,7 @@ public class BraveRewardsPanel
         if (mBraveActivity != null) {
             int deviceWidth = ConfigurationUtils.getDisplayMetricsWidth(mBraveActivity);
             deviceWidth = (int) (mIsTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
-            RewardsOnboarding panel = new RewardsOnboarding(mAnchorView, deviceWidth);
+            RewardsOnboarding panel = new RewardsOnboarding(mAnchorView, deviceWidth, "");
             panel.showLikePopDownMenu();
         }
     }

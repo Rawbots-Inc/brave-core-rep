@@ -29,7 +29,7 @@ bool ParseSuggestResults(const base::Value::List& root_list,
   //             "name": "Helldivers 2",
   //             "desc": "2024 video game developed by Arrowhead Game
   //             Studios", "category": "game", "img":
-  //             "https://imgs.search.brave.com/To3SrgqTzUM9ADdXKrWxzAhplxPLgTggBSsPrF61GFo/rs:fit:60:60:1/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vZS9lNy9I/ZWxsZGl2ZXJzMmNv/dmVyLnBuZw",
+  //             "https://imgs.google.com/To3SrgqTzUM9ADdXKrWxzAhplxPLgTggBSsPrF61GFo/rs:fit:60:60:1/g:ce/aHR0cHM6Ly91cGxv/YWQud2lraW1lZGlh/Lm9yZy93aWtpcGVk/aWEvZW4vZS9lNy9I/ZWxsZGl2ZXJzMmNv/dmVyLnBuZw",
   //             "logo": false
   //         },
   //     ]

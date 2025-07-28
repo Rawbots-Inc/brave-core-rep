@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.TreeMap;
+import androidx.annotation.Nullable;
 
 /** This class is used to show rewards onBoarding UI */
 @NullMarked
@@ -68,7 +69,7 @@ public class RewardsOnboarding implements BraveRewardsObserver {
 
     private static final String SUCCESS = "success";
 
-    public RewardsOnboarding(View anchorView, int deviceWidth) {
+    public RewardsOnboarding(View anchorView, int deviceWidth, @Nullable String url) {
         mAnchorView = anchorView;
         mPopupWindow = new PopupWindow(anchorView.getContext());
         mPopupWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -81,10 +82,10 @@ public class RewardsOnboarding implements BraveRewardsObserver {
 
         mActivity = BraveRewardsHelper.getChromeTabbedActivity();
 
-        setUpViews(deviceWidth);
+        setUpViews(deviceWidth, url);
     }
 
-    private void setUpViews(int deviceWidth) {
+    private void setUpViews(int deviceWidth, @Nullable String url) {
         LayoutInflater inflater = (LayoutInflater) mAnchorView.getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
         mPopupView = inflater.inflate(R.layout.rewards_onboarding, null);
@@ -93,9 +94,15 @@ public class RewardsOnboarding implements BraveRewardsObserver {
         mMainLayout = mPopupView.findViewById(R.id.rewards_onboarding_layout_id);
         View startUsingButton = mMainLayout.findViewById(R.id.start_using_rewards_button);
         startUsingButton.setOnClickListener(v -> {
-            mBraveRewardsNativeWorker.getAvailableCountries();
-            mLocationChooseLayout.setVisibility(View.VISIBLE);
-            mMainLayout.setVisibility(View.GONE);
+            // mBraveRewardsNativeWorker.getAvailableCountries();
+            // mLocationChooseLayout.setVisibility(View.VISIBLE);
+            // mMainLayout.setVisibility(View.GONE);
+            if (url != null) {
+            CustomTabActivity.showInfoPage(mPopupView.getContext(), url);
+            mPopupWindow.dismiss();
+}
+
+
         });
         View howDoseItWorkMainButton = mMainLayout.findViewById(R.id.how_does_it_work_main);
         howDoseItWorkMainButton.setOnClickListener(v -> { showRewardsTour(); });

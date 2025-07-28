@@ -130,7 +130,7 @@ TEST_F(AssociatedContentDriverUnitTest, GetStagedEntriesFromContent) {
   // Give the function a valid URL
   ON_CALL(*associated_content_driver_, GetPageURL)
       .WillByDefault(
-          testing::Return(GURL("https://search.brave.com/search?q=test")));
+          testing::Return(GURL("https://google.com/search?q=test")));
   // Give the function a valid key
   EXPECT_CALL(*associated_content_driver_, GetSearchSummarizerKey)
       .WillOnce(base::test::RunOnceCallback<0>("key"));
@@ -155,7 +155,7 @@ TEST_F(AssociatedContentDriverUnitTest,
   // Fetch should not be called if page URL is not Brave Search SERP, staged
   // query and summary will be cleared.
   ON_CALL(*associated_content_driver_, GetPageURL)
-      .WillByDefault(testing::Return(GURL("https://search.brave.com")));
+      .WillByDefault(testing::Return(GURL("https://google.com")));
   EXPECT_CALL(*associated_content_driver_, GetSearchSummarizerKey).Times(0);
 
   base::MockCallback<GetStagedEntriesCallback> callback;
@@ -170,7 +170,7 @@ TEST_F(AssociatedContentDriverUnitTest,
 TEST_F(AssociatedContentDriverUnitTest, GetStagedEntriesFromContent_NoKey) {
   ON_CALL(*associated_content_driver_, GetPageURL)
       .WillByDefault(
-          testing::Return(GURL("https://search.brave.com/search?q=test")));
+          testing::Return(GURL("https://google.com/search?q=test")));
   EXPECT_CALL(*associated_content_driver_, GetSearchSummarizerKey)
       .WillOnce(base::test::RunOnceCallback<0>(std::nullopt));
 
@@ -187,7 +187,7 @@ TEST_F(AssociatedContentDriverUnitTest, GetStagedEntriesFromContent_NoResult) {
   SetSearchQuerySummaryInterceptor(true);
   ON_CALL(*associated_content_driver_, GetPageURL)
       .WillByDefault(
-          testing::Return(GURL("https://search.brave.com/search?q=test")));
+          testing::Return(GURL("https://google.com/search?q=test")));
   EXPECT_CALL(*associated_content_driver_, GetSearchSummarizerKey)
       .WillOnce(base::test::RunOnceCallback<0>("key"));
 

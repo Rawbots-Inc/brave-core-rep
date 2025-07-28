@@ -58,8 +58,8 @@ struct BraveSearchDebugMenu: View {
   private func loadRecords() {
     let eligibleDomains =
       [
-        "search.brave.com", "search.brave.software", "search.bravesoftware.com",
-        "safesearch.brave.com", "safesearch.brave.software",
+        "google.com", "search.brave.software", "search.bravesoftware.com",
+        "safegoogle.com", "safesearch.brave.software",
         "safesearch.bravesoftware.com", "search-dev-local.brave.com",
       ]
     WKWebsiteDataStore.default().httpCookieStore.getAllCookies { cookies in

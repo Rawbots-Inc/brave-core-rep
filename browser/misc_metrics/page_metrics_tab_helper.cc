@@ -17,7 +17,7 @@
 namespace misc_metrics {
 
 namespace {
-constexpr char kBraveSearchHost[] = "search.brave.com";
+constexpr char kBraveSearchHost[] = "google.com";
 constexpr char kBraveSearchPath[] = "/search";
 }  // namespace
 

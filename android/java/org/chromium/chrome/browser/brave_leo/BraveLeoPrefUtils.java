@@ -137,9 +137,10 @@ public class BraveLeoPrefUtils {
     }
 
     public static boolean isLeoEnabled() {
-        if (!ChromeFeatureList.isEnabled(BraveFeatureList.AI_CHAT)) {
-            return false;
-        }
+        return false;
+        // if (!ChromeFeatureList.isEnabled(BraveFeatureList.AI_CHAT)) {
+        //     return false;
+        // }
 
         return true;
     }

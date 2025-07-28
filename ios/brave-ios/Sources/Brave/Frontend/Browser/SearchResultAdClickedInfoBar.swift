@@ -11,7 +11,7 @@ class SearchResultAdClickedInfoBar: InfoBar {
       tabManager: tabManager,
       labelText: Strings.Ads.searchResultAdClickedInfoBarMessage,
       linkText: Strings.Ads.searchResultAdClickedInfoBarLearnMoreOptOutChoices,
-      linkUrl: "https://search.brave.com/help/conversion-reporting"
+      linkUrl: "https://google.com/help/conversion-reporting"
     )
   }
 

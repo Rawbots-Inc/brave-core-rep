@@ -14,8 +14,8 @@
 namespace ai_chat {
 
 TEST(AIChatCommonUtilsUnitTest, IsBraveSearchURL) {
-  EXPECT_TRUE(IsBraveSearchURL(GURL("https://search.brave.com")));
-  EXPECT_FALSE(IsBraveSearchURL(GURL("http://search.brave.com")));
+  EXPECT_TRUE(IsBraveSearchURL(GURL("https://google.com")));
+  EXPECT_FALSE(IsBraveSearchURL(GURL("http://google.com")));
   EXPECT_FALSE(IsBraveSearchURL(GURL("https://test.brave.com/")));
   EXPECT_FALSE(IsBraveSearchURL(GURL("https://brave.com/")));
   EXPECT_FALSE(IsBraveSearchURL(GURL()));
@@ -23,14 +23,14 @@ TEST(AIChatCommonUtilsUnitTest, IsBraveSearchURL) {
 
 TEST(AIChatCommonUtilsUnitTest, IsOpenAIChatButtonFromBraveSearchURL) {
   EXPECT_TRUE(IsOpenAIChatButtonFromBraveSearchURL(
-      GURL("https://search.brave.com/leo#5566")));
+      GURL("https://google.com/leo#5566")));
   EXPECT_FALSE(IsOpenAIChatButtonFromBraveSearchURL(GURL()));
   EXPECT_FALSE(
-      IsOpenAIChatButtonFromBraveSearchURL(GURL("https://search.brave.com")));
+      IsOpenAIChatButtonFromBraveSearchURL(GURL("https://google.com")));
   EXPECT_FALSE(IsOpenAIChatButtonFromBraveSearchURL(
-      GURL("https://search.brave.com/leo")));
+      GURL("https://google.com/leo")));
   EXPECT_FALSE(IsOpenAIChatButtonFromBraveSearchURL(
-      GURL("https://search.brave.com/leo#")));
+      GURL("https://google.com/leo#")));
   EXPECT_FALSE(
       IsOpenAIChatButtonFromBraveSearchURL(GURL("https://brave.com/leo#5566")));
 }

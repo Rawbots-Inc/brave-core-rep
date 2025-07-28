@@ -32,7 +32,7 @@ namespace brave_ads {
 namespace {
 
 constexpr char kLearnMoreUrl[] =
-    "https://search.brave.com/help/conversion-reporting";
+    "https://google.com/help/conversion-reporting";
 
 std::unique_ptr<infobars::InfoBar> CreateSearchResultAdClickedInfoBar() {
 #if BUILDFLAG(IS_ANDROID)

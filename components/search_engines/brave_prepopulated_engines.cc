@@ -209,15 +209,16 @@ const PrepopulatedEngine brave_yandex =
 const PrepopulatedEngine brave_search = MakeBravePrepopulatedEngine(
     u"Brave",
     u":br",
-    "https://cdn.google.com/serp/favicon.ico",
-    "https://google.com/search?q={searchTerms}&source="
+    "https://cdn.search.brave.com/serp/favicon.ico",
+    "IDR_SEARCH_ENGINE_BRAVE",
+    "https://search.brave.com/search?q={searchTerms}&source="
 #if BUILDFLAG(IS_ANDROID)
     "android",
 #else
     "desktop",
 #endif
     "UTF-8",
-    "https://google.com/api/"
+    "https://search.brave.com/api/"
     "suggest?q={searchTerms}&rich=true&source="
 #if BUILDFLAG(IS_ANDROID)
     "android",

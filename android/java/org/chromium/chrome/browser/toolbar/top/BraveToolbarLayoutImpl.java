@@ -85,6 +85,7 @@ import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettin
 import org.chromium.chrome.browser.preferences.website.BraveShieldsContentSettingsObserver;
 import org.chromium.chrome.browser.profiles.Profile;
 import org.chromium.chrome.browser.rewards.BraveRewardsPanel;
+import org.chromium.chrome.browser.rewards.onboarding.RepSocialPanel;
 import org.chromium.chrome.browser.rewards.onboarding.RewardsOnboarding;
 import org.chromium.chrome.browser.shields.BraveShieldsHandler;
 import org.chromium.chrome.browser.shields.BraveShieldsMenuObserver;
@@ -114,9 +115,7 @@ import org.chromium.chrome.browser.util.ConfigurationUtils;
 import org.chromium.chrome.browser.util.PackageUtils;
 import org.chromium.components.embedder_support.util.UrlUtilities;
 import org.chromium.components.feature_engagement.Tracker;
-import org.chromium.content_public.browser.MediaSession;
 import org.chromium.content_public.browser.NavigationHandle;
-import org.chromium.content_public.browser.WebContents;
 import org.chromium.mojo.bindings.ConnectionErrorHandler;
 import org.chromium.mojo.system.MojoException;
 import org.chromium.playlist.mojom.PlaylistItem;
@@ -140,6 +139,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,
@@ -182,6 +184,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
     private BraveRewardsNativeWorker mBraveRewardsNativeWorker;
     private BraveRewardsPanel mRewardsPopup;
+    // private RepSocialPanel mRepSocialPopup;
     private DAppsWalletController mDAppsWalletController;
     private BraveShieldsContentSettings mBraveShieldsContentSettings;
     private BraveShieldsContentSettingsObserver mBraveShieldsContentSettingsObserver;
@@ -284,6 +287,9 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mBraveShieldsButton.setOnClickListener(this);
             mBraveShieldsButton.setOnLongClickListener(this);
             BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
+            mBraveShieldsButton.setImageResource(R.drawable.btn_brave);
+
+            mBraveShieldsButton.setVisibility(View.GONE);
         }
 
         if (mBraveRewardsButton != null) {
@@ -291,6 +297,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mBraveRewardsButton.setOnClickListener(this);
             mBraveRewardsButton.setOnLongClickListener(this);
             BraveTouchUtils.ensureMinTouchTarget(mBraveRewardsButton);
+            mBraveRewardsButton.setImageResource(R.drawable.btn_brave);
+            mBraveRewardsButton.setVisibility(isCustomTab() ? View.GONE : View.VISIBLE);
         }
 
         if (mBraveWalletButton != null) {
@@ -355,29 +363,27 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         };
         // Initially show shields off image. Shields button state will be updated when tab is
         // shown and loading state is changed.
-        updateBraveShieldsButtonState(null);
-        if (BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class)) {
-            if (getMenuButtonCoordinator() != null
-                    && isMenuButtonOnBottomControls()
-                    && BottomToolbarConfiguration.isToolbarTopAnchored()) {
-                getMenuButtonCoordinator().setVisibility(false);
-            }
-        }
+        // updateBraveShieldsButtonState(null);
+        // if (BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class)) {
+        //     if (getMenuButtonCoordinator() != null && isMenuButtonOnBottom()) {
+        //         getMenuButtonCoordinator().setVisibility(false);
+        //     }
+        // }
 
-        if (BraveReflectionUtil.equalTypes(this.getClass(), CustomTabToolbar.class)) {
-            LinearLayout customActionButtons = findViewById(R.id.action_buttons);
-            assert customActionButtons != null : "Something has changed in the upstream!";
-            if (customActionButtons != null && mBraveShieldsButton != null) {
-                ViewGroup.MarginLayoutParams braveShieldsButtonLayout =
-                        (ViewGroup.MarginLayoutParams) mBraveShieldsButton.getLayoutParams();
-                ViewGroup.MarginLayoutParams actionButtonsLayout =
-                        (ViewGroup.MarginLayoutParams) customActionButtons.getLayoutParams();
-                actionButtonsLayout.setMarginEnd(actionButtonsLayout.getMarginEnd()
-                        + braveShieldsButtonLayout.getMarginEnd());
-                customActionButtons.setLayoutParams(actionButtonsLayout);
-            }
-        }
-        updateShieldsLayoutBackground(isIncognito() || !NtpUtil.shouldShowRewardsIcon());
+        // if (BraveReflectionUtil.equalTypes(this.getClass(), CustomTabToolbar.class)) {
+        //     LinearLayout customActionButtons = findViewById(R.id.action_buttons);
+        //     assert customActionButtons != null : "Something has changed in the upstream!";
+        //     if (customActionButtons != null && mBraveShieldsButton != null) {
+        //         ViewGroup.MarginLayoutParams braveShieldsButtonLayout =
+        //                 (ViewGroup.MarginLayoutParams) mBraveShieldsButton.getLayoutParams();
+        //         ViewGroup.MarginLayoutParams actionButtonsLayout =
+        //                 (ViewGroup.MarginLayoutParams) customActionButtons.getLayoutParams();
+        //         actionButtonsLayout.setMarginEnd(actionButtonsLayout.getMarginEnd()
+        //                 + braveShieldsButtonLayout.getMarginEnd());
+        //         customActionButtons.setLayoutParams(actionButtonsLayout);
+        //     }
+        // }
+        // updateShieldsLayoutBackground(isIncognito() || !NtpUtil.shouldShowRewardsIcon());
     }
 
     public String getLocationBarQuery() {
@@ -453,8 +459,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mPlaylistService.addObserver(mPlaylistServiceObserver);
         }
 
-        mBraveShieldsContentSettings = BraveShieldsContentSettings.getInstance();
-        mBraveShieldsContentSettings.addObserver(mBraveShieldsContentSettingsObserver);
+        // mBraveShieldsContentSettings = BraveShieldsContentSettings.getInstance();
+        // mBraveShieldsContentSettings.addObserver(mBraveShieldsContentSettingsObserver);
 
         mBraveRewardsNativeWorker = BraveRewardsNativeWorker.getInstance();
         if (mBraveRewardsNativeWorker != null
@@ -463,22 +469,23 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 && mRewardsLayout != null) {
             mRewardsLayout.setVisibility(View.VISIBLE);
         }
-        if (mBraveRewardsNativeWorker != null
-                && mBraveRewardsNativeWorker.isRewardsEnabled()
-                && mBraveRewardsNativeWorker.isSupported()
-                && mBraveRewardsNativeWorker.isTermsOfServiceUpdateRequired()) {
-            showOrHideRewardsBadge(true);
-        }
-        if (mShieldsLayout != null) {
-            updateShieldsLayoutBackground(
-                    !(mRewardsLayout != null && mRewardsLayout.getVisibility() == View.VISIBLE));
-            mShieldsLayout.setVisibility(View.VISIBLE);
-        }
-        if (mBraveRewardsNativeWorker != null) {
-            mBraveRewardsNativeWorker.addObserver(this);
-            mBraveRewardsNativeWorker.addPublisherObserver(this);
-            mBraveRewardsNativeWorker.getAllNotifications();
-        }
+        // if (mBraveRewardsNativeWorker != null
+        //         && mBraveRewardsNativeWorker.isRewardsEnabled()
+        //         && mBraveRewardsNativeWorker.isSupported()
+        //         && mBraveRewardsNativeWorker.isTermsOfServiceUpdateRequired()) {
+        //     showOrHideRewardsBadge(true);
+        // }
+        // if (mShieldsLayout != null) {
+        //     updateShieldsLayoutBackground(
+        //             !(mRewardsLayout != null && mRewardsLayout.getVisibility() == View.VISIBLE));
+        //     mShieldsLayout.setVisibility(View.VISIBLE);
+        // }
+        // if (mBraveRewardsNativeWorker != null) {
+        //     mBraveRewardsNativeWorker.addObserver(this);
+        //     mBraveRewardsNativeWorker.addPublisherObserver(this);
+        //     mBraveRewardsNativeWorker.triggerOnNotifyFrontTabUrlChanged();
+        //     mBraveRewardsNativeWorker.getAllNotifications();
+        // }
     }
 
     public void setFullscreenManager(final FullscreenManager fullscreenManager) {
@@ -493,15 +500,15 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         // We might miss events before calling setTabModelSelector, so we need
         // to proactively update the shields button state here, otherwise shields
         // might sometimes show as disabled while it is actually enabled.
-        updateBraveShieldsButtonState(getToolbarDataProvider().getTab());
+        // updateBraveShieldsButtonState(getToolbarDataProvider().getTab());
         mTabModelSelectorTabObserver =
                 new TabModelSelectorTabObserver(selector) {
                     @Override
                     protected void onTabRegistered(Tab tab) {
                         super.onTabRegistered(tab);
-                        if (tab.isIncognito()) {
-                            showWalletIcon(false);
-                        }
+                        // if (tab.isIncognito()) {
+                        //     showWalletIcon(false);
+                        // }
                     }
 
                     @Override
@@ -515,12 +522,12 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                     @Override
                     public void onShown(Tab tab, @TabSelectionType int type) {
                         // Update shields button state when visible tab is changed.
-                        updateBraveShieldsButtonState(tab);
+                        // updateBraveShieldsButtonState(tab);
                         // case when window.open is triggered from dapps site and new tab is in
                         // focus
-                        if (type != TabSelectionType.FROM_USER) {
-                            dismissWalletPanelOrDialog();
-                        }
+                        // if (type != TabSelectionType.FROM_USER) {
+                        //     dismissWalletPanelOrDialog();
+                        // }
                         findMediaFiles();
                     }
 
@@ -531,13 +538,17 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
                     @Override
                     public void onPageLoadStarted(Tab tab, GURL url) {
-                        hideYouTubePipIcon();
-                        showWalletIcon(false, tab);
-                        if (getToolbarDataProvider().getTab() == tab) {
-                            updateBraveShieldsButtonState(tab);
+                        // showWalletIcon(false, tab);
+                        // if (getToolbarDataProvider().getTab() == tab) {
+                        //     updateBraveShieldsButtonState(tab);
+                        // }
+                        // mBraveShieldsHandler.clearBraveShieldsCount(tab.getId());
+                        // dismissShieldsTooltip();
+                        String currentUrl = url.getSpec();
+                         Log.e(TAG, "showRepSocial currentUrl  "  + currentUrl);
+                        if (currentUrl.contains("&browser=true") && !currentUrl.contains("currentTabUrl")) {
+                            openRepSocialForLogin(url.getSpec());
                         }
-                        mBraveShieldsHandler.clearBraveShieldsCount(tab.getId());
-                        dismissShieldsTooltip();
                         hidePlaylistButton();
                         mPublisherId = "";
                     }
@@ -546,26 +557,26 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                     public void onPageLoadFinished(final Tab tab, GURL url) {
                         if (getToolbarDataProvider().getTab() == tab) {
                             mBraveShieldsHandler.updateUrlSpec(url.getSpec());
-                            updateBraveShieldsButtonState(tab);
+                            // updateBraveShieldsButtonState(tab);s
 
-                            if (mBraveShieldsButton != null
-                                    && mBraveShieldsButton.isShown()
-                                    && mBraveShieldsHandler != null
-                                    && !mBraveShieldsHandler.isShowing()) {
-                                checkForTooltip(tab);
-                            }
+                            // if (mBraveShieldsButton != null
+                            //         && mBraveShieldsButton.isShown()
+                            //         && mBraveShieldsHandler != null
+                            //         && !mBraveShieldsHandler.isShowing()) {
+                            //     checkForTooltip(tab);
+                            // }
                         }
 
-                        String countryCode = Locale.getDefault().getCountry();
-                        if (countryCode.equals(BraveConstants.INDIA_COUNTRY_CODE)
-                                && url.domainIs(BraveConstants.YOUTUBE_DOMAIN)
-                                && ChromeSharedPreferences.getInstance()
-                                        .readBoolean(
-                                                BravePreferenceKeys.BRAVE_AD_FREE_CALLOUT_DIALOG,
-                                                true)) {
-                            ChromeSharedPreferences.getInstance()
-                                    .writeBoolean(BravePreferenceKeys.BRAVE_OPENED_YOUTUBE, true);
-                        }
+                        // String countryCode = Locale.getDefault().getCountry();
+                        // if (countryCode.equals(BraveConstants.INDIA_COUNTRY_CODE)
+                        //         && url.domainIs(BraveConstants.YOUTUBE_DOMAIN)
+                        //         && ChromeSharedPreferences.getInstance()
+                        //                 .readBoolean(
+                        //                         BravePreferenceKeys.BRAVE_AD_FREE_CALLOUT_DIALOG,
+                        //                         true)) {
+                        //     ChromeSharedPreferences.getInstance()
+                        //             .writeBoolean(BravePreferenceKeys.BRAVE_OPENED_YOUTUBE, true);
+                        // }
                     }
 
                     @Override
@@ -581,18 +592,17 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                             mBraveRewardsNativeWorker.onNotifyFrontTabUrlChanged(
                                     tab.getId(), tab.getUrl().getSpec());
                         }
-                        if (!BraveRewardsHelper.shouldShowNewRewardsUI()
-                                && PackageUtils.isFirstInstall(getContext())
-                                && tab.getUrl().getSpec() != null
-                                && tab.getUrl()
-                                        .getSpec()
-                                        .equals(BraveActivity.BRAVE_REWARDS_SETTINGS_URL)
-                                && BraveRewardsHelper.shouldShowBraveRewardsOnboardingModal()
-                                && mBraveRewardsNativeWorker != null
-                                && !mBraveRewardsNativeWorker.isRewardsEnabled()
-                                && mBraveRewardsNativeWorker.isSupported()) {
-                            showOnBoarding();
-                        }
+                        // if (PackageUtils.isFirstInstall(getContext())
+                        //         && tab.getUrl().getSpec() != null
+                        //         && tab.getUrl()
+                        //                 .getSpec()
+                        //                 .equals(BraveActivity.BRAVE_REWARDS_SETTINGS_URL)
+                        //         && BraveRewardsHelper.shouldShowBraveRewardsOnboardingModal()
+                        //         && mBraveRewardsNativeWorker != null
+                        //         && !mBraveRewardsNativeWorker.isRewardsEnabled()
+                        //         && mBraveRewardsNativeWorker.isSupported()) {
+                        //     showOnBoarding();
+                        // }
                         hidePlaylistButton();
                     }
 
@@ -660,13 +670,14 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         mYouTubePipLayout.setVisibility(View.GONE);
     }
 
-    private void showOnBoarding() {
+    @SuppressWarnings("UnusedVariable")
+    private void showOnBoarding(String url) {
         try {
             BraveActivity activity = BraveActivity.getBraveActivity();
             int deviceWidth = ConfigurationUtils.getDisplayMetricsWidth(activity);
             boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
             deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
-            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth);
+            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth, url);
             panel.showLikePopDownMenu();
         } catch (BraveActivity.BraveActivityNotFoundException e) {
             Log.e(TAG, "RewardsOnboarding failed " + e);
@@ -1023,6 +1034,110 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         // TODO: show wallet panel
     }
 
+    private void showBraveRewardsOnboardingModal() {
+        Context context = getContext();
+        final Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.brave_rewards_onboarding_modal);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+        View braveRewardsOnboardingModalView =
+                dialog.findViewById(R.id.brave_rewards_onboarding_modal_layout);
+
+        String tosText =
+                String.format(context.getResources().getString(R.string.brave_rewards_tos_text),
+                        context.getResources().getString(R.string.terms_of_service),
+                        context.getResources().getString(R.string.privacy_policy));
+        int termsOfServiceIndex =
+                tosText.indexOf(context.getResources().getString(R.string.terms_of_service));
+        Spanned tosTextSpanned = BraveRewardsHelper.spannedFromHtmlString(tosText);
+        SpannableString tosTextSS = new SpannableString(tosTextSpanned.toString());
+
+        ClickableSpan tosClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View textView) {
+                CustomTabActivity.showInfoPage(context, BraveActivity.BRAVE_TERMS_PAGE);
+            }
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        };
+
+        tosTextSS.setSpan(
+                tosClickableSpan,
+                termsOfServiceIndex,
+                termsOfServiceIndex
+                        + context.getResources().getString(R.string.terms_of_service).length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tosTextSS.setSpan(
+                new ForegroundColorSpan(context.getColor(R.color.brave_rewards_modal_theme_color)),
+                termsOfServiceIndex,
+                termsOfServiceIndex
+                        + context.getResources().getString(R.string.terms_of_service).length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        ClickableSpan privacyProtectionClickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View textView) {
+                CustomTabActivity.showInfoPage(context, BraveActivity.BRAVE_PRIVACY_POLICY);
+            }
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        };
+
+        int privacyPolicyIndex =
+                tosText.indexOf(context.getResources().getString(R.string.privacy_policy));
+        tosTextSS.setSpan(privacyProtectionClickableSpan, privacyPolicyIndex,
+                privacyPolicyIndex
+                        + context.getResources().getString(R.string.privacy_policy).length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tosTextSS.setSpan(
+                new ForegroundColorSpan(context.getColor(R.color.brave_rewards_modal_theme_color)),
+                privacyPolicyIndex,
+                privacyPolicyIndex
+                        + context.getResources().getString(R.string.privacy_policy).length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        TextView tosAndPpText = braveRewardsOnboardingModalView.findViewById(
+                R.id.brave_rewards_onboarding_modal_tos_pp_text);
+        tosAndPpText.setMovementMethod(LinkMovementMethod.getInstance());
+        tosAndPpText.setText(tosTextSS);
+        BraveTouchUtils.ensureMinTouchTarget(tosAndPpText);
+
+        TextView takeQuickTourButton =
+                braveRewardsOnboardingModalView.findViewById(R.id.take_quick_tour_button);
+        takeQuickTourButton.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        BraveRewardsHelper.setShowBraveRewardsOnboardingOnce(true);
+                        openRewardsPanel();
+                        dialog.dismiss();
+                    }
+                });
+        BraveTouchUtils.ensureMinTouchTarget(takeQuickTourButton);
+        TextView btnBraveRewards =
+                braveRewardsOnboardingModalView.findViewById(R.id.start_using_brave_rewards_text);
+        btnBraveRewards.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        CustomTabActivity.showInfoPage(context, BraveActivity.BRAVE_PRIVACY_POLICY);
+                        BraveRewardsHelper.setShowDeclareGeoModal(true);
+                        openRewardsPanel();
+                        dialog.dismiss();
+                    }
+                });
+
+        dialog.show();
+    }
+
     private void addSavedBandwidthToDb(long savings) {
         new AsyncTask<Void>() {
             @Override
@@ -1132,25 +1247,48 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         if (mBraveShieldsButton == v && mBraveShieldsButton != null) {
             showShieldsMenu(mBraveShieldsButton);
         } else if (mBraveRewardsButton == v && mBraveRewardsButton != null) {
+            Tab currentTab = getToolbarDataProvider().getTab();
+            if (currentTab == null) {
+                 Log.e(TAG, "showRepSocial empty ");
+                showRepSocial("");
+                return;
+            }
+
+            try {
+                URL url = new URL(currentTab.getUrl().getSpec());
+                // Don't show shields popup if protocol is not valid for shields.
+                if (!isValidProtocolForShields(url.getProtocol())) {
+                    Log.e(TAG, "showRepSocial empty ");
+                    showRepSocial("");
+                    return;
+                }
+//                mBraveShieldsHandler.show(mBraveShieldsButton, currentTab);
+
+                // Toast.showAnchoredToast(getContext(), v, "clicked" + url.toString());
+                Log.e(TAG, "showRepSocial " +  url.toString());
+                showRepSocial(url.toString());
+            } catch (Exception e) {
+                // Do nothing if url is invalid.
+                // Just return w/o showing shields popup.
+                    showRepSocial("");
+
+                return;
+            }
+
             if (null != mRewardsPopup) {
                 return;
             }
-            hideRewardsOnboardingIcon();
-            OnboardingPrefManager.getInstance().setOnboardingShown(true);
-            if (BraveRewardsHelper.shouldShowNewRewardsUI()) {
-                showRewardsPage();
-            } else {
-                mRewardsPopup = new BraveRewardsPanel(v);
-                mRewardsPopup.showLikePopDownMenu();
-            }
-
-            if (mBraveRewardsNotificationsCount.isShown()) {
-                ChromeSharedPreferences.getInstance()
-                        .writeBoolean(
-                                BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
-                mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
-                mIsInitialNotificationPosted = false;
-            }
+            // hideRewardsOnboardingIcon();
+            // OnboardingPrefManager.getInstance().setOnboardingShown(true);
+            // mRewardsPopup = new BraveRewardsPanel(v);
+            // mRewardsPopup.showLikePopDownMenu();
+            // if (mBraveRewardsNotificationsCount.isShown()) {
+            //     ChromeSharedPreferences.getInstance()
+            //             .writeBoolean(
+            //                     BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+            //     mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
+            //     mIsInitialNotificationPosted = false;
+            // }
         } else if (mHomeButton == v) {
             // Helps Brave News know how to behave on home button action
             try {
@@ -1176,6 +1314,116 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             rewardsUrl += "&creator=" + URLEncoder.encode(mPublisherId);
         }
         FullScreenCustomTabActivity.showPage(getContext(), rewardsUrl);
+         }
+      public static String transformToDesktopURL(String mobileUrl) {
+        try {
+            // Parse the input URL
+            URI uri = new URI(mobileUrl);
+
+            // Check if it's a YouTube URL
+            if (uri.getHost().contains("youtube.com")) {
+                // Replace "m.youtube.com" with "www.youtube.com"
+                String desktopHost = uri.getHost().replace("m.youtube.com", "www.youtube.com");
+
+                // Remove the "pp" parameter if it exists
+                String query = uri.getQuery();
+                if (query != null && query.contains("pp=")) {
+                    query = query.replaceAll("pp=[^&]*&?", "");
+
+                    // Remove trailing "&" or "?" if present
+                    query = query.replaceAll("[&?]$", "");
+                }
+
+                // Construct the new URL with the desktop hostname and updated query
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    query, 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("facebook.com")) {
+                // Replace "m.facebook.com" with "www.facebook.com"
+                String desktopHost = uri.getHost().replace("m.facebook.com", "www.facebook.com");
+
+                // Construct the new URL with the desktop hostname
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    uri.getQuery(), 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("linkedin.com")) {
+                // Redirect LinkedIn root URL to its feed page
+                if (uri.getPath().equals("/") || uri.getPath().isEmpty()) {
+                    return "https://www.linkedin.com/feed/";
+                }
+
+                // Return original LinkedIn URL if not the root
+                return mobileUrl;
+            }
+
+            return mobileUrl; // Return the original URL if not YouTube, Facebook, or LinkedIn
+
+        } catch (URISyntaxException e) {
+            return mobileUrl; // Return the original URL if invalid format
+        }
+    }
+
+ @SuppressWarnings("UnusedVariable")
+    private void openRepSocialForLogin(String url) {
+          String targetUrl = url + "?currentTabUrl=newtab";
+        CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    }
+
+    @SuppressWarnings("UnusedVariable")
+    private void showRepSocial(String url) {
+        boolean isFirstClick = !ChromeSharedPreferences.getInstance()
+                      .readBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, false);
+        if (isFirstClick) {
+             Log.d(TAG, "Button Brave Rewards nhan lan dau tien");
+             ChromeSharedPreferences.getInstance()
+      .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+      String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
+    showOnBoarding(targetUrl);
+   
+  } else {
+    Log.d(TAG, "Button Brave Rewards ko phai dau dien");
+ String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=newtab";
+    CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    
+
+  }
+         
+       
+
+        // try {
+        //     if (null == mRepSocialPopup) {
+        //         BraveActivity activity = BraveActivity.getBraveActivity();
+        //         int deviceWidth = ConfigurationUtils.getDisplayMetrics(activity).get("width");
+        //         boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
+        //         deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
+        //         mRepSocialPopup = new RepSocialPanel(mBraveRewardsButton, deviceWidth, url);
+        //     }
+        //     Log.e(TAG, "RepSocialModal " + url.toString());
+        //     mRepSocialPopup.setUrl(url);
+        //     mRepSocialPopup.showLikePopDownMenu();
+        // } catch (BraveActivity.BraveActivityNotFoundException e) {
+        //     Log.e(TAG, "RepSocialModal failed " + e);
+        // }
     }
 
     private void maybeShowWalletPanel() {
@@ -1220,16 +1468,20 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     private void showShieldsMenu(View mBraveShieldsButton) {
+        if (isCustomTab()) {
+            Log.e(TAG, "Disable shield menu in custom tab");
+            return;
+        }
         Tab currentTab = getToolbarDataProvider().getTab();
         if (currentTab == null) {
             return;
         }
         try {
-            URL url = new URL(currentTab.getUrl().getSpec());
-            // Don't show shields popup if protocol is not valid for shields.
-            if (!isValidProtocolForShields(url.getProtocol())) {
-                return;
-            }
+            // URL url = new URL(currentTab.getUrl().getSpec());
+            // // Don't show shields popup if protocol is not valid for shields.
+            // if (!isValidProtocolForShields(url.getProtocol())) {
+            //     return;
+            // }
             mBraveShieldsHandler.show(mBraveShieldsButton, currentTab);
         } catch (Exception e) {
             // Do nothing if url is invalid.
@@ -1331,23 +1583,20 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             return;
         }
 
-        if (tab == null) {
-            mBraveShieldsButton.setImageResource(R.drawable.btn_brave_off);
-            return;
-        }
-        mBraveShieldsButton.setImageResource(
-                isShieldsOnForTab(tab) ? R.drawable.btn_brave : R.drawable.btn_brave_off);
+        mBraveShieldsButton.setImageResource(R.drawable.btn_brave);
 
-        if (mRewardsLayout == null) return;
-        if (isIncognito()) {
-            mRewardsLayout.setVisibility(View.GONE);
-            updateShieldsLayoutBackground(true);
-        } else if (isNativeLibraryReady()
-                && mBraveRewardsNativeWorker != null
-                && mBraveRewardsNativeWorker.isSupported()
-                && NtpUtil.shouldShowRewardsIcon()) {
-            mRewardsLayout.setVisibility(View.VISIBLE);
-            updateShieldsLayoutBackground(false);
+        // if (tab == null) {
+        //     mBraveShieldsButton.setImageResource(R.drawable.btn_brave_off);
+        //     return;
+        // }
+        // mBraveShieldsButton.setImageResource(
+        //         isShieldsOnForTab(tab) ? R.drawable.btn_brave : R.drawable.btn_brave_off);
+
+          if (mBraveShieldsButton != null) {
+            mBraveShieldsButton.setClickable(true);
+            mBraveShieldsButton.setOnClickListener(this);
+            mBraveShieldsButton.setOnLongClickListener(this);
+            BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
         }
     }
 
@@ -1621,14 +1870,14 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 
     @Override
     protected void onDraw(Canvas canvas) {
-        if (BraveReflectionUtil.equalTypes(this.getClass(), CustomTabToolbar.class)
-                || BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class)) {
-            updateMenuButtonState();
-            Tab tab = getToolbarDataProvider() != null ? getToolbarDataProvider().getTab() : null;
-            if (tab != null && tab.getWebContents() != null) {
-                updateBraveShieldsButtonState(tab);
-            }
-        }
+        // if (BraveReflectionUtil.equalTypes(this.getClass(), CustomTabToolbar.class)
+        //         || BraveReflectionUtil.equalTypes(this.getClass(), ToolbarPhone.class)) {
+        //     updateMenuButtonState();
+        //     Tab tab = getToolbarDataProvider() != null ? getToolbarDataProvider().getTab() : null;
+        //     if (tab != null && tab.getWebContents() != null) {
+        //         updateBraveShieldsButtonState(tab);
+        //     }
+        // }
         super.onDraw(canvas);
     }
 
@@ -1693,13 +1942,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     // FullscreenManager.Observer method.
     @Override
     public void onEnterFullscreen(Tab tab, FullscreenOptions options) {
-        final WebContents webContents = tab.getWebContents();
-        if (webContents != null
-                && BraveYouTubeScriptInjectorNativeHelper.hasFullscreenBeenRequested(webContents)) {
-            MediaSession mediaSession = MediaSession.fromWebContents(webContents);
-            if (mediaSession != null) {
-                mediaSession.resume();
-            }
+        if (BraveYouTubeScriptInjectorNativeHelper.hasFullscreenBeenRequested(
+                tab.getWebContents())) {
             Activity activity = tab.getWindowAndroid().getActivity().get();
             if (activity != null) {
                 try {

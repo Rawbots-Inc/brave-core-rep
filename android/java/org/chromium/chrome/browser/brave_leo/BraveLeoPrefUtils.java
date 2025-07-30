@@ -142,7 +142,7 @@ public class BraveLeoPrefUtils {
         //     return false;
         // }
 
-        return true;
+        // return true;
     }
 
     public static boolean isSubscriptionLinked() {

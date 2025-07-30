@@ -143,6 +143,14 @@ import java.util.function.BooleanSupplier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.chromium.chrome.browser.customtabs.CustomTabActivity;
+import android.app.Dialog;
+import android.view.Window;
+import android.text.Spanned;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,

@@ -142,6 +142,7 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.chromium.chrome.browser.customtabs.CustomTabActivity;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,

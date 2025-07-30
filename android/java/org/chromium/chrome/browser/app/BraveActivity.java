@@ -129,13 +129,12 @@ import org.chromium.chrome.browser.crypto_wallet.activities.BraveWalletActivity;
 import org.chromium.chrome.browser.crypto_wallet.activities.BraveWalletDAppsActivity;
 import org.chromium.chrome.browser.crypto_wallet.model.CryptoAccountTypeInfo;
 import org.chromium.chrome.browser.crypto_wallet.util.Utils;
-import org.chromium.chrome.browser.custom_layout.popup_window_tooltip.PopupWindowTooltip;
-import org.chromium.chrome.browser.custom_layout.popup_window_tooltip.PopupWindowTooltipCustom;
 import org.chromium.chrome.browser.customtabs.CustomTabActivity;
 import org.chromium.chrome.browser.customtabs.FullScreenCustomTabActivity;
 import org.chromium.chrome.browser.flags.ChromeFeatureList;
 import org.chromium.chrome.browser.flags.ChromeSwitches;
 import org.chromium.chrome.browser.fullscreen.BrowserControlsManager;
+import org.chromium.chrome.browser.fullscreen.FullscreenManager;
 import org.chromium.chrome.browser.informers.BraveSyncAccountDeletedInformer;
 import org.chromium.chrome.browser.lifetime.ApplicationLifetime;
 import org.chromium.chrome.browser.misc_metrics.MiscAndroidMetricsConnectionErrorHandler;
@@ -350,7 +349,6 @@ public abstract class BraveActivity extends ChromeActivity
     @Override
     public void onResumeWithNative() {
         super.onResumeWithNative();
-        checkForBrowserTokenInUrl();
         BraveActivityJni.get().restartStatsUpdater();
         if (BraveVpnUtils.isVpnFeatureSupported(BraveActivity.this)) {
             BraveVpnNativeWorker.getInstance().addObserver(this);
@@ -402,31 +400,6 @@ public abstract class BraveActivity extends ChromeActivity
         // Executes Leo voice prompt if it was triggered from quick search app widget
         maybeExecuteLeoVoicePrompt();
     }
-
-    // private boolean hasOpenedCustomTab;
-    private void checkForBrowserTokenInUrl() {
-    // if (hasOpenedCustomTab) return;
-    Tab currentTab = getActivityTab();
-    if (currentTab != null && currentTab.getUrl() != null) {
-        String currentUrl = currentTab.getUrl().getSpec();
-         Log.e("BraveActivity", "Stopped loading due to browser_token" + currentUrl);
-        if (currentUrl.contains("&browser=true")) {
-            currentTab.setClosing(true);
-    
-             getCurrentTabModel().closeTabs(TabClosureParams.closeTab(currentTab).build());
-             String targetUrl = currentUrl + "?currentTabUrl=newtab";
-              CustomTabActivity.showInfoPage(getApplicationContext(), targetUrl);
-             WebContents webContents = currentTab.getWebContents();
-
-            if (webContents != null && !webContents.isDestroyed()) {
-                getTabCreator(false).launchUrl(UrlConstants.NTP_URL, TabLaunchType.FROM_CHROME_UI);
-
-            }
-            
-           
-        }
-    }
-}
 
     @Override
     public void onPauseWithNative() {
@@ -506,7 +479,9 @@ public abstract class BraveActivity extends ChromeActivity
             BraveVpnUtils.openVpnServerSelectionActivity(BraveActivity.this);
         } else if (id == R.id.brave_speedreader_id) {
             enableSpeedreaderMode();
-        }  else {
+        } else if (id == R.id.brave_leo_id) {
+            openBraveLeo();
+        } else {
             return false;
         }
         return true;
@@ -548,6 +523,10 @@ public abstract class BraveActivity extends ChromeActivity
             MediaSession mediaSession = MediaSession.fromWebContents(getCurrentWebContents());
             if (mediaSession != null) {
                 mediaSession.suspend();
+            }
+            FullscreenManager fullscreenManager = getFullscreenManager();
+            if (fullscreenManager.getPersistentFullscreenMode()) {
+                fullscreenManager.exitPersistentFullscreenMode();
             }
         }
     }

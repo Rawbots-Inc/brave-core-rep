@@ -38,12 +38,12 @@ using testing::Return;
 namespace {
 
 constexpr char kBraveSearchRequestUrl[] =
-    "https://search.brave.com/search?q=qwerty";
+    "https://google.com/search?q=qwerty";
 constexpr char kBraveSearchImageRequestUrl[] =
-    "https://search.brave.com/img.png";
+    "https://google.com/img.png";
 constexpr char kNonBraveSearchRequestUrl[] =
     "https://brave.com/search?q=qwerty";
-constexpr char kBraveSearchTabUrl[] = "https://search.brave.com";
+constexpr char kBraveSearchTabUrl[] = "https://google.com";
 constexpr char kNonBraveSearchTabUrl[] = "https://brave.com";
 
 }  // namespace

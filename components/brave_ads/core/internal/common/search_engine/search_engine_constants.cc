@@ -21,7 +21,7 @@ const std::vector<SearchEngineInfo>& GetSearchEngines() {
        {"https://fireball.de/", "https://fireball.de/search", "q"},
        {"https://github.com/", "https://github.com/search", "q"},
        {"https://infogalactic.com/", "https://infogalactic.com/info/(.*)", {}},
-       {"https://search.brave.com/", "https://search.brave.com/search", "q"},
+       {"https://google.com/", "https://google.com/search", "q"},
        {"https://stackoverflow.com/", "https://stackoverflow.com/search", "q"},
        {"https://swisscows.com/", "https://swisscows.com/web", "query"},
        {"https://twitter.com/explore/", "https://twitter.com/search", "q"},

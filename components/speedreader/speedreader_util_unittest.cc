@@ -54,6 +54,6 @@ TEST(SpeedreaderUtilTest, URLHasHints) {
 
   // Has news in component, but is trailing entry
   EXPECT_FALSE(IsURLLooksReadable(
-      GURL("https://search.brave.com/news?q=stuff&source=web")));
+      GURL("https://google.com/news?q=stuff&source=web")));
 }
 }  // namespace speedreader

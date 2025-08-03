@@ -181,7 +181,7 @@ INSTANTIATE_TEST_SUITE_P(
         EndpointTestParams{"https://valid-url.com", true, true},
         EndpointTestParams{"https://localhost:8080", true, true},
         EndpointTestParams{"https://", false, false},
-        EndpointTestParams{"https://search.brave.com/search?q=foo", true, true},
+        EndpointTestParams{"https://google.com/search?q=foo", true, true},
         // Localhost
         EndpointTestParams{"http://localhost", true, true},
         EndpointTestParams{"https://localhost", true, true},

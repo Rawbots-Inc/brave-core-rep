@@ -50,7 +50,7 @@ class WebDiscoveryCTATest : public testing::Test {
   void SetBraveSearchAsDefaultProvider() {
     // Set brave search as a default provider.
     std::unique_ptr<TemplateURL> brave = CreateTestTemplateURL(
-        u"brave", "https://search.brave.com/", std::string(),
+        u"brave", "https://google.com/", std::string(),
         base::Time::FromTimeT(100), false,
         TemplateURLData::PolicyOrigin::kNoPolicy,
         TemplateURLPrepopulateData::PREPOPULATED_ENGINE_ID_BRAVE);

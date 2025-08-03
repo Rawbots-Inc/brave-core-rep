@@ -87,18 +87,20 @@ public class QuickSearchEnginesFragment extends ChromeBaseSettingsFragment
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         quickSearchOptionsLayout.setVisibility(
                                 isChecked ? View.VISIBLE : View.GONE);
-                        QuickSearchEnginesUtil.setQuickSearchEnginesFeature(isChecked);
+                        QuickSearchEnginesUtil.setQuickSearchEnginesFeature(false);
                     }
                 });
 
-        quickSearchOptionsLayout.setVisibility(
-                QuickSearchEnginesUtil.getQuickSearchEnginesFeature() ? View.VISIBLE : View.GONE);
+        // quickSearchOptionsLayout.setVisibility(
+                // QuickSearchEnginesUtil.getQuickSearchEnginesFeature() ? View.VISIBLE : View.GONE);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.quick_search_settings_recyclerview);
         LinearLayoutManager linearLayoutManager =
                 new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(linearLayoutManager);
         setHasOptionsMenu(true);
+        quickSearchOptionsLayout.setVisibility(View.GONE);
+        QuickSearchEnginesUtil.setQuickSearchEnginesFeature(false);
         return view;
     }
 
@@ -123,6 +125,7 @@ public class QuickSearchEnginesFragment extends ChromeBaseSettingsFragment
                             quickSearchEnginesModel.getKeyword(), quickSearchEnginesModel);
                 }
                 QuickSearchEnginesUtil.saveSearchEnginesIntoPref(searchEnginesMap);
+                QuickSearchEnginesUtil.setQuickSearchEnginesFeature(false);
                 mQuickSearchEnginesAdapter.setEditMode(false);
                 editModeUiVisibility();
             }
@@ -173,12 +176,13 @@ public class QuickSearchEnginesFragment extends ChromeBaseSettingsFragment
     public void onSearchEngineClick(int position, QuickSearchEnginesModel quickSearchEnginesModel) {
         updateQuickSearchEnginesInPref(quickSearchEnginesModel);
     }
-
+    @SuppressWarnings("UnusedVariable")
     private void updateQuickSearchEnginesInPref(QuickSearchEnginesModel quickSearchEnginesModel) {
-        Map<String, QuickSearchEnginesModel> searchEnginesMap =
-                QuickSearchEnginesUtil.getQuickSearchEnginesFromPref();
-        searchEnginesMap.put(quickSearchEnginesModel.getKeyword(), quickSearchEnginesModel);
-        QuickSearchEnginesUtil.saveSearchEnginesIntoPref(searchEnginesMap);
+        // Map<String, QuickSearchEnginesModel> searchEnginesMap =
+                // QuickSearchEnginesUtil.getQuickSearchEnginesFromPref();
+        // searchEnginesMap.put(quickSearchEnginesModel.getKeyword(), quickSearchEnginesModel);
+        QuickSearchEnginesUtil.setQuickSearchEnginesFeature(false);
+        // QuickSearchEnginesUtil.saveSearchEnginesIntoPref(searchEnginesMap);
     }
 
     @Override
@@ -208,5 +212,8 @@ public class QuickSearchEnginesFragment extends ChromeBaseSettingsFragment
             ImageView logoView, QuickSearchEnginesModel quickSearchEnginesModel) {
         QuickSearchEnginesUtil.loadSearchEngineLogo(
                 getProfile(), logoView, quickSearchEnginesModel.getKeyword());
+        // ImageUtils.loadSearchEngineLogo(
+        //         getProfile(), logoView, quickSearchEnginesModel.getKeyword());
+                // QuickSearchEnginesUtil.setQuickSearchEnginesFeature(false);
     }
 }

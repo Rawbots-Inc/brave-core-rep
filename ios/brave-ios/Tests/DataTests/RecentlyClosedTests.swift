@@ -145,7 +145,7 @@ class RecentlyClosedTests: CoreDataTestCase {
       order: 0
     )
 
-    let braveSearchURL = URL(string: "https://search.brave.com")!
+    let braveSearchURL = URL(string: "https://google.com")!
     let braveSearchTitle = "Brave Search"
 
     let savedObject2 = SavedRecentlyClosed(

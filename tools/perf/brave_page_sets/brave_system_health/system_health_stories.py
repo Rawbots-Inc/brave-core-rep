@@ -82,7 +82,7 @@ class LoadExampleStory2023(_BraveLoadingStory):
 
 class LoadBraveSearchStory2023(_BraveLoadingStory):
   NAME = 'load:site:brave_search:2023'
-  URL = 'https://search.brave.com/search?q=cats&source=web'
+  URL = 'https://google.com/search?q=cats&source=web'
   TAGS = [story_tags.YEAR_2023]
 
 

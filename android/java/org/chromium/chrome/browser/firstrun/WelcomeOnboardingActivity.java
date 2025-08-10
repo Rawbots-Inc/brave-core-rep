@@ -235,7 +235,8 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mBtnPositive != null) {
             mBtnPositive.setOnClickListener(
                     view -> {
-                        nextOnboardingStep();
+                        finalStep();
+                        // nextOnboardingStep();
                         // if (mCurrentStep == 0 && !isDefaultBrowser()) {
                         //     setDefaultBrowserAndProceedToNextStep();
                         // } else if (isWDPEnabled()

@@ -916,7 +916,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
        With Rep Social, every web page you visit, has a wall you can post your throughts on.
       </message>
       <message name="IDS_SURE_ILL_HELP_ONBOARDING" desc="Text for Sure i'll help button onboarding">
-       Set as default browser
+      Continue
       </message>
       <message name="IDS_SHIELD_ONBOARDING" desc="Text for shield tooltip onboarding">
         Tap to view Rep Social Shields

@@ -280,10 +280,10 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         }
 
         // Add Brave specific items.
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
-            addMenuItemAfter(
-                    modelList, buildBraveWalletItem(), Arrays.asList(R.id.all_bookmarks_menu_id));
-        }
+        // if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
+        //     addMenuItemAfter(
+        //             modelList, buildBraveWalletItem(), Arrays.asList(R.id.all_bookmarks_menu_id));
+        // }
         if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
                 && ChromeSharedPreferences.getInstance()
                         .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)) {
@@ -331,21 +331,21 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(mContext)) {
             modelList.add(buildSetDefaultBrowserItem());
         }
-        if (!mJunitIsTesting) {
-            if (BraveVpnUtils.isVpnFeatureSupported(mContext)) {
-                modelList.add(buildBraveVpnItem());
-                if (BraveVpnPrefUtils.isSubscriptionPurchase()
-                        && !TextUtils.isEmpty(BraveVpnPrefUtils.getRegionIsoCode())) {
-                    modelList.add(buildBraveVpnLocationIconItem());
-                }
-            }
-            BraveRewardsNativeWorker braveRewardsNativeWorker =
-                    BraveRewardsNativeWorker.getInstance();
-            if (braveRewardsNativeWorker != null && braveRewardsNativeWorker.isSupported()) {
-                modelList.add(buildBraveRewardsItem());
-            }
-        }
-        modelList.add(buildBraveNewsItem());
+        // if (!mJunitIsTesting) {
+        //     if (BraveVpnUtils.isVpnFeatureSupported(mContext)) {
+        //         modelList.add(buildBraveVpnItem());
+        //         if (BraveVpnPrefUtils.isSubscriptionPurchase()
+        //                 && !TextUtils.isEmpty(BraveVpnPrefUtils.getRegionIsoCode())) {
+        //             modelList.add(buildBraveVpnLocationIconItem());
+        //         }
+        //     }
+        //     BraveRewardsNativeWorker braveRewardsNativeWorker =
+        //             BraveRewardsNativeWorker.getInstance();
+        //     if (braveRewardsNativeWorker != null && braveRewardsNativeWorker.isSupported()) {
+        //         modelList.add(buildBraveRewardsItem());
+        //     }
+        // }
+        // modelList.add(buildBraveNewsItem());
         modelList.add(buildExitItem());
     }
 

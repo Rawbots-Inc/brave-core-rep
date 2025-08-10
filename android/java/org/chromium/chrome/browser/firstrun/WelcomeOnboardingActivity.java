@@ -253,12 +253,13 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mBtnNegative != null) {
             mBtnNegative.setOnClickListener(
                     view -> {
-                        if (mCurrentOnboardingPage
-                                == CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE) {
-                            CustomTabActivity.showInfoPage(this, P3A_URL);
-                        } else {
-                            nextOnboardingStep();
-                        }
+                        finalStep();
+                        // if (mCurrentOnboardingPage
+                        //         == CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE) {
+                        //     CustomTabActivity.showInfoPage(this, P3A_URL);
+                        // } else {
+                        //     nextOnboardingStep();
+                        // }
                     });
         }
     }

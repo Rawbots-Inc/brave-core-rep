@@ -910,13 +910,13 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Share private and anonymous product insights about what features are being used by Rep Social's users.
       </message>
       <message name="IDS_WDP_TITLE" desc="Text for WDP title onboarding">
-        Help Rep Social Search grow
+       Post without limits
       </message>
       <message name="IDS_WDP_TEXT" desc="Text for WDP text onboarding">
-        Opt into the Web Discovery Project to help grow the index and improve search results. <ph name="LEARN_MORE_START">&lt;learn_more&gt;</ph>Learn more.<ph name="LEARN_MORE_END">&lt;/learn_more&gt;</ph>
+       With Rep Social, every web page you visit, has a wall you can post your throughts on.
       </message>
       <message name="IDS_SURE_ILL_HELP_ONBOARDING" desc="Text for Sure i'll help button onboarding">
-        Sure, I'll help
+       Set as default browser
       </message>
       <message name="IDS_SHIELD_ONBOARDING" desc="Text for shield tooltip onboarding">
         Tap to view Rep Social Shields
@@ -1518,7 +1518,7 @@ Are you sure you want to do this?
         Never
       </message>
       <message name="IDS_MAYBE_LATER" desc="Text for rate brave dialog button.">
-        Maybe Later
+       Not now
       </message>
       <message name="IDS_REWARDS_PANEL_PAYOUT_PENDING_TEXT" desc="Text for rewards panel payout pending text">
         The payout for <ph name="CURRENT_MONTH">%1$s</ph> rewards will begin processing by <ph name="PAYOUT_DATE">%2$s</ph>.

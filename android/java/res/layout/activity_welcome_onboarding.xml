@@ -142,8 +142,8 @@
 
                 <Button
                     android:id="@+id/btn_negative"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="6dp"
                     android:background="@android:color/transparent"

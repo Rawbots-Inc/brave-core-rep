@@ -298,7 +298,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             BraveTouchUtils.ensureMinTouchTarget(mBraveShieldsButton);
             mBraveShieldsButton.setImageResource(R.drawable.btn_brave);
 
-            mBraveShieldsButton.setVisibility(View.GONE);
+            mBraveShieldsButton.setVisibility(View.VISIBLE);
         }
 
         if (mBraveRewardsButton != null) {

@@ -5,7 +5,7 @@
 
 import * as mojom from 'gen/ui/webui/resources/cr_components/searchbox/searchbox.mojom.m'
 
-export const braveSearchHost = 'search.brave.com'
+export const braveSearchHost = 'search.google.com'
 
 export interface SearchEngineInfo {
   prepopulateId: bigint

@@ -55,7 +55,7 @@ namespace {
 
 using regional_capabilities::RegionalCapabilitiesServiceFactory;
 
-constexpr char kBraveSearchHost[] = "search.brave.com";
+constexpr char kBraveSearchHost[] = "search.google.com";
 constexpr char kYahooSearchHost[] = "search.yahoo.co.jp";
 
 }  // namespace

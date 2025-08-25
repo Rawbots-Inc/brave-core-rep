@@ -279,7 +279,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
 
   private(set) lazy var shieldsButton: ToolbarButton = {
     let button = ToolbarButton()
-    button.setImage(UIImage(sharedNamed: "brave.logo"), for: .normal)
+    button.setImage(UIImage(sharedNamed: "bat-small"), for: .normal)
     button.addTarget(self, action: #selector(didTapBraveShieldsButton), for: .touchUpInside)
     button.imageView?.contentMode = .scaleAspectFit
     button.accessibilityLabel = Strings.bravePanel
@@ -372,7 +372,7 @@ class TopToolbarView: UIView, ToolbarProtocol {
     trailingItemsStackView.addArrangedSubview(tabsButton)
     trailingItemsStackView.addArrangedSubview(menuButton)
 
-//    shieldsRewardsStack.addArrangedSubview(shieldsButton)
+    shieldsRewardsStack.addArrangedSubview(shieldsButton)
     shieldsRewardsStack.addArrangedSubview(rewardsButton)
 
     [
@@ -828,8 +828,8 @@ class TopToolbarView: UIView, ToolbarProtocol {
   /// Update the shields icon based on whether or not shields are enabled for this site
   func refreshShieldsStatus() {
     // Default on
-    var shieldIcon = "brave.logo"
-    let shieldsOffIcon = "brave.logo.greyscale"
+    var shieldIcon = "bat-small"
+    let shieldsOffIcon = "bat-small"
     if let currentURL = currentURL {
       let isPrivateBrowsing = privateBrowsingManager.isPrivateBrowsing
       let domain = Domain.getOrCreate(forUrl: currentURL, persistent: !isPrivateBrowsing)

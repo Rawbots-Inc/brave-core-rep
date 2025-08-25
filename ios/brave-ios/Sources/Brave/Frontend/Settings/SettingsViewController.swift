@@ -210,7 +210,7 @@ class SettingsViewController: TableViewController {
   private func makeSections() -> [Static.Section] {
     var list = [
       defaultBrowserSection,
-      // makeFeaturesSection(),
+      makeFeaturesSection(),
       generalSection,
       displaySection,
       tabsSection,
@@ -334,56 +334,56 @@ class SettingsViewController: TableViewController {
       uuid: featureSectionUUID.uuidString
     )
 
-    if BraveRewards.isAvailable, let rewards = rewards {
-      section.rows += [
-        Row(
-          text: Strings.braveRewardsSettingsTitle,
-          selection: { [unowned self] in
-            let rewardsVC = BraveRewardsSettingsViewController(rewards)
-            rewardsVC.walletTransferLearnMoreTapped = { [weak self] in
-              guard let self = self else { return }
-              self.dismiss(animated: true) {
-                self.presentingViewController?.dismiss(animated: true) {
-                  self.settingsDelegate?.settingsOpenURLInNewTab(.brave.rewardsOniOS)
-                }
-              }
-            }
-            self.navigationController?.pushViewController(rewardsVC, animated: true)
-          },
-          image: UIImage(braveSystemNamed: "leo.product.bat-outline"),
-          accessory: .disclosureIndicator
-        )
-      ]
-    }
+//    if BraveRewards.isAvailable, let rewards = rewards {
+//      section.rows += [
+//        Row(
+//          text: Strings.braveRewardsSettingsTitle,
+//          selection: { [unowned self] in
+//            let rewardsVC = BraveRewardsSettingsViewController(rewards)
+//            rewardsVC.walletTransferLearnMoreTapped = { [weak self] in
+//              guard let self = self else { return }
+//              self.dismiss(animated: true) {
+//                self.presentingViewController?.dismiss(animated: true) {
+//                  self.settingsDelegate?.settingsOpenURLInNewTab(.brave.rewardsOniOS)
+//                }
+//              }
+//            }
+//            self.navigationController?.pushViewController(rewardsVC, animated: true)
+//          },
+//          image: UIImage(braveSystemNamed: "leo.product.bat-outline"),
+//          accessory: .disclosureIndicator
+//        )
+//      ]
+//    }
 
-    section.rows.append(
-      Row(
-        text: Strings.BraveNews.braveNewsTitle,
-        selection: { [unowned self] in
-          let controller = NewsSettingsViewController(
-            dataSource: self.feedDataSource,
-            openURL: { [weak self] url in
-              guard let self else { return }
-              self.dismiss(animated: true)
-              self.settingsDelegate?.settingsOpenURLs([url], loadImmediately: true)
-            }
-          )
-          controller.viewDidDisappear = {
-            if Preferences.Review.braveNewsCriteriaPassed.value {
-              AppReviewManager.shared.isRevisedReviewRequired = true
-              Preferences.Review.braveNewsCriteriaPassed.value = false
-            }
-          }
-          self.navigationController?.pushViewController(controller, animated: true)
-        },
-        image: UIImage(braveSystemNamed: "leo.product.brave-news"),
-        accessory: .disclosureIndicator
-      )
-    )
+//    section.rows.append(
+//      Row(
+//        text: Strings.BraveNews.braveNewsTitle,
+//        selection: { [unowned self] in
+//          let controller = NewsSettingsViewController(
+//            dataSource: self.feedDataSource,
+//            openURL: { [weak self] url in
+//              guard let self else { return }
+//              self.dismiss(animated: true)
+//              self.settingsDelegate?.settingsOpenURLs([url], loadImmediately: true)
+//            }
+//          )
+//          controller.viewDidDisappear = {
+//            if Preferences.Review.braveNewsCriteriaPassed.value {
+//              AppReviewManager.shared.isRevisedReviewRequired = true
+//              Preferences.Review.braveNewsCriteriaPassed.value = false
+//            }
+//          }
+//          self.navigationController?.pushViewController(controller, animated: true)
+//        },
+//        image: UIImage(braveSystemNamed: "leo.product.brave-news"),
+//        accessory: .disclosureIndicator
+//      )
+//    )
 
-    if !tabManager.privateBrowsingManager.isPrivateBrowsing && FeatureList.kAIChat.enabled {
-      section.rows.append(leoSettingsRow)
-    }
+//    if !tabManager.privateBrowsingManager.isPrivateBrowsing && FeatureList.kAIChat.enabled {
+//      section.rows.append(leoSettingsRow)
+//    }
 
     section.rows.append(
       Row(
@@ -397,19 +397,19 @@ class SettingsViewController: TableViewController {
       )
     )
 
-    if FeatureList.kBraveTranslateEnabled.enabled {
-      section.rows.append(
-        Row(
-          text: Strings.BraveTranslate.settingsMenuTitle,
-          selection: { [unowned self] in
-            let translateSettings = UIHostingController(rootView: BraveTranslateSettingsView())
-            self.navigationController?.pushViewController(translateSettings, animated: true)
-          },
-          image: UIImage(braveSystemNamed: "leo.product.translate"),
-          accessory: .disclosureIndicator
-        )
-      )
-    }
+//    if FeatureList.kBraveTranslateEnabled.enabled {
+//      section.rows.append(
+//        Row(
+//          text: Strings.BraveTranslate.settingsMenuTitle,
+//          selection: { [unowned self] in
+//            let translateSettings = UIHostingController(rootView: BraveTranslateSettingsView())
+//            self.navigationController?.pushViewController(translateSettings, animated: true)
+//          },
+//          image: UIImage(braveSystemNamed: "leo.product.translate"),
+//          accessory: .disclosureIndicator
+//        )
+//      )
+//    }
 
     return section
   }
@@ -1267,35 +1267,35 @@ class SettingsViewController: TableViewController {
 
       if walletRowIndex == nil {
         let settingsStore = cryptoStore?.settingsStore
-        copyOfSections[featureSectionIndex].rows.append(
-          Row(
-            text: Strings.Wallet.web3,
-            selection: { [unowned self] in
-              // iOS17 memory leak issue #8160
-              keyringStore?.setupObservers()
-              cryptoStore?.setupObservers()
-              let web3SettingsView = Web3SettingsView(
-                settingsStore: settingsStore,
-                networkStore: cryptoStore?.networkStore,
-                keyringStore: keyringStore
-              ).environment(
-                \.openURL,
-                .init(handler: { [weak self] url in
-                  guard let self = self else { return .discarded }
-                  (self.presentingViewController ?? self).dismiss(animated: true) { [self] in
-                    self.settingsDelegate?.settingsOpenURLInNewTab(url)
-                  }
-                  return .handled
-                })
-              )
-              let vc = UIHostingController(rootView: web3SettingsView)
-              self.navigationController?.pushViewController(vc, animated: true)
-            },
-            image: UIImage(braveSystemNamed: "leo.product.brave-wallet"),
-            accessory: .disclosureIndicator,
-            uuid: self.walletRowUUID.uuidString
-          )
-        )
+//        copyOfSections[featureSectionIndex].rows.append(
+//          Row(
+//            text: Strings.Wallet.web3,
+//            selection: { [unowned self] in
+//              // iOS17 memory leak issue #8160
+//              keyringStore?.setupObservers()
+//              cryptoStore?.setupObservers()
+//              let web3SettingsView = Web3SettingsView(
+//                settingsStore: settingsStore,
+//                networkStore: cryptoStore?.networkStore,
+//                keyringStore: keyringStore
+//              ).environment(
+//                \.openURL,
+//                .init(handler: { [weak self] url in
+//                  guard let self = self else { return .discarded }
+//                  (self.presentingViewController ?? self).dismiss(animated: true) { [self] in
+//                    self.settingsDelegate?.settingsOpenURLInNewTab(url)
+//                  }
+//                  return .handled
+//                })
+//              )
+//              let vc = UIHostingController(rootView: web3SettingsView)
+//              self.navigationController?.pushViewController(vc, animated: true)
+//            },
+//            image: UIImage(braveSystemNamed: "leo.product.brave-wallet"),
+//            accessory: .disclosureIndicator,
+//            uuid: self.walletRowUUID.uuidString
+//          )
+//        )
       } else if let index = walletRowIndex {
         copyOfSections.remove(at: index)
       }

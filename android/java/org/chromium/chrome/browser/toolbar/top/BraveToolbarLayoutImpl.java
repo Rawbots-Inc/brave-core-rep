@@ -302,6 +302,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mBraveRewardsButton.setClickable(true);
             mBraveRewardsButton.setOnClickListener(this);
             mBraveRewardsButton.setOnLongClickListener(this);
+            mBraveRewardsButton.setImageResource(R.drawable.btn_brave);
             BraveTouchUtils.ensureMinTouchTarget(mBraveRewardsButton);
         }
 
@@ -1185,15 +1186,15 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
              ChromeSharedPreferences.getInstance()
       .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
       String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://prod-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/";
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=chrome://newtab/";
     showOnBoarding(targetUrl);
    
   } else {
     Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://prod-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/";
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=chrome://newtab/";
     CustomTabActivity.showInfoPage(getContext(), targetUrl);
     
 
@@ -1470,16 +1471,16 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
      */
     public void updateBraveShieldsButtonState(Tab tab) {
         if (mBraveShieldsButton == null) {
-            assert false;
+            // Button may not exist in CustomTab layouts, so just return silently
             return;
         }
 
         if (tab == null) {
-            mBraveShieldsButton.setImageResource(R.drawable.btn_brave_off);
+            mBraveShieldsButton.setImageResource(R.drawable.btn_bat);
             return;
         }
         mBraveShieldsButton.setImageResource(
-                isShieldsOnForTab(tab) ? R.drawable.btn_brave : R.drawable.btn_brave_off);
+                isShieldsOnForTab(tab) ? R.drawable.btn_bat : R.drawable.btn_bat);
 
         if (mRewardsLayout == null) return;
         if (isIncognito()) {

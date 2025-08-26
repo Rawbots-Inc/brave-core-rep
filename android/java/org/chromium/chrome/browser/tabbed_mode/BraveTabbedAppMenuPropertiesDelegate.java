@@ -280,10 +280,10 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         }
 
         // Add Brave specific items.
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
-            addMenuItemAfter(
-                    modelList, buildBraveWalletItem(), Arrays.asList(R.id.all_bookmarks_menu_id));
-        }
+        // if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
+        //     addMenuItemAfter(
+        //             modelList, buildBraveWalletItem(), Arrays.asList(R.id.all_bookmarks_menu_id));
+        // }
         if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
                 && ChromeSharedPreferences.getInstance()
                         .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)) {
@@ -306,19 +306,19 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                             R.id.brave_wallet_id,
                             R.id.all_bookmarks_menu_id));
         }
-        if (BraveLeoPrefUtils.isLeoEnabled()) {
-            Tab tab = mActivityTabProvider.get();
-            if (tab != null && !tab.isIncognito()) {
-                addMenuItemAfter(
-                        modelList,
-                        buildBraveLeoItem(),
-                        Arrays.asList(
-                                R.id.add_to_playlist_id,
-                                R.id.brave_playlist_id,
-                                R.id.brave_wallet_id,
-                                R.id.all_bookmarks_menu_id));
-            }
-        }
+        // if (BraveLeoPrefUtils.isLeoEnabled()) {
+        //     Tab tab = mActivityTabProvider.get();
+        //     if (tab != null && !tab.isIncognito()) {
+        //         addMenuItemAfter(
+        //                 modelList,
+        //                 buildBraveLeoItem(),
+        //                 Arrays.asList(
+        //                         R.id.add_to_playlist_id,
+        //                         R.id.brave_playlist_id,
+        //                         R.id.brave_wallet_id,
+        //                         R.id.all_bookmarks_menu_id));
+        //     }
+        // }
         if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_SPEEDREADER)
                 && UserPrefs.get(assumeNonNull(mTabModelSelector.getCurrentModel().getProfile()))
                         .getBoolean(BravePref.SPEEDREADER_PREF_ENABLED)) {
@@ -331,21 +331,21 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(mContext)) {
             modelList.add(buildSetDefaultBrowserItem());
         }
-        if (!mJunitIsTesting) {
-            if (BraveVpnUtils.isVpnFeatureSupported(mContext)) {
-                modelList.add(buildBraveVpnItem());
-                if (BraveVpnPrefUtils.isSubscriptionPurchase()
-                        && !TextUtils.isEmpty(BraveVpnPrefUtils.getRegionIsoCode())) {
-                    modelList.add(buildBraveVpnLocationIconItem());
-                }
-            }
-            BraveRewardsNativeWorker braveRewardsNativeWorker =
-                    BraveRewardsNativeWorker.getInstance();
-            if (braveRewardsNativeWorker != null && braveRewardsNativeWorker.isSupported()) {
-                modelList.add(buildBraveRewardsItem());
-            }
-        }
-        modelList.add(buildBraveNewsItem());
+        // if (!mJunitIsTesting) {
+        //     if (BraveVpnUtils.isVpnFeatureSupported(mContext)) {
+        //         modelList.add(buildBraveVpnItem());
+        //         if (BraveVpnPrefUtils.isSubscriptionPurchase()
+        //                 && !TextUtils.isEmpty(BraveVpnPrefUtils.getRegionIsoCode())) {
+        //             modelList.add(buildBraveVpnLocationIconItem());
+        //         }
+        //     }
+        //     BraveRewardsNativeWorker braveRewardsNativeWorker =
+        //             BraveRewardsNativeWorker.getInstance();
+        //     if (braveRewardsNativeWorker != null && braveRewardsNativeWorker.isSupported()) {
+        //         modelList.add(buildBraveRewardsItem());
+        //     }
+        // }
+        // modelList.add(buildBraveNewsItem());
         modelList.add(buildExitItem());
     }
 
@@ -464,14 +464,14 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                         shouldShowIconBeforeItem() ? R.drawable.ic_readermode : 0));
     }
 
-    private MVCListAdapter.ListItem buildBraveLeoItem() {
-        return new MVCListAdapter.ListItem(
-                AppMenuHandler.AppMenuItemType.STANDARD,
-                buildModelForStandardMenuItem(
-                        R.id.brave_leo_id,
-                        R.string.menu_brave_leo,
-                        shouldShowIconBeforeItem() ? R.drawable.ic_brave_ai : 0));
-    }
+    // private MVCListAdapter.ListItem buildBraveLeoItem() {
+    //     return new MVCListAdapter.ListItem(
+    //             AppMenuHandler.AppMenuItemType.STANDARD,
+    //             buildModelForStandardMenuItem(
+    //                     R.id.brave_leo_id,
+    //                     R.string.menu_brave_leo,
+    //                     shouldShowIconBeforeItem() ? R.drawable.ic_brave_ai : 0));
+    // }
 
     private MVCListAdapter.ListItem buildBraveVpnItem() {
         return new MVCListAdapter.ListItem(

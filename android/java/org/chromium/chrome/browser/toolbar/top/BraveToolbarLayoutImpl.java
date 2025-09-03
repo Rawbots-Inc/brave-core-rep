@@ -686,7 +686,10 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             int deviceWidth = ConfigurationUtils.getDisplayMetricsWidth(activity);
             boolean isTablet = DeviceFormFactor.isNonMultiDisplayContextOnTablet(activity);
             deviceWidth = (int) (isTablet ? (deviceWidth * 0.6) : (deviceWidth * 0.95));
-            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth, "");
+            String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://dev.rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://dev.rep.run?currentTabUrl=chrome://newtab/";
+            RewardsOnboarding panel = new RewardsOnboarding(mBraveRewardsButton, deviceWidth, targetUrl);
             panel.showLikePopDownMenu();
         } catch (BraveActivity.BraveActivityNotFoundException e) {
             Log.e(TAG, "RewardsOnboarding failed " + e);

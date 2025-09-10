@@ -7,80 +7,80 @@ import UIKit
 
 extension URL {
   public enum Brave {
-    public static let community = URL(string: "https://community.brave.com/")!
-    public static let account = URL(string: "https://account.brave.com")!
+    public static let community = URL(string: "https://rep.run/")!
+    public static let account = URL(string: "https://rep.run/")!
     public static let privacy = URL(string: "https://rep.run/privacy/privacy-policy")!
-    public static let braveNews = URL(string: "https://brave.com/brave-news/")!
-    public static let braveNewsPrivacy = URL(string: "https://brave.com/privacy/#brave-news")!
-    public static let braveOffers = URL(string: "https://offers.brave.com/")!
-    public static let playlist = URL(string: "https://brave.com/playlist")!
-    public static let rewardsOniOS = URL(string: "https://brave.com/rewards-ios/")!
+    public static let braveNews = URL(string: "https://rep.run/")!
+    public static let braveNewsPrivacy = URL(string: "https://rep.run/")!
+    public static let braveOffers = URL(string: "https://rep.run/")!
+    public static let playlist = URL(string: "https://rep.run/")!
+    public static let rewardsOniOS = URL(string: "https://rep.run/")!
     public static let rewardsUnverifiedPublisherLearnMoreURL = URL(
-      string: "https://brave.com/faq-rewards/#unclaimed-funds"
+      string: "https://rep.run/"
     )!
     public static let termsOfUse = URL(string: "https://rep.run/privacy/terms-of-service")!
     public static let batTermsOfUse = URL(
       string: "https://basicattentiontoken.org/user-terms-of-service/"
     )!
-    public static let ntpTutorialPage = URL(string: "https://brave.com/ja/ntp-tutorial")!
-    public static let privacyFeatures = URL(string: "https://brave.com/privacy-features/")!
-    public static let support = URL(string: "https://support.brave.com")!
+    public static let ntpTutorialPage = URL(string: "https://rep.run/")!
+    public static let privacyFeatures = URL(string: "https://rep.run/")!
+    public static let support = URL(string: "https://rep.run/support")!
     public static let p3aHelpArticle = URL(
-      string: "https://support.brave.com/hc/en-us/articles/9140465918093-What-is-P3A-in-Brave-"
+      string: "https://rep.run/support"
     )!
     public static let braveVPNFaq = URL(
-      string: "https://support.brave.com/hc/en-us/articles/360045045952"
+      string: "https://rep.run/support"
     )!
     public static let braveVPNLinkReceiptProd = URL(
-      string: "https://account.brave.com/?intent=connect-receipt&product=vpn"
+      string: "https://rep.run/support"
     )!
     public static let braveVPNLinkReceiptStaging = URL(
-      string: "https://account.bravesoftware.com/?intent=connect-receipt&product=vpn"
+      string: "https://rep.run"
     )!
     public static let braveVPNLinkReceiptDev = URL(
-      string: "https://account.brave.software/?intent=connect-receipt&product=vpn"
+      string: "https://rep.run"
     )!
     public static let braveVPNRefreshCredentials = URL(
-      string: "https://account.brave.com/?intent=recover&product=vpn&ux=mobile"
+      string: "https://rep.run"
     )!
     public static let safeBrowsingHelp = URL(
-      string: "https://support.brave.com/hc/en-us/articles/15222663599629-Safe-Browsing-in-Brave"
+      string: "https://rep.run"
     )!
     public static let screenTimeHelp = URL(
-      string: "https://support.apple.com/guide/security/secd8831e732/web"
+      string: "https://rep.run"
     )!
     public static let braveLeoManageSubscriptionProd = URL(
-      string: "https://account.brave.com/plans"
+      string: "https://rep.run"
     )!
     public static let braveLeoManageSubscriptionStaging = URL(
-      string: "https://account.bravesoftware.com/plans"
+      string: "https://rep.run"
     )!
     public static let braveLeoManageSubscriptionDev = URL(
-      string: "https://account.brave.software/plans"
+      string: "https://rep.run"
     )!
     public static let braveLeoLinkReceiptProd = URL(
-      string: "https://account.brave.com/?intent=link-order&product=leo"
+      string: "https://rep.run"
     )!
     public static let braveLeoLinkReceiptStaging = URL(
-      string: "https://account.bravesoftware.com/?intent=link-order&product=leo"
+      string: "https://rep.run"
     )!
     public static let braveLeoLinkReceiptDev = URL(
-      string: "https://account.brave.software/?intent=link-order&product=leo"
+      string: "https://rep.run/support"
     )!
     public static let braveLeoRefreshCredentials = URL(
-      string: "https://account.brave.com/?intent=recover&product=leo&ux=mobile"
+      string: "https://rep.run"
     )!
     public static let braveLeoModelCategorySupport = URL(
       string:
-        "https://support.brave.com/hc/en-us/articles/26727364100493-What-are-the-differences-between-Leo-s-AI-Models"
+        "https://rep.run/support"
     )!
     public static let braveVPNSmartProxySupport = URL(
       string:
-        "https://support.brave.com/hc/en-us/articles/32105253704333-What-is-Smart-Proxy-Routing"
+        "https://rep.run/support"
     )!
     public static let braveVPNKillSwitchSupport = URL(
       string:
-        "https://support.brave.com/hc/en-us/articles/32389914657549-What-is-the-Brave-VPN-Kill-Switch"
+        "https://rep.run/support"
     )!
   }
   public enum Apple {

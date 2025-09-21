@@ -187,7 +187,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         How does RepSky Rewards work?
       </message>
       <message name="IDS_START_USING_REWARDS"  desc="Text for Start using Rewards">
-       Start using Rep Social
+       Start using RepSky
       </message>
       <message name="IDS_STILL_RECEIVE_CONTRIBUTIONS_FROM_WEB3" desc="Text for still send crypto contributions">
         \n\nYou can still send crypto contributions to this creator by using your Web3 wallet.

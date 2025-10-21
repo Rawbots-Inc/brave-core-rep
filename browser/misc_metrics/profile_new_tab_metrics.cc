@@ -49,7 +49,7 @@ void ProfileNewTabMetrics::ReportNewTabPageDefault() {
 
       auto host = homepage_url.host_piece();
       if (host == "search.brave.com") {
-        type = NewTabPageDefaultType::kHomepageBraveSearch;
+       type = NewTabPageDefaultType::kHomepageGoogle;
       } else if (base::Contains(host, "google")) {
         type = NewTabPageDefaultType::kHomepageGoogle;
       } else if (base::Contains(host, "duckduckgo")) {

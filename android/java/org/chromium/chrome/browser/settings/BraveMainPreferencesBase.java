@@ -188,6 +188,9 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
     }
 
     private void updateBravePreferences() {
+        removePreferenceIfPresent(PREF_HOME_SCREEN_WIDGET);
+        removePreferenceIfPresent(PREF_SYNC);
+        removePreferenceIfPresent(PREF_BRAVE_SEARCH_ENGINES);
         // Below prefs are removed from main settings.
         removePreferenceIfPresent(MainSettings.PREF_SIGN_IN);
         removePreferenceIfPresent(MainSettings.PREF_SEARCH_ENGINE);
@@ -265,19 +268,19 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
     private void rearrangePreferenceOrders() {
         int firstSectionOrder = 0;
 
-        if (getActivity() != null && !getActivity().isFinishing()
-                && BraveVpnPrefUtils.shouldShowCallout()
-                && !BraveVpnPrefUtils.isSubscriptionPurchase()
-                && BraveVpnUtils.isVpnFeatureSupported(getActivity())) {
-            if (mVpnCalloutPreference == null) {
-                mVpnCalloutPreference = new VpnCalloutPreference(getActivity());
-            }
-            if (mVpnCalloutPreference != null) {
-                mVpnCalloutPreference.setKey(PREF_BRAVE_VPN_CALLOUT);
-                mVpnCalloutPreference.setOrder(firstSectionOrder);
-                getPreferenceScreen().addPreference(mVpnCalloutPreference);
-            }
-        }
+        // if (getActivity() != null && !getActivity().isFinishing()
+        //         && BraveVpnPrefUtils.shouldShowCallout()
+        //         && !BraveVpnPrefUtils.isSubscriptionPurchase()
+        //         && BraveVpnUtils.isVpnFeatureSupported(getActivity())) {
+        //     if (mVpnCalloutPreference == null) {
+        //         mVpnCalloutPreference = new VpnCalloutPreference(getActivity());
+        //     }
+        //     if (mVpnCalloutPreference != null) {
+        //         mVpnCalloutPreference.setKey(PREF_BRAVE_VPN_CALLOUT);
+        //         mVpnCalloutPreference.setOrder(firstSectionOrder);
+        //         getPreferenceScreen().addPreference(mVpnCalloutPreference);
+        //     }
+        // }
 
         int braveAccountSectionOrder = firstSectionOrder;
         if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_ACCOUNT)) {
@@ -294,11 +297,14 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
         setPreferenceOrder(PREF_SHIELDS_AND_PRIVACY, ++featuresSectionOrder);
         setPreferenceOrder(PREF_BRAVE_NEWS_V2, ++featuresSectionOrder);
 
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
-            setPreferenceOrder(PREF_BRAVE_WALLET, ++featuresSectionOrder);
-        } else {
-            removePreferenceIfPresent(PREF_BRAVE_WALLET);
-        }
+        // if (ChromeFeatureList.isEnabled(BraveFeatureList.NATIVE_BRAVE_WALLET)) {
+        //     findPreference(PREF_BRAVE_WALLET).setOrder(++firstSectionOrder);
+        // } else {
+        //     removePreferenceIfPresent(PREF_BRAVE_WALLET);
+        // }
+        removePreferenceIfPresent(PREF_BRAVE_WALLET);
+        removePreferenceIfPresent(PREF_BRAVE_NEWS_V2);
+        removePreferenceIfPresent(PREF_BRAVE_VPN_CALLOUT);
 
         if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)) {
             setPreferenceOrder(PREF_BRAVE_PLAYLIST, ++featuresSectionOrder);
@@ -313,12 +319,15 @@ public abstract class BraveMainPreferencesBase extends BravePreferenceFragment
         } else {
             removePreferenceIfPresent(PREF_BRAVE_VPN);
         }
+         removePreferenceIfPresent(PREF_BRAVE_VPN);
 
         if (BraveLeoPrefUtils.isLeoEnabled()) {
-            setPreferenceOrder(PREF_BRAVE_LEO, ++featuresSectionOrder);
+            removePreferenceIfPresent(PREF_BRAVE_LEO);
+            // findPreference(PREF_BRAVE_LEO).setOrder(++firstSectionOrder);
         } else {
             removePreferenceIfPresent(PREF_BRAVE_LEO);
         }
+        removePreferenceIfPresent(PREF_BRAVE_LEO);
 
         int generalOrder = featuresSectionOrder;
         setPreferenceOrder(PREF_GENERAL_SECTION, ++generalOrder);

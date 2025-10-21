@@ -68,7 +68,7 @@ TEST_F(ProfileNewTabMetricsTest, TestHomepageOptions) {
   pref_service_.SetBoolean(prefs::kHomePageIsNewTabPage, false);
   histogram_tester_.ExpectBucketCount(kNewTabPageDefaultHistogramName, 5, 1);
 
-  pref_service_.SetString(prefs::kHomePage, "https://search.brave.com");
+  pref_service_.SetString(prefs::kHomePage, "https://www.google.com");
   histogram_tester_.ExpectBucketCount(kNewTabPageDefaultHistogramName, 2, 1);
 
   pref_service_.SetString(prefs::kHomePage, "https://www.google.com");

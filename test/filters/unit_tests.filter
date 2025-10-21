@@ -446,8 +446,8 @@
 # CONTENT_SETTING_BLOCK, instead of CONTENT_SETTING_ASK which the tests expect.
 -All/ChromeBrowsingDataRemoverDelegateRelatedWebsiteSetsTest.RemoveRelatedWebsiteSetsPermissions/*
 
-# These tests fail because our search engine keywords use a shorter syntax than
-# is expected (:b vs search.brave.com)
+# This test fails because our search engine keywords use a shorter syntax than
+# is expected (:b vs google.com)
 -IconUtilsTest.GetSearchEngineGeneratedIconPath
 -TemplateURLServiceEnterpriseSearchTest.NonFeaturedEnterpriseSearchPolicyConflictWithDSP/SearchAggregator
 -TemplateURLServiceEnterpriseSearchTest.NonFeaturedEnterpriseSearchPolicyConflictWithDSP/SiteSearch

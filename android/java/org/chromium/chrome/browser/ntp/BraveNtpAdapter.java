@@ -182,10 +182,10 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (mIsNewContentLoading) {
                 newContentViewHolder.mNewContentLayout.setClickable(false);
                 newContentViewHolder.mNewContentText.setVisibility(View.GONE);
-                newContentViewHolder.mNewContentProgressBar.setVisibility(View.VISIBLE);
+                newContentViewHolder.mNewContentProgressBar.setVisibility(View.GONE);
             } else {
                 newContentViewHolder.mNewContentLayout.setClickable(true);
-                newContentViewHolder.mNewContentText.setVisibility(View.VISIBLE);
+                newContentViewHolder.mNewContentText.setVisibility(View.GONE);
                 newContentViewHolder.mNewContentProgressBar.setVisibility(View.GONE);
             }
             mNewContentHeight =
@@ -198,7 +198,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             if (mNtpImage instanceof Wallpaper
                     && NTPImageUtil.isReferralEnabled()
                     && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                imageCreditViewHolder.mSuperReferralLogo.setVisibility(View.VISIBLE);
+                imageCreditViewHolder.mSuperReferralLogo.setVisibility(View.GONE);
                 imageCreditViewHolder.mCreditTv.setVisibility(View.GONE);
                 int floatingButtonIcon = R.drawable.ic_qr_code;
                 imageCreditViewHolder.mSuperReferralLogo.setImageResource(floatingButtonIcon);
@@ -252,7 +252,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
                         imageCreditViewHolder.mCreditTv.setText(spannableString);
-                        imageCreditViewHolder.mCreditTv.setVisibility(View.VISIBLE);
+                        imageCreditViewHolder.mCreditTv.setVisibility(View.GONE);
 
                         imageCreditViewHolder.mCreditTv.setOnClickListener(
                                 view -> {
@@ -265,7 +265,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 }
             }
             if (!NTPImageUtil.isReferralEnabled() && mSponsoredLogo != null) {
-                imageCreditViewHolder.mSponsoredLogo.setVisibility(View.VISIBLE);
+                imageCreditViewHolder.mSponsoredLogo.setVisibility(View.GONE);
                 imageCreditViewHolder.mSponsoredLogo.setImageBitmap(mSponsoredLogo);
                 imageCreditViewHolder.mSponsoredLogo.setOnClickListener(
                         view -> {
@@ -410,12 +410,7 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        if (viewType == TYPE_STATS) {
-            view = LayoutInflater.from(parent.getContext())
-                           .inflate(R.layout.brave_stats_layout, parent, false);
-            return new StatsViewHolder(view);
-
-        } else if (viewType == TYPE_TOP_SITES) {
+       if (viewType == TYPE_TOP_SITES) {
             return new TopSitesViewHolder(mMvTilesContainerLayout);
 
         } else if (viewType == TYPE_NEW_CONTENT) {
@@ -427,11 +422,6 @@ public class BraveNtpAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             view = LayoutInflater.from(parent.getContext())
                            .inflate(R.layout.ntp_image_credit, parent, false);
             return new ImageCreditViewHolder(view);
-
-        } else if (viewType == TYPE_NEWS_OPTIN) {
-            view = LayoutInflater.from(parent.getContext())
-                           .inflate(R.layout.optin_layout, parent, false);
-            return new NewsOptinViewHolder(view);
 
         } else if (viewType == TYPE_NEWS_LOADING) {
             view = LayoutInflater.from(parent.getContext())

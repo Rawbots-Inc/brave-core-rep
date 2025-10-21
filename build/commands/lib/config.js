@@ -625,17 +625,17 @@ Config.prototype.buildArgs = function () {
     args.android_channel = this.channel
     if (!this.isReleaseBuild()) {
       args.android_channel = 'default'
-      args.chrome_public_manifest_package = 'com.brave.browser_default'
+      args.chrome_public_manifest_package = 'com.rawbots.browser_default'
     } else if (this.channel === '') {
       args.android_channel = 'stable'
-      args.chrome_public_manifest_package = 'com.brave.browser'
+      args.chrome_public_manifest_package = 'com.rawbots.browser'
     } else if (this.channel === 'beta') {
-      args.chrome_public_manifest_package = 'com.brave.browser_beta'
+      args.chrome_public_manifest_package = 'com.rawbots.browser_beta'
     } else if (this.channel === 'dev') {
-      args.chrome_public_manifest_package = 'com.brave.browser_dev'
+      args.chrome_public_manifest_package = 'com.rawbots.browser_dev'
     } else if (this.channel === 'nightly') {
       args.android_channel = 'canary'
-      args.chrome_public_manifest_package = 'com.brave.browser_nightly'
+      args.chrome_public_manifest_package = 'com.rawbots.browser_nightly'
     }
     // exclude_unwind_tables is inherited form upstream and is false for any
     // Android build
@@ -649,6 +649,19 @@ Config.prototype.buildArgs = function () {
     args.brave_android_developer_options_code =
       this.braveAndroidDeveloperOptionsCode
     args.brave_safebrowsing_api_key = this.braveAndroidSafeBrowsingApiKey
+    // args.safe_browsing_mode = 2
+
+    // // Required since cr126 to use Chrome password store
+    // args.use_login_database_as_backend = true
+
+    // // TODO(fixme)
+    // args.enable_tor = false
+
+    // // Fixes WebRTC IP leak with default option
+    // args.enable_mdns = true
+
+    // // We want it to be enabled for all configurations
+    // args.disable_android_lint = true
 
     args.android_aab_to_apk = this.androidAabToApk
 

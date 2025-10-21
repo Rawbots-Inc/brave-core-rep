@@ -47,7 +47,7 @@ class BraveLoadingDesktopStorySet(story.StorySet):
     # Passed as (story, name) tuple.
     self.AddStories(['typical'],
                     [('https://example.com/', 'example.com'),
-                     ('https://search.brave.com/', 'BraveSearch'),
+                     ('https://google.com/', 'BraveSearch'),
                      ('https://en.wikipedia.org/wiki/HCard', 'wikipedia.com'),
                      ('https://www.economist.com/', 'Economist'),
                      ('https://www.ign.com/', 'IGN')], startup_delay)

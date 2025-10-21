@@ -5,7 +5,7 @@
 
 import * as mojom from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js'
 
-export const braveSearchHost = 'search.brave.com'
+export const braveSearchHost = 'search.google.com'
 
 export interface SearchEngineInfo {
   prepopulateId: bigint

@@ -410,9 +410,9 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
             modelList.add(buildBravePlaylistItem());
             modelList.add(buildBraveAddToPlaylistItem());
         }
-        if (BraveLeoPrefUtils.isLeoEnabled()) {
-            modelList.add(buildBraveLeoItem());
-        }
+        // if (BraveLeoPrefUtils.isLeoEnabled()) {
+        //     modelList.add(buildBraveLeoItem());
+        // }
 
         modelList.add(buildSetDefaultBrowserItem());
 

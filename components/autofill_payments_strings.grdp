@@ -60,7 +60,7 @@
     Google Pay logo
   </message>
   <message name="IDS_AUTOFILL_CHROME_LOGO_ACCESSIBLE_NAME" desc="The accessible name for the Brave logo.">
-    Rep Social logo
+    Brave logo
   </message>
 
   <if expr="not is_android">
@@ -116,7 +116,7 @@
   <if expr="is_ios">
     <then>
       <message name="IDS_AUTOFILL_SAVE_CARD_ONLY_PROMPT_EXPLANATION_LOCAL" desc="Explanation text for the Autofill save card prompt to save a card locally. It is shown when a new card is used during checkout, and sync is not enabled. This prompt description is shown on iOS bottomsheet.">
-        Pay faster when your card is saved. Card details are saved to Rep Social on your device.
+        Pay faster when your card is saved. Card details are saved to Brave on your device.
       </message>
     </then>
     <else>
@@ -140,12 +140,12 @@
   <if expr="is_linux">
     <then>
       <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_TITLE_TO_CLOUD" desc="Title text for the Autofill save card prompt when the card is to be saved by uploading it to Google Payments and also saved locally. The prompt is a bubble.">
-        Do you want to save this card in your Rep Social sync chain?
+        Do you want to save this card in your Brave sync chain?
       </message>
     </then>
     <else>
       <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_TITLE_TO_CLOUD" desc="Title text for the Autofill save card prompt when the card is to be saved by uploading it to Google Payments and also saved locally. The prompt can be either a bubble, a bottom sheet, or an infobar.">
-        Do you want to save this card in your Rep Social sync chain and on this device?
+        Do you want to save this card in your Brave sync chain and on this device?
       </message>
     </else>
   </if>
@@ -153,7 +153,7 @@
     Save card?
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_TITLE_TO_CLOUD_V4" desc="Title text for the Autofill save card prompt when the card is to be saved by uploading it to Google Payments, according to November 2018 UI guidelines. The prompt can be either a bubble or an infobar.">
-    Save card to Rep Social sync chain?
+    Save card to Brave sync chain?
   </message>
     <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_TITLE_TO_CLOUD_SECURITY" desc="Title text for the credit card upload save prompt on Desktop, using security-focused messaging. Became the new default for Desktop in Dec. 2024 and new default for Android and IOS (bottomsheet only) in H1 2025.">
       Save card securely?
@@ -188,16 +188,16 @@
     Done
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_UPLOAD_EXPLANATION" desc="Explanation of the effect of the Autofill save card prompt when the card is to be saved by uploading it to Google Payments and also saved locally. The prompt can be either a bubble or an infobar.">
-    Pay quickly on sites and apps across devices using cards you have saved with Rep Social.
+    Pay quickly on sites and apps across devices using cards you have saved with Brave.
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_UPLOAD_EXPLANATION_V3" desc="Explanation of the effect of the Autofill save card prompt when the card is to be saved by uploading it to Google Payments, according to April 2018 UI guidelines, and minorly updated again in September 2023. The prompt will be shown either in a bubble below the omnibox, or in a bottom sheet, or in an infobar.">
-    To pay faster next time, save your card and billing address in your Rep Social sync chain
+    To pay faster next time, save your card and billing address in your Brave sync chain
   </message>
   <message name="IDS_AUTOFILL_SAVE_CVC_PROMPT_EXPLANATION_UPLOAD" desc="Explanation text for the Autofill save CVC prompt that offers to upload CVC to the Sync server for existing server cards. This prompt is shown if a CVC is detected for an existing server card on form submission.">
-    This card's CVC will be encrypted and saved in your Rep Social sync chain for faster checkout
+    This card's CVC will be encrypted and saved in your Brave sync chain for faster checkout
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_UPLOAD_EXPLANATION_SECURITY" desc="Explanation of the benefit of credit card upload save on Desktop, using security-focused messaging. Became the new default for Desktop in Dec. 2024 and new default for Android and IOS (bottomsheet only) in H1 2025.">
-    Pay faster when your card is saved. Card details are encrypted in your Rep Social sync chain.
+    Pay faster when your card is saved. Card details are encrypted in your Brave sync chain.
   </message>
   <if expr="is_android or is_ios">
     <message name="IDS_AUTOFILL_SAVE_CVC_MESSAGE_SAVE_ACCEPT" desc="Positive button label for the Autofill save CVC prompt that offers to save CVC for existing server cards. This prompt is shown if a CVC is detected for an existing server card on form submission. The prompt is shown on Android and IOS devices.">
@@ -225,7 +225,7 @@
     </else>
   </if>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_CARDHOLDER_NAME_TOOLTIP" desc="The tooltip text for the cardholder name textfield. Note that the translation should not have period" formatter_data="android_java">
-    This name is from your Rep Social sync chain
+    This name is from your Brave sync chain
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_CARDHOLDER_NAME_FIX_FLOW_HEADER" desc="Header for the cardholder name fix flow.">
     Confirm name
@@ -242,10 +242,10 @@
     </message>
   </if>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_UPLOAD_EXPLANATION_TOOLTIP" desc="The tooltip hover text that explains why credit card upload to Google Payments is being offered.">
-    Rep Social is offering to save your cards in your Rep Social sync chain because you are signed in. You can change this behavior in settings.
+    Brave is offering to save your cards in your Brave sync chain because you are signed in. You can change this behavior in settings.
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_UPLOAD_EXPLANATION_AND_CARDHOLDER_NAME_TOOLTIP" desc="The tooltip hover text that explains why credit card upload to Brave sync chain is being offered and where the suggested cardholder name came from.">
-    Rep Social is offering to save your cards in your Rep Social sync chain because you are signed in. You can change this behavior in settings. The cardholder name comes from your account.
+    Brave is offering to save your cards in your Brave sync chain because you are signed in. You can change this behavior in settings. The cardholder name comes from your account.
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_PROMPT_LOADING_THROBBER_ACCESSIBLE_NAME" desc="Accessible name announced by the screenreader for save card bubble in loading state showing a throbber.">
     Saving card info
@@ -261,18 +261,18 @@
     </message>
     <if expr="_google_chrome">
       <message name="IDS_AUTOFILL_SAVE_AND_FILL_DIALOG_EXPLANATION_LOCAL" desc="Explanation text for the Autofill Save and Fill dialog for cards that will be saved locally.">
-        Autofill this card for purchases made in Rep Social when it's saved on this device
+        Autofill this card for purchases made in Brave when it's saved on this device
       </message>
       <message name="IDS_AUTOFILL_SAVE_AND_FILL_DIALOG_EXPLANATION_UPLOAD" desc="Explanation text for the Autofill Save and Fill dialog for cards that will be saved to the GPay server.">
-        Autofill this card for purchases made in Rep Social when it's saved to use with Google Pay
+        Autofill this card for purchases made in Brave when it's saved to use with Google Pay
       </message>
     </if>
     <if expr="not _google_chrome">
       <message name="IDS_AUTOFILL_SAVE_AND_FILL_DIALOG_EXPLANATION_LOCAL" desc="Explanation text for the Autofill Save and Fill dialog for cards that will be saved locally.">
-        Autofill this card for purchases made in Rep Social when it's saved on this device
+        Autofill this card for purchases made in Brave when it's saved on this device
       </message>
       <message name="IDS_AUTOFILL_SAVE_AND_FILL_DIALOG_EXPLANATION_UPLOAD" desc="Explanation text for the Autofill Save and Fill dialog for cards that will be saved to the GPay server.">
-        Autofill this card for purchases made in Rep Social when it's saved to use with Google Pay
+        Autofill this card for purchases made in Brave when it's saved to use with Google Pay
       </message>
     </if>
     <message name="IDS_AUTOFILL_SAVE_AND_FILL_DIALOG_CARD_NUMBER_LABEL" desc="The label text for the card number textfield.">
@@ -442,12 +442,12 @@
   <if expr="is_ios">
     <if expr="_google_chrome">
       <message name="IDS_AUTOFILL_CARD_UNMASK_PROMPT_STORAGE_TOOLTIP" desc="Text that provides further explanation on iOS for the option in the card unmasking dialog that allows user to store a Wallet card on their local device.">
-        If enabled, Rep Social will store a copy of your card on this device for faster form filling.
+        If enabled, Brave will store a copy of your card on this device for faster form filling.
       </message>
     </if>
     <if expr="not _google_chrome">
       <message name="IDS_AUTOFILL_CARD_UNMASK_PROMPT_STORAGE_TOOLTIP" desc="Text that provides further explanation on iOS for the option in the card unmasking dialog that allows user to store a Wallet card on their local device.">
-        If enabled, Rep Social will store a copy of your card on this device for faster form filling.
+        If enabled, Brave will store a copy of your card on this device for faster form filling.
       </message>
     </if>
   </if>
@@ -563,7 +563,7 @@
   </if>
   <if expr="is_win">
     <message name="IDS_PAYMENTS_AUTOFILL_FILLING_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup, asking the user to authenticate using biometric or device unlock before filling.">
-      Rep Social is trying to verify it's you so it can fill in your payment info.
+      Brave is trying to verify it's you so it can fill in your payment info.
     </message>
   </if>
   <if expr="is_ios">
@@ -581,24 +581,24 @@
     </message>
     <if expr="_google_chrome">
       <message name="IDS_PAYMENTS_AUTOFILL_FILLING_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel, asking the user to authenticate using biometric or device unlock before filling.">
-        Verify it's you so Rep Social can fill in your payment info.
+        Verify it's you so Brave can fill in your payment info.
       </message>
       <message name="IDS_PAYMENTS_AUTOFILL_SETTINGS_TOGGLE_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel when users try to switch the mandatory reauth settings page toggle, asking the user to authenticate using biometric or device unlock before the toggle is switched.">
-        Rep Social is trying to modify settings for filling payment methods.
+        Brave is trying to modify settings for filling payment methods.
       </message>
       <message name="IDS_PAYMENTS_AUTOFILL_SETTINGS_EDIT_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel when users try to edit cards in the settings page, asking the user to authenticate using biometric or device unlock first.">
-        Rep Social is trying to edit payment methods.
+        Brave is trying to edit payment methods.
       </message>
     </if>
     <if expr="not _google_chrome">
       <message name="IDS_PAYMENTS_AUTOFILL_FILLING_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel, asking the user to authenticate using biometric or device unlock before filling.">
-        Verify it's you so Rep Social can fill in your payment info.
+        Verify it's you so Brave can fill in your payment info.
       </message>
       <message name="IDS_PAYMENTS_AUTOFILL_SETTINGS_TOGGLE_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel when users try to switch the mandatory reauth settings page toggle, asking the user to authenticate using biometric or device unlock before the toggle is switched.">
-        Rep Social is trying to modify settings for filling payment methods.
+        Brave is trying to modify settings for filling payment methods.
       </message>
       <message name="IDS_PAYMENTS_AUTOFILL_SETTINGS_EDIT_MANDATORY_REAUTH" desc="Text that appears in the payments autofill mandatory re-authentication popup as the sublabel when users try to edit cards in the settings page, asking the user to authenticate using biometric or device unlock first.">
-        Rep Social is trying to edit payment methods.
+        Brave is trying to edit payment methods.
       </message>
     </if>
   </if>
@@ -706,7 +706,7 @@
     Save IBAN?
   </message>
   <message name="IDS_AUTOFILL_UPLOAD_IBAN_PROMPT_EXPLANATION" desc="Explanation text for the Autofill save IBAN (International Bank Account Number) to the GPay server prompt when a user submits a form with a valid IBAN.">
-    To autofill this IBAN next time, save it in your Rep Social sync chain
+    To autofill this IBAN next time, save it in your Brave sync chain
   </message>
   <!-- Autofill save IBAN bottom sheet prompt -->
   <if expr="is_android">
@@ -748,7 +748,7 @@
     You're all set
   </message>
   <message name="IDS_AUTOFILL_MANDATORY_REAUTH_CONFIRMATION_EXPLANATION" desc="Explanation text for the mandatory reauth confirmation prompt that is displayed to the user after opting into mandatory reauth. Mandatory reauth requires the user to unlock their device or pass a biometric auth when autofilling payment method information.">
-    Rep Social will now verify it's you before filling in payment methods. You can update this at any time in <ph name="IDS_AUTOFILL_MANDATORY_REAUTH_CONFIRMATION_SETTINGS_LINK">$1<ex>settings</ex></ph>.
+    Brave will now verify it's you before filling in payment methods. You can update this at any time in <ph name="IDS_AUTOFILL_MANDATORY_REAUTH_CONFIRMATION_SETTINGS_LINK">$1<ex>settings</ex></ph>.
   </message>
   <message name="IDS_AUTOFILL_MANDATORY_REAUTH_CONFIRMATION_SETTINGS_LINK" desc="A link to the settings page for the mandatory reauth confirmation prompt that is displayed to the user after opting into mandatory reauth. Mandatory reauth requires the user to unlock their device or pass a biometric auth when autofilling payment method information.">
     settings
@@ -1303,7 +1303,7 @@
       Check out faster with autofill
     </message>
     <message name="IDS_AUTOFILL_CREATE_FIRST_CREDIT_CARD_SUMMARY" desc="Summary for a call to action settings preference to add a new autofill credit card when the user does not have any cards added." formatter_data="android_java">
-      Save a payment method in your Rep Social sync chain to autofill it for purchases made in Rep Social
+      Save a payment method in your Brave sync chain to autofill it for purchases made in Brave
     </message>
     <message name="IDS_AUTOFILL_CREATE_FIRST_CREDIT_CARD_BUTTON_TEXT" desc="Button text for a call to action settings preference to add a new autofill credit card when the user does not have any cards added." formatter_data="android_java">
       Add payment method
@@ -1347,10 +1347,10 @@
       Autofill loyalty card
     </message>
     <message name="IDS_AUTOFILL_LOYALTY_CARD_FIRST_TIME_USAGE_BOTTOM_SHEET_TITLE" desc="The title of the touch to fill bottom sheet for loyalty cards that appears under the Brave Wallet icon. This title is shown to promote loyalty card filling to users." formatter_data="android_java">
-      Now you can autofill loyalty cards from Rep Social Wallet
+      Now you can autofill loyalty cards from Brave Wallet
     </message>
     <message name="IDS_AUTOFILL_LOYALTY_CARD_FIRST_TIME_USAGE_BOTTOM_SHEET_SUBTITLE" desc="The subtitle of the touch to fill bottom sheet for loyalty cards that appears under the title. This subtitle is shown to promote loyalty card filling to users." formatter_data="android_java">
-      Manage loyalty cards or turn these suggestions off in Rep Social Wallet
+      Manage loyalty cards or turn these suggestions off in Brave Wallet
     </message>
     <message name="IDS_AUTOFILL_PAYMENT_METHOD_CONTINUE_BUTTON" desc="The label of the button, which would fill in the web form with card credentials." formatter_data="android_java">
       Continue
@@ -1452,7 +1452,7 @@
       Delete saved security codes?
     </message>
     <message name="IDS_AUTOFILL_SETTINGS_PAGE_BULK_REMOVE_CVC_DESCRIPTION" desc="Description for the modal dialog when the user is trying to bulk remove/delete all the CVCs stored locally and on Brave servers.">
-      All security codes saved on your device and in Rep Social sync chain will be deleted
+      All security codes saved on your device and in Brave sync chain will be deleted
     </message>
     <message name="IDS_AUTOFILL_SETTINGS_PAGE_CVC_TAG_FOR_CREDIT_CARD_LIST_ENTRY" desc="Tag present on each entry in the credit card list on the payments settings page if that entry has a cvc saved to it.">
       CVC saved
@@ -1493,7 +1493,7 @@
   <!-- IBAN snackbar confirmation -->
   <if expr="is_android">
     <message name="IDS_AUTOFILL_SAVE_SERVER_IBAN_SUCCESS_SNACKBAR_MESSAGE_TEXT" desc="Text to be displayed in the snackbar shown after a server IBAN is saved.">
-      IBAN saved to your Rep Social sync chain
+      IBAN saved to your Brave sync chain
     </message>
     <message name="IDS_AUTOFILL_SAVE_SERVER_IBAN_SUCCESS_SNACKBAR_BUTTON_TEXT" desc="Text shown on the ok button of the confirmation prompt after an IBAN is saved.">
       Got it
@@ -1521,23 +1521,19 @@
   </message>
 
   <message name="IDS_AUTOFILL_SAVE_CARD_CONFIRMATION_SUCCESS_DESCRIPTION_TEXT" desc="Description text for confirmation shown after save card is successfully uploaded and saved to the server.">
-<<<<<<< HEAD
     Your card is saved in your Brave sync chain so you can autofill it for future purchases
-=======
-    This card is saved in your Rep Social sync chain so you can use it across Rep Social services.
->>>>>>> 42db0103f400d3fb595bdd61f122e66c9c3f2e29
   </message>
   <message name="IDS_AUTOFILL_SAVE_CARD_CONFIRMATION_FAILURE_DESCRIPTION_TEXT" desc="Description text for confirmation shown after save card upload to the server was unsuccessful.">
-    This card couldn't be saved in your Rep Social sync chain. It's saved to Rep Social on this device instead.
+    This card couldn't be saved in your Brave sync chain. It's saved to Brave on this device instead.
   </message>
   <message name="IDS_AUTOFILL_SAVE_IBAN_CONFIRMATION_SUCCESS_DESCRIPTION_TEXT" desc="Description text for confirmation shown after upload save IBAN attempt was successful and it was uploaded to the server.">
-    This IBAN is saved in your Rep Social sync chain so you can use it across Rep Social services.
+    This IBAN is saved in your Brave sync chain so you can use it across Brave services.
   </message>
   <message name="IDS_AUTOFILL_SAVE_IBAN_CONFIRMATION_FAILURE_DESCRIPTION_TEXT" desc="Description text for confirmation shown after upload save IBAN attempt was failed and and it was not uploaded to the server.">
-    This IBAN couldn't be saved in your Rep Social sync chain. It's saved to Rep Social on this device instead. Rep Social will ask you again the next time you use this IBAN.
+    This IBAN couldn't be saved in your Brave sync chain. It's saved to Brave on this device instead. Brave will ask you again the next time you use this IBAN.
   </message>
   <message name="IDS_AUTOFILL_SAVE_IBAN_CONFIRMATION_FAILURE_HIT_MAX_STRIKE_DESCRIPTION_TEXT" desc="Description text for confirmation shown after upload save IBAN attempt was failed and and it was not uploaded to the server. Other than that, the number of offer-to-upload has hit the max strike.">
-    This IBAN couldn't be saved in your Rep Social sync chain. It's saved to Rep Social on this device instead.
+    This IBAN couldn't be saved in your Brave sync chain. It's saved to Brave on this device instead.
   </message>
   <message name="IDS_AUTOFILL_VIRTUAL_CARD_ENROLL_CONFIRMATION_SUCCESS_DESCRIPTION_TEXT" desc="Description text for confirmation shown after virtual card enrollment is successful.">
     You can now use a virtual card to check out more securely with autofill.

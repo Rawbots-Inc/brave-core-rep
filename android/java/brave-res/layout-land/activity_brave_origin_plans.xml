@@ -94,7 +94,7 @@
                     android:layout_marginBottom="16dp"
                     android:textColor="@android:color/white"
                     android:drawablePadding="8dp"
-                    android:text="@string/origin_paywall_text_4"
+                    android:text="Temporary text"
                     app:drawableStartCompat="@drawable/ic_checkmark_gradient" />
 
             </LinearLayout>

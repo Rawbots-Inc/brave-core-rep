@@ -1408,7 +1408,7 @@ public class BraveNewTabPageLayout extends NewTabPageLayout
                         }
                     };
     @SuppressWarnings("UnusedVariable")
-    private FetchWallpaperWorkerTask.WallpaperRetrievedCallback mWallpaperRetrievedCallback =
+    private final FetchWallpaperWorkerTask.WallpaperRetrievedCallback mWallpaperRetrievedCallback =
             new FetchWallpaperWorkerTask.WallpaperRetrievedCallback() {
                 @Override
                 public void bgWallpaperRetrieved(Bitmap bgWallpaper) {

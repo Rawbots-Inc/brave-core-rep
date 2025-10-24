@@ -236,11 +236,9 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mBtnPositive != null) {
             mBtnPositive.setOnClickListener(
                     view -> {
-                        finalStep();
-                        // nextOnboardingStep();
                         // if (mCurrentStep == 0 && !isDefaultBrowser()) {
                         //     setDefaultBrowserAndProceedToNextStep();
-                        // } else if (isWDPEnabled()
+                        // } else if (isWDPSettingAvailable()
                         //         && mCurrentOnboardingPage == CurrentOnboardingPage.WDP_PAGE) {
                         //     UserPrefs.get(getProfileProviderSupplier().get().getOriginalProfile())
                         //             .setBoolean(BravePref.WEB_DISCOVERY_ENABLED, true);
@@ -248,6 +246,7 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
                         // } else {
                         //     nextOnboardingStep();
                         // }
+                          finalStep();
                     });
         }
 

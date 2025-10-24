@@ -651,28 +651,28 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         //     addMenuItemAfter(
         //             modelList, buildBraveWalletItem(), Arrays.asList(R.id.all_bookmarks_menu_id));
         // }
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
-                && ChromeSharedPreferences.getInstance()
-                        .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)) {
-            addMenuItemAfter(
-                    modelList,
-                    buildBravePlaylistItem(),
-                    Arrays.asList(R.id.brave_wallet_id, R.id.all_bookmarks_menu_id));
-        }
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
-                && ChromeSharedPreferences.getInstance()
-                        .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)
-                && !ChromeSharedPreferences.getInstance()
-                        .readBoolean(BravePreferenceKeys.PREF_ADD_TO_PLAYLIST_BUTTON, true)
-                && BraveToolbarLayoutImpl.mShouldShowPlaylistMenu) {
-            addMenuItemAfter(
-                    modelList,
-                    buildBraveAddToPlaylistItem(),
-                    Arrays.asList(
-                            R.id.brave_playlist_id,
-                            R.id.brave_wallet_id,
-                            R.id.all_bookmarks_menu_id));
-        }
+        // if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
+        //         && ChromeSharedPreferences.getInstance()
+        //                 .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)) {
+        //     addMenuItemAfter(
+        //             modelList,
+        //             buildBravePlaylistItem(),
+        //             Arrays.asList(R.id.brave_wallet_id, R.id.all_bookmarks_menu_id));
+        // }
+        // if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_PLAYLIST)
+        //         && ChromeSharedPreferences.getInstance()
+        //                 .readBoolean(BravePreferenceKeys.PREF_ENABLE_PLAYLIST, true)
+        //         && !ChromeSharedPreferences.getInstance()
+        //                 .readBoolean(BravePreferenceKeys.PREF_ADD_TO_PLAYLIST_BUTTON, true)
+        //         && BraveToolbarLayoutImpl.mShouldShowPlaylistMenu) {
+        //     addMenuItemAfter(
+        //             modelList,
+        //             buildBraveAddToPlaylistItem(),
+        //             Arrays.asList(
+        //                     R.id.brave_playlist_id,
+        //                     R.id.brave_wallet_id,
+        //                     R.id.all_bookmarks_menu_id));
+        // }
         // if (BraveLeoPrefUtils.isLeoEnabled()) {
         //     Tab tab = mActivityTabProvider.get();
         //     if (tab != null && !tab.isIncognito()) {
@@ -686,20 +686,11 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         //                         R.id.all_bookmarks_menu_id));
         //     }
         // }
-        if (ChromeFeatureList.isEnabled(BraveFeatureList.BRAVE_SPEEDREADER)
-                && UserPrefs.get(assumeNonNull(mTabModelSelector.getCurrentModel().getProfile()))
-                        .getBoolean(BravePref.SPEEDREADER_PREF_ENABLED)) {
-            final Tab currentTab = mActivityTabProvider.get();
-            if (currentTab != null && BraveSpeedReaderUtils.tabSupportsDistillation(currentTab)) {
-                addMenuItemAfter(
-                        modelList, buildBraveSpeedreaderItem(), Arrays.asList(R.id.page_zoom_id));
-            }
-        }
-        if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(mContext)) {
+        if (!BraveSetDefaultBrowserUtils.isBraveSetAsDefaultBrowser(mBraveContext)) {
             modelList.add(buildSetDefaultBrowserItem());
         }
         // if (!mJunitIsTesting) {
-        //     if (BraveVpnUtils.isVpnFeatureSupported(mContext)) {
+        //     if (BraveVpnUtils.isVpnFeatureSupported(mBraveContext)) {
         //         modelList.add(buildBraveVpnItem());
         //         if (BraveVpnPrefUtils.isSubscriptionPurchase()
         //                 && !TextUtils.isEmpty(BraveVpnPrefUtils.getRegionIsoCode())) {
@@ -713,6 +704,7 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
         //     }
         // }
         // modelList.add(buildBraveNewsItem());
+        // modelList.add(buildCustomMenuItem());
         modelList.add(buildExitItem());
     }
 
@@ -834,23 +826,14 @@ public class BraveTabbedAppMenuPropertiesDelegate extends TabbedAppMenuPropertie
                         shouldShowIconBeforeItem() ? R.drawable.ic_news : 0));
     }
 
-    private MVCListAdapter.ListItem buildBraveSpeedreaderItem() {
-        return new MVCListAdapter.ListItem(
-                AppMenuHandler.AppMenuItemType.STANDARD,
-                buildModelForStandardMenuItem(
-                        R.id.brave_speedreader_id,
-                        R.string.brave_speedreader_title,
-                        shouldShowIconBeforeItem() ? R.drawable.ic_readermode : 0));
-    }
-
-    // private MVCListAdapter.ListItem buildBraveLeoItem() {
-    //     return new MVCListAdapter.ListItem(
-    //             AppMenuHandler.AppMenuItemType.STANDARD,
-    //             buildModelForStandardMenuItem(
-    //                     R.id.brave_leo_id,
-    //                     R.string.menu_brave_leo,
-    //                     shouldShowIconBeforeItem() ? R.drawable.ic_brave_ai : 0));
-    // }
+//     private MVCListAdapter.ListItem buildBraveLeoItem() {
+//         return new MVCListAdapter.ListItem(
+//                 AppMenuHandler.AppMenuItemType.STANDARD,
+//                 buildModelForStandardMenuItem(
+//                         R.id.brave_leo_id,
+//                         R.string.menu_brave_leo,
+//                         shouldShowIconBeforeItem() ? R.drawable.ic_brave_ai : 0));
+//     }
 
     private MVCListAdapter.ListItem buildBraveVpnItem() {
         return new MVCListAdapter.ListItem(

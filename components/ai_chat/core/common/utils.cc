@@ -22,10 +22,10 @@ bool IsBraveSearchURL(const GURL& url) {
 }
 
 bool IsOpenAIChatButtonFromBraveSearchURL(const GURL& url) {
-  // Use search.brave.com in all cases because href on search site is
-  // hardcoded to search.brave.com for all environments.
+  // Use google.com in all cases because href on search site is
+  // hardcoded to google.com for all environments.
   return url.is_valid() && url.SchemeIs(url::kHttpsScheme) &&
-         url.host_piece() == "search.brave.com" && url.path_piece() == "/leo" &&
+         url.host_piece() == "google.com" && url.path_piece() == "/leo" &&
          !url.ref_piece().empty();
 }
 

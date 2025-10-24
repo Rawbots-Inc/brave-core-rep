@@ -519,19 +519,13 @@ public abstract class BraveActivity extends ChromeActivity
             }
         } else if (id == R.id.request_vpn_location_id || id == R.id.request_vpn_location_icon_id) {
             BraveVpnUtils.openVpnServerSelectionActivity(BraveActivity.this);
-        } else if (id == R.id.brave_leo_id) {
-            openBraveLeo();
-        } else if (id == CustomizeBraveMenu.BRAVE_CUSTOMIZE_ITEM_ID) {
-            final AppMenuPropertiesDelegate delegate = createAppMenuPropertiesDelegate();
-            assert delegate instanceof BraveTabbedAppMenuPropertiesDelegate;
-            final BraveTabbedAppMenuPropertiesDelegate braveTabbedAppMenuPropertiesDelegate =
-                    (BraveTabbedAppMenuPropertiesDelegate) delegate;
-            // Get full menu items and pass them to settings.
-            CustomizeBraveMenu.openCustomizeMenuSettings(
-                    this,
-                    braveTabbedAppMenuPropertiesDelegate.buildMainMenuModelList(),
-                    braveTabbedAppMenuPropertiesDelegate.buildPageActionsModelList());
-        } else {
+        } else if (id == R.id.brave_speedreader_id) {
+            enableSpeedreaderMode();
+        }
+        //  else if (id == R.id.brave_leo_id) {
+        //     openBraveLeo();
+        // }
+         else {
             return false;
         }
         return true;

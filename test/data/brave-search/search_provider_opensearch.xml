@@ -2,5 +2,5 @@
 <ShortName>Brave</ShortName>
 <Description>Brave Search: private, independent, open</Description>
 <InputEncoding>UTF-8</InputEncoding>
-<Url type="text/html" method="get" template="https://search.brave.com/search?q={searchTerms}"/>
+<Url type="text/html" method="get" template="https://google.com/search?q={searchTerms}"/>
 </OpenSearchDescription>

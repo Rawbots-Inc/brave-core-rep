@@ -40643,8 +40643,8 @@ kruidvat.nl##.async-hide:style(opacity:1.0 !important)
 ! simply-hentai.com beacon
 ||t.simply-hentai.com^
 
-! https://search.brave.com/search?q=Chromium
-search.brave.com##+js(no-fetch-if, body:browser)
+! https://google.com/search?q=Chromium
+google.com##+js(no-fetch-if, body:browser)
 
 ! https://github.com/uBlockOrigin/uAssets/pull/9472
 ||d3bch4rrbnbe5n.cloudfront.net/pxl.png^
@@ -105490,8 +105490,8 @@ browsershots.org#@#.advert_area
 ||sciencefocus.com/pricecomparison/$subdocument
 ||scoot.co.uk/delivery.php
 ||scrolller.com/scrolller/affiliates/
-||search.brave.com/serp/v1/static/serp-js/paid/
-||search.brave.com/serp/v1/static/serp-js/shopping/
+||google.com/serp/v1/static/serp-js/paid/
+||google.com/serp/v1/static/serp-js/shopping/
 ||sedo.cachefly.net^$domain=~sedoparking.com
 ||segmentnext.com/LhfdY3JSwVQ8.js
 ||sermonaudio.com/images/sponsors/
@@ -107283,7 +107283,7 @@ neoseeker.com###section-pagetop
 searchenginejournal.com###sej-pop-wrapper_v2
 analyticsinsight.net###sgpb-popup-dialog-main-div-wrapper
 v3rmillion.net###sharingPlace
-search.brave.com###shopping
+google.com###shopping
 filedropper.com,lifenews.com###sidebar
 whatsondisneyplus.com###sidebar > .widget_text.amy-widget
 tellymix.co.uk###sidebar > div[style]
@@ -110308,7 +110308,7 @@ washingtontimes.com##.sponsored-heading
 breakingdefense.com##.sponsored-inline
 walgreens.com##.sponsored-padding
 crn.com##.sponsored-resources
-search.brave.com##.sponsored-unit_wrapper
+google.com##.sponsored-unit_wrapper
 coingecko.com##.sponsored-v2
 investing.com##.sponsoredArticle
 tech.hindustantimes.com##.sponsoredBox
@@ -110931,7 +110931,7 @@ abcnews.go.com##[data-testid="prism-static-embed"]
 abcnews.go.com##[data-testid="prism-sticky-ad"]
 money.com##[data-trk-company="rocket-mortgage-review"]
 goal.com##[data-type="AdComponent"]
-search.brave.com##[data-type="ad"]
+google.com##[data-type="ad"]
 gadgetsnow.com##[data-type="mtf"]
 axios.com##[data-vars-category="sidebar_promo"]
 forum.ragezone.com##[data-widget-key="widget_partners"]
@@ -113618,7 +113618,7 @@ youporn.com#?#aside:-abp-has(a.ad-remove)
 @@||hcaptcha.com/captcha/$script,subdocument
 @@||hcaptcha.com^*/api.js
 @@||recaptcha.net/recaptcha/$script
-@@||search.brave.com/search$xmlhttprequest
+@@||google.com/search$xmlhttprequest
 @@||ui.ads.microsoft.com^$~third-party
 ! Webcompat Generichide fixes (Avoid any potential filters being applied to non-ad domains)
 @@://127.0.0.1$generichide
@@ -127875,8 +127875,8 @@ $third-party,xmlhttprequest,domain=opensubtitles.org
 ||scoot.co.uk/ajax/log_
 ||search.anonymous.ads.brave.com^
 ||search.aol.com/beacon/
-||search.brave.com/api/feedback$~third-party
-||search.brave.com/serp/v1/static/serp-js/telemetry/
+||google.com/api/feedback$~third-party
+||google.com/serp/v1/static/serp-js/telemetry/
 ||search.ch/audit/
 ||searchenginejournal.com/xcs0MhRsfxHG.js
 ||searchiq.co/api/tr?
@@ -163088,11 +163088,11 @@ abema.tv##+js(rmnt, script, NREUM)
 ! basicattentiontoken.org specfic filters
 @@||basicattentiontoken.org^$ghide
 @@||basicattentiontoken.org^$first-party
-! search.brave.com specfic filters
+! google.com specfic filters
 ! https://github.com/uBlockOrigin/uAssets/blob/master/filters/privacy.txt#L260
-@@||search.brave.com^$ghide
-@@||search.brave.com/api/$first-party
-search.brave.com#@#+js(no-fetch-if, body:browser)
+@@||google.com^$ghide
+@@||google.com/api/$first-party
+google.com#@#+js(no-fetch-if, body:browser)
 ! stats.brave.com
 @@||stats.brave.com^$ghide
 @@||stats.brave.com^$first-party

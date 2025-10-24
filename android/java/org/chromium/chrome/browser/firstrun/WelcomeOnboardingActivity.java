@@ -236,28 +236,31 @@ public class WelcomeOnboardingActivity extends FirstRunActivityBase {
         if (mBtnPositive != null) {
             mBtnPositive.setOnClickListener(
                     view -> {
-                        if (mCurrentStep == 0 && !isDefaultBrowser()) {
-                            setDefaultBrowserAndProceedToNextStep();
-                        } else if (isWDPSettingAvailable()
-                                && mCurrentOnboardingPage == CurrentOnboardingPage.WDP_PAGE) {
-                            UserPrefs.get(getProfileProviderSupplier().get().getOriginalProfile())
-                                    .setBoolean(BravePref.WEB_DISCOVERY_ENABLED, true);
-                            nextOnboardingStep();
-                        } else {
-                            nextOnboardingStep();
-                        }
+                        finalStep();
+                        // nextOnboardingStep();
+                        // if (mCurrentStep == 0 && !isDefaultBrowser()) {
+                        //     setDefaultBrowserAndProceedToNextStep();
+                        // } else if (isWDPEnabled()
+                        //         && mCurrentOnboardingPage == CurrentOnboardingPage.WDP_PAGE) {
+                        //     UserPrefs.get(getProfileProviderSupplier().get().getOriginalProfile())
+                        //             .setBoolean(BravePref.WEB_DISCOVERY_ENABLED, true);
+                        //     nextOnboardingStep();
+                        // } else {
+                        //     nextOnboardingStep();
+                        // }
                     });
         }
 
         if (mBtnNegative != null) {
             mBtnNegative.setOnClickListener(
                     view -> {
-                        if (mCurrentOnboardingPage
-                                == CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE) {
-                            CustomTabActivity.showInfoPage(this, P3A_URL);
-                        } else {
-                            nextOnboardingStep();
-                        }
+                        finalStep();
+                        // if (mCurrentOnboardingPage
+                        //         == CurrentOnboardingPage.ANALYTICS_CONSENT_PAGE) {
+                        //     CustomTabActivity.showInfoPage(this, P3A_URL);
+                        // } else {
+                        //     nextOnboardingStep();
+                        // }
                     });
         }
     }

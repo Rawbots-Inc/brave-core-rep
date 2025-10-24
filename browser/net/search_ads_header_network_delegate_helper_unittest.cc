@@ -36,12 +36,12 @@ namespace brave {
 namespace {
 
 constexpr std::string_view kBraveSearchRequestUrl =
-    "https://search.brave.com/search?q=qwerty";
+    "https://google.com/search?q=qwerty";
 constexpr std::string_view kBraveSearchImageRequestUrl =
-    "https://search.brave.com/img.png";
+    "https://google.com/img.png";
 constexpr std::string_view kNonBraveSearchRequestUrl =
     "https://brave.com/search?q=qwerty";
-constexpr std::string_view kBraveSearchTabUrl = "https://search.brave.com";
+constexpr std::string_view kBraveSearchTabUrl = "https://google.com";
 constexpr std::string_view kNonBraveSearchTabUrl = "https://brave.com";
 
 }  // namespace

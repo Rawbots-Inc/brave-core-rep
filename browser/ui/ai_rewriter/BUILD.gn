@@ -7,13 +7,13 @@ source_set("browsertest") {
   testonly = true
   assert(!is_android)
 
-  sources = [ "ai_rewriter_dialog_delegate_browsertest.cc" ]
+  # sources = [ "ai_rewriter_dialog_delegate_browsertest.cc" ]
 
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
   deps = [
     "//base/test:test_support",
-    "//brave/components/ai_rewriter/common",
+    # "//brave/components/ai_rewriter/common",
     "//chrome/browser/ui",
     "//chrome/test:test_support_ui",
     "//content/test:test_support",

@@ -199,6 +199,7 @@ brave_java_sources = [
   "../../brave/android/java/org/chromium/chrome/browser/custom_layout/VerticalViewPager.java",
   "../../brave/android/java/org/chromium/chrome/browser/custom_layout/popup_window_tooltip/ArrowColorDrawable.java",
   "../../brave/android/java/org/chromium/chrome/browser/custom_layout/popup_window_tooltip/PopupWindowTooltip.java",
+  "../../brave/android/java/org/chromium/chrome/browser/custom_layout/popup_window_tooltip/PopupWindowTooltipCustom.java",
   "../../brave/android/java/org/chromium/chrome/browser/custom_layout/popup_window_tooltip/PopupWindowTooltipUtils.java",
   "../../brave/android/java/org/chromium/chrome/browser/customtabs/BraveAccountCustomTabActivity.java",
   "../../brave/android/java/org/chromium/chrome/browser/customtabs/FullScreenCustomTabActivity.java",

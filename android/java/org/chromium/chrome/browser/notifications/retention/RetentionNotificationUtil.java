@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class RetentionNotificationUtil {
     public static String NOTIFICATION_TYPE = "notification_type";
-    private static final String BRAVE_BROWSER = "Brave Browser";
+    private static final String BRAVE_BROWSER = "RepSky";
 
     public static final String HOUR_3 = "hour_3";
     public static final String HOUR_24 = "hour_24";
@@ -41,6 +41,8 @@ public class RetentionNotificationUtil {
     public static final String DORMANT_USERS_DAY_14 = "dormant_users_days_14";
     public static final String DORMANT_USERS_DAY_25 = "dormant_users_days_25";
     public static final String DORMANT_USERS_DAY_40 = "dormant_users_days_40";
+    private static final boolean ENABLE_RETENTION_NOTIFICATIONS = false;
+
 
     private static final Map<String, RetentionNotification> sNotificationMap =
             Map.ofEntries(
@@ -217,6 +219,7 @@ public class RetentionNotificationUtil {
     }
 
     public static void scheduleNotification(Context context, String notificationType) {
+        if (!ENABLE_RETENTION_NOTIFICATIONS) return;
         RetentionNotification retentionNotification = getNotificationObject(notificationType);
         Intent notificationIntent = new Intent(context, RetentionNotificationPublisher.class);
         notificationIntent.putExtra(NOTIFICATION_TYPE, notificationType);
@@ -235,6 +238,7 @@ public class RetentionNotificationUtil {
 
     public static void scheduleNotificationWithTime(
             Context context, String notificationType, long timeInMilliseconds) {
+        if (!ENABLE_RETENTION_NOTIFICATIONS) return;
         RetentionNotification retentionNotification = getNotificationObject(notificationType);
         Intent notificationIntent = new Intent(context, RetentionNotificationPublisher.class);
         notificationIntent.putExtra(NOTIFICATION_TYPE, notificationType);
@@ -247,6 +251,7 @@ public class RetentionNotificationUtil {
     }
 
     public static void scheduleNotificationForEverySunday(Context context, String notificationType) {
+        if (!ENABLE_RETENTION_NOTIFICATIONS) return;
         RetentionNotification retentionNotification = getNotificationObject(notificationType);
         Calendar currentDate = Calendar.getInstance();
         while (currentDate.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
@@ -268,6 +273,7 @@ public class RetentionNotificationUtil {
     }
 
     public static void scheduleDormantUsersNotifications(Context context) {
+        if (!ENABLE_RETENTION_NOTIFICATIONS) return;
         scheduleNotificationWithTime(context, DORMANT_USERS_DAY_14,
                 OnboardingPrefManager.getInstance().getDormantUsersNotificationTime(
                         DORMANT_USERS_DAY_14));

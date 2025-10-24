@@ -30,6 +30,7 @@ index 44297dfd1149d82e374be24f3a9cff1ecfad248f..d1712742cd17e04fa27f4d7900de4040
      {% endif %}
      <!-- TODO(crbug.com/40259231): Remove this tools:ignore attribute once it's no longer necessary. -->
      <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" tools:ignore="SystemPermissionTypo" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" tools:ignore="SystemPermissionTypo" />
      <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
  
 +<!--

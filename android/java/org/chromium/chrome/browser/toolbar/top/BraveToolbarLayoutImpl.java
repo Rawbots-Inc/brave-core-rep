@@ -1369,8 +1369,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 //   } else {
     Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
-      "https://prod-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
-      "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/";
+      "https://rep.run?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://rep.run?currentTabUrl=chrome://newtab/";
     CustomTabActivity.showInfoPage(getContext(), targetUrl);
     
 

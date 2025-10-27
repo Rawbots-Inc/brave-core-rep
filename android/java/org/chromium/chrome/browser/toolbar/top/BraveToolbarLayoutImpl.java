@@ -137,6 +137,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.net.URI;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,
@@ -1160,16 +1161,43 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         if (mBraveShieldsButton == v && mBraveShieldsButton != null) {
             showShieldsMenu(mBraveShieldsButton);
         } else if (mBraveRewardsButton == v && mBraveRewardsButton != null) {
-            hideRewardsOnboardingIcon();
-            OnboardingPrefManager.getInstance().setOnboardingShown(true);
-            showRewardsPage();
+            // hideRewardsOnboardingIcon();
+            // OnboardingPrefManager.getInstance().setOnboardingShown(true);
+            // showRewardsPage();
 
-            if (mBraveRewardsNotificationsCount.isShown()) {
-                ChromeSharedPreferences.getInstance()
-                        .writeBoolean(PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
-                mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
-                mIsInitialNotificationPosted = false;
+            // if (mBraveRewardsNotificationsCount.isShown()) {
+            //     ChromeSharedPreferences.getInstance()
+            //             .writeBoolean(PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+            //     mBraveRewardsNotificationsCount.setVisibility(View.INVISIBLE);
+            //     mIsInitialNotificationPosted = false;
+            // }
+             Tab currentTab = getToolbarDataProvider().getTab();
+            if (currentTab == null) {
+                 Log.e(TAG, "showRepSocial empty ");
+                showRepSocial("");
+                return;
             }
+
+            try {
+                URL url = new URL(currentTab.getUrl().getSpec());
+                if (!isValidProtocolForShields(url.getProtocol())) {
+                    Log.e(TAG, "showRepSocial empty ");
+                    showRepSocial("");
+                    return;
+                }
+
+                Log.e(TAG, "showRepSocial " +  url.toString());
+                showRepSocial(url.toString());
+            } catch (Exception e) {
+                    showRepSocial("");
+
+                return;
+            }
+
+            if (null != mRewardsPopup) {
+                return;
+            }
+    
         } else if (mHomeButton == v) {
             // Helps Brave News know how to behave on home button action
             try {
@@ -1259,6 +1287,96 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             // Just return w/o showing shields popup.
             return;
         }
+    }
+
+       public static String transformToDesktopURL(String mobileUrl) {
+        try {
+            // Parse the input URL
+            URI uri = new URI(mobileUrl);
+
+            // Check if it's a YouTube URL
+            if (uri.getHost().contains("youtube.com")) {
+                // Replace "m.youtube.com" with "www.youtube.com"
+                String desktopHost = uri.getHost().replace("m.youtube.com", "www.youtube.com");
+
+                // Remove the "pp" parameter if it exists
+                String query = uri.getQuery();
+                if (query != null && query.contains("pp=")) {
+                    query = query.replaceAll("pp=[^&]*&?", "");
+
+                    // Remove trailing "&" or "?" if present
+                    query = query.replaceAll("[&?]$", "");
+                }
+
+                // Construct the new URL with the desktop hostname and updated query
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    query, 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("facebook.com")) {
+                // Replace "m.facebook.com" with "www.facebook.com"
+                String desktopHost = uri.getHost().replace("m.facebook.com", "www.facebook.com");
+
+                // Construct the new URL with the desktop hostname
+                URI desktopURI = new URI(
+                    uri.getScheme(), 
+                    uri.getUserInfo(), 
+                    desktopHost, 
+                    uri.getPort(), 
+                    uri.getPath(), 
+                    uri.getQuery(), 
+                    uri.getFragment()
+                );
+
+                return desktopURI.toString();
+            } else if (uri.getHost().contains("linkedin.com")) {
+                // Redirect LinkedIn root URL to its feed page
+                if (uri.getPath().equals("/") || uri.getPath().isEmpty()) {
+                    return "https://www.linkedin.com/feed/";
+                }
+
+                // Return original LinkedIn URL if not the root
+                return mobileUrl;
+            }
+
+            return mobileUrl; // Return the original URL if not YouTube, Facebook, or LinkedIn
+
+        } catch (URISyntaxException e) {
+            return mobileUrl; // Return the original URL if invalid format
+        }
+    }
+
+      @SuppressWarnings("UnusedVariable")
+    private void showRepSocial(String url) {
+//         boolean isFirstClick = !ChromeSharedPreferences.getInstance()
+//                       .readBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, false);
+//         if (isFirstClick) {
+//              Log.d(TAG, "Button Brave Rewards nhan lan dau tien");
+//              ChromeSharedPreferences.getInstance()
+//       .writeBoolean(BraveRewardsPanel.PREF_WAS_TOOLBAR_BAT_LOGO_BUTTON_PRESSED, true);
+//       String targetUrl = (url != null && !url.isEmpty()) ?
+//       "https://prod-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
+//       "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/";
+//     //   CustomTabActivity.showInfoPage(getContext(), targetUrl);
+//     showOnBoarding(targetUrl);
+   
+//   } else {
+    Log.d(TAG, "Button Brave Rewards ko phai dau dien");
+ String targetUrl = (url != null && !url.isEmpty()) ?
+      "https://prod-extension.rsky.ai?currentTabUrl=" + transformToDesktopURL(url) :
+      "https://prod-extension.rsky.ai?currentTabUrl=chrome://newtab/";
+    CustomTabActivity.showInfoPage(getContext(), targetUrl);
+    
+
+//   }
+         
     }
 
     @Override

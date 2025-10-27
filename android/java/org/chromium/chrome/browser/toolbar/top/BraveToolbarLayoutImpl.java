@@ -138,6 +138,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.net.URI;
+import org.chromium.chrome.browser.customtabs.CustomTabActivity;
+import java.net.URISyntaxException;
 
 public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         implements BraveToolbarLayout,
@@ -1194,9 +1196,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 return;
             }
 
-            if (null != mRewardsPopup) {
-                return;
-            }
     
         } else if (mHomeButton == v) {
             // Helps Brave News know how to behave on home button action

@@ -492,8 +492,8 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
         if (mBraveRewardsNativeWorker != null) {
             mBraveRewardsNativeWorker.addObserver(this);
-            mBraveRewardsNativeWorker.addPublisherObserver(this);
-            mBraveRewardsNativeWorker.getAllNotifications();
+            // mBraveRewardsNativeWorker.addPublisherObserver(this);
+            // mBraveRewardsNativeWorker.getAllNotifications();
         }
     }
 
@@ -1546,7 +1546,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         if (mBraveRewardsNativeWorker == null) {
             return;
         }
-        mBraveRewardsNativeWorker.getAllNotifications();
+        // mBraveRewardsNativeWorker.getAllNotifications();
     }
 
     private boolean mayShowBraveAdsOnboardingDialog() {

@@ -481,7 +481,9 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
                 && mBraveRewardsNativeWorker.isRewardsEnabled()
                 && mBraveRewardsNativeWorker.isSupported()
                 && mBraveRewardsNativeWorker.isTermsOfServiceUpdateRequired()) {
-            showOrHideRewardsBadge(true);
+            // Do not show the red Rewards notification badge beside the URL bar.
+            // Previously this called showOrHideRewardsBadge(true).
+            showOrHideRewardsBadge(false);
         }
         if (mShieldsLayout != null) {
             updateShieldsLayoutBackground(

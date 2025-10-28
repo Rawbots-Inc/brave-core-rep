@@ -1259,16 +1259,9 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     }
 
     private boolean checkForRewardsOnboarding() {
-        return PackageUtils.isFirstInstall(getContext())
-                && mBraveRewardsNativeWorker != null
-                && !mBraveRewardsNativeWorker.isRewardsEnabled()
-                && mBraveRewardsNativeWorker.isSupported()
-                && !OnboardingPrefManager.getInstance().isOnboardingShown()
-                && (BraveRewardsHelper.getRewardsOnboardingIconInvisibleTiming() == 0
-                        || (BraveRewardsHelper.getRewardsOnboardingIconInvisibleTiming() > 0
-                                && System.currentTimeMillis()
-                                        <= BraveRewardsHelper
-                                                .getRewardsOnboardingIconInvisibleTiming()));
+    // Force-disable the Rewards onboarding hand icon on the toolbar.
+    // Even if the timing and conditions match, we don't want to show it.
+    return false;
     }
 
     private void showShieldsMenu(View mBraveShieldsButton) {

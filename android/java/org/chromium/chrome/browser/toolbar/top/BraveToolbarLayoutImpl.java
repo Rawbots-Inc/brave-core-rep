@@ -285,6 +285,11 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
             mWalletIcon = mWalletLayout.findViewById(R.id.brave_wallet_button);
         }
 
+        // Force-hide the Rewards onboarding hand icon on toolbar at inflate time.
+        if (mBraveRewardsOnboardingIcon != null) {
+            mBraveRewardsOnboardingIcon.setVisibility(View.GONE);
+        }
+
         mDarkModeTint = ThemeUtils.getThemedToolbarIconTint(getContext(), false);
         mLightModeTint =
                 ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.brave_white));

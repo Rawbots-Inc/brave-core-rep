@@ -206,7 +206,7 @@
 "BraveShieldsSiteBroken" = "Nếu trang web hiển thị lỗi, hãy thử tắt Lá chắn";
 
 /* Context: 'Brave Shields Up' or 'Brave Shields Down' */
-"BraveShieldsStatusTitle" = "Lá chắn Brave";
+"BraveShieldsStatusTitle" = "Lá chắn Rep Shield";
 
 /* Context: The 'Down' in 'Brave Shields Down' */
 "BraveShieldsStatusValueDown" = "Tắt";
@@ -215,7 +215,7 @@
 "BraveShieldsStatusValueUp" = "Bật";
 
 /* The accessibility hint spoken when focused on the main shields toggle */
-"BraveShieldsToggleHint" = "Nhấn đúp để hiển thị Lá chắn Brave";
+"BraveShieldsToggleHint" = "Nhấn đúp để hiển thị Lá chắn Rep";
 
 /* The name of the feature */
 "bravetalk.braveTalkTitle" = "Trò chuyện Brave";

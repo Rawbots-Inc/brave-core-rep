@@ -1271,7 +1271,7 @@ Are you sure you want to do this?
         Show New Tab Page Ads
       </message>
       <message name="IDS_SPONSORED_IMAGES_LEARN_MORE" desc="Title of learn more about new tab page ads.">
-        Learn more about new tab page ads
+        
       </message>
       <message name="IDS_WIDGETS" desc ="Categary of Widget option.">
         Widgets

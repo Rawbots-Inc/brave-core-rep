@@ -1474,11 +1474,11 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
         }
 
         if (tab == null) {
-            mBraveShieldsButton.setImageResource(R.drawable.btn_bat);
+            mBraveShieldsButton.setImageResource(R.drawable.btn_brave);
             return;
         }
         mBraveShieldsButton.setImageResource(
-                isShieldsOnForTab(tab) ? R.drawable.btn_bat : R.drawable.btn_bat);
+                isShieldsOnForTab(tab) ? R.drawable.btn_brave : R.drawable.btn_brave);
 
         if (mRewardsLayout == null) return;
         if (isIncognito()) {

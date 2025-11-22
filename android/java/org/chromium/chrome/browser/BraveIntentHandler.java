@@ -38,7 +38,7 @@ public class BraveIntentHandler {
             "https://support.brave.app/hc/en-us/articles/360018185871-How-do-I-check-if-a-site-s-connection-is-secure-";
     public static final String FALLBACK_SUPPORT_URL =
             "https://support.google.com/chrome/topic/6069782";
-    public static final String BRAVE_FALLBACK_SUPPORT_URL = "https://support.brave.app/hc/en-us";
+    public static final String BRAVE_FALLBACK_SUPPORT_URL = "https://rep.run/support";
 
     /**
      * Helper method to extract the raw URL from the intent, without further processing. The URL may

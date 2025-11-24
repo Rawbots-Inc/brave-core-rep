@@ -540,7 +540,7 @@
     Sites are slower but more secure
   </message>
   <message name="IDS_WEBSITE_SETTINGS_CATEGORY_JAVASCRIPT_OPTIMIZER_PAGE_DESCRIPTION" desc="An explanation of what V8 is which appears beneath the page title: 'V8 optimizer'.">
-    V8 is Brave’s JavaScript and WebAssembly engine used to improve site performance
+    V8 is Rep’s JavaScript and WebAssembly engine used to improve site performance
   </message>
   <message name="IDS_WEBSITE_SETTINGS_PRIVACY_AND_SECURITY_JAVASCRIPT_OPTIMIZER_ROW_LABEL" desc="Title for the link row to the V8 security settings.">
     JavaScript optimization &amp; security

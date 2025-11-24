@@ -645,7 +645,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Allows Rep Social to show links to private surveys in the new tab page. Surveys help us build better features and measure the effectiveness of browser-based ad campaigns.
       </message>
       <message name="IDS_SURVEY_PANELIST_LEARN_MORE" desc="Title of learn more about survey panelist.">
-        Learn more about Rep Social surveys
+        
       </message>
       <!-- AUTOPLAY SITE SETTING-->
       <message name="IDS_AUTOPLAY_TITLE" desc="Title for the Autoplay settings screen [CHAR-LIMIT=32]">
@@ -1208,10 +1208,10 @@ Are you sure you want to do this?
         To sync passwords, please enable biometrics/passcode authentication on your Android device. This extra security measure helps keep your passwords safe.
       </message>
       <message name="IDS_BRAVE_PRIVACY_NOTICE_URL" desc="URL for the Rep Social privacy notice" translateable="false">
-        https://brave.com/privacy_android
+         https://rep.run/privacy/privacy-policy
       </message>
       <message name="IDS_BRAVE_TERMS_OF_SERVICE_URL" desc="URL for Rep Social Terms of Service" translateable="false">
-        https://brave.com/terms_of_use
+         https://rep.run/privacy/terms-of-service
       </message>
       <message name="IDS_BRAVE_LICENSE_TEXT" desc="Title for Rep Social License">
         Rep Social License
@@ -1271,7 +1271,7 @@ Are you sure you want to do this?
         Show New Tab Page Ads
       </message>
       <message name="IDS_SPONSORED_IMAGES_LEARN_MORE" desc="Title of learn more about new tab page ads.">
-        Learn more about new tab page ads
+        
       </message>
       <message name="IDS_WIDGETS" desc ="Categary of Widget option.">
         Widgets

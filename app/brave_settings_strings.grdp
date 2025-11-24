@@ -476,7 +476,7 @@
     Create custom filters
   </message>
   <message name="IDS_BRAVE_ADBLOCK_CUSTOM_FILTERS_DESC" desc="Description for custom filters section">
-    Add custom filters you've created, one per line, in the field below. Be sure to use the <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Adblock filter syntax<ph name="END_LINK">&lt;/a&gt;</ph>.
+    Add custom filters you've created, one per line, in the field below. Be sure to use the <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph><ph name="END_LINK">&lt;/a&gt;</ph>.
   </message>
   <message name="IDS_BRAVE_ADBLOCK_ADD_LISTS_BUTTON_LABEL" desc="Label for button that adds filter lists URL">
     Add

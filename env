@@ -1,0 +1,93 @@
+# This is a placeholder .env config file for the build system.
+# See for details: https://github.com/brave/brave-browser/wiki/Build-configuration
+# Binance
+binance_client_id=dummy
+
+# Bitflyer
+bitflyer_production_client_id=dummy
+bitflyer_production_client_secret=dummy
+bitflyer_production_fee_address=dummy
+bitflyer_production_url=https://example.com/seed
+bitflyer_sandbox_client_id=dummy
+bitflyer_sandbox_client_secret=dummy
+bitflyer_sandbox_fee_address=dummy
+bitflyer_sandbox_url=https://example.com/seed
+
+# Brave AI
+brave_ai_chat_endpoint=dummy
+
+# Google API
+brave_google_api_endpoint=dummy
+brave_google_api_key=dummy
+google_default_client_id=dummy
+google_default_client_secret=dummy
+
+# Brave Services
+brave_infura_project_id=dummy
+brave_pref_hash_seed=dummy
+brave_referrals_api_key=dummy
+brave_services_key=dummy
+brave_services_key_id=dummy
+brave_stats_api_key=dummy
+brave_stats_updater_url=https://example.com/seed
+brave_sync_endpoint=https://example.com/seed
+brave_variations_server_url=https://example.com/seed
+brave_zero_ex_api_key=dummy
+
+# Debugging
+dcheck_always_on=false
+is_brave_release_build=1
+brave_ios_developer_options_code = off
+is_official_build = true
+
+# Rewards
+rewards_grant_dev_endpoint=dummy
+rewards_grant_prod_endpoint=dummy
+rewards_grant_staging_endpoint=dummy
+
+# Safe Browsing
+safebrowsing_api_endpoint=dummy
+brave_safebrowsing_api_key=dummy
+
+# Sardine
+sardine_client_id=dummy
+sardine_client_secret=dummy
+
+# Brave AI
+service_key_aichat=dummy
+service_key_stt=dummy
+
+# Updater
+updater_dev_endpoint=dummy
+updater_prod_endpoint=dummy
+
+# Uphold
+uphold_production_api_url=https://example.com/seed
+uphold_production_client_id=dummy
+uphold_production_client_secret=dummy
+uphold_production_fee_address=dummy
+uphold_production_oauth_url=https://example.com/seed
+uphold_sandbox_api_url=https://example.com/seed
+uphold_sandbox_client_id=dummy
+uphold_sandbox_client_secret=dummy
+uphold_sandbox_fee_address=dummy
+uphold_sandbox_oauth_url=https://example.com/seed
+
+# Zebpay
+zebpay_production_api_url=https://example.com/seed
+zebpay_production_client_id=dummy
+zebpay_production_client_secret=dummy
+zebpay_production_oauth_url=https://example.com/seed
+zebpay_sandbox_api_url=https://example.com/seed
+zebpay_sandbox_client_id=dummy
+zebpay_sandbox_client_secret=dummy
+zebpay_sandbox_oauth_url=https://example.com/seed
+
+# P3A
+brave_p3a_enabled=true
+
+# macOS (Không bắt buộc nếu chỉ chạy iOS)
+notary_password=dummy
+notary_user=dummy
+sparkle_eddsa_private_key=dummy
+sparkle_eddsa_public_key=dummy

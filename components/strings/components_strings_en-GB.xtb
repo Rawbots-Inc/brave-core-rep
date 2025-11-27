@@ -650,7 +650,7 @@ This will otherwise be blocked by your privacy settings. This will allow the con
 <translation id="2088913896151127116">Add text</translation>
 <translation id="2090451897496479509">Contact the provider for more information</translation>
 <translation id="2091887806945687916">Sound</translation>
-<translation id="2093184051799735948">Search or type URL</translation>
+<translation id="2093184051799735948">Search <ph name="ENGINE_NAME"/> or type URL</translation>
 <translation id="4871965986998315786">Rep Social is trying to turn off Windows Hello for filling passwords.</translation>
 <translation id="2094505752054353250">Domain mismatch</translation>
 <translation id="2094704029599359040">Version information</translation>

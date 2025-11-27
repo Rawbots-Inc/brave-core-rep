@@ -1164,7 +1164,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
     @Override
     public void onClickImpl(View v) {
         if (mBraveShieldsHandler == null) {
-            assert false;
+            // assert false;
             return;
         }
         if (mBraveShieldsButton == v && mBraveShieldsButton != null) {

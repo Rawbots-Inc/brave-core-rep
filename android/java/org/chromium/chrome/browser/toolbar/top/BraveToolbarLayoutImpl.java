@@ -1469,7 +1469,6 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
      */
     public void updateBraveShieldsButtonState(Tab tab) {
         if (mBraveShieldsButton == null) {
-            assert false;
             return;
         }
 

@@ -7,7 +7,7 @@
     About the Leo profile
   </message>
   <message name="IDS_AI_AGENT_NTP_ABOUT_THE_LEO_PROFILE_CARD_DESCRIPTION" translateable="true" desc="About the Leo profile card description for the Brave AI Agent mode New Tab Page" formatter_data="webui=AiChatAgentNtp">
-    To protect your data, this isolated Brave profile limits AI access to your main browsing profile. Leo AI has extra permissions here to visit and interact with sites, so you can try giving it tasks and browsing together to boost productivity.
+    To protect your data, this isolated Freedom profile limits AI access to your main browsing profile. Leo AI has extra permissions here to visit and interact with sites, so you can try giving it tasks and browsing together to boost productivity.
   </message>
   <message name="IDS_AI_AGENT_NTP_YOUR_DATA_AND_SESSIONS_CARD_TITLE" translateable="true" desc="Your data and sessions card title for the Brave AI Agent mode New Tab Page" formatter_data="webui=AiChatAgentNtp">
     Your data and sessions

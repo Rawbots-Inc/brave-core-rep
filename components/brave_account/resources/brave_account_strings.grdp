@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grit-part>
   <message name="IDS_BRAVE_ACCOUNT_PAGE_TITLE" translateable="false" desc="Title for the Brave Account page">
-    Brave Account
+    Freedom Account
   </message>
   <!-- 'Entry' dialog: -->
   <message name="IDS_BRAVE_ACCOUNT_ENTRY_DIALOG_TITLE" translateable="false" desc="Title for the dialog where the user can choose to create a Brave Account, or sign in">
-    Get started with your Brave account
+    Get started with your Freedom account
   </message>
   <message name="IDS_BRAVE_ACCOUNT_ENTRY_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can choose to create a Brave Account, or sign in">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
+    A Freedom account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
   </message>
   <message name="IDS_BRAVE_ACCOUNT_ENTRY_DIALOG_CREATE_BRAVE_ACCOUNT_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the 'Create' dialog">
-    Create a Brave account
+    Create a Freedom account
   </message>
   <message name="IDS_BRAVE_ACCOUNT_ALREADY_HAVE_ACCOUNT_SIGN_IN_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the 'Sign In' dialog">
     Already have an account? Sign in
   </message>
   <message name="IDS_BRAVE_ACCOUNT_SELF_CUSTODY_DESCRIPTION" translateable="false" desc="Description of the self-custody option which we provide for advanced users">
-    For advanced users, we also support self-custody of your Brave account keys for an extra layer of privacy. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
+    For advanced users, we also support self-custody of your Freedom account keys for an extra layer of privacy. <ph name="BEGIN_LINK">&lt;a target="_blank" href="$1"&gt;</ph>Learn more<ph name="END_LINK">&lt;/a&gt;</ph>
   </message>
   <message name="IDS_BRAVE_ACCOUNT_SELF_CUSTODY_BUTTON_LABEL" translateable="false" desc="Label for the button that takes the user to the self-custody settings">
     Use self-custody
@@ -28,10 +28,10 @@
     Create your account
   </message>
   <message name="IDS_BRAVE_ACCOUNT_CREATE_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can create their Brave Account">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
+    A Freedom account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
   </message>
   <message name="IDS_BRAVE_ACCOUNT_EMAIL_INPUT_ERROR_MESSAGE" translateable="false" desc="Error message for when the user tries to use a @bravealias.com email address when creating their Brave Account">
-    You can't use @bravealias.com addresses for creating Brave accounts. Please try again with a different domain.
+    You can't use @bravealias.com addresses for creating Freedom accounts. Please try again with a different domain.
   </message>
   <message name="IDS_BRAVE_ACCOUNT_CREATE_PASSWORD_INPUT_LABEL" translateable="false" desc="Label for the 'Create a password' input field">
     Create a password
@@ -69,7 +69,7 @@
     Sign in to your account
   </message>
   <message name="IDS_BRAVE_ACCOUNT_SIGN_IN_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can sign in to their Brave Account">
-    A Brave account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
+    A Freedom account will allow you to easily sync your settings, passwords, bookmarks, etc. across all your devices and access our full range of premium products.
   </message>
   <message name="IDS_BRAVE_ACCOUNT_PASSWORD_INPUT_LABEL" translateable="false" desc="Label for the 'Password' input field">
     Password
@@ -86,7 +86,7 @@
     Forgot your password?
   </message>
   <message name="IDS_BRAVE_ACCOUNT_FORGOT_PASSWORD_DIALOG_DESCRIPTION" translateable="false" desc="Description for the dialog where the user can reset their Brave Account password">
-    Confirm your Brave account email and we'll email you a link to reset your password. The link will only be valid for 30 minutes.
+    Confirm your Freedom account email and we'll email you a link to reset your password. The link will only be valid for 30 minutes.
   </message>
   <message name="IDS_BRAVE_ACCOUNT_ALERT_MESSAGE" translateable="false" desc="Alert message explaining that if the user resets their password without having an active login, all their data will be deleted">
     [Explain that if they reset their password without having an active login, all the user data will be deleted]

@@ -4,9 +4,9 @@
 <translation id="1006017844123154345">Otevřít online</translation>
 <translation id="1036348656032585052">Vypnout</translation>
 <translation id="1070329623210597193">Soubory, které může tento web prohlížet nebo upravovat</translation>
-<translation id="1882093842020941518">Pomozte nám vylepšit Brave tím, že nám sdělíte, proč jste povolili soubory cookie třetích stran. <ph name="BEGIN_LINK"/>Odeslat zpětnou vazbu<ph name="END_LINK"/></translation>
+<translation id="1882093842020941518">Pomozte nám vylepšit Freedom tím, že nám sdělíte, proč jste povolili soubory cookie třetích stran. <ph name="BEGIN_LINK"/>Odeslat zpětnou vazbu<ph name="END_LINK"/></translation>
 <translation id="1074758928858737435">Můžete požádat o zobrazení verze webů pro počítače</translation>
-<translation id="9183227624343766158">Používejte Brave ve výchozím nastavení</translation>
+<translation id="9183227624343766158">Používejte Freedom ve výchozím nastavení</translation>
 <translation id="1178015372320901893">Spodní panel Moje zkratky</translation>
 <translation id="1178581264944972037">Pozastavit</translation>
 <translation id="1181037720776840403">Odebrat</translation>
@@ -16,7 +16,7 @@
 <translation id="1242008676835033345">Vloženo do <ph name="WEBSITE_URL"/></translation>
 <translation id="1263609676484797429">Klepněte na Aplikace &gt; Výchozí aplikace</translation>
 <translation id="1272079795634619415">Zastavit</translation>
-<translation id="8010562420973777575">Brave obrázky na této stránce optimalizoval, abyste ušetřili data.</translation>
+<translation id="8010562420973777575">Freedom obrázky na této stránce optimalizoval, abyste ušetřili data.</translation>
 <translation id="129382876167171263">Zde se budou zobrazovat soubory uložené webovými stránkami</translation>
 <translation id="131112695174432497">Budou smazána data ovlivňující personalizaci reklam</translation>
 <translation id="1317194122196776028">Zapomenout tento web</translation>
@@ -66,8 +66,8 @@
 <translation id="1779089405699405702">Dekodér obrázků</translation>
 <translation id="1785415724048343560">Doporučeno pro nejlepší zážitek</translation>
 <translation id="1796588414813960292">Funkce vyžadující zvuk nebudou k dispozici</translation>
-<translation id="7401204338724669842">Tipy Brave</translation>
-<translation id="6704867734300244173">Když je tento přepínač zapnutý, běží Brave rychleji a funkce využívající JavaScript by měly fungovat tak, jak byly navrženy. Když je vypnutý, je Brave pomalejší, ale V8 je odolnější proti útokům.</translation>
+<translation id="7401204338724669842">Tipy Freedom</translation>
+<translation id="6704867734300244173">Když je tento přepínač zapnutý, běží Freedom rychleji a funkce využívající JavaScript by měly fungovat tak, jak byly navrženy. Když je vypnutý, je Freedom pomalejší, ale V8 je odolnější proti útokům.</translation>
 <translation id="1818308510395330587">Pokud aplikaci <ph name="APP_NAME"/> chcete povolit používání rozšířené reality, zapněte také v <ph name="BEGIN_LINK"/>Nastavení Android<ph name="END_LINK"/> fotoaparát.</translation>
 <translation id="1848033246551405023">Bezpatkové písmo</translation>
 <translation id="1861262398884155592">Tato složka je prázdná</translation>
@@ -118,7 +118,7 @@
 <translation id="2315043854645842844">Volbu certifikátu na straně klienta operační systém nepodporuje.</translation>
 <translation id="2347601491101454548">Spodní panel Moje zkratky otevřený na polovinu výšky</translation>
 <translation id="2359808026110333948">Pokračovat</translation>
-<translation id="904887679952026733">Když Brave používá tmavý motiv, použít ho i pro Brave (pokud je to možné)</translation>
+<translation id="904887679952026733">Když Freedom používá tmavý motiv, použít ho i pro Freedom (pokud je to možné)</translation>
 <translation id="2390272837142897736">Zvýšit přiblížení</translation>
 <translation id="2402980924095424747"><ph name="MEGABYTES"/> MB</translation>
 <translation id="2403474027143565107">Přesná</translation>
@@ -130,7 +130,7 @@
 <translation id="2434158240863470628">Stažení bylo dokončeno <ph name="SEPARATOR"/> <ph name="BYTES_DOWNLOADED"/></translation>
 <translation id="2438120137003069591">Dočasně jste tomuto webu povolili používat soubory cookie třetích stran, což znamená, že při procházení budete méně chráněni, ale funkce webů budou s větší pravděpodobností fungovat správně. <ph name="BEGIN_LINK"/>Odeslat zpětnou vazbu<ph name="END_LINK"/></translation>
 <translation id="2442870161001914531">Vždy požadovat zobrazení na počítači</translation>
-<translation id="1736696984974511795">Brave teď nedávno použité karty sdílí se zařízením. Uvidíte je v seznamu aplikací v zařízení a ve výsledcích vyhledávání. Tuto funkci můžete v nastavení Chromu kdykoli vypnout.</translation>
+<translation id="1736696984974511795">Freedom teď nedávno použité karty sdílí se zařízením. Uvidíte je v seznamu aplikací v zařízení a ve výsledcích vyhledávání. Tuto funkci můžete v nastavení Chromu kdykoli vypnout.</translation>
 <translation id="245322989586167203">Weby se k sériovým portům obvykle připojují kvůli přenosu dat, například při nastavování sítě</translation>
 <translation id="2469312991797799607">Touto akcí vymažete veškerá data a soubory cookie webu <ph name="ORIGIN"/> a všech jeho podřízených webů</translation>
 <translation id="2482878487686419369">Oznámení</translation>
@@ -162,7 +162,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="2685514716378236873">Nepovoleno</translation>
 <translation id="2713106313042589954">Vypnout kameru</translation>
 <translation id="2717722538473713889">E‑mailové adresy</translation>
-<translation id="8181634240306014548">Spouštět Brave s vybraným omniboxem a zkrátit tak dobu spouštění na zařízeních nižší třídy.</translation>
+<translation id="8181634240306014548">Spouštět Freedom s vybraným omniboxem a zkrátit tak dobu spouštění na zařízeních nižší třídy.</translation>
 <translation id="2750481671343847896">Weby mohou zobrazovat výzvy k přihlášení od služeb zjišťujících identitu</translation>
 <translation id="2787357173144933081">Spouštět v omniboxu</translation>
 <translation id="2789132527330338807">Weby můžou žádat o vytvoření 3D mapy okolí nebo sledování polohy kamery</translation>
@@ -170,7 +170,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="2795716239552913152">Weby obvykle používají polohu pro související funkce nebo informace, jako jsou místní zprávy nebo obchody v okolí</translation>
 <translation id="2800760947029405028">Nahrát obrázek</translation>
 <translation id="2802908157808345702">Nepovolovat webům zobrazovat vyskakovací okna ani používat přesměrování</translation>
-<translation id="5801312978029568377">Brave teď zobrazuje vaše nedávné karty v seznamu aplikací v zařízení a ve výsledcích vyhledávání. Tuto funkci můžete v nastavení Chromu kdykoli vypnout.</translation>
+<translation id="5801312978029568377">Freedom teď zobrazuje vaše nedávné karty v seznamu aplikací v zařízení a ve výsledcích vyhledávání. Tuto funkci můžete v nastavení Chromu kdykoli vypnout.</translation>
 <translation id="2822354292072154809">Opravdu chcete resetovat všechna oprávnění webů pro objekt <ph name="CHOSEN_OBJECT_NAME"/>?</translation>
 <translation id="2850913818900871965">Požadovat mobilní zobrazení</translation>
 <translation id="2870560284913253234">Weby</translation>
@@ -210,7 +210,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="3242646949159196181">Když je tato možnost zapnutá, weby mohou přehrávat zvuk. Když je vypnutá, weby zvuk přehrávat nemohou.</translation>
 <translation id="3273479183583863618">Poklesy cen na kartách</translation>
 <translation id="3277252321222022663">Povolit webům přístup k senzorům (doporučeno)</translation>
-<translation id="3756573623297269122">Brave většině webů brání v používání souborů cookie třetích stran ke sledování vašeho procházení. Pokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
+<translation id="3756573623297269122">Freedom většině webů brání v používání souborů cookie třetích stran ke sledování vašeho procházení. Pokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
 <translation id="3285500645985761267">Povolit souvisejícím webům sledovat vaši aktivitu ve skupině</translation>
 <translation id="3295019059349372795">Kapitola 11: Smaragdové město v zemi Oz</translation>
 <translation id="3295602654194328831">Skrýt informace</translation>
@@ -260,7 +260,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="3823453485268218808">Neproporcionální písmo</translation>
 <translation id="3826050100957962900">Externí přihlašování</translation>
 <translation id="3835233591525155343">Využití vašeho zařízení</translation>
-<translation id="1799795508209440035">Brave dnes soubory cookie znovu zablokuje</translation>
+<translation id="1799795508209440035">Freedom dnes soubory cookie znovu zablokuje</translation>
 <translation id="385051799172605136">Zpět</translation>
 <translation id="3859306556332390985">Přetočit dopředu</translation>
 <translation id="389521680295183045">Weby mohou požádat o to, aby mohly zjišťovat, zda aktivně používáte své zařízení</translation>
@@ -305,13 +305,13 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="429312253194641664">Web přehrává média</translation>
 <translation id="42981349822642051">Rozbalit</translation>
 <translation id="4336219115486912529">{COUNT,plural, =1{Platnost skončí zítra}few{Platnost skončí za # dny}many{Platnost skončí za # dne}other{Platnost skončí za # dní}}</translation>
-<translation id="8601682686806697614">Brave dnes soubory cookie opět omezí</translation>
+<translation id="8601682686806697614">Freedom dnes soubory cookie opět omezí</translation>
 <translation id="4338831206024587507">Všechny weby v doméně <ph name="DOMAIN"/></translation>
 <translation id="4340799661701629185">Nepovolovat webům odesílat oznámení</translation>
 <translation id="4402755511846832236">Nedovolit webům zjistit, kdy aktivně používáte toto zařízení</translation>
 <translation id="8382883799082236806">Spodní panel barev Chromu otevřený na polovinu výšky</translation>
 <translation id="4412992751769744546">Povolit cookies třetích stran</translation>
-<translation id="1675197434085185531">Brave brání webům v používání souborů cookie třetích stran ke sledování vašeho procházení. Pokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
+<translation id="1675197434085185531">Freedom brání webům v používání souborů cookie třetích stran ke sledování vašeho procházení. Pokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
 <translation id="4425416282877905577">Patkové písmo</translation>
 <translation id="443121186588148776">Sériový port</translation>
 <translation id="4434045419905280838">Vyskakovací okna a přesměrování</translation>
@@ -332,7 +332,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="4645575059429386691">Spravováno vaším rodičem</translation>
 <translation id="4663373278480897665">Kamera je povolena</translation>
 <translation id="4670064810192446073">Virtuální realita</translation>
-<translation id="5652778654712411580">Klepněte na aplikaci Prohlížeč a potom na Brave</translation>
+<translation id="5652778654712411580">Klepněte na aplikaci Prohlížeč a potom na Freedom</translation>
 <translation id="4676059169848868271">Pokud aplikaci <ph name="APP_NAME"/> chcete umožnit používat sledování rukou, zapněte sledování rukou také v <ph name="BEGIN_LINK"/>nastavení systému<ph name="END_LINK"/>.</translation>
 <translation id="4751476147751820511">Senzory pohybu nebo světla</translation>
 <translation id="4755971844837804407">Když je tato možnost zapnutá, weby vám mohou zobrazovat jakékoliv reklamy. Když je vypnutá, weby nemohou zobrazovat rušivé ani zavádějící reklamy.</translation>
@@ -370,7 +370,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="5091663350197390230">Když je tato možnost zapnutá, weby mohou používat JavaScript. Když je vypnutá, weby JavaScript používat nemohou.</translation>
 <translation id="5099358668261120049">Tímto vymažete veškerá data a soubory cookie, které uložil web <ph name="ORIGIN"/> nebo jeho aplikace na ploše.</translation>
 <translation id="5100237604440890931">Sbaleno – kliknutím rozbalíte</translation>
-<translation id="7143053178237996319">Brave můžete použít pokaždé, když klepnete na odkazy ve zprávách, dokumentech a ostatních aplikacích</translation>
+<translation id="7143053178237996319">Freedom můžete použít pokaždé, když klepnete na odkazy ve zprávách, dokumentech a ostatních aplikacích</translation>
 <translation id="512938610812707830">Spodní panel se sbírkami motivů pro vzhled stránky Nová karta, otevřeno na plnou výšku</translation>
 <translation id="5137460097045297858">Spodní panel feedu Objevit otevřený na polovinu výšky</translation>
 <translation id="5139253256813381453">{PRICE_DROP_COUNT,plural, =1{Pokles ceny na vašich otevřených kartách}few{Poklesy cen na vašich otevřených kartách}many{Poklesy cen na vašich otevřených kartách}other{Poklesy cen na vašich otevřených kartách}}</translation>
@@ -465,13 +465,13 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="6177128806592000436">Spojení s tímto webem není bezpečné</translation>
 <translation id="6181444274883918285">Přidat výjimku pro konkrétní web</translation>
 <translation id="6192792657125177640">Výjimky</translation>
-<translation id="7938602278189860250">{DAYS,plural, =1{Zítra začne Brave soubory cookie opět blokovat}few{Za # dny budou soubory cookie opět zablokovány}many{Za # dne budou soubory cookie opět zablokovány}other{Za # dní budou soubory cookie opět zablokovány}}</translation>
+<translation id="7938602278189860250">{DAYS,plural, =1{Zítra začne Freedom soubory cookie opět blokovat}few{Za # dny budou soubory cookie opět zablokovány}many{Za # dne budou soubory cookie opět zablokovány}other{Za # dní budou soubory cookie opět zablokovány}}</translation>
 <translation id="6195163219142236913">Soubory cookie třetích stran jsou omezeny</translation>
 <translation id="6196640612572343990">Blokovat soubory cookie třetích stran</translation>
 <translation id="6205314730813004066">Ochrana soukromí v reklamách</translation>
 <translation id="6207207788774442484">Vymazat data a resetovat oprávnění</translation>
 <translation id="6231752747840485235">Odinstalovat aplikaci <ph name="APP_NAME"/>?</translation>
-<translation id="4789073065838177382">Klepněte na aplikaci Prohlížeč &gt; Brave</translation>
+<translation id="4789073065838177382">Klepněte na aplikaci Prohlížeč &gt; Freedom</translation>
 <translation id="6260830281887654268">Spodní panel se sbírkami motivů pro vzhled stránky Nová karta otevřený na polovinu výšky</translation>
 <translation id="6262191102408817757">Na základě vaší poslední karty</translation>
 <translation id="6262279340360821358">Oprávnění <ph name="PERMISSION_1"/> a <ph name="PERMISSION_2"/> jsou zablokována</translation>
@@ -519,7 +519,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="6787751205395685251">Vyberte možnost pro web <ph name="SITE_NAME"/></translation>
 <translation id="6790428901817661496">Přehrát</translation>
 <translation id="6818926723028410516">Výběr položek</translation>
-<translation id="7912249371524580097">Používejte Brave ve výchozím nastavení</translation>
+<translation id="7912249371524580097">Používejte Freedom ve výchozím nastavení</translation>
 <translation id="6840760312327750441">Chcete-li karty seskupit, podržte některou kartu. Potom ji přetáhněte na jinou kartu.</translation>
 <translation id="6842868554183332230">Weby obvykle zjišťují, zda své zařízení používáte aktivně, aby mohly nastavit vaši dostupnost v chatovacích aplikacích</translation>
 <translation id="6864395892908308021">Toto zařízení neumí číst NFC</translation>
@@ -586,7 +586,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="7658239707568436148">Zrušit</translation>
 <translation id="7667547420449112975">Čaroděj ze země Oz</translation>
 <translation id="7681597159868843240">Weby obvykle používají senzory pohybu na zařízení kvůli funkcím, jako je virtuální realita nebo sledování fitness aktivit</translation>
-<translation id="5455732060086060613">Skrýt kartu s tipy pro Brave</translation>
+<translation id="5455732060086060613">Skrýt kartu s tipy pro Freedom</translation>
 <translation id="7719367874908701697">Přiblížení/oddálení stránky</translation>
 <translation id="775043444390799886">Zrušit oprávnění</translation>
 <translation id="7759147511335618829">Ovládání a přeprogramování zařízení MIDI</translation>
@@ -595,13 +595,13 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="780301667611848630">Ne, děkuji</translation>
 <translation id="7804248752222191302">Web používá váš fotoaparát</translation>
 <translation id="7805832099057502789">Spodní panel vzhledu stránky Nová karta otevřený na celou výšku</translation>
-<translation id="6720480757902085971">Poskytuje Brave</translation>
+<translation id="6720480757902085971">Poskytuje Freedom</translation>
 <translation id="7809029041571842593">Spodní panel Karty na stránce Nová karta otevřený na polovinu výšky</translation>
 <translation id="7815680994978050279">Bylo zablokováno stahování nebezpečného souboru</translation>
 <translation id="7835852323729233924">Přehrávání médií</translation>
 <translation id="783819812427904514">Zapnout zvuk videa</translation>
 <translation id="7846076177841592234">Zrušit výběr</translation>
-<translation id="2353409725922994861">Brave většině webů omezuje používání souborů cookie třetích stran. Na tomto webu jsou však soubory cookie třetích stran povoleny, protože je potřebuje k poskytování základních služeb.\n\nPokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
+<translation id="2353409725922994861">Freedom většině webů omezuje používání souborů cookie třetích stran. Na tomto webu jsou však soubory cookie třetích stran povoleny, protože je potřebuje k poskytování základních služeb.\n\nPokud chcete <ph name="BEGIN_LINK"/>spravovat přístup k souborům cookie třetích stran<ph name="END_LINK"/>, přejděte do nastavení.</translation>
 <translation id="7882806643839505685">Zapne zvuk na konkrétním webu.</translation>
 <translation id="7891547341794213004">Skrýt kartu Pokračovat s touto kartou</translation>
 <translation id="789722939441020330">Nepovolovat webům stahovat automaticky několik souborů</translation>
@@ -619,10 +619,10 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="8068648041423924542">Certifikát nelze vybrat.</translation>
 <translation id="8077120325605624147">Kterýkoliv web, který navštívíte, vám může zobrazit jakoukoliv reklamu</translation>
 <translation id="80798452873915119">Weby mohou žádat o správu oken na všech obrazovkách</translation>
-<translation id="6405300764336705484">Tento obsah pochází z domény <ph name="DOMAIN_NAME"/>. Poskytováno společností Brave.</translation>
+<translation id="6405300764336705484">Tento obsah pochází z domény <ph name="DOMAIN_NAME"/>. Poskytováno společností Freedom.</translation>
 <translation id="8088603949666785339">Další možnosti v <ph name="BANNER_TITLE"/></translation>
 <translation id="8112925981674547014">Zobrazení karet v seznamu aplikací</translation>
-<translation id="7418062714432254273">{DAYS,plural, =1{Zítra Brave soubory cookie opět omezí}few{Za # dny Brave soubory cookie opět omezí}many{Za # dne Brave soubory cookie opět omezí}other{Za # dní Brave soubory cookie opět omezí}}</translation>
+<translation id="7418062714432254273">{DAYS,plural, =1{Zítra Freedom soubory cookie opět omezí}few{Za # dny Freedom soubory cookie opět omezí}many{Za # dne Freedom soubory cookie opět omezí}other{Za # dní Freedom soubory cookie opět omezí}}</translation>
 <translation id="8116925261070264013">Ztlumeno</translation>
 <translation id="8117244575099414087">Když je tato možnost zapnutá, weby mohou používat senzory zařízení. Když je vypnutá, weby senzory používat nemohou.</translation>
 <translation id="813082847718468539">Zobrazit informace o webu</translation>
@@ -668,7 +668,7 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="3275395224965468352">Tento web získává témata reklam z Chromu, aby vám mohl zobrazovat relevantnější reklamy</translation>
 <translation id="854876774113449365">Navštívené weby mohou zahrnovat vložený obsah z jiných webů, například obrázky, reklamy a text. Tyto další weby mohou při procházení webu žádat o povolení používat informace, které o vás uložily. <ph name="BEGIN_LINK"/>Další informace o vloženém obsahu<ph name="END_LINK"/></translation>
 <translation id="8549127125482561383">Způsob zobrazování žádostí</translation>
-<translation id="4273503381657013953">Nyní můžete Brave použít při každém procházení a pokaždé, když klepnete na odkazy ve zprávách, dokumentech a jiných aplikacích.</translation>
+<translation id="4273503381657013953">Nyní můžete Freedom použít při každém procházení a pokaždé, když klepnete na odkazy ve zprávách, dokumentech a jiných aplikacích.</translation>
 <translation id="857943718398505171">Povoleno (doporučeno)</translation>
 <translation id="8593422116412089302">Když je tato možnost zapnutá, mohou weby žádat o použití informací, které si o vás uložily. Když je vypnutá, weby o použití informací, které si o vás uložily, žádat nemohou.</translation>
 <translation id="8609465669617005112">Posunout nahoru</translation>
@@ -690,13 +690,13 @@ Pokročilá ochrana spravuje tato nastavení Chromu:
 <translation id="8775741625735357092">Lištu záložek můžete zapnout v Nastavení &gt; Vzhled</translation>
 <translation id="8800034312320686233">Web nefunguje?</translation>
 <translation id="8801436777607969138">Blokovat JavaScript na konkrétním webu.</translation>
-<translation id="2026315747406172223">V8 je modul prohlížeče Brave pro JavaScript a WebAssembly používaný ke zlepšení výkonu webů</translation>
+<translation id="2026315747406172223">V8 je modul prohlížeče Freedom pro JavaScript a WebAssembly používaný ke zlepšení výkonu webů</translation>
 <translation id="8803526663383843427">Když je tato funkce zapnutá</translation>
 <translation id="8805385115381080995">Procházení je rychlejší, protože je méně pravděpodobné, že vás web požádá o ověření, že jste skutečná osoba</translation>
 <translation id="8816026460808729765">Blokovat webům přístup k senzorům</translation>
 <translation id="8847988622838149491">USB</translation>
 <translation id="8874790741333031443">Zkuste dočasně povolit soubory cookie třetích stran – budete při procházení méně chráněni, ale funkce webu budou s větší pravděpodobností fungovat správně.</translation>
-<translation id="7532165358672313130">Při dalším procházení může Brave na požádání jinému webu sdělit, že vás předchozí web ověřil jako pravděpodobně skutečného uživatele</translation>
+<translation id="7532165358672313130">Při dalším procházení může Freedom na požádání jinému webu sdělit, že vás předchozí web ověřil jako pravděpodobně skutečného uživatele</translation>
 <translation id="8899807382908246773">Rušivé reklamy</translation>
 <translation id="8903921497873541725">Přiblížit</translation>
 <translation id="8921772741368021346"><ph name="POSITION"/>/<ph name="DURATION"/></translation>

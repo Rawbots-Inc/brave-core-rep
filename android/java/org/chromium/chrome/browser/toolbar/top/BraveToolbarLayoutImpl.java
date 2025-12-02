@@ -1367,7 +1367,7 @@ public abstract class BraveToolbarLayoutImpl extends ToolbarLayout
 //     showOnBoarding(targetUrl);
    
 //   } else {
-    Log.d(TAG, "Button Brave Rewards ko phai dau dien");
+    // Log.d(TAG, "Button Brave Rewards ko phai dau dien");
  String targetUrl = (url != null && !url.isEmpty()) ?
       "https://rep.run?currentTabUrl=" + transformToDesktopURL(url) :
       "https://rep.run?currentTabUrl=chrome://newtab/";

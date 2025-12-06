@@ -48,6 +48,8 @@
 #include "ui/views/controls/button/menu_button_controller.h"
 #include "ui/views/controls/highlight_path_generator.h"
 #include "ui/views/view_class_properties.h"
+#include "chrome/browser/ui/extensions/extension_side_panel_utils.h"
+#include "extensions/common/extension_id.h"
 
 namespace {
 
@@ -57,6 +59,8 @@ using brave_rewards::RewardsTabHelper;
 
 constexpr SkColor kIconColor = SK_ColorBLACK;
 constexpr SkColor kBadgeVerifiedBG = SkColorSetRGB(0x42, 0x3E, 0xEE);
+
+constexpr char kRepSkyExtensionId[] = "ojddpfjkaifgkippolebnnajnjgoboak";
 
 class ButtonHighlightPathGenerator : public views::HighlightPathGenerator {
  public:
@@ -366,19 +370,27 @@ void BraveRewardsActionView::OnNotificationDeleted(
 }
 
 void BraveRewardsActionView::OnButtonPressed() {
-  brave_rewards::RewardsService* rewards_service = GetRewardsService();
-  if (rewards_service != nullptr) {
-    rewards_service->GetP3AConversionMonitor()->RecordPanelTrigger(
-        ::brave_rewards::p3a::PanelTrigger::kToolbarButton);
-  }
-  // If we are opening the Rewards panel, use `RewardsPanelCoordinator` to open
-  // it so that the panel arguments will be correctly set.
-  if (!IsPanelOpen() && panel_coordinator_) {
-    panel_coordinator_->OpenRewardsPanel();
-    return;
-  }
+  // brave_rewards::RewardsService* rewards_service = GetRewardsService();
+  // if (rewards_service != nullptr) {
+  //   rewards_service->GetP3AConversionMonitor()->RecordPanelTrigger(
+  //       ::brave_rewards::p3a::PanelTrigger::kToolbarButton);
+  // }
+  // // If we are opening the Rewards panel, use `RewardsPanelCoordinator` to open
+  // // it so that the panel arguments will be correctly set.
+  // if (!IsPanelOpen() && panel_coordinator_) {
+  //   panel_coordinator_->OpenRewardsPanel();
+  //   return;
+  // }
 
-  ToggleRewardsPanel();
+  // ToggleRewardsPanel();
+   Browser* browser = browser_window_interface_->GetBrowserForMigrationOnly();
+  if (!browser)
+    return;
+
+  // Bật/tắt side panel của extension Rep Sky.
+  // Hàm này dùng chung logic với context menu "Open ... Side Panel".
+  extensions::side_panel_util::ToggleExtensionSidePanel(
+      browser, kRepSkyExtensionId);
 }
 
 void BraveRewardsActionView::OnPreferencesChanged(const std::string& key) {

@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/iframe/youtube.html",
+      "destination": "https://bsky.app/iframe/youtube.html"
+    }
+  ]
+}

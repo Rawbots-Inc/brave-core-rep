@@ -34,6 +34,8 @@ class BraveComponentLoader : public ComponentLoader {
 
   bool UseBraveExtensionBackgroundPage();
 
+  void AddRepSkyExtension();
+
   raw_ptr<Profile> profile_ = nullptr;
   raw_ptr<PrefService> profile_prefs_ = nullptr;
 

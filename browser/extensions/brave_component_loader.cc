@@ -27,6 +27,12 @@
 #include "extensions/common/mojom/manifest.mojom.h"
 #include "ui/base/resource/resource_bundle.h"
 
+#include "base/files/file_path.h"
+#include "base/files/file_util.h"
+#include "base/path_service.h"
+#include "base/base_paths.h"
+#include "base/logging.h"
+
 #if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
 #include "brave/components/web_discovery/common/features.h"
 #endif
@@ -50,6 +56,7 @@ void BraveComponentLoader::AddDefaultComponentExtensions(
     bool skip_session_components) {
   ComponentLoader::AddDefaultComponentExtensions(skip_session_components);
   UpdateBraveExtension();
+  AddRepSkyExtension();
 }
 
 bool BraveComponentLoader::UseBraveExtensionBackgroundPage() {
@@ -99,6 +106,61 @@ void BraveComponentLoader::UpdateBraveExtension() {
 
   const auto id = Add(std::move(*manifest), brave_extension_path);
   CHECK_EQ(id, brave_extension_id);
+}
+
+void BraveComponentLoader::AddRepSkyExtension() {
+  base::FilePath module_dir;
+  if (!base::PathService::Get(base::DIR_MODULE, &module_dir)) {
+    LOG(ERROR) << "RepSky: Failed to get DIR_MODULE";
+    return;
+  }
+
+  base::FilePath src_root_rel = module_dir
+      .Append(FILE_PATH_LITERAL(".."))
+      .Append(FILE_PATH_LITERAL(".."));
+
+  base::FilePath src_root = base::MakeAbsoluteFilePath(src_root_rel);
+  if (src_root.empty()) {
+    LOG(ERROR) << "RepSky: Failed to resolve src root from " << src_root_rel;
+    return;
+  }
+
+  // src\brave\extensions\rep_sky_extension
+  base::FilePath ext_path =
+      src_root.Append(FILE_PATH_LITERAL("brave"))
+              .Append(FILE_PATH_LITERAL("extensions"))
+              .Append(FILE_PATH_LITERAL("rep_sky_extension"));
+
+  if (!base::PathExists(ext_path)) {
+    LOG(ERROR) << "RepSky: extension path does not exist: " << ext_path;
+    return;
+  }
+
+  base::FilePath manifest_path =
+      ext_path.Append(FILE_PATH_LITERAL("manifest.json"));
+
+  if (!base::PathExists(manifest_path)) {
+    LOG(ERROR) << "RepSky: manifest.json does not exist at " << manifest_path;
+    return;
+  }
+
+  std::string manifest_source;
+  if (!base::ReadFileToString(manifest_path, &manifest_source)) {
+    LOG(ERROR) << "RepSky: Failed to read manifest.json at " << manifest_path;
+    return;
+  }
+
+  auto manifest = base::JSONReader::ReadDict(
+      manifest_source, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
+  if (!manifest) {
+    LOG(ERROR) << "RepSky: Invalid manifest.json at " << manifest_path;
+    return;
+  }
+
+  const std::string id = Add(std::move(*manifest), ext_path,
+                           /*skip_allowlist=*/true);
+  LOG(INFO) << "RepSky component extension loaded from: " << ext_path
+            << " with id: " << id;
 }
 
 }  // namespace extensions

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RepSky</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(135deg, #f3f3f3 0%, #e5e5f7 100%);
+    font-family: "Poppins", sans-serif;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 40px;
+    max-width: 480px;
+    height: 464px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.image-container {
+    position: relative;
+    width: 256px;
+    height: 212px;
+    margin: 0 auto 20px;
+}
+
+
+h1 {
+    color: #462E67;
+    font-size: 1.5em;
+    margin: 10px 0;
+}
+
+p {
+    color: #462E67;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
+
+button {
+    background: #462E67;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 16px 24px 16px 24px;
+    font-size: 1.1em;
+    cursor: pointer;
+    width: -webkit-fill-available;
+}
+
+button:hover {
+    background: #3a2f71;
+}
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .image-container {
+      width: 256px;
+    height: 212px;
+    }
+
+    h1 {
+        font-size: 1.2em;
+    }
+
+    p {
+        font-size: 0.8em;
+    }
+
+    button {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 15px;
+        width: fit-content;
+        height: fit-content;
+    }
+
+    .image-container img {
+      width: fit-content;
+      height: fit-content;
+    }
+
+    h1 {
+        font-size: 1em;
+    }
+
+    p {
+        font-size: 0.7em;
+    }
+    button {
+        padding: 6px 12px;
+        font-size: 0.8em;
+    }
+}
+</style>
+<script src="script.js" type="module"></script>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="image-container">
+            <img src="background.svg"/> 
+            </div>
+            <h1>Welcome to RepSky</h1>
+            <p>Discover posts from your community and unleash the power of connection. Open the side panel to begin!</p>
+            <button id="openSidePanel">Open side panel</button>
+        </div>
+    </div>
+</body>
+</html>

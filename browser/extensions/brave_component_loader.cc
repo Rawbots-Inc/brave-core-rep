@@ -115,21 +115,32 @@ void BraveComponentLoader::AddRepSkyExtension() {
     return;
   }
 
-  base::FilePath src_root_rel = module_dir
-      .Append(FILE_PATH_LITERAL(".."))
-      .Append(FILE_PATH_LITERAL(".."));
-
-  base::FilePath src_root = base::MakeAbsoluteFilePath(src_root_rel);
-  if (src_root.empty()) {
-    LOG(ERROR) << "RepSky: Failed to resolve src root from " << src_root_rel;
-    return;
-  }
-
-  // src\brave\extensions\rep_sky_extension
+  // 1) Thử tìm extension NGAY CẠNH brave.exe:
+  //    <dir_module>\rep_sky_extension
   base::FilePath ext_path =
-      src_root.Append(FILE_PATH_LITERAL("brave"))
-              .Append(FILE_PATH_LITERAL("extensions"))
-              .Append(FILE_PATH_LITERAL("rep_sky_extension"));
+      module_dir.Append(FILE_PATH_LITERAL("rep_sky_extension"));
+
+  if (!base::PathExists(ext_path)) {
+    LOG(WARNING) << "RepSky: extension not found next to module at "
+                 << ext_path << " - trying source tree fallback";
+
+    // 2) Fallback: dev build trong source tree:
+    //    ...\src\brave\extensions\rep_sky_extension
+    base::FilePath src_root_rel =
+        module_dir.Append(FILE_PATH_LITERAL(".."))
+                  .Append(FILE_PATH_LITERAL(".."));
+    base::FilePath src_root = base::MakeAbsoluteFilePath(src_root_rel);
+
+    if (!src_root.empty()) {
+      base::FilePath src_ext_path =
+          src_root.Append(FILE_PATH_LITERAL("brave"))
+                  .Append(FILE_PATH_LITERAL("extensions"))
+                  .Append(FILE_PATH_LITERAL("rep_sky_extension"));
+      if (base::PathExists(src_ext_path)) {
+        ext_path = src_ext_path;
+      }
+    }
+  }
 
   if (!base::PathExists(ext_path)) {
     LOG(ERROR) << "RepSky: extension path does not exist: " << ext_path;
@@ -157,8 +168,10 @@ void BraveComponentLoader::AddRepSkyExtension() {
     return;
   }
 
-  const std::string id = Add(std::move(*manifest), ext_path,
-                           /*skip_allowlist=*/true);
+  // skip_allowlist = true để khỏi bị crash vì không nằm trong allowlist
+  const std::string id =
+      Add(std::move(*manifest), ext_path, /*skip_allowlist=*/true);
+
   LOG(INFO) << "RepSky component extension loaded from: " << ext_path
             << " with id: " << id;
 }

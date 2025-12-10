@@ -39,8 +39,8 @@ const StarterPackEngine ask_brave_search = {
     .keyword_message_id =
         IDS_SEARCH_ENGINES_STARTER_PACK_ASK_BRAVE_SEARCH_KEYWORD,
     .favicon_url = nullptr,
-    .search_url = "https://search.brave.com/ask?q={searchTerms}",
-    .destination_url = "https://search.brave.com",
+    .search_url = "https://www.google.com/search?q={searchTerms}",
+    .destination_url = "https://www.google.com",
     .id = StarterPackId::kAskBraveSearch,
     .type = SEARCH_ENGINE_STARTER_PACK_ASK_BRAVE_SEARCH,
 };

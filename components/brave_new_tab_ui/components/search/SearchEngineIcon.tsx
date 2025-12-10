@@ -13,6 +13,7 @@ import Icon from "@brave/leo/react/icon";
 const icons = {
   // The Google search provider has the empty origin :O
   '': 'google-color',
+  'www.google.com': 'google-color',
   'duckduckgo.com': 'duckduckgo-color',
   'search.brave.com': 'social-brave-release-favicon-fullheight-color',
   'www.bing.com': 'bing-color',

@@ -7,7 +7,7 @@ import * as React from 'react'
 import Button from '@brave/leo/react/button'
 import ButtonMenu from '@brave/leo/react/buttonMenu'
 
-import { getString } from '../../lib/strings'
+// import { getString } from '../../lib/strings'
 import { SearchEngineInfo } from '../../state/search_state'
 import { EngineIcon } from './engine_icon'
 
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function SearchEnginePicker(props: Props) {
-  const { searchEngines, selectedEngine } = props
+  const { selectedEngine } = props
   return (
     <div data-css-scope={style.scope}>
       <ButtonMenu>
@@ -33,7 +33,7 @@ export function SearchEnginePicker(props: Props) {
         >
           {selectedEngine && <EngineIcon engine={selectedEngine} />}
         </Button>
-        {searchEngines.map((engine) => (
+        {/* {searchEngines.map((engine) => (
           <leo-menu-item
             key={engine.host}
             onClick={() => props.onSelectEngine(engine)}
@@ -41,14 +41,14 @@ export function SearchEnginePicker(props: Props) {
             <EngineIcon engine={engine} />
             {engine.name}
           </leo-menu-item>
-        ))}
-        <div className='divider' />
+        ))} */}
+        {/* <div className='divider' />
         <leo-menu-item
           onClick={props.onCustomizeClick}
           data-customize='customize'
         >
           {getString(S.NEW_TAB_SEARCH_CUSTOMIZE_ENGINE_LIST_TEXT)}
-        </leo-menu-item>
+        </leo-menu-item> */}
       </ButtonMenu>
     </div>
   )

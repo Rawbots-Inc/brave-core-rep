@@ -14,6 +14,10 @@ constexpr char kLeoWindowTabNewIconResourceName[] =
     "//resources/brave-icons/window-tab-new.svg";
 constexpr char kLeoMessageBubbleAskIconResourceName[] =
     "//resources/brave-icons/message-bubble-ask.svg";
+constexpr char kLeoArrowRightIconResourceName[] =
+    "//resources/brave-icons/arrow-right.svg";
+constexpr char kLeoCaratRightIconResourceName[] =
+    "//resources/brave-icons/carat-right.svg";
 }  // namespace
 
 // This patches |ActionVectorIconToResourceName| to include the additional
@@ -26,6 +30,12 @@ constexpr char kLeoMessageBubbleAskIconResourceName[] =
   }                                                                  \
   if (icon.name == kLeoMessageBubbleAskIcon.name) {                  \
     return kLeoMessageBubbleAskIconResourceName;                     \
+  }                                                                  \
+  if (icon.name == kLeoArrowRightIcon.name) {                        \
+    return kLeoArrowRightIconResourceName;                           \
+  }                                                                  \
+  if (icon.name == kLeoCaratRightIcon.name) {                        \
+    return kLeoCaratRightIconResourceName;                           \
   }                                                                  \
   if (icon.name == omnibox::kProductChromeRefreshIcon
 

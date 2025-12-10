@@ -207,25 +207,14 @@ const PrepopulatedEngine brave_yandex =
 
 // LINT.IfChange
 const PrepopulatedEngine brave_search = MakeBravePrepopulatedEngine(
-    u"Brave",
+    u"Google",
     u":br",
-    "https://cdn.search.brave.com/serp/favicon.ico",
+    "https://www.google.com/favicon.ico",
     "IDR_SEARCH_ENGINE_BRAVE",
-    "https://search.brave.com/search?q={searchTerms}&source="
-#if BUILDFLAG(IS_ANDROID)
-    "android",
-#else
-    "desktop",
-#endif
+    "https://www.google.com/search?q={searchTerms}",
     "UTF-8",
-    "https://search.brave.com/api/"
-    "suggest?q={searchTerms}&rich=true&source="
-#if BUILDFLAG(IS_ANDROID)
-    "android",
-#else
-    "desktop",
-#endif
-    SEARCH_ENGINE_OTHER,
+    "https://www.google.com/complete/search?output=chrome&q={searchTerms}",
+    SEARCH_ENGINE_GOOGLE,
     PREPOPULATED_ENGINE_ID_BRAVE);
 // LINT.ThenChange(//brave/components/search_engines/brave_prepopulated_engines.h:kBraveCurrentDataVersion)
 

@@ -12,7 +12,7 @@ import { useSearchState } from '../../context/search_context'
 import { useSearchInputState } from './search_input_state'
 import { getString } from '../../lib/strings'
 import { Popover } from '../common/popover'
-import { SearchEnginePicker } from './search_engine_picker'
+// import { SearchEnginePicker } from './search_engine_picker'
 import { SearchResults } from './search_results'
 import classNames from '$web-common/classnames'
 
@@ -83,7 +83,7 @@ export function SearchBox(props: Props) {
               inputState.setQuery(event.target.value)
             }}
           />
-          <SearchEnginePicker
+          {/* <SearchEnginePicker
             selectedEngine={inputState.searchEngine ?? null}
             searchEngines={inputState.searchEngineOptions}
             onSelectEngine={(engine) => {
@@ -91,7 +91,7 @@ export function SearchBox(props: Props) {
               focusInput()
             }}
             onCustomizeClick={props.showSearchSettings}
-          />
+          /> */}
           <button className='search-button' onClick={inputState.openSearch}>
             <Icon name='search' />
           </button>

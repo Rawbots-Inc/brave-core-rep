@@ -40,9 +40,6 @@ const base::FeatureParam<bool> kOmniboxOpensFullPage{
     &kAIChat, "omnibox_opens_full_page", true};
 const base::FeatureParam<double> kAITemperature{&kAIChat, "temperature", 0.2};
 
-// TODO(petemill): Consider making the algorithm
-// more sophisticated and variable by model, event type, or handled by the
-// server.
 const base::FeatureParam<size_t> kMaxCountLargeToolUseEvents{
     &kAIChat, "max_count_large_tool_use_events", 2};
 const base::FeatureParam<size_t> kContentSizeLargeToolUseEvent{
@@ -54,8 +51,11 @@ const base::FeatureParam<bool> kAutomaticModelSupportsTools{
 const base::FeatureParam<bool> kShouldIndentPageContentBlocks{
     &kAIChat, "should_indent_page_content_blocks", true};
 
+// ======= TẮT TOÀN BỘ AI CHAT TẠI ĐÂY =======
+
 bool IsAIChatEnabled() {
-  return base::FeatureList::IsEnabled(features::kAIChat);
+  // Luôn tắt Leo / AI Chat
+  return false;
 }
 
 BASE_FEATURE(kAIChatHistory,
@@ -66,13 +66,15 @@ BASE_FEATURE(kAIChatHistory,
 #endif
 
 bool IsAIChatHistoryEnabled() {
-  return base::FeatureList::IsEnabled(features::kAIChatHistory);
+  // Tắt history
+  return false;
 }
 
 BASE_FEATURE(kAIChatFirst, base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsAIChatFirstEnabled() {
-  return base::FeatureList::IsEnabled(features::kAIChatFirst);
+  // Không cho hiện các onboarding / first-run AI chat
+  return false;
 }
 
 BASE_FEATURE(kAIChatUserChoiceTool, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -81,25 +83,23 @@ BASE_FEATURE(kAIChatAgentProfile,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsAIChatAgentProfileEnabled() {
-#if BUILDFLAG(ENABLE_BRAVE_AI_CHAT_AGENT_PROFILE)
-  return base::FeatureList::IsEnabled(features::kAIChatAgentProfile);
-#else
+  // Dù buildflag có bật, mình vẫn muốn tắt
   return false;
-#endif
 }
 
 BASE_FEATURE(kAIChatGlobalSidePanelEverywhere,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsAIChatGlobalSidePanelEverywhereEnabled() {
-  return base::FeatureList::IsEnabled(
-      features::kAIChatGlobalSidePanelEverywhere);
+  // Không cho side panel AI Chat dùng mọi nơi
+  return false;
 }
 
 BASE_FEATURE(kCustomSiteDistillerScripts,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 bool IsCustomSiteDistillerScriptsEnabled() {
+  // Cái này không phải Leo trực tiếp, giữ nguyên logic gốc
   return base::FeatureList::IsEnabled(features::kCustomSiteDistillerScripts);
 }
 
@@ -107,7 +107,8 @@ BASE_FEATURE(kContextMenuRewriteInPlace,
              "AIChatContextMenuRewriteInPlace",
              base::FEATURE_ENABLED_BY_DEFAULT);
 bool IsContextMenuRewriteInPlaceEnabled() {
-  return base::FeatureList::IsEnabled(features::kContextMenuRewriteInPlace);
+  // Nếu bạn muốn tắt hết AI liên quan context menu, cho false luôn:
+  return false;
 }
 
 BASE_FEATURE(kAllowPrivateIPs,
@@ -125,14 +126,16 @@ BASE_FEATURE(kOpenAIChatFromBraveSearch,
 #endif
 
 bool IsOpenAIChatFromBraveSearchEnabled() {
-  return base::FeatureList::IsEnabled(features::kOpenAIChatFromBraveSearch);
+  // Không cho Brave Search mở AI Chat
+  return false;
 }
 
 BASE_FEATURE(kPageContextEnabledInitially,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 bool IsPageContextEnabledInitially() {
-  return base::FeatureList::IsEnabled(features::kPageContextEnabledInitially);
+  // Nếu muốn vô hiệu hoá luôn AI đọc nội dung trang thì cho false
+  return false;
 }
 
 BASE_FEATURE(kTabOrganization,
@@ -140,7 +143,8 @@ BASE_FEATURE(kTabOrganization,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 bool IsTabOrganizationEnabled() {
-  return base::FeatureList::IsEnabled(features::kTabOrganization);
+  // Nếu coi Tab Organization cũng là phần Leo/AI, thì tắt:
+  return false;
 }
 
 BASE_FEATURE(kNEARModels,
@@ -148,7 +152,7 @@ BASE_FEATURE(kNEARModels,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsNEARModelsEnabled() {
-  return base::FeatureList::IsEnabled(features::kNEARModels);
+  return false;
 }
 
 BASE_FEATURE(kRichSearchWidgets, base::FEATURE_DISABLED_BY_DEFAULT);

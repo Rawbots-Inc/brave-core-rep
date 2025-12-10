@@ -12,27 +12,28 @@ namespace brave_vpn {
 
 namespace features {
 
+// Tắt Brave VPN ở mọi platform
 BASE_FEATURE(kBraveVPN,
-#if !BUILDFLAG(IS_LINUX)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif
-);
+             base::FEATURE_DISABLED_BY_DEFAULT);
 
+// Tắt UI link subscription trên Android
 BASE_FEATURE(kBraveVPNLinkSubscriptionAndroidUI,
-             base::FEATURE_ENABLED_BY_DEFAULT);
+             base::FEATURE_DISABLED_BY_DEFAULT);
 
 #if BUILDFLAG(IS_WIN)
+// Tắt luôn DNS protection + Wireguard service trên Windows
 BASE_FEATURE(kBraveVPNDnsProtection,
-             base::FEATURE_ENABLED_BY_DEFAULT);
+             base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kBraveVPNUseWireguardService,
-             base::FEATURE_ENABLED_BY_DEFAULT);
+             base::FEATURE_DISABLED_BY_DEFAULT);
 #endif
+
 #if BUILDFLAG(IS_MAC)
+// Cái này vốn đã DISABLED sẵn, giữ nguyên cũng được
 BASE_FEATURE(kBraveVPNEnableWireguardForOSX,
              base::FEATURE_DISABLED_BY_DEFAULT);
 #endif
+
 }  // namespace features
 
 }  // namespace brave_vpn

@@ -17,6 +17,7 @@
 #include "brave/browser/ui/toolbar/app_menu_icons.h"
 #include "brave/components/ai_chat/core/common/buildflags/buildflags.h"
 #include "brave/components/commander/common/buildflags/buildflags.h"
+#include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser.h"
@@ -154,11 +155,13 @@ void BraveAppMenuModel::BuildBraveProductsSection() {
   }
 #endif
 
+#if !BUILDFLAG(IS_WIN)
   if (IsCommandIdEnabled(IDC_SHOW_BRAVE_WALLET)) {
     InsertItemWithStringIdAt(GetNextIndexOfBraveProductsSection(),
                              IDC_SHOW_BRAVE_WALLET, IDS_SHOW_BRAVE_WALLET);
     need_separator = true;
   }
+#endif
 
 #if BUILDFLAG(ENABLE_BRAVE_VPN)
   if (IsCommandIdEnabled(IDC_BRAVE_VPN_MENU)) {

@@ -8,6 +8,7 @@
 #include "brave/browser/brave_rewards/rewards_util.h"
 #include "brave/browser/brave_wallet/brave_wallet_context_utils.h"
 #include "brave/grit/brave_generated_resources.h"
+#include "build/build_config.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/grit/generated_resources.h"
 #include "components/grit/brave_components_strings.h"
@@ -30,6 +31,12 @@ void NavigationBarDataProvider::Initialize(content::WebUIDataSource* source,
       "brToolbarShowRewardsButton",
       brave_rewards::IsSupportedForProfile(
           profile, brave_rewards::IsSupportedOptions::kSkipRegionCheck));
-  source->AddBoolean("isBraveWalletAllowed",
-                     brave_wallet::IsAllowedForContext(profile));
+
+#if BUILDFLAG(IS_WIN)
+    // Hide wallet UI affordances on Windows desktop builds.
+    const bool is_wallet_allowed = false;
+#else
+    const bool is_wallet_allowed = brave_wallet::IsAllowedForContext(profile);
+#endif
+    source->AddBoolean("isBraveWalletAllowed", is_wallet_allowed);
 }

@@ -312,28 +312,28 @@ RegisterPolymerTemplateModifications({
 // </if>
 
     // Add Sync item
-    const syncEl = createMenuElement(
-      loadTimeData.getString('braveSync'),
-      '/braveSync',
-      'product-sync',
-      'braveSync',
-    )
+    // const syncEl = createMenuElement(
+    //   loadTimeData.getString('braveSync'),
+    //   '/braveSync',
+    //   'product-sync',
+    //   'braveSync',
+    // )
 // <if expr="enable_ai_chat">
-    leoAssistantEl.insertAdjacentElement('afterend', syncEl)
+    // leoAssistantEl.insertAdjacentElement('afterend', syncEl)
 // </if>
 // <if expr="not enable_ai_chat">
-    if (web3El) {
-      web3El.insertAdjacentElement('afterend', syncEl)
-    } else if (privacyEl) {
-      privacyEl.insertAdjacentElement('afterend', syncEl)
-    }
+    // if (web3El) {
+    //   web3El.insertAdjacentElement('afterend', syncEl)
+    // } else if (privacyEl) {
+    //   privacyEl.insertAdjacentElement('afterend', syncEl)
+    // }
 // </if>
 
     // Add search item
     const searchEl = getMenuElement(templateContent, '/search')
-    if (searchEl && syncEl) {
-      syncEl.insertAdjacentElement('afterend', searchEl)
-    }
+    // if (searchEl && syncEl) {
+    //   syncEl.insertAdjacentElement('afterend', searchEl)
+    // }
 
     // Add Extensions item
     const extensionEl = createMenuElement(

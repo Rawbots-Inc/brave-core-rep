@@ -5025,7 +5025,7 @@ You can manage this account’s settings by installing the Family Link app on yo
 <translation id="445099924538929605"><ph name="DEVICE_OS"/> detected an active TPM that can store your data more securely.</translation>
 <translation id="4452898361839215358">or select PPD. <ph name="LINK_BEGIN"/>Learn more<ph name="LINK_END"/></translation>
 <translation id="4453430595102511050">Touch the fingerprint sensor at the top right corner of your keyboard. Your fingerprint data is stored securely and never leaves your <ph name="DEVICE_TYPE"/>.</translation>
-<translation id="4453946976636652378">Search <ph name="SEARCH_ENGINE_NAME"/> or type a URL</translation>
+<translation id="4453946976636652378">Search or type a URL</translation>
 <translation id="4457472090507035117">Select current voice:</translation>
 <translation id="4459169140545916303">Active <ph name="DEVICE_LAST_ACTIVATED_TIME"/> days ago</translation>
 <translation id="4460014764210899310">Ungroup</translation>

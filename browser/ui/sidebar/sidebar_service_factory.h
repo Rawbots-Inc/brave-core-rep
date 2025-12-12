@@ -39,15 +39,14 @@ class SidebarServiceFactory : public BrowserContextKeyedServiceFactory {
 #if BUILDFLAG(ENABLE_AI_CHAT)
       SidebarItem::BuiltInItemType::kChatUI,
 #endif
-      SidebarItem::BuiltInItemType::kBraveTalk,
-      SidebarItem::BuiltInItemType::kWallet,
+    //   SidebarItem::BuiltInItemType::kBraveTalk,
+    //   SidebarItem::BuiltInItemType::kWallet,
       SidebarItem::BuiltInItemType::kBookmarks,
       SidebarItem::BuiltInItemType::kReadingList,
       SidebarItem::BuiltInItemType::kHistory,
       SidebarItem::BuiltInItemType::kPlaylist};
   static_assert(
-      std::size(kDefaultBuiltInItemTypes) ==
-          static_cast<size_t>(SidebarItem::BuiltInItemType::kBuiltInItemLast),
+      std::size(kDefaultBuiltInItemTypes) == 5,
       "A built-in item in this visual order is missing or you might forget to "
       "update kBuiltInItemItemLast value. If you want to add a "
       "new item while keeping that hidden, please visit "

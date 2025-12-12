@@ -44,6 +44,21 @@ struct BraveToChrome<wchar_t> {
 };
 
 template <typename CharT>
+struct FreedomToChrome;
+
+template <>
+struct FreedomToChrome<char> {
+  static constexpr const std::string_view kBrave = "freedom.exe";
+  static constexpr const std::string_view kChrome = "chrome.exe";
+};
+
+template <>
+struct FreedomToChrome<wchar_t> {
+  static constexpr const std::wstring_view kBrave = L"freedom.exe";
+  static constexpr const std::wstring_view kChrome = L"chrome.exe";
+};
+
+template <typename CharT>
 struct TestBraveToChrome;
 
 template <>
@@ -90,6 +105,9 @@ std::optional<DWORD> PatchFilenameImpl(CharT* filename,
 template <typename CharT>
 DWORD PatchFilename(CharT* filename, DWORD length, DWORD size) {
   if (auto r = PatchFilenameImpl<BraveToChrome>(filename, length, size)) {
+    return *r;
+  }
+  if (auto r = PatchFilenameImpl<FreedomToChrome>(filename, length, size)) {
     return *r;
   }
   if (auto r = PatchFilenameImpl<TestBraveToChrome>(filename, length, size)) {

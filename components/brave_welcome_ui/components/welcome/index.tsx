@@ -16,7 +16,7 @@ import WebAnimationPlayer from '../../api/web_animation_player'
 import DataContext from '../../state/context'
 import { shouldPlayAnimations, useViewTypeTransition } from '../../state/hooks'
 
-import braveLogoUrl from '../../assets/brave_logo_3d@2x.webp'
+import braveLogoUrl from '../../assets/free.png'
 
 function Welcome () {
   const { viewType, setViewType, scenes } = React.useContext(DataContext)

@@ -384,13 +384,13 @@ TEST_P(InstallStaticUtilTest, GetUninstallRegistryPath) {
   // to kInstallModes.
   static constexpr const wchar_t* kUninstallRegistryPaths[] = {
       L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"  // (cont'd)
-      L"BraveSoftware Brave-Browser",
+      L"RawbotsInteractive Freedom-Browser",
       L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"  // (cont'd)
-      L"BraveSoftware Brave-Browser-Beta",
+      L"RawbotsInteractive Freedom-Browser-Beta",
       L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"  // (cont'd)
-      L"BraveSoftware Brave-Browser-Dev",
+      L"RawbotsInteractive Freedom-Browser-Dev",
       L"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\"  // (cont'd)
-      L"BraveSoftware Brave-Browser-Nightly",
+      L"RawbotsInteractive Freedom-Browser-Nightly",
   };
 #else
   // The registry path strings for the brand's install modes; parallel to
@@ -411,10 +411,10 @@ TEST_P(InstallStaticUtilTest, GetAppGuid) {
 #if defined(OFFICIAL_BUILD)
   // The app guids for the brand's install modes; parallel to kInstallModes.
   static constexpr const wchar_t* kAppGuids[] = {
-      L"{AFE6A462-C574-4B8A-AF43-4CC60DF4563B}",  // Brave-Browser.
-      L"{103BD053-949B-43A8-9120-2E424887DE11}",  // Brave-Browser-Beta.
-      L"{CB2150F2-595F-4633-891A-E39720CE0531}",  // Brave-Browser-Dev.
-      L"{C6CB981E-DB30-4876-8639-109F8933582C}",  // Brave-Browser-Nightly.
+      L"{CDAE8E45-B4B1-4162-975F-A68C277DC32D}",  // Freedom-Browser.
+      L"{9ABF2964-72CC-4C55-B14A-1CA7B03ACE26}",  // Freedom-Browser-Beta.
+      L"{3AD634C3-609B-45C6-8647-921D477E0F1E}",  // Freedom-Browser-Dev.
+      L"{AD9E2C1C-DD70-4BD5-B07B-575AC6992E17}",  // Freedom-Browser-Nightly.
   };
   static_assert(std::size(kAppGuids) == NUM_INSTALL_MODES,
                 "kAppGuids out of date.");

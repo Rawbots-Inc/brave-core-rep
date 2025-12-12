@@ -25,15 +25,16 @@
 
 namespace google_update {
 
-const wchar_t kChromeUpgradeCode[] = L"{AFE6A462-C574-4B8A-AF43-4CC60DF4563B}";
+const wchar_t kChromeUpgradeCode[] = L"{CDAE8E45-B4B1-4162-975F-A68C277DC32D}";
 const wchar_t kGoogleUpdateUpgradeCode[] =
-    L"{B131C935-9BE6-41DA-9599-1F776BEB8019}";
+    L"{7702F1B3-1702-4317-9E8C-B54A106B75FA}";
 const wchar_t kGoogleUpdateSetupExe[] = L"BraveUpdateSetup.exe";
-const wchar_t kRegPathClients[] = L"Software\\BraveSoftware\\Update\\Clients";
+const wchar_t kRegPathClients[] =
+    L"Software\\RawbotsInteractive\\Update\\Clients";
 const wchar_t kRegPathClientState[] =
-    L"Software\\BraveSoftware\\Update\\ClientState";
+    L"Software\\RawbotsInteractive\\Update\\ClientState";
 const wchar_t kRegPathClientStateMedium[] =
-    L"Software\\BraveSoftware\\Update\\ClientStateMedium";
-const wchar_t kRegPathGoogleUpdate[] = L"Software\\BraveSoftware\\Update";
+    L"Software\\RawbotsInteractive\\Update\\ClientStateMedium";
+const wchar_t kRegPathGoogleUpdate[] = L"Software\\RawbotsInteractive\\Update";
 
 }  // namespace google_update

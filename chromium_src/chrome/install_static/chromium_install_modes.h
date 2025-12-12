@@ -43,17 +43,17 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
         .install_suffix =
             L"",  // Empty install_suffix for the primary install mode.
         .logo_suffix = L"",  // No logo suffix for the primary install mode.
-        .app_guid = L"{AFE6A462-C574-4B8A-AF43-4CC60DF4563B}",
-        .base_app_name = L"Brave",               // A distinct base_app_name.
-        .base_app_id = L"Brave",                 // A distinct base_app_id.
-        .browser_prog_id_prefix = L"BraveHTML",  // Browser ProgID prefix.
+        .app_guid = L"{CDAE8E45-B4B1-4162-975F-A68C277DC32D}",
+        .base_app_name = L"Freedom",              // A distinct base_app_name.
+        .base_app_id = L"Freedom",                // A distinct base_app_id.
+        .browser_prog_id_prefix = L"FreedomHTML",  // Browser ProgID prefix.
         .browser_prog_id_description =
-            L"Brave HTML Document",         // Browser ProgID description.
-        .pdf_prog_id_prefix = L"BravePDF",  // PDF ProgID prefix.
+            L"Freedom HTML Document",       // Browser ProgID description.
+        .pdf_prog_id_prefix = L"FreedomPDF",  // PDF ProgID prefix.
         .pdf_prog_id_description =
-            L"Brave PDF Document",  // PDF ProgID description.
+            L"Freedom PDF Document",  // PDF ProgID description.
         .active_setup_guid =
-            L"{AFE6A462-C574-4B8A-AF43-4CC60DF4563B}",  // Active Setup GUID.
+            L"{CDAE8E45-B4B1-4162-975F-A68C277DC32D}",  // Active Setup GUID.
         .legacy_command_execute_clsid =
             L"{B1C5AAC5-2B7C-4C9D-9E96-774C53151B20}",  // CommandExecuteImpl
                                                         // CLSID.
@@ -91,17 +91,17 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
         .install_suffix = L"-Beta",       // Install suffix.
         .logo_suffix = L"Beta",           // Logo suffix.
         .app_guid =
-            L"{103BD053-949B-43A8-9120-2E424887DE11}",  // A distinct app GUID.
-        .base_app_name = L"Brave Beta",           // A distinct base_app_name.
-        .base_app_id = L"BraveBeta",              // A distinct base_app_id.
-        .browser_prog_id_prefix = L"BraveBHTML",  // Browser ProgID prefix.
+            L"{9ABF2964-72CC-4C55-B14A-1CA7B03ACE26}",  // A distinct app GUID.
+        .base_app_name = L"Freedom Beta",          // A distinct base_app_name.
+        .base_app_id = L"FreedomBeta",             // A distinct base_app_id.
+        .browser_prog_id_prefix = L"FreedomBHTML",  // Browser ProgID prefix.
         .browser_prog_id_description =
-            L"Brave Beta HTML Document",     // Browser ProgID description.
-        .pdf_prog_id_prefix = L"BraveBPDF",  // PDF ProgID prefix.
+            L"Freedom Beta HTML Document",   // Browser ProgID description.
+        .pdf_prog_id_prefix = L"FreedomBPDF",  // PDF ProgID prefix.
         .pdf_prog_id_description =
-            L"Brave Beta PDF Document",  // PDF ProgID description.
+            L"Freedom Beta PDF Document",  // PDF ProgID description.
         .active_setup_guid =
-            L"{103BD053-949B-43A8-9120-2E424887DE11}",  // Active Setup GUID.
+            L"{9ABF2964-72CC-4C55-B14A-1CA7B03ACE26}",  // Active Setup GUID.
         .legacy_command_execute_clsid = L"",  // CommandExecuteImpl CLSID.
         .toast_activator_clsid = {0x9560028d,
                                   0xcca,
@@ -137,17 +137,17 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
         .install_suffix = L"-Dev",       // Install suffix.
         .logo_suffix = L"Dev",           // Logo suffix.
         .app_guid =
-            L"{CB2150F2-595F-4633-891A-E39720CE0531}",  // A distinct app GUID.
-        .base_app_name = L"Brave Dev",            // A distinct base_app_name.
-        .base_app_id = L"BraveDev",               // A distinct base_app_id.
-        .browser_prog_id_prefix = L"BraveDHTML",  // Browser ProgID prefix.
+            L"{3AD634C3-609B-45C6-8647-921D477E0F1E}",  // A distinct app GUID.
+        .base_app_name = L"Freedom Dev",           // A distinct base_app_name.
+        .base_app_id = L"FreedomDev",              // A distinct base_app_id.
+        .browser_prog_id_prefix = L"FreedomDHTML",  // Browser ProgID prefix.
         .browser_prog_id_description =
-            L"Brave Dev HTML Document",      // Browser ProgID description.
-        .pdf_prog_id_prefix = L"BraveDPDF",  // PDF ProgID prefix.
+            L"Freedom Dev HTML Document",    // Browser ProgID description.
+        .pdf_prog_id_prefix = L"FreedomDPDF",  // PDF ProgID prefix.
         .pdf_prog_id_description =
-            L"Brave Dev PDF Document",  // PDF ProgID description.
+            L"Freedom Dev PDF Document",  // PDF ProgID description.
         .active_setup_guid =
-            L"{CB2150F2-595F-4633-891A-E39720CE0531}",  // Active Setup GUID.
+            L"{3AD634C3-609B-45C6-8647-921D477E0F1E}",  // Active Setup GUID.
         .legacy_command_execute_clsid = L"",  // CommandExecuteImpl CLSID.
         .toast_activator_clsid = {0x20b22981,
                                   0xf63a,
@@ -184,17 +184,17 @@ inline constexpr auto kInstallModes = std::to_array<InstallConstants>({
         .install_suffix = L"-Nightly",   // Install suffix.
         .logo_suffix = L"Canary",        // Logo suffix.
         .app_guid =
-            L"{C6CB981E-DB30-4876-8639-109F8933582C}",  // A distinct app GUID.
-        .base_app_name = L"Brave Nightly",        // A distinct base_app_name.
-        .base_app_id = L"BraveNightly",           // A distinct base_app_id.
-        .browser_prog_id_prefix = L"BraveSSHTM",  // Browser ProgID prefix.
+            L"{AD9E2C1C-DD70-4BD5-B07B-575AC6992E17}",  // A distinct app GUID.
+        .base_app_name = L"Freedom Nightly",       // A distinct base_app_name.
+        .base_app_id = L"FreedomNightly",          // A distinct base_app_id.
+        .browser_prog_id_prefix = L"FreedomSSHTM",  // Browser ProgID prefix.
         .browser_prog_id_description =
-            L"Brave Nightly HTML Document",   // Browser ProgID description.
-        .pdf_prog_id_prefix = L"BraveSSPDF",  // PDF ProgID prefix.
+            L"Freedom Nightly HTML Document",  // Browser ProgID description.
+        .pdf_prog_id_prefix = L"FreedomSSPDF",  // PDF ProgID prefix.
         .pdf_prog_id_description =
-            L"Brave Nightly PDF Document",  // PDF ProgID description.
+            L"Freedom Nightly PDF Document",  // PDF ProgID description.
         .active_setup_guid =
-            L"{C6CB981E-DB30-4876-8639-109F8933582C}",  // Active Setup GUID.
+            L"{AD9E2C1C-DD70-4BD5-B07B-575AC6992E17}",  // Active Setup GUID.
         .legacy_command_execute_clsid =
             L"{312ABB99-A176-4939-A39F-E8D34EA4D393}",  // CommandExecuteImpl
                                                         // CLSID.

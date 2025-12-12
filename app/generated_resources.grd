@@ -7138,7 +7138,7 @@ Keep your key file in a safe place. You will need it to create new versions of y
 
       <!-- Omnibox -->
       <message name="IDS_OMNIBOX_PLACEHOLDER_TEXT" desc="The text displayed in the Omnibox when it is empty and unfocused.">
-        Search or type a URL
+        Search <ph name="SEARCH_ENGINE_NAME">$1<ex>Freedom</ex></ph> or type a URL
       </message>
       <message name="IDS_OMNIBOX_AIM_PLACEHOLDER_TEXT" desc="The text displayed in the Omnibox when it is focused with no input and AI Mode is enabled.">
         ⇥ Press tab then enter to ask AI Mode
@@ -7220,15 +7220,15 @@ Keep your key file in a safe place. You will need it to create new versions of y
 
       <!-- WebUI Omnibox -->
       <message name="IDS_WEBUI_OMNIBOX_PLACEHOLDER_TEXT" desc="The text displayed in the WebUI Omnibox when it is empty and unfocused.">
-        Search or type a URL
+        Ask <ph name="SEARCH_ENGINE_NAME">$1<ex>Freedom</ex></ph> or type a URL
       </message>
 
       <!-- NTP -->
       <message name="IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_MD" desc="The text displayed in the fakebox (on the New Tab page) when it is empty, Brave is the default search engine, and the Material Design UI is enabled.">
-        Search or type a URL
+        Search Freedom or type a URL
       </message>
       <message name="IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_SHORT" desc="The text displayed in the fakebox (on the New Tab page) when it is empty, Brave is the default search engine, and short hint text is enabled.">
-        Search
+        Search Freedom
       </message>
       <message name="IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_MULTIMODAL" desc="The text displayed in the multimodal searchbox when it is empty. It is meant to invite the user to add a text query to the existing image query in order to issue a 'multimodal' (image + text) query.">
         Add to your search

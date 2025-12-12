@@ -77,7 +77,7 @@ export function App() {
         <div className='caption-container'>
           <BackgroundCaption />
         </div>
-        <div className='widget-container'>
+        <div className='widget-container' style={{ display: 'none'}}>
           {
             widgetLayoutReady && <>
               {
@@ -93,7 +93,7 @@ export function App() {
           }
         </div>
       </main>
-      <div className='news-container'>
+      <div className='news-container' style={{ display: 'none'}}>
         <LazyNewsFeed />
       </div>
       <SettingsModal

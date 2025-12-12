@@ -444,28 +444,7 @@ gfx::ImageSkia BraveRewardsActionView::GetRewardsIcon() {
 
 std::pair<std::string, SkColor>
 BraveRewardsActionView::GetBadgeTextAndBackground() {
-  // 1. Display the default-on-start Rewards badge text, if specified.
-  std::string text_pref =
-      browser_window_interface_->GetProfile()->GetPrefs()->GetString(
-          brave_rewards::prefs::kBadgeText);
-  if (!text_pref.empty()) {
-    return {text_pref, brave::kBadgeNotificationBG};
-  }
-
-  // 2. Display the number of current notifications, if non-zero.
-  size_t notifications = GetRewardsNotificationCount();
-  if (notifications > 0) {
-    std::string text =
-        notifications > 99 ? "99+" : base::NumberToString(notifications);
-
-    return {text, brave::kBadgeNotificationBG};
-  }
-
-  // 3. Display a verified checkmark for verified publishers.
-  if (std::get<bool>(publisher_registered_)) {
-    return {"", kBadgeVerifiedBG};
-  }
-
+  // Always return empty text to suppress the badge on the Rewards icon.
   return {"", brave::kBadgeNotificationBG};
 }
 

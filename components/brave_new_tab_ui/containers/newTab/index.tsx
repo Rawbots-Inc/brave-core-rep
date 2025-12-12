@@ -566,6 +566,8 @@ class NewTabPage extends React.Component<Props, State> {
       return null
     }
 
+    
+
     const customMenuItems = [
       {
         label: 'rewardsOpenPanel',
@@ -669,7 +671,7 @@ class NewTabPage extends React.Component<Props, State> {
 
   render () {
     const { newTabData, gridSitesData, actions } = this.props
-    const { showSettingsMenu, showEditTopSite, targetTopSiteForEditing, forceToHideWidget } = this.state
+    const { showEditTopSite, targetTopSiteForEditing, forceToHideWidget } = this.state
 
     if (!newTabData) {
       return null
@@ -685,7 +687,7 @@ class NewTabPage extends React.Component<Props, State> {
     let cryptoContent = this.renderCryptoContent()
     const showAddNewSiteMenuItem = newTabData.customLinksNum < MAX_GRID_SIZE
 
-    let { showTopSites, showStats, showClock } = newTabData
+    let { showTopSites } = newTabData
     // In favorites mode, add site tile is visible by default if there is no
     // item. In frecency, top sites widget is hidden with empty tiles.
     if (showTopSites && !newTabData.customLinksEnabled) {
@@ -698,8 +700,6 @@ class NewTabPage extends React.Component<Props, State> {
 
     if (forceToHideWidget) {
       showTopSites = false
-      showStats = false
-      showClock = false
       cryptoContent = null
     }
 
@@ -748,11 +748,11 @@ class NewTabPage extends React.Component<Props, State> {
             imageSrc={this.imageSource}
             imageHasLoaded={this.state.backgroundHasLoaded}
             hasSponsoredRichMediaBackground={hasSponsoredRichMediaBackground}
-            showClock={showClock}
-            showStats={showStats}
+            showClock={false}
+            showStats={false}
             colorForBackground={colorForBackground}
             showCryptoContent={!!cryptoContent}
-            showTopSites={showTopSites}
+            showTopSites={false}
             showBrandedWallpaper={isShowingBrandedWallpaper}
         >
           {this.renderSearchPromotion()}
@@ -873,7 +873,7 @@ class NewTabPage extends React.Component<Props, State> {
         }
         <Settings
           textDirection={newTabData.textDirection}
-          showSettingsMenu={showSettingsMenu}
+          showSettingsMenu={false}
           featureCustomBackgroundEnabled={newTabData.featureCustomBackgroundEnabled}
           onClose={this.closeSettings}
           setActiveTab={this.state.activeSettingsTab || undefined}
@@ -887,16 +887,16 @@ class NewTabPage extends React.Component<Props, State> {
           setBraveBackground={this.props.setBraveBackground}
           setColorBackground={this.props.setColorBackground}
           showBackgroundImage={newTabData.showBackgroundImage}
-          showTopSites={newTabData.showTopSites}
+          showTopSites={false}
           customLinksEnabled={newTabData.customLinksEnabled}
-          showRewards={newTabData.showRewards}
+          showRewards={false}
           braveRewardsSupported={newTabData.braveRewardsSupported}
           brandedWallpaperOptIn={newTabData.brandedWallpaperOptIn}
           allowBackgroundCustomization={allowBackgroundCustomization}
           toggleShowRewards={this.toggleShowRewards}
           braveTalkSupported={newTabData.braveTalkSupported}
           toggleShowBraveTalk={this.toggleShowBraveTalk}
-          showBraveTalk={newTabData.showBraveTalk}
+          showBraveTalk={false}
           cardsHidden={this.allWidgetsHidden()}
           toggleCards={this.props.saveSetAllStackWidgets}
           newTabData={this.props.newTabData}

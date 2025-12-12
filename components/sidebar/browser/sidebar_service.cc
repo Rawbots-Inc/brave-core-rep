@@ -154,10 +154,10 @@ void SidebarService::MigratePrefSidebarBuiltInItemsToHidden() {
   }
   // Only include items that were known prior to this migration
   std::vector<SidebarItem> built_in_items_to_hide;
-  built_in_items_to_hide.push_back(
-      GetBuiltInItemForType(SidebarItem::BuiltInItemType::kBraveTalk));
-  built_in_items_to_hide.push_back(
-      GetBuiltInItemForType(SidebarItem::BuiltInItemType::kWallet));
+  // built_in_items_to_hide.push_back(
+  //     GetBuiltInItemForType(SidebarItem::BuiltInItemType::kBraveTalk));
+  // built_in_items_to_hide.push_back(
+  //     GetBuiltInItemForType(SidebarItem::BuiltInItemType::kWallet));
   built_in_items_to_hide.push_back(
       GetBuiltInItemForType(SidebarItem::BuiltInItemType::kBookmarks));
 

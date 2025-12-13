@@ -136,7 +136,19 @@ const start = (
     const productName = getBraveProductName()
     outputPath = path.join(config.outputDir, productName)
     if (process.platform === 'win32') {
-      outputPath = outputPath + '.exe'
+      const candidates = [
+        outputPath + '.exe',
+        path.join(config.outputDir, 'brave.exe'),
+        path.join(config.outputDir, 'chrome.exe'),
+      ]
+      outputPath = candidates.find((p) => fs.existsSync(p))
+      if (!outputPath) {
+        console.error(
+          `No browser executable found in ${config.outputDir}. `
+            + 'Build it first (e.g. `npm run build Component` or `npm run build Release`).',
+        )
+        process.exit(1)
+      }
     } else if (process.platform === 'darwin') {
       outputPath = fs
         .readFileSync(outputPath + '_helper')

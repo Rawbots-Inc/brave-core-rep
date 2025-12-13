@@ -158,6 +158,15 @@ def SignAndCopyPreSignedBinaries(skip_signing, output_dir, staging_dir,
                 shutil.copy(src, dst_exe)
                 break
 
+    # Upstream create_installer_archive.py validates that every file under
+    # staging_dir/CHROME_DIR has a corresponding entry in g_archive_inputs
+    # (matched by basename). Ensure freedom.exe is registered.
+    try:
+        if os.path.exists(dst_exe) and dst_exe not in g_archive_inputs:
+            g_archive_inputs.append(dst_exe)
+    except NameError:
+        pass
+
 def CopyRepSkyExtension(config, staging_dir, g_archive_inputs):
     """Copy toàn bộ extension rep_sky_extension vào archive.
 

@@ -83,6 +83,153 @@ group("brave") {
              [ string_replace(rebase_path(exe_path), " ", "\\ ") ])
 }
 
+###############################################################################
+# COPY REP_SKY_EXTENSION VÀO APP BUNDLE (MAC ONLY)
+###############################################################################
+
+# Copy toàn bộ rep_sky_extension vào trong app trước khi đóng gói DMG
+copy("copy_rep_sky_extension_into_app") {
+  visibility = [ ":package" ]
+
+  # TODO: thay phần này bằng danh sách sources thật của bạn
+  # (giống list bạn dùng bên Windows nhưng prefix GN là //brave/extensions/...)
+  sources = [
+  "//brave/extensions/rep_sky_extension/asset-manifest.json",
+  "//brave/extensions/rep_sky_extension/background.js",
+  "//brave/extensions/rep_sky_extension/background.svg",
+  "//brave/extensions/rep_sky_extension/content.js",
+  "//brave/extensions/rep_sky_extension/favicon-16.png",
+  "//brave/extensions/rep_sky_extension/favicon-32.png",
+  "//brave/extensions/rep_sky_extension/favicon.ico",
+  "//brave/extensions/rep_sky_extension/icons/icon128.png",
+  "//brave/extensions/rep_sky_extension/icons/icon16.png",
+  "//brave/extensions/rep_sky_extension/icons/icon32.png",
+  "//brave/extensions/rep_sky_extension/icons/icon48.png",
+  "//brave/extensions/rep_sky_extension/iframe/index.js",
+  "//brave/extensions/rep_sky_extension/iframe/setup.js",
+  "//brave/extensions/rep_sky_extension/index.html",
+  "//brave/extensions/rep_sky_extension/manifest.json",
+  "//brave/extensions/rep_sky_extension/offscreen.html",
+  "//brave/extensions/rep_sky_extension/offscreen.js",
+  "//brave/extensions/rep_sky_extension/page.html",
+  "//brave/extensions/rep_sky_extension/postMock.html",
+  "//brave/extensions/rep_sky_extension/pwa/apple-touch-icon/apple-touch-icon-180.png",
+  "//brave/extensions/rep_sky_extension/script.js",
+  "//brave/extensions/rep_sky_extension/serve.json",
+  "//brave/extensions/rep_sky_extension/static/css/main.2cc87926.css",
+  "//brave/extensions/rep_sky_extension/static/css/main.2cc87926.css.map",
+  "//brave/extensions/rep_sky_extension/static/js/101.c72680e9.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/101.c72680e9.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/108.f5a471ca.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/108.f5a471ca.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/145.d5183fd7.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/145.d5183fd7.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/19.c0c14349.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/19.c0c14349.chunk.js.LICENSE.txt",
+  "//brave/extensions/rep_sky_extension/static/js/19.c0c14349.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/213.d173dc74.js",
+  "//brave/extensions/rep_sky_extension/static/js/213.d173dc74.js.LICENSE.txt",
+  "//brave/extensions/rep_sky_extension/static/js/213.d173dc74.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/251.fef02797.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/251.fef02797.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/262.47db6401.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/262.47db6401.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/288.367779a0.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/288.367779a0.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/328.9b17ddfc.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/328.9b17ddfc.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/348.58b5fe3d.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/348.58b5fe3d.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/373.137fdb11.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/373.137fdb11.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/418.dab21200.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/418.dab21200.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/419.93e13202.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/419.93e13202.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/470.5cecd27f.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/470.5cecd27f.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/491.902a9c89.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/491.902a9c89.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/508.5ce005a9.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/508.5ce005a9.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/521.5ef181d5.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/521.5ef181d5.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/528.8d3646fc.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/528.8d3646fc.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/640.0e7eeb9a.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/640.0e7eeb9a.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/660.600c0660.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/660.600c0660.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/666.9377e5bb.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/666.9377e5bb.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/667.fadc4b77.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/667.fadc4b77.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/697.9bdf44bc.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/697.9bdf44bc.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/703.a266dfc5.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/703.a266dfc5.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/742.8bab6d92.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/742.8bab6d92.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/767.9f8cb5d1.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/767.9f8cb5d1.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/77.04658b6a.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/77.04658b6a.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/777.5dc94dab.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/777.5dc94dab.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/789.043cdb40.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/789.043cdb40.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/792.f4b11509.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/812.698ffafd.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/812.698ffafd.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/82.e82bfed4.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/82.e82bfed4.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/850.663e14d6.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/850.663e14d6.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/871.1ac813d0.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/871.1ac813d0.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/874.9abf6b8d.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/874.9abf6b8d.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/889.92e37f26.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/889.92e37f26.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/905.0cdf00cc.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/905.0cdf00cc.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/92.f9570b2e.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/92.f9570b2e.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/930.817cf78d.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/930.817cf78d.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/931.0d2c8127.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/931.0d2c8127.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/936.2261133d.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/936.2261133d.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/953.2dc8b5c0.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/953.2dc8b5c0.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/977.e03d87e1.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/977.e03d87e1.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/982.954570c0.chunk.js",
+  "//brave/extensions/rep_sky_extension/static/js/982.954570c0.chunk.js.map",
+  "//brave/extensions/rep_sky_extension/static/js/main.b078b548.js",
+  "//brave/extensions/rep_sky_extension/static/js/main.b078b548.js.map",
+  "//brave/extensions/rep_sky_extension/static/media/InterVariable-Italic.01dcbad1bac635f9c9cd.woff2",
+  "//brave/extensions/rep_sky_extension/static/media/InterVariable.c504db5c06caaf7cdfba.woff2",
+  "//brave/extensions/rep_sky_extension/static/media/initial_verification_announcement_1.131cbb5efe2a8ee3ac68.png",
+  "//brave/extensions/rep_sky_extension/static/media/kawaii.845d3efa31b8cd01ad2c.png",
+  "//brave/extensions/rep_sky_extension/static/media/kawaii_smol.b3d15ded6ae36409ca18.png",
+  "//brave/extensions/rep_sky_extension/static/media/logo.2249cc595a1217e06a79.png",
+  "//brave/extensions/rep_sky_extension/vercel.json",
+]
+
+  # Thư mục resources trong Framework của app:
+  resources_dir =
+      "$unsigned_app_path/Contents/Frameworks/$chrome_product_full_name Framework.framework/Resources/rep_sky_extension"
+
+  outputs = [ "$resources_dir/{{source_file_part}}" ]
+
+  # Đảm bảo .app đã được build xong trước khi copy
+  deps = [ "//chrome:chrome_app" ]
+}
+
+###############################################################################
+
 action("generate_dsa_sig_for_dmg") {
   script = "generate_sig.py"
 
@@ -285,6 +432,8 @@ action("package") {
     ":copy_helper_entitlements",
     ":copy_postinstall",
     ":copy_signing_config",
+    # THÊM DÒNG NÀY ĐỂ BẮT BUỘC COPY EXTENSION TRƯỚC KHI ĐÓNG GÓI
+    ":copy_rep_sky_extension_into_app",
     "//chrome:chrome_app",
     "//chrome/installer/mac",
   ]

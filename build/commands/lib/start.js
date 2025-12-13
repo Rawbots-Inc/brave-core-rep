@@ -8,6 +8,17 @@ const fs = require('fs-extra')
 const config = require('../lib/config')
 const util = require('../lib/util')
 
+const getBraveProductName = () => {
+  try {
+    const gniPath = path.join(config.braveCoreDir, 'build', 'config.gni')
+    const gni = fs.readFileSync(gniPath, 'utf8')
+    const m = gni.match(/\bbrave_product_name\s*=\s*"([^"]+)"/)
+    return (m && m[1]) || 'brave'
+  } catch (e) {
+    return 'brave'
+  }
+}
+
 const start = (
   passthroughArgs,
   buildConfig = config.defaultBuildConfig,
@@ -86,25 +97,26 @@ const start = (
 
   let userDataDir
   if (options.user_data_dir_name) {
+    const companyDirName = 'RawbotsInteractive'
     if (process.platform === 'darwin') {
       userDataDir = path.join(
         process.env.HOME,
         'Library',
         'Application\\ Support',
-        'BraveSoftware',
+        companyDirName,
         options.user_data_dir_name,
       )
     } else if (process.platform === 'win32') {
       userDataDir = path.join(
         process.env.LocalAppData,
-        'BraveSoftware',
+        companyDirName,
         options.user_data_dir_name,
       )
     } else {
       userDataDir = path.join(
         process.env.HOME,
         '.config',
-        'BraveSoftware',
+        companyDirName,
         options.user_data_dir_name,
       )
     }
@@ -121,7 +133,8 @@ const start = (
 
   let outputPath = options.output_path
   if (!outputPath) {
-    outputPath = path.join(config.outputDir, 'brave')
+    const productName = getBraveProductName()
+    outputPath = path.join(config.outputDir, productName)
     if (process.platform === 'win32') {
       outputPath = outputPath + '.exe'
     } else if (process.platform === 'darwin') {

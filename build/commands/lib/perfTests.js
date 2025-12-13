@@ -7,6 +7,7 @@ const util = require('../lib/util')
 const config = require('../lib/config')
 const path = require('path')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 
 const runPerfTests = (
   passthroughArgs,
@@ -32,7 +33,17 @@ const runPerfTests = (
     config.buildConfig = targetBuildConfig
     config.update(options)
 
-    binaryPath = path.join(config.outputDir, 'brave')
+    const getBraveProductName = () => {
+      try {
+        const gniPath = path.join(config.braveCoreDir, 'build', 'config.gni')
+        const gni = fsExtra.readFileSync(gniPath, 'utf8')
+        const m = gni.match(/\bbrave_product_name\s*=\s*"([^"]+)"/)
+        return (m && m[1]) || 'brave'
+      } catch (e) {
+        return 'brave'
+      }
+    }
+    binaryPath = path.join(config.outputDir, getBraveProductName())
     if (process.platform === 'win32') {
       binaryPath += '.exe'
     } else if (process.platform === 'darwin') {

@@ -73,42 +73,42 @@ struct TestData {
 constexpr TestData kTestData[] = {
     {
         L"C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser\\Application"
-        L"\\brave.exe",
+    L"\\freedom.exe",
         STABLE_INDEX, true, L"",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         STABLE_INDEX, false, L"",
     },
     {
         L"C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser-Beta"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         BETA_INDEX, true, L"beta",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser-Beta"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         BETA_INDEX, false, L"beta",
     },
     {
         L"C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser-Dev"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         DEV_INDEX, true, L"dev",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser-Dev"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         DEV_INDEX, false, L"dev",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser-Nightly"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         NIGHTLY_INDEX, false, L"nightly",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser-Nightly"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         NIGHTLY_INDEX, false, L"nightly",
     },
 };
@@ -116,14 +116,14 @@ constexpr TestData kTestData[] = {
 constexpr TestData kTestData[] = {
     {
         L"C:\\Program Files (x86)\\BraveSoftware\\Brave-Browser-Development"
-        L"\\Application\\brave.exe",
+    L"\\Application\\freedom.exe",
         DEVELOPER_INDEX,
         true,
         L"",
     },
     {
         L"C:\\Users\\user\\AppData\\Local\\BraveSoftware\\Brave-Browser-"
-        L"Development\\Application\\brave.exe",
+    L"Development\\Application\\freedom.exe",
         DEVELOPER_INDEX,
         false,
         L"",

@@ -60,7 +60,7 @@ brave_updater_branding = {
     # Mirror upstream:
     legacy_google_update_appid = keystone_bundle_identifier
   } else {
-    legacy_google_update_appid = "{B131C935-9BE6-41DA-9599-1F776BEB8019}"
+    legacy_google_update_appid = "{7702F1B3-1702-4317-9E8C-B54A106B75FA}"
   }
 
   # These constants are defined upstream, but not in Omaha 3. Their values

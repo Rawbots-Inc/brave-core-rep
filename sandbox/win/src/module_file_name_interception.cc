@@ -44,6 +44,21 @@ struct BraveToChrome<wchar_t> {
 };
 
 template <typename CharT>
+struct FreedomToChrome;
+
+template <>
+struct FreedomToChrome<char> {
+  static constexpr const std::string_view kBrave = "freedom.exe";
+  static constexpr const std::string_view kChrome = "chrome.exe";
+};
+
+template <>
+struct FreedomToChrome<wchar_t> {
+  static constexpr const std::wstring_view kBrave = L"freedom.exe";
+  static constexpr const std::wstring_view kChrome = L"chrome.exe";
+};
+
+template <typename CharT>
 struct TestBraveToChrome;
 
 template <>
@@ -71,25 +86,33 @@ std::optional<DWORD> PatchFilenameImpl(CharT* filename,
 
   constexpr DWORD kBraveLen = FromTo<CharT>::kBrave.length();
   constexpr DWORD kChromeLen = FromTo<CharT>::kChrome.length();
-  static_assert(kBraveLen <= kChromeLen);
-  constexpr DWORD kLenDiff = kChromeLen - kBraveLen;
+  constexpr int kLenDiff = static_cast<int>(kChromeLen) -
+                           static_cast<int>(kBraveLen);
 
   --size;  // space for null-terminator
 
   const size_t brave_pos = length - kBraveLen;
   ReplaceAt(UNSAFE_TODO(filename + brave_pos), size - brave_pos,
             FromTo<CharT>::kChrome);
-  if (size < length + kLenDiff) {
+
+  // If the replacement is longer, ensure there is enough buffer.
+  if (kLenDiff > 0 && size < length + static_cast<DWORD>(kLenDiff)) {
     ::SetLastError(ERROR_INSUFFICIENT_BUFFER);
   }
-  length = std::min(size, length + kLenDiff);
-  UNSAFE_TODO(filename[length]) = 0;
-  return length;
+
+  // Compute new length with signed arithmetic (replacement may be shorter).
+  const int new_length = std::max(
+      0, std::min(static_cast<int>(size), static_cast<int>(length) + kLenDiff));
+  UNSAFE_TODO(filename[new_length]) = 0;
+  return static_cast<DWORD>(new_length);
 }
 
 template <typename CharT>
 DWORD PatchFilename(CharT* filename, DWORD length, DWORD size) {
   if (auto r = PatchFilenameImpl<BraveToChrome>(filename, length, size)) {
+    return *r;
+  }
+  if (auto r = PatchFilenameImpl<FreedomToChrome>(filename, length, size)) {
     return *r;
   }
   if (auto r = PatchFilenameImpl<TestBraveToChrome>(filename, length, size)) {

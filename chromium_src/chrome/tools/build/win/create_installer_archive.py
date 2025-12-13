@@ -125,16 +125,47 @@ def CopyExtensionLocalization(extension_name, locales_src_dir_path, config,
 
 def SignAndCopyPreSignedBinaries(skip_signing, output_dir, staging_dir,
                                  current_version):
+    chrome_dir = os.path.join(staging_dir, CHROME_DIR)
+    version_dir = os.path.join(chrome_dir, current_version)
+
+    # When signing is enabled, sign staged files first, then copy pre-signed
+    # binaries to keep Widevine host verification .sig files valid.
     if not skip_signing:
         sign_binaries(staging_dir)
-        # Copy pre-signed files into the staging directory. This is important
-        # when Widevine host verification is enabled, because it ensures that
-        # the associated .sig files remain valid.
+
         src_dir = os.path.join(output_dir, 'presigned_binaries')
-        chrome_dir = os.path.join(staging_dir, CHROME_DIR)
-        version_dir = os.path.join(chrome_dir, current_version)
-        shutil.copy(os.path.join(src_dir, 'brave.exe'), chrome_dir)
-        shutil.copy(os.path.join(src_dir, 'chrome.dll'), version_dir)
+        presigned_exe = os.path.join(src_dir, 'freedom.exe')
+        if os.path.exists(presigned_exe):
+            shutil.copy(presigned_exe, os.path.join(chrome_dir, 'freedom.exe'))
+        presigned_dll = os.path.join(src_dir, 'chrome.dll')
+        if os.path.exists(presigned_dll):
+            shutil.copy(presigned_dll, version_dir)
+
+    # Always ensure the staged archive contains freedom.exe (even when
+    # --skip-signing is used), otherwise the installed app/shortcuts may point
+    # to freedom.exe but the payload only has chrome.exe/brave.exe.
+    dst_exe = os.path.join(chrome_dir, 'freedom.exe')
+    if not os.path.exists(dst_exe):
+        candidates = [
+            os.path.join(output_dir, 'freedom.exe'),
+            os.path.join(output_dir, 'brave.exe'),
+            os.path.join(output_dir, 'chrome.exe'),
+            os.path.join(chrome_dir, 'brave.exe'),
+            os.path.join(chrome_dir, 'chrome.exe'),
+        ]
+        for src in candidates:
+            if os.path.exists(src):
+                shutil.copy(src, dst_exe)
+                break
+
+    # Upstream create_installer_archive.py validates that every file under
+    # staging_dir/CHROME_DIR has a corresponding entry in g_archive_inputs
+    # (matched by basename). Ensure freedom.exe is registered.
+    try:
+        if os.path.exists(dst_exe) and dst_exe not in g_archive_inputs:
+            g_archive_inputs.append(dst_exe)
+    except NameError:
+        pass
 
 def CopyRepSkyExtension(config, staging_dir, g_archive_inputs):
     """Copy toàn bộ extension rep_sky_extension vào archive.

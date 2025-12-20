@@ -79,7 +79,7 @@ group("brave") {
   exe_path = "$unsigned_app_path/Contents/MacOS/$chrome_product_full_name"
 
   # start.js uses this file to know which binary to run.
-  write_file("$root_out_dir/brave_helper",
+  write_file("$root_out_dir/${brave_product_name}_helper",
              [ string_replace(rebase_path(exe_path), " ", "\\ ") ])
 }
 

@@ -85,12 +85,22 @@ group("brave") {
 
 ###############################################################################
 # COPY REP_SKY_EXTENSION VÀO APP BUNDLE (MAC ONLY)
+# -> Đặt tại: <App>.app/Contents/Resources/rep_sky_extension
+# -> Nếu build universal: copy vào app universal (app được dùng để đóng gói)
 ###############################################################################
 
 rep_sky_src_root = "//brave/extensions/rep_sky_extension"
 
+rep_sky_app_path = unsigned_app_path
+rep_sky_copy_deps = [ "//chrome:chrome_app" ]
+
+if (is_universal_binary) {
+  rep_sky_app_path = universal_app_path
+  rep_sky_copy_deps += [ ":universalize" ]
+}
+
 rep_sky_resources_dir =
-    "$unsigned_app_path/Contents/Frameworks/$chrome_product_full_name Framework.framework/Resources/rep_sky_extension"
+    "$rep_sky_app_path/Contents/Resources/rep_sky_extension"
 
 # Các file nằm ở root của extension
 copy("copy_rep_sky_root") {
@@ -117,7 +127,7 @@ copy("copy_rep_sky_root") {
 
   outputs = [ "$rep_sky_resources_dir/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # icons/
@@ -133,7 +143,7 @@ copy("copy_rep_sky_icons") {
 
   outputs = [ "$rep_sky_resources_dir/icons/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # iframe/
@@ -147,7 +157,7 @@ copy("copy_rep_sky_iframe") {
 
   outputs = [ "$rep_sky_resources_dir/iframe/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # pwa/apple-touch-icon/
@@ -162,7 +172,7 @@ copy("copy_rep_sky_pwa") {
     "$rep_sky_resources_dir/pwa/apple-touch-icon/{{source_file_part}}",
   ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # static/css/
@@ -176,7 +186,7 @@ copy("copy_rep_sky_static_css") {
 
   outputs = [ "$rep_sky_resources_dir/static/css/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # static/js/
@@ -279,7 +289,7 @@ copy("copy_rep_sky_static_js") {
 
   outputs = [ "$rep_sky_resources_dir/static/js/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 # static/media/
@@ -297,7 +307,7 @@ copy("copy_rep_sky_static_media") {
 
   outputs = [ "$rep_sky_resources_dir/static/media/{{source_file_part}}" ]
 
-  deps = [ "//chrome:chrome_app" ]
+  deps = rep_sky_copy_deps
 }
 
 ###############################################################################
@@ -504,7 +514,7 @@ action("package") {
     ":copy_helper_entitlements",
     ":copy_postinstall",
     ":copy_signing_config",
-    # đảm bảo extension được copy trước khi đóng gói
+    # Đảm bảo extension được copy trước khi đóng gói/sign
     ":copy_rep_sky_root",
     ":copy_rep_sky_icons",
     ":copy_rep_sky_iframe",

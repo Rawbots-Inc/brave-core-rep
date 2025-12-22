@@ -155,7 +155,7 @@ void BraveAppMenuModel::BuildBraveProductsSection() {
   }
 #endif
 
-#if !BUILDFLAG(IS_WIN)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_MAC)
   if (IsCommandIdEnabled(IDC_SHOW_BRAVE_WALLET)) {
     InsertItemWithStringIdAt(GetNextIndexOfBraveProductsSection(),
                              IDC_SHOW_BRAVE_WALLET, IDS_SHOW_BRAVE_WALLET);

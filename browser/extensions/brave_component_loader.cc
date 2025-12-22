@@ -37,6 +37,8 @@
 #include "brave/components/web_discovery/common/features.h"
 #endif
 
+#include "build/build_config.h"
+
 namespace extensions {
 
 BraveComponentLoader::BraveComponentLoader(Profile* profile)
@@ -119,6 +121,23 @@ void BraveComponentLoader::AddRepSkyExtension() {
   //    <dir_module>\rep_sky_extension
   base::FilePath ext_path =
       module_dir.Append(FILE_PATH_LITERAL("rep_sky_extension"));
+  
+  #if BUILDFLAG(IS_MAC)
+  if (!base::PathExists(ext_path)) {
+    base::FilePath exe_dir;
+    if (base::PathService::Get(base::DIR_EXE, &exe_dir)) {
+      // exe_dir = .../Freedom Browser.app/Contents/MacOS  (khi chạy bundled)
+      base::FilePath bundle_resources =
+          exe_dir.DirName().Append(FILE_PATH_LITERAL("Resources"));
+      base::FilePath mac_ext =
+          bundle_resources.Append(FILE_PATH_LITERAL("rep_sky_extension"));
+
+      if (base::PathExists(mac_ext)) {
+        ext_path = mac_ext;
+      }
+    }
+  }
+  #endif
 
   if (!base::PathExists(ext_path)) {
     LOG(WARNING) << "RepSky: extension not found next to module at "

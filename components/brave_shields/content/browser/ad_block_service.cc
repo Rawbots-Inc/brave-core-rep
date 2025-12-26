@@ -14,8 +14,10 @@
 #include "base/files/file_path.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
+#include "base/json/values_util.h"
 #include "base/strings/strcat.h"
 #include "base/threading/thread_restrictions.h"
+#include "base/time/time.h"
 #include "base/trace_event/trace_event.h"
 #include "brave/components/brave_shields/content/browser/ad_block_custom_filters_provider.h"
 #include "brave/components/brave_shields/content/browser/ad_block_engine.h"
@@ -32,12 +34,68 @@
 #include "brave/components/brave_shields/core/common/brave_shield_constants.h"
 #include "brave/components/brave_shields/core/common/features.h"
 #include "brave/components/brave_shields/core/common/pref_names.h"
+#include "build/build_config.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/prefs/pref_service.h"
+#include "components/prefs/scoped_user_pref_update.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "url/origin.h"
 
 namespace brave_shields {
+
+namespace {
+
+#if BUILDFLAG(IS_ANDROID)
+void SeedDefaultListSubscriptionsIfNeeded(PrefService* local_state) {
+  if (!local_state) {
+    return;
+  }
+
+  if (local_state->GetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded)) {
+    return;
+  }
+
+  // Only seed when there are no existing list subscriptions, to avoid
+  // unexpected changes for users/builds that already manage subscriptions.
+  if (!local_state->GetDict(prefs::kAdBlockListSubscriptions).empty()) {
+    local_state->SetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded,
+                            true);
+    return;
+  }
+
+  constexpr const char* kDefaultSubscriptionUrls[] = {
+      // EasyList
+      "https://easylist.to/easylist/easylist.txt",
+      // // EasyPrivacy
+      // "https://easylist.to/easylist/easyprivacy.txt",
+      // // ABPVN (Vietnam)
+      // "https://raw.githubusercontent.com/abpvn/abpvn/master/filter/abpvn.txt",
+      // // Fanboy Annoyances
+      // "https://secure.fanboy.co.nz/fanboy-annoyance.txt",
+  };
+
+  {
+    ScopedDictPrefUpdate update(local_state, prefs::kAdBlockListSubscriptions);
+    base::Value::Dict& subscriptions = update.Get();
+
+    for (const char* url : kDefaultSubscriptionUrls) {
+      base::Value::Dict subscription_dict;
+      subscription_dict.Set("enabled", true);
+      subscription_dict.Set("last_update_attempt",
+                            base::TimeToValue(base::Time::Min()));
+      subscription_dict.Set("last_successful_update_attempt",
+                            base::TimeToValue(base::Time::Min()));
+      subscription_dict.Set("expires",
+                            static_cast<int>(kSubscriptionDefaultExpiresHours));
+      subscriptions.Set(url, std::move(subscription_dict));
+    }
+  }
+
+  local_state->SetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded, true);
+}
+#endif  // BUILDFLAG(IS_ANDROID)
+
+}  // namespace
 
 AdBlockService::SourceProviderObserver::SourceProviderObserver(
     AdBlockEngine* adblock_engine,
@@ -442,6 +500,8 @@ void RegisterPrefsForAdBlockService(PrefRegistrySimple* registry) {
   registry->RegisterStringPref(prefs::kAdBlockCustomFilters, std::string());
   registry->RegisterDictionaryPref(prefs::kAdBlockRegionalFilters);
   registry->RegisterDictionaryPref(prefs::kAdBlockListSubscriptions);
+  registry->RegisterBooleanPref(prefs::kAdBlockDefaultListSubscriptionsSeeded,
+                                false);
   registry->RegisterBooleanPref(prefs::kAdBlockCheckedDefaultRegion, false);
   registry->RegisterBooleanPref(prefs::kAdBlockCheckedAllDefaultRegions, false);
   registry->RegisterBooleanPref(prefs::kAdBlockOnlyModeEnabled, false);
@@ -454,6 +514,10 @@ void RegisterPrefsForAdBlockServiceForMigration(PrefRegistrySimple* registry) {
 }
 
 void MigrateObsoletePrefsForAdBlockService(PrefService* local_state) {
+#if BUILDFLAG(IS_ANDROID)
+  SeedDefaultListSubscriptionsIfNeeded(local_state);
+#endif
+
   // Added 2025-07-11
   local_state->ClearPref(prefs::kAdBlockCookieListOptInShown);
 }

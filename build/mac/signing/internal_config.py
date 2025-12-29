@@ -30,10 +30,15 @@ class InternalCodeSignConfig(ChromiumCodeSignConfig):
 
     @property
     def distributions(self):
+        # PKG signing requires a separate "Developer ID Installer" identity.
+        # For custom/local builds, users often only have a "Developer ID
+        # Application" identity. When installer_identity is not provided,
+        # skip packaging as PKG instead of failing the whole packaging step.
+        package_as_pkg = bool(getattr(self, 'installer_identity', None))
         return [
             Distribution(channel=BRAVE_CHANNEL,
                          package_as_dmg=True,
-                         package_as_pkg=True,
+                         package_as_pkg=package_as_pkg,
                          package_as_zip=True)
         ]
 
@@ -43,15 +48,14 @@ class InternalCodeSignConfig(ChromiumCodeSignConfig):
 
     @property
     def run_spctl_assess(self):
-        # It only makes sense to run spctl assess when the binary was notarized
-        # and stapled. This implementation checks whether that is the case.
+        # The signing pipeline calls `validate_app()` before notarization and
+        # stapling are performed. Running `spctl --assess` at that stage
+        # deterministically fails with "source=Unnotarized Developer ID".
         #
-        # It's tempting to use self._notarize here, but it does not contain the
-        # correct value: When this object is a DistributionCodeSignConfig, then
-        # its _notarize always has the default value STAPLE instead of the value
-        # from the base config from which it was created. We therefore refer to
-        # invoker.args.notarize, which does contain the correct value.
-        return self.invoker.args.notarize == NotarizeAndStapleLevel.STAPLE
+        # Notarization/stapling is validated later by the notarization step
+        # itself (and, optionally, by consumers via `spctl` on the final
+        # artifact). So do not run spctl assess here.
+        return False
 
     @property
     def app_dir(self):

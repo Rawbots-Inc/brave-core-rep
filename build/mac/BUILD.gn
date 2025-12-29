@@ -493,9 +493,30 @@ if (is_official_build && !skip_signing) {
   } else {
     provisionprofile_basename = brave_channel
   }
-  copy("copy_provisionprofile") {
-    sources = [ "${provisionprofile_basename}.provisionprofile" ]
-    outputs = [ "${packaging_dir}/${provisionprofile_basename}.24b42420108116ac21f215640e39f7d004e51498.provisionprofile" ]
+  action("prepare_provisionprofile") {
+    script = "prepare_provisionprofile.py"
+
+    inputs = [ "//brave/build/mac/${provisionprofile_basename}.provisionprofile" ]
+
+    # Output is a stamp file; the script also writes the correctly named
+    # ${provisionprofile_basename}.<identity_sha1>.provisionprofile into
+    # $packaging_dir as a side-effect.
+    stamp = "${packaging_dir}/${provisionprofile_basename}.provisionprofile.stamp"
+    outputs = [ stamp ]
+
+    args = [
+      "--src",
+      rebase_path("//brave/build/mac/${provisionprofile_basename}.provisionprofile",
+                  root_build_dir),
+      "--dst-dir",
+      rebase_path(packaging_dir, root_build_dir),
+      "--basename",
+      provisionprofile_basename,
+      "--identity",
+      mac_signing_identifier,
+      "--stamp",
+      rebase_path(stamp, root_build_dir),
+    ]
   }
 }
 
@@ -547,7 +568,7 @@ action("package") {
   if (skip_signing) {
     args += [ "--skip_signing" ]
   } else if (is_official_build) {
-    deps += [ ":copy_provisionprofile" ]
+    deps += [ ":prepare_provisionprofile" ]
     args += [ "--provisioning_profile_basename=$provisionprofile_basename" ]
   }
   if (notarize) {

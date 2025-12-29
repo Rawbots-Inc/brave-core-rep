@@ -85,18 +85,25 @@ def BraveModifyPartsForSigning(parts, config):
                                    | CodeSignOptions.HARDENED_RUNTIME)
 
     if config.enable_updater:
-        # The privileged helper is com.brave.Browser.UpdaterPrivilegedHelper.
-        # But the value here is
-        # com.brave.Browser.<channel>.UpdaterPrivilegedHelper. This is because
-        # our current branding logic treats each channel as a separate product.
-        # We should instead use upstream's channel_customize mechanism.
-        # See https://github.com/brave/brave-browser/issues/39347.
-        privileged_helper = parts['privileged-helper']
-        channel_re = 'com.brave.Browser(.*).UpdaterPrivilegedHelper'
-        replacement = 'com.brave.Browser.UpdaterPrivilegedHelper'
-        privileged_helper.path = re.sub(channel_re, replacement,
-                                        privileged_helper.path)
-        privileged_helper.identifier = re.sub(channel_re, replacement,
-                                              privileged_helper.identifier)
+        privileged_helper = parts.get('privileged-helper')
+        if privileged_helper:
+            # For Brave channels, strip the channel fragment so we sign the
+            # canonical helper id. For custom-branded builds, use the base
+            # bundle ID to derive the helper identifier.
+            if config.base_bundle_id.startswith('com.brave.Browser'):
+                channel_re = 'com.brave.Browser(.*).UpdaterPrivilegedHelper'
+                replacement = 'com.brave.Browser.UpdaterPrivilegedHelper'
+                privileged_helper.path = re.sub(channel_re, replacement,
+                                                privileged_helper.path)
+                privileged_helper.identifier = re.sub(channel_re, replacement,
+                                                      privileged_helper.identifier)
+            else:
+                # For custom-branded builds, use the actual bundle ID for the
+                # privileged helper (e.g. com.rawbots.freedom.UpdaterPrivilegedHelper)
+                helper_id = config.base_bundle_id + '.UpdaterPrivilegedHelper'
+                privileged_helper.path = re.sub(
+                    r'[^/]+\.UpdaterPrivilegedHelper$', helper_id,
+                    privileged_helper.path)
+                privileged_helper.identifier = helper_id
 
     return parts

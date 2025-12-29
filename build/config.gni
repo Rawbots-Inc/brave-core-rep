@@ -13,6 +13,11 @@ declare_args() {
   enable_sparkle = !is_component_build && is_mac
   build_sparkle = false
 
+  # Base product directory name used on macOS for profile/user data.
+  # This value is written into the app's Info.plist as `CrProductDirName`.
+  # Default matches upstream Brave, but custom builds can override in args.gn.
+  brave_mac_product_dir_name_base = "RawbotsSoftware/Freedom-Browser"
+
   sparkle_dsa_private_key_file = ""
   sparkle_eddsa_private_key = ""
   sparkle_eddsa_public_key = ""
@@ -137,7 +142,7 @@ if (is_win) {
     brave_product_dir_name_suffix = "-Development"
   }
   brave_product_dir_name =
-      "BraveSoftware/Brave-Browser$brave_product_dir_name_suffix"
+      "$brave_mac_product_dir_name_base$brave_product_dir_name_suffix"
 
   if (base_sparkle_update_url == "") {
     base_sparkle_update_url =

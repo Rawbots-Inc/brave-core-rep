@@ -9,6 +9,8 @@
 # gives us a way to edit the files in a more convenient way, should we need to
 # do so in the future.
 
+import os
+
 from ds_store import DSStore
 from mac_alias import Alias
 from os import makedirs, symlink
@@ -19,9 +21,24 @@ from tempfile import TemporaryDirectory
 from uuid import uuid4
 
 
+def _get_app_name(channel: str) -> str:
+    base = os.environ.get('BRAVE_DMG_APP_NAME', 'Brave Browser')
+    # For Brave's branded channels, keep the historical naming convention.
+    if base == 'Brave Browser':
+        return base + (f' {channel}' if channel else '')
+    # For custom-branded builds, default to a stable name across channels.
+    return base
+
+
+def _get_layout() -> str:
+    # Default to the traditional DMG layout (app on the left, Applications on the right)
+    # which matches Brave's background image arrow.
+    return os.environ.get('BRAVE_DMG_LAYOUT', 'standard')
+
+
 def main():
     for channel in ('', 'Nightly', 'Beta', 'Release'):
-        app_name = 'Brave Browser' + (f' {channel}' if channel else '')
+        app_name = _get_app_name(channel)
         ds_store = 'DS_Store' + (f'.{channel.lower()}' if channel else '')
         create_ds_store(app_name, '../dmg-background.png', f'{ds_store}')
 
@@ -54,8 +71,14 @@ def create_ds_store(app_name, bg_file, ds_store_path):
                 # Many of the magic string constants below were gleaned from
                 # resources online where people partially reverse-engineered
                 # the DS_Store format.
-                d[app_name + '.app']['Iloc'] = (150, 155)
-                d[' ']['Iloc'] = (430, 150)
+                if _get_layout() == 'standard':
+                    # Standard: app on the left, Applications on the right.
+                    d[app_name + '.app']['Iloc'] = (150, 155)
+                    d['Applications']['Iloc'] = (430, 150)
+                else:
+                    # Reversed: Applications on the left, app on the right.
+                    d['Applications']['Iloc'] = (150, 155)
+                    d[app_name + '.app']['Iloc'] = (430, 150)
                 d['.']['bwsp'] = {
                     'ContainerShowSidebar': False,
                     'ShowPathbar': False,

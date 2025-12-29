@@ -157,7 +157,7 @@ void BravePrivateNewTabPageHandler::GoToBraveSupport() {
     web_contents = web_contents_;
 
   web_contents->OpenURL(
-      content::OpenURLParams(GURL("https://support.brave.app/"),
+      content::OpenURLParams(GURL("https://thefreedombrowser.com/"),
                              content::Referrer(),
                              WindowOpenDisposition::NEW_FOREGROUND_TAB,
                              ui::PageTransition::PAGE_TRANSITION_LINK, false),

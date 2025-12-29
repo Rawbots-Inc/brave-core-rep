@@ -36,8 +36,63 @@
 #include "components/prefs/pref_service.h"
 #include "net/base/registry_controlled_domains/registry_controlled_domain.h"
 #include "url/origin.h"
+#include "base/json/values_util.h"
+#include "base/time/time.h"
+#include "build/build_config.h"
+#include "components/prefs/scoped_user_pref_update.h"
 
 namespace brave_shields {
+
+namespace {
+void SeedDefaultListSubscriptionsIfNeeded(PrefService* local_state) {
+  if (!local_state) {
+    return;
+  }
+
+  if (local_state->GetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded)) {
+    return;
+  }
+
+  // Only seed when there are no existing list subscriptions, to avoid
+  // unexpected changes for users/builds that already manage subscriptions.
+  if (!local_state->GetDict(prefs::kAdBlockListSubscriptions).empty()) {
+    local_state->SetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded,
+                            true);
+    return;
+  }
+
+  constexpr const char* kDefaultSubscriptionUrls[] = {
+      // EasyList
+      "https://easylist.to/easylist/easylist.txt",
+      // // EasyPrivacy
+      // "https://easylist.to/easylist/easyprivacy.txt",
+      // // ABPVN (Vietnam)
+      // "https://raw.githubusercontent.com/abpvn/abpvn/master/filter/abpvn.txt",
+      // // Fanboy Annoyances
+      // "https://secure.fanboy.co.nz/fanboy-annoyance.txt",
+  };
+
+  {
+    ScopedDictPrefUpdate update(local_state, prefs::kAdBlockListSubscriptions);
+    base::Value::Dict& subscriptions = update.Get();
+
+    for (const char* url : kDefaultSubscriptionUrls) {
+      base::Value::Dict subscription_dict;
+      subscription_dict.Set("enabled", true);
+      subscription_dict.Set("last_update_attempt",
+                            base::TimeToValue(base::Time::Min()));
+      subscription_dict.Set("last_successful_update_attempt",
+                            base::TimeToValue(base::Time::Min()));
+      subscription_dict.Set("expires",
+                            static_cast<int>(kSubscriptionDefaultExpiresHours));
+      subscriptions.Set(url, std::move(subscription_dict));
+    }
+  }
+
+  local_state->SetBoolean(prefs::kAdBlockDefaultListSubscriptionsSeeded, true);
+}
+
+}  // namespace
 
 AdBlockService::SourceProviderObserver::SourceProviderObserver(
     AdBlockService* owner,
@@ -436,6 +491,8 @@ void RegisterPrefsForAdBlockService(PrefRegistrySimple* registry) {
   registry->RegisterStringPref(prefs::kAdBlockCustomFilters, std::string());
   registry->RegisterDictionaryPref(prefs::kAdBlockRegionalFilters);
   registry->RegisterDictionaryPref(prefs::kAdBlockListSubscriptions);
+   registry->RegisterBooleanPref(prefs::kAdBlockDefaultListSubscriptionsSeeded,
+                                false);
   registry->RegisterBooleanPref(prefs::kAdBlockCheckedDefaultRegion, false);
   registry->RegisterBooleanPref(prefs::kAdBlockCheckedAllDefaultRegions, false);
   registry->RegisterBooleanPref(prefs::kAdBlockOnlyModeEnabled, false);
@@ -449,6 +506,7 @@ void RegisterPrefsForAdBlockServiceForMigration(PrefRegistrySimple* registry) {
 
 void MigrateObsoletePrefsForAdBlockService(PrefService* local_state) {
   // Added 2025-07-11
+  SeedDefaultListSubscriptionsIfNeeded(local_state);
   local_state->ClearPref(prefs::kAdBlockCookieListOptInShown);
 }
 

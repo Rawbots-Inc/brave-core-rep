@@ -594,8 +594,13 @@ extension GroupedAdBlockEngine.Source {
   func blocklistType(
     engineType: GroupedAdBlockEngine.EngineType
   ) -> ContentBlockerManager.BlocklistType? {
-    guard engineType == .aggressive else { return nil }
-    return .engineSource(self, engineType: engineType)
+    switch self {
+    case .filterListURL, .filterListText:
+      return .engineSource(self, engineType: engineType)
+    case .filterList, .slimList:
+      guard engineType == .aggressive else { return nil }
+      return .engineSource(self, engineType: engineType)
+    }
   }
 }
 

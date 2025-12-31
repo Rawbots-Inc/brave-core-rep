@@ -221,9 +221,9 @@ extension CustomFilterListStorage {
     for engineType: GroupedAdBlockEngine.EngineType
   ) -> [GroupedAdBlockEngine.Source] {
     var sources: [GroupedAdBlockEngine.Source] = []
-    if engineType == .aggressive {
-      sources.append(contentsOf: filterListsURLs.map(\.setting.engineSource))
-    }
+    // URL-based custom filter lists should be available to both engines.
+    // This allows Standard Shields mode to function with custom lists like EasyList.
+    sources.append(contentsOf: filterListsURLs.map(\.setting.engineSource))
     if (try? self.savedCustomRulesFileURL()) == nil { return sources }
     sources.append(.filterListText)
     return sources

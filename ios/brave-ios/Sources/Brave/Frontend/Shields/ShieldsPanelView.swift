@@ -59,7 +59,7 @@ struct ShieldsPanelView: View {
         headerView
 
         if viewModel.shieldsEnabled {
-          shieldsReportView
+         shieldsReportView
           Text(Strings.Shields.siteBroken)
             .font(.caption)
             .foregroundStyle(Color(.secondaryBraveLabel))

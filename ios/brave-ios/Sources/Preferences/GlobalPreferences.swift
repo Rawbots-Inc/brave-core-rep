@@ -221,6 +221,12 @@ extension Preferences {
       key: "appstate.dau-awaiting",
       default: false
     )
+
+    /// Marks whether the default EasyList custom filter list has been installed.
+    public static let didInstallDefaultEasyList = Option<Bool>(
+      key: "adblock.did-install-default-easylist",
+      default: false
+    )
   }
 
   public final class Chromium {

@@ -9,6 +9,8 @@ import Foundation
 import Preferences
 import os
 
+private let defaultEasyListURL = URL(string: "https://easylist.to/easylist/easylist.txt")!
+
 /// This class helps to prepare the browser during launch by ensuring the state of managers, resources and downloaders before performing additional tasks.
 public actor LaunchHelper {
   public static let shared = LaunchHelper()
@@ -34,20 +36,53 @@ public actor LaunchHelper {
       let signpostID = Self.signpost.makeSignpostID()
       ContentBlockerManager.log.debug("Loading blocking launch data")
       let state = Self.signpost.beginInterval("blockingLaunchTask", id: signpostID)
-      await FilterListStorage.shared.start(with: adBlockService)
 
-      // Load cached data
-      // This is done first because compileResources need their results
-      await AdBlockGroupsManager.shared.loadResourcesFromCache()
-      async let loadEngines: Void = AdBlockGroupsManager.shared.loadEnginesFromCache()
-      async let adblockResourceCache: Void = AdBlockGroupsManager.shared.loadBundledDataIfNeeded()
-      _ = await (loadEngines, adblockResourceCache)
+      // Fork behavior: use EasyList (custom URL) as the default adblock source.
+      // We intentionally do NOT start Brave filter lists/resources downloaders here.
+      var shouldForceEasyListUpdate = false
+      await MainActor.run {
+        if !Preferences.AppState.didInstallDefaultEasyList.value {
+          let alreadyExists = CustomFilterListStorage.shared.filterListsURLs.contains(where: {
+            $0.setting.externalURL == defaultEasyListURL
+          })
+
+          if !alreadyExists {
+            let customURL = FilterListCustomURL(
+              externalURL: defaultEasyListURL,
+              isEnabled: true,
+              inMemory: !CustomFilterListStorage.shared.persistChanges
+            )
+            CustomFilterListStorage.shared.filterListsURLs.append(customURL)
+          } else if let idx = CustomFilterListStorage.shared.filterListsURLs.firstIndex(where: {
+            $0.setting.externalURL == defaultEasyListURL
+          }) {
+            CustomFilterListStorage.shared.filterListsURLs[idx].setting.isEnabled = true
+          }
+
+          shouldForceEasyListUpdate = true
+          Preferences.AppState.didInstallDefaultEasyList.value = true
+        }
+      }
+
+      // Start fetching custom URL lists (includes EasyList) and load cached engines.
+      await FilterListCustomURLDownloader.shared.startFetching()
+
+      // On first run, force an immediate download/compile so adblocking works on the first navigation.
+      if shouldForceEasyListUpdate {
+        do {
+          try await FilterListCustomURLDownloader.shared.updateFilterLists()
+        } catch {
+          ContentBlockerManager.log.error(
+            "Failed to update EasyList on first run: \(String(describing: error))"
+          )
+        }
+      }
+
+      await AdBlockGroupsManager.shared.loadEnginesFromCache()
+
       Self.signpost.emitEvent("loadedCachedData", id: signpostID, "Loaded cached data")
-
       ContentBlockerManager.log.debug("Loaded blocking launch data")
 
-      // This one is non-blocking
-      performPostLoadTasks(adBlockService: adBlockService)
       areAdBlockServicesReady = true
       Self.signpost.endInterval("blockingLaunchTask", state)
     }
@@ -58,21 +93,6 @@ public actor LaunchHelper {
     self.loadTask = nil
   }
 
-  /// Perform tasks that don't need to block the initial load (things that can happen happily in the background after the first page loads
-  private func performPostLoadTasks(
-    adBlockService: AdblockService
-  ) {
-    Task.detached(priority: .low) {
-      let signpostID = Self.signpost.makeSignpostID()
-      let state = Self.signpost.beginInterval("nonBlockingLaunchTask", id: signpostID)
-      await FilterListResourceDownloader.shared.start(with: adBlockService)
-      await FilterListCustomURLDownloader.shared.startFetching()
-      await AdblockResourceDownloader.shared.startFetching()
-      // It's important to do this at the end to ensure we have our lists loaded
-      await AdBlockGroupsManager.shared.cleaupInvalidRuleLists()
-      Self.signpost.endInterval("nonBlockingLaunchTask", state)
-    }
-  }
 }
 
 extension FilterListStorage {

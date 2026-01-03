@@ -276,12 +276,7 @@ void BraveAppMenuModel::BuildMoreToolsSubMenu() {
     need_separator = false;
   }
 
-  // Insert sync menu
-  if (IsCommandIdEnabled(IDC_SHOW_BRAVE_SYNC)) {
-    more_tools_menu_model->InsertItemWithStringIdAt(
-        next_target_index++, IDC_SHOW_BRAVE_SYNC, IDS_SHOW_BRAVE_SYNC);
-    need_separator = true;
-  }
+  // Insert sync menu intentionally omitted.
 
   if (need_separator) {
     more_tools_menu_model->InsertSeparatorAt(next_target_index++,

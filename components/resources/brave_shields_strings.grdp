@@ -73,15 +73,15 @@
   </message>
 
   <message name="IDS_BRAVE_SHIELDS_ADS_BLOCKED_NOTE" desc="Description to convey advertisements are being blocked.">
-    Ads blocked <ph name="LINK_BEFORE">$1</ph>Learn more<ph name="LINK_AFTER">/$1</ph>
+    Ads blocked <ph name="LINK_BEFORE">$1</ph><ph name="LINK_AFTER">/$1</ph>
   </message>
 
   <message name="IDS_BRAVE_SHIELDS_BLOCKED_NOTE" desc="Description to convey trackers, advertisement and more are being blocked.">
-    Trackers, ads, and more blocked <ph name="LINK_BEFORE">$1</ph>Learn more<ph name="LINK_AFTER">/$1</ph>
+    Trackers, ads, and more blocked <ph name="LINK_BEFORE">$1</ph><ph name="LINK_AFTER">/$1</ph>
   </message>
 
   <message name="IDS_BRAVE_SHIELDS_NOT_BLOCKED_NOTE" desc="Description to convey trackers, advertisement and more are not being blocked. Do not translate Brave SHields.">
-    Not protected by Freedom Shields <ph name="LINK_BEFORE">$1</ph>Learn more<ph name="LINK_AFTER">/$1</ph>
+    Not protected by Freedom Shields <ph name="LINK_BEFORE">$1</ph><ph name="LINK_AFTER">/$1</ph>
   </message>
 
   <message name="IDS_BRAVE_SHIELDS_ADVANCED_CTRLS" desc="A button label to expand/collapse more options.">

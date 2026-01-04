@@ -62,7 +62,7 @@
   page-title="$i18n{braveDefaultExtensions}">
   <div hidden="[[isExtensionsManifestV2Routed_]]">
     <settings-toggle-button id="googleLoginForExtensions" class="cr-row first"
-      pref="{{prefs.signin.allowed_on_next_startup}}" learn-more-url="$i18n{googleLoginLearnMoreURL}"
+      pref="{{prefs.signin.allowed_on_next_startup}}"
       label="$i18n{googleLoginForExtensionsDesc}">
       <template is="dom-if" if="[[shouldShowRestartForGoogleLogin_(
           prefs.signin.allowed_on_next_startup.value)]]">

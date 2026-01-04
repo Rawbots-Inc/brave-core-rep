@@ -34,7 +34,7 @@ const buildBraveVersionLink = (braveVersion: string, build: string) => {
   wrapper.setAttribute('id', 'release-notes')
   wrapper.setAttribute('target', '_blank')
   wrapper.setAttribute('rel', 'noopener noreferrer')
-  wrapper.setAttribute('href', 'https://brave.com/latest/')
+  wrapper.setAttribute('href', 'https://thefreedombrowser.com/')
   wrapper.textContent = `Brave ${braveVersion} ${build}`
 
   return wrapper
@@ -65,7 +65,7 @@ RegisterPolymerTemplateModifications({
       wrapper.setAttribute('id', 'release-notes')
       wrapper.setAttribute('target', '_blank')
       wrapper.setAttribute('rel', 'noopener noreferrer')
-      wrapper.setAttribute('href', 'https://brave.com/latest/')
+      wrapper.setAttribute('href', 'https://thefreedombrowser.com/')
 
       const parent = version.parentNode
       parent?.replaceChild(wrapper, version)

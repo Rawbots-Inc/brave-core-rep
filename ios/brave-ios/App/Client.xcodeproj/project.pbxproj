@@ -474,18 +474,8 @@
 		F926647A234D4EF400359492 /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		2749F5CC2D08904200A5DAAB /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 2749F5B62D088E0100A5DAAB /* WebShell */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		2749F5B82D088E0100A5DAAB /* WebShell */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (2749F5CC2D08904200A5DAAB /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = WebShell; sourceTree = "<group>"; };
+		2749F5B82D088E0100A5DAAB /* WebShell */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = WebShell; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2182,7 +2172,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
-				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
+				MOZ_BUNDLE_DISPLAY_NAME = Freedom;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -2202,7 +2192,6 @@
 		27EDE17D29A7D93900F34870 /* Debug (AppStore) */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Local;
 				BRAVE_GROUP_ID = group.com.rawbots.brave.dev.unique;
@@ -2211,10 +2200,10 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
-				MOZ_BUNDLE_DISPLAY_NAME = "Rep Sky";
+				MOZ_BUNDLE_DISPLAY_NAME = "Freedom";
 				PRODUCT_MODULE_NAME = Client;
 				PRODUCT_NAME = Client;
 				PROVISIONING_PROFILE_SPECIFIER = "Brave iOS - Development";
@@ -2412,7 +2401,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
-				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
+				MOZ_BUNDLE_DISPLAY_NAME = Freedom;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -2433,7 +2422,6 @@
 		27EEEDA62507CDF900024038 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BRAVE_GROUP_ID = group.com.rawbots.brave.dev.unique;
@@ -2444,10 +2432,10 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
-				MOZ_BUNDLE_DISPLAY_NAME = "Rep Sky";
+				MOZ_BUNDLE_DISPLAY_NAME = "Freedom";
 				MOZ_BUNDLE_ID = com.rawbots.ios.RepSkybrowser;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rawbots.ios.RepSkybrowser;
 				PRODUCT_MODULE_NAME = Client;
@@ -3357,7 +3345,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
-				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
+				MOZ_BUNDLE_DISPLAY_NAME = Freedom;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3378,7 +3366,6 @@
 		E448FC9E1AEE7A6000869B6C /* Release (AppStore) */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BRAVE_GROUP_ID = group.com.rawbots.brave.dev.unique;
@@ -3390,10 +3377,10 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				ENABLE_TESTABILITY = YES;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
-				MOZ_BUNDLE_DISPLAY_NAME = "Rep Sky";
+				MOZ_BUNDLE_DISPLAY_NAME = "Freedom";
 				MOZ_BUNDLE_ID = com.rawbots.ios.RepSkybrowser;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rawbots.ios.RepSkybrowser;
 				PRODUCT_MODULE_NAME = Client;
@@ -3462,7 +3449,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = "$(BUILD_DIR)/Release$(EFFECTIVE_PLATFORM_NAME)";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
-				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
+				MOZ_BUNDLE_DISPLAY_NAME = Freedom;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3483,7 +3470,6 @@
 		E6DCC2061DCBB6F100CEC4B7 /* Nightly */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Nightly;
 				BRAVE_GROUP_ID = group.com.rawbots.brave.dev.unique;
@@ -3491,10 +3477,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
-				MOZ_BUNDLE_DISPLAY_NAME = "Rep Sky";
+				MOZ_BUNDLE_DISPLAY_NAME = "Freedom";
 				PRODUCT_MODULE_NAME = Client;
 				PRODUCT_NAME = Client;
 				PROVISIONING_PROFILE_SPECIFIER = "Brave iOS Nightly";
@@ -3579,14 +3565,13 @@
 		E6FCC42A1C40562400DF6113 /* Beta */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Beta;
 				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/iOS/Entitlements/Beta.entitlements";
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"$(PROJECT_DIR)/../Sources/Brave/Frontend/Preview Content\"";
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
 				PRODUCT_MODULE_NAME = Client;
@@ -3651,7 +3636,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LOCALIZED_STRING_SWIFTUI_SUPPORT = NO;
-				MOZ_BUNDLE_DISPLAY_NAME = RepSky;
+				MOZ_BUNDLE_DISPLAY_NAME = Freedom;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
@@ -3671,7 +3656,6 @@
 		F84B21DE1A090F8100AAB793 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "windows 3d 80s aqua bat holo neon netscape supernova terminal popart popart-dark";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Local;
 				CODE_SIGN_ENTITLEMENTS = "$(SRCROOT)/iOS/Entitlements/Debug.entitlements";
@@ -3682,10 +3666,10 @@
 				DEVELOPMENT_TEAM = 5S7794CG3N;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = "iOS/Supporting Files/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Rep Sky";
+				INFOPLIST_KEY_CFBundleDisplayName = "Freedom";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
 				MARKETING_VERSION = 1.5.0;
-				MOZ_BUNDLE_DISPLAY_NAME = "Rep Sky";
+				MOZ_BUNDLE_DISPLAY_NAME = "Freedom";
 				PRODUCT_BUNDLE_IDENTIFIER = com.rawbots.browser.RepSkyBrowserBeta;
 				PRODUCT_MODULE_NAME = Client;
 				PRODUCT_NAME = Client;

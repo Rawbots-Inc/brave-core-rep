@@ -79,7 +79,7 @@ extension Strings {
       "focusOnboarding.defaultBrowserScreenDescription",
       tableName: "FocusOnboarding",
       bundle: .module,
-      value: "Set RepSky as your default browser today.",
+      value: "Set Freedom as your default browser today.",
       comment: "The subtitle of the screen that requests user to set Brave as default"
     )
 

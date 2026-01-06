@@ -162,7 +162,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Import passwords
       </message>
       <message name="IDS_PASSWORD_SETTINGS_IMPORT_ACTION_DESCRIPTION" desc="Description for the password import action in Android settings">
-        Select a .csv file that contains your passwords to import them to RepSky's password manager.
+        Select a .csv file that contains your passwords to import them to 's password manager.
       </message>
       <message name="IDS_CUSTOM"  desc="Text for custom">
         Custom
@@ -173,10 +173,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_TELL_US_WHAT_YOU_THINK"  desc="Text for Tell us what you think!">
         Tell us what you think!
       </message>
-      <message name="IDS_RATE_BRAVE"  desc="Text for Rate RepSky">
-        Rate RepSky
+      <message name="IDS_RATE_BRAVE"  desc="Text for Rate ">
+        Rate 
       </message>
-      <message name="IDS_BRAVE_RATING_THANKS"  desc="Text for RepSky Rating Thanks">
+      <message name="IDS_BRAVE_RATING_THANKS"  desc="Text for  Rating Thanks">
         Thanks!
       </message>
       <message name="IDS_ADD_YOUR_SUGGESTIONS"  desc="Text for Add your suggestions">
@@ -185,14 +185,14 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_OPTIONAL"  desc="Text for Optional">
         Optional
       </message>
-      <message name="IDS_IN_ONE_EMOJI_EXPERIENCE_WITH_BRAVE"  desc="Text for In one emoji, how's your experience with RepSky?">
-        In one emoji, how's your experience with RepSky?
+      <message name="IDS_IN_ONE_EMOJI_EXPERIENCE_WITH_BRAVE"  desc="Text for In one emoji, how's your experience with ?">
+        In one emoji, how's your experience with ?
       </message>
       <message name="IDS_RATE_NOW"  desc="Text for Rate now">
         Rate now
       </message>
-      <message name="IDS_LIKING_BRAVE"  desc="Text for Liking RepSky?">
-        Liking RepSky?
+      <message name="IDS_LIKING_BRAVE"  desc="Text for Liking ?">
+        Liking ?
       </message>
       <message name="IDS_HAPPY"  desc="Text for happy">
         Happy
@@ -206,62 +206,62 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_THANKS_FOR_YOUR_FEEDBACK"  desc="Text for Thanks for your feedback!">
         Thanks for your feedback!
       </message>
-      <message name="IDS_LET_US_KNOW_HOW_WE_CAN_IMPROVE_BRAVE"  desc="Text for Let us know how we can improve RepSky.">
-        Let us know how we can improve RepSky.
+      <message name="IDS_LET_US_KNOW_HOW_WE_CAN_IMPROVE_BRAVE"  desc="Text for Let us know how we can improve .">
+        Let us know how we can improve .
       </message>
       <message name="IDS_BRAVE_NOTIFICATION_PERMISSION_RATIONALE_DIALOG_TITLE" desc="The title of a dialog shown to users before asking for notification permission.">
-        RepSky notifications make it easier
+         notifications make it easier
       </message>
-      <message name="IDS_BRAVE_NOTIFICATION_PERMISSION_RATIONALE_DIALOG_MESSAGE" desc="The body text of a dialog explaining the benefits of enabling RepSky notifications.">
+      <message name="IDS_BRAVE_NOTIFICATION_PERMISSION_RATIONALE_DIALOG_MESSAGE" desc="The body text of a dialog explaining the benefits of enabling  notifications.">
         Manage downloads, earn tokens, see weekly usage stats, and more.
       </message>
-      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_BOTH_REWARDS_PRIVACY" desc="Text header for When BOTH RepSky Rewards and Privacy Report are TURNED ON.">
+      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_BOTH_REWARDS_PRIVACY" desc="Text header for When BOTH  Rewards and Privacy Report are TURNED ON.">
         You're not earning Rewards or receiving Privacy Reports
       </message>
-      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_ONLY_REWARDS" desc="Text header for When ONLY RepSky Rewards is TURNED ON.">
-        You're not earning RepSky Rewards
+      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_ONLY_REWARDS" desc="Text header for When ONLY  Rewards is TURNED ON.">
+        You're not earning  Rewards
       </message>
       <message name="IDS_NOTIFICATION_BRAVE_DIALOG_HEADER_ONLY_PRIVACY" desc="Text header for When ONLY Privacy Report is TURNED ON.">
         You're not receiving Privacy Reports
       </message>
-      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_DESCRIPTION_BOTH_REWARDS_PRIVACY" desc="Text description for When BOTH RepSky Rewards and Privacy Report are TURNED ON.">
+      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_DESCRIPTION_BOTH_REWARDS_PRIVACY" desc="Text description for When BOTH  Rewards and Privacy Report are TURNED ON.">
         Turn notifications back on if you'd like to keep earning BAT and receiving weekly privacy reports.
       </message>
-      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_DESCRIPTION_ONLY_REWARDS" desc="Text description for When ONLY RepSky Rewards is TURNED ON.">
+      <message name="IDS_NOTIFICATION_BRAVE_DIALOG_DESCRIPTION_ONLY_REWARDS" desc="Text description for When ONLY  Rewards is TURNED ON.">
         Turn notifications back on if you'd like to keep earning BAT.
       </message>
       <message name="IDS_NOTIFICATION_BRAVE_DIALOG_DESCRIPTION_ONLY_PRIVACY" desc="Text description for When ONLY Privacy Report is TURNED ON.">
         Turn notifications back on if you'd like to keep receiving weekly privacy reports.
       </message>
-     <message name="IDS_NOTIFICATION_OS_DIALOG_HEADER_BOTH_REWARDS_PRIVACY" desc="Text header for When BOTH RepSky Rewards and Privacy Report are TURNED ON.">
+     <message name="IDS_NOTIFICATION_OS_DIALOG_HEADER_BOTH_REWARDS_PRIVACY" desc="Text header for When BOTH  Rewards and Privacy Report are TURNED ON.">
         You're not earning Rewards or receiving Privacy Reports
       </message>
-      <message name="IDS_NOTIFICATION_OS_DIALOG_HEADER_ONLY_REWARDS" desc="Text header for When ONLY RepSky Rewards is TURNED ON.">
+      <message name="IDS_NOTIFICATION_OS_DIALOG_HEADER_ONLY_REWARDS" desc="Text header for When ONLY  Rewards is TURNED ON.">
         You're not earning Rewards
       </message>
       <message name="IDS_NOTIFICATION_OS_DIALOG_HEADER_ONLY_PRIVACY" desc="Text header for When ONLY Privacy Report is TURNED ON.">
         You're not receiving Privacy Reports
       </message>
-      <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_BOTH_REWARDS_PRIVACY" desc="Text description for When BOTH RepSky Rewards and Privacy Report are TURNED ON.">
-        Enable device notifications to earn RepSky Rewards and see Privacy Reports.
+      <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_BOTH_REWARDS_PRIVACY" desc="Text description for When BOTH  Rewards and Privacy Report are TURNED ON.">
+        Enable device notifications to earn  Rewards and see Privacy Reports.
       </message>
-      <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_ONLY_REWARDS" desc="Text description for When ONLY RepSky Rewards is TURNED ON.">
-        Enable device notifications to earn RepSky Rewards.
+      <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_ONLY_REWARDS" desc="Text description for When ONLY  Rewards is TURNED ON.">
+        Enable device notifications to earn  Rewards.
       </message>
       <message name="IDS_NOTIFICATION_OS_DIALOG_DESCRIPTION_ONLY_PRIVACY" desc="Text description for When ONLY Privacy Report is TURNED ON.">
-        Enable device notifications to get RepSky Privacy Reports.
+        Enable device notifications to get  Privacy Reports.
       </message>
-      <message name="IDS_ENABLE_NOTIFICATIONS_FROM_BRAVE_TO_EARN_BRAVE_REWARDS" desc="Text description for Enable notifications from RepSky to earn RepSky Rewards.">
-        Enable notifications from RepSky to earn RepSky Rewards.
+      <message name="IDS_ENABLE_NOTIFICATIONS_FROM_BRAVE_TO_EARN_BRAVE_REWARDS" desc="Text description for Enable notifications from  to earn  Rewards.">
+        Enable notifications from  to earn  Rewards.
       </message>
-      <message name="IDS_OPEN_SETTINGS_AND_TURN_ON_DEVICE_NOTIFICATIONS_FOR_BRAVE_ADS" desc="Text description for Open Settings and turn on device notifications for RepSky Ads.">
-        Open Settings and turn on device notifications for RepSky Ads.
+      <message name="IDS_OPEN_SETTINGS_AND_TURN_ON_DEVICE_NOTIFICATIONS_FOR_BRAVE_ADS" desc="Text description for Open Settings and turn on device notifications for  Ads.">
+        Open Settings and turn on device notifications for  Ads.
       </message>
-      <message name="IDS_TURN_ON_BRAVE_NOTIFICATIONS" desc="Text for button Turn on RepSky notifications">
-        Turn on RepSky notifications
+      <message name="IDS_TURN_ON_BRAVE_NOTIFICATIONS" desc="Text for button Turn on  notifications">
+        Turn on  notifications
       </message>
-      <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_SHIELDS" desc="Content description for the button that is enable, disable RepSky Shields.">
-        Enable/Disable RepSky Shields
+      <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_SHIELDS" desc="Content description for the button that is enable, disable  Shields.">
+        Enable/Disable  Shields
       </message>
     <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_PIP" desc="Content description for the button that triggers picture-in-picture mode for YouTube videos.">
       Enter picture-in-picture mode
@@ -323,8 +323,8 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_SHIELDS_SOCIAL_BLOCKING_LINKEDIN" desc="Label for a switch control which allows LinkedIn embedded posts">
         Allow LinkedIn embedded posts
       </message>
-      <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_REWARDS" desc="Content description for the button that is enable, disable RepSky Rewards.">
-        Manage RepSky Rewards
+      <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_REWARDS" desc="Content description for the button that is enable, disable  Rewards.">
+        Manage  Rewards
       </message>
       <message name="IDS_PREFS_AUTOFILL_PRIVATE_WINDOW_TITLE" desc="Title for Autofill in private window option in settings">
         Autofill in private tabs
@@ -335,23 +335,23 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_PREFS_SUPPORT_SECTION" desc="Title for the support section ">
         Support
       </message>
-      <message name="IDS_PREFS_SECTION_BRAVE_ACCOUNT" desc="Title for the RepSky Account section in settings">
-        RepSky Account
+      <message name="IDS_PREFS_SECTION_BRAVE_ACCOUNT" desc="Title for the  Account section in settings">
+         Account
       </message>
-      <message name="IDS_GET_STARTED" desc="Button text to get started with RepSky Account">
+      <message name="IDS_GET_STARTED" desc="Button text to get started with  Account">
         Get started
       </message>
-      <message name="IDS_PREFS_SECTION_FEATURES" desc="Title for RepSky-specific features section">
+      <message name="IDS_PREFS_SECTION_FEATURES" desc="Title for -specific features section">
         Features
       </message>
-      <message name="IDS_PREFS_SECTION_ADS" desc="Title for RepSky Origin Ads section">
+      <message name="IDS_PREFS_SECTION_ADS" desc="Title for  Origin Ads section">
         Ads
       </message>
-      <message name="IDS_PREFS_SECTION_ANALYTICS" desc="Title for RepSky Origin Analytics section">
+      <message name="IDS_PREFS_SECTION_ANALYTICS" desc="Title for  Origin Analytics section">
         Analytics
       </message>
       <message name="IDS_BRAVE_SHIELDS_AND_PRIVACY" desc="Label for the settings related to shields and privacy">
-        RepSky Shields &amp; privacy
+         Shields &amp; privacy
       </message>
       <message name="IDS_BRAVE_SEARCH_ENGINES" desc="Label for the settings related to the search engines">
         Search engines
@@ -474,67 +474,67 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Today’s top stories in a private feed, just for you.
       </message>
       <message name="IDS_BRAVE_NEWS_SETTINGS_OPTIN_TITLE" desc="Text for opt in card title in settings">
-        Turn on RepSky News, and never miss a story
+        Turn on  News, and never miss a story
       </message>
       <message name="IDS_BRAVE_NEWS_OPTIN_SUBTITLE" desc="Text for opt in card subtitle">
-        RepSky News is ad-supported with private and anonymized ads matched on your device.
+         News is ad-supported with private and anonymized ads matched on your device.
       </message>
       <message name="IDS_BRAVE_NEWS_SETTINGS_OPTIN_SUBTITLE" desc="Text for opt in card subtitle in settings">
-        Follow your favorite sources, in a single feed. Just open a tab in RepSky, scroll down, and... voila!\nRepSky News is ad-supported with private, anonymized ads.
+        Follow your favorite sources, in a single feed. Just open a tab in , scroll down, and... voila!\n News is ad-supported with private, anonymized ads.
       </message>
       <message name="IDS_TURN_ON_BRAVE_NEWS" desc="Text for opt in card button in settings">
-        Turn on RepSky News
+        Turn on  News
       </message>
-      <message name="IDS_BRAVE_NEWS_SETTINGS_SEARCH" desc="Text for RepSky News settings search">
+      <message name="IDS_BRAVE_NEWS_SETTINGS_SEARCH" desc="Text for  News settings search">
         Search for site, topic, or RSS feed
       </message>
-      <message name="IDS_POPULAR" desc="Text for RepSky News settings popular sources">
+      <message name="IDS_POPULAR" desc="Text for  News settings popular sources">
         Popular
       </message>
-      <message name="IDS_POPULAR_SUBTITLE" desc="Text for RepSky News settings popular sources subtitle">
+      <message name="IDS_POPULAR_SUBTITLE" desc="Text for  News settings popular sources subtitle">
         Ranked list of sources
       </message>
-      <message name="IDS_SUGGESTIONS" desc="Text for RepSky News settings suggestions">
+      <message name="IDS_SUGGESTIONS" desc="Text for  News settings suggestions">
         Suggestions
       </message>
-      <message name="IDS_SUGGESTIONS_SUBTITLE" desc="Text for RepSky News settings suggestions subtitle">
+      <message name="IDS_SUGGESTIONS_SUBTITLE" desc="Text for  News settings suggestions subtitle">
         Some sources you might like
       </message>
-      <message name="IDS_CHANNELS" desc="Text for RepSky News settings channels">
+      <message name="IDS_CHANNELS" desc="Text for  News settings channels">
         Channels
       </message>
-      <message name="IDS_CHANNELS_SUBTITLE" desc="Text for RepSky News settings channels subtitle">
+      <message name="IDS_CHANNELS_SUBTITLE" desc="Text for  News settings channels subtitle">
         Follow topics that interest you
       </message>
-      <message name="IDS_FOLLOWING" desc="Text for RepSky News settings following">
+      <message name="IDS_FOLLOWING" desc="Text for  News settings following">
         Following
       </message>
-      <message name="IDS_FOLLOWING_SUBTITLE" desc="Text for RepSky News settings following subtitle">
+      <message name="IDS_FOLLOWING_SUBTITLE" desc="Text for  News settings following subtitle">
         Manage sources for your feed
       </message>
-      <message name="IDS_FOLLOW" desc="Text for RepSky News settings button follow">
+      <message name="IDS_FOLLOW" desc="Text for  News settings button follow">
         Follow
       </message>
-      <message name="IDS_UNFOLLOW" desc="Text for RepSky News settings button unfollow">
+      <message name="IDS_UNFOLLOW" desc="Text for  News settings button unfollow">
         Unfollow
       </message>
-      <message name="IDS_GET_FEEDS" desc="Text for RepSky News settings button get feeds">
+      <message name="IDS_GET_FEEDS" desc="Text for  News settings button get feeds">
         Get Feeds
       </message>
-      <message name="IDS_GETTING_FEEDS" desc="Text for RepSky News settings button getting feeds">
+      <message name="IDS_GETTING_FEEDS" desc="Text for  News settings button getting feeds">
         Getting Feeds...
       </message>
-      <message name="IDS_SOURCES" desc="Text for RepSky News settings sources">
+      <message name="IDS_SOURCES" desc="Text for  News settings sources">
         SOURCES
       </message>
-      <message name="IDS_NO_FEED_FOUND" desc="Text for RepSky News settings search no found">
+      <message name="IDS_NO_FEED_FOUND" desc="Text for  News settings search no found">
         No feeds found at <ph name="SEARCH_URL">%1$s</ph>
       </message>
-      <message name="IDS_BRAVE_NEWS_AD" desc="Text for RepSky ad logo">
+      <message name="IDS_BRAVE_NEWS_AD" desc="Text for  ad logo">
         Ad
       </message>
       <message name="IDS_BRAVE_NEWS_OPTIN_BUTTON" desc="Text for opt in card subtitle">
-        Show RepSky News
+        Show  News
       </message>
       <message name="IDS_BRAVE_NEWS_SHARE" desc="Text for share option in the long press menu">
         Share
@@ -542,10 +542,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_NEWS_OPTIN_LEARN_MORE" desc="Text for opt in card subtitle">
         Learn more about your data
       </message>
-      <message name="IDS_BRAVE_NEWS_OPEN_NEW_TAB" desc="Text for opening the link in a new tab option for the long press on title action for RepSky news">
+      <message name="IDS_BRAVE_NEWS_OPEN_NEW_TAB" desc="Text for opening the link in a new tab option for the long press on title action for  news">
         Open in New Tab
       </message>
-      <message name="IDS_BRAVE_NEWS_OPEN_NEW_PRIVATE_TAB" desc="Text for opening the link in a new private tab option for the long press on title action for RepSky news">
+      <message name="IDS_BRAVE_NEWS_OPEN_NEW_PRIVATE_TAB" desc="Text for opening the link in a new private tab option for the long press on title action for  news">
         Open in New Private Tab
       </message>
       <message name="IDS_BRAVE_NEWS_DISABLE_CONTENT" desc="Text for disable content option for the long press on title action">
@@ -554,23 +554,23 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_NEWS_DISABLED_CONTENT" desc="Text for disabled publisher notification">
         <ph name="PUBLISHER">%1$s</ph> disabled
       </message>
-      <message name="IDS_BRAVE_NEWS_LOAD_NEW_CONTENT" desc="Text for load new content button for RepSky news">
+      <message name="IDS_BRAVE_NEWS_LOAD_NEW_CONTENT" desc="Text for load new content button for  news">
         Load new content
       </message>
       <message name="IDS_BRAVE_NEWS_PROMOTED_TITLE" desc="Text for marking promoted cards ">
         Promoted
       </message>
-      <message name="IDS_BRAVE_NEWS_MORE_OFFERS_TITLE" desc="Text for more offers for the RepSky News Deals card ">
-        More RepSky Offers
+      <message name="IDS_BRAVE_NEWS_MORE_OFFERS_TITLE" desc="Text for more offers for the  News Deals card ">
+        More  Offers
       </message>
       <message name="IDS_NEWS_SHOW" desc="Text for news source">
-        Show RepSky News
+        Show  News
       </message>
       <message name="IDS_NO_CONTENT_TITLE" desc="Text for no source card title">
         No content
       </message>
       <message name="IDS_NO_CONTENT_SUBTITLE" desc="Text for no source card subtitle">
-        RepSky News has no content to show.
+         News has no content to show.
       </message>
       <message name="IDS_CHOOSE_CONTENT_SOURCES" desc="Text for no source card button">
         Choose content sources
@@ -618,19 +618,19 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Allow privacy-preserving product analytics (P3A)
       </message>
       <message name="IDS_SEND_P3A_ANALYTICS_SUMMARY" desc="Summary for checkbox of send p3a analytics.">
-        Anonymized P3A info helps RepSky estimate overall usage, and ensure we’re improving popular features.
+        Anonymized P3A info helps  estimate overall usage, and ensure we’re improving popular features.
       </message>
       <message name="IDS_SEND_WEB_DISCOVERY_TITLE" desc="Title for checkbox of Web Discovery setting.">
         Web Discovery Project
       </message>
       <message name="IDS_SEND_WEB_DISCOVERY_SUMMARY" desc="Summary for checkbox of Web Discovery setting.">
-        Contribute some anonymous search &amp; browsing data to refine RepSky Search.
+        Contribute some anonymous search &amp; browsing data to refine  Search.
       </message>
       <message name="IDS_SEND_CRASH_REPORTS_TITLE" desc="Title for checkbox enable/disable sending diagnostic reports (crashes, hangs).">
         Automatically send diagnostic reports
       </message>
       <message name="IDS_SEND_CRASH_REPORTS_SUMMARY" desc="Summary for checkbox enable/disable sending diagnostic reports (crashes, hangs).">
-        Help improve RepSky\u2019s product stability by automatically sending diagnostic reports when the RepSky Browser crashes or freezes.
+        Help improve \u2019s product stability by automatically sending diagnostic reports when the  Browser crashes or freezes.
       </message>
       <message name="IDS_BRAVE_STATS_TEXT_DATA_SAVED" desc="Title for the data saved stats">
         Est. Data\nSaved
@@ -639,10 +639,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Est. Time\nSaved
       </message>
       <message name="IDS_SURVEY_PANELIST_TITLE" desc="Title for enable/disable brave survey panelist toggle.">
-        Allow RepSky surveys
+        Allow  surveys
       </message>
       <message name="IDS_SURVEY_PANELIST_SUMMARY" desc="Summary for enable/disable brave survey panelist toggle.">
-        Allows RepSky to show links to private surveys in the new tab page. Surveys help us build better features and measure the effectiveness of browser-based ad campaigns.
+        Allows  to show links to private surveys in the new tab page. Surveys help us build better features and measure the effectiveness of browser-based ad campaigns.
       </message>
       <message name="IDS_SURVEY_PANELIST_LEARN_MORE" desc="Title of learn more about survey panelist.">
         
@@ -684,8 +684,8 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Allowed to access localhost resources
       </message>
 
-      <message name="IDS_PREFS_SECTION_BRAVE_SHIELDS_GLOBALS" desc="Title for RepSky shields global defaults section in the privacy preferences screen">
-        RepSky shields global defaults
+      <message name="IDS_PREFS_SECTION_BRAVE_SHIELDS_GLOBALS" desc="Title for  shields global defaults section in the privacy preferences screen">
+         shields global defaults
       </message>
       <message name="IDS_PREFS_SECTION_OTHER_PRIVACY_SETTINGS" desc="Title for Other privacy settings section in the privacy preferences screen">
         Other privacy settings
@@ -697,13 +697,13 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Background play
       </message>
       <message name="IDS_PREFS_CLOSING_ALL_TABS_CLOSES_BRAVE" desc="Title for closing all tabs closes brave in controls section">
-        Closing all tabs closes RepSky
+        Closing all tabs closes 
       </message>
       <message name="IDS_PREFS_BACKGROUND_VIDEO_PLAYBACK_ON" desc="Text for background video playback is on">
-        Allows audio to play when you switch to another tab in RepSky or another app or your device screen is off.
+        Allows audio to play when you switch to another tab in  or another app or your device screen is off.
       </message>
       <message name="IDS_PREFS_OPEN_YOUTUBE_LINKS_BRAVE" desc="Text for open youtube links in brave">
-        Open YouTube links in RepSky
+        Open YouTube links in 
       </message>
       <message name="IDS_PREFS_SECTION_DISPLAY" desc='Title of "Display" section of preferences. [CHAR-LIMIT=32]'>
         Display
@@ -729,11 +729,11 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_PREFS_APPEARANCE" desc="Title of Appearance settings, which allows the user to change display settings. [CHAR-LIMIT=32]">
         Appearance
       </message>
-      <message name="IDS_SHOW_BRAVE_REWARDS_ICON_TITLE" desc="Title for preference that hides or shows RepSky Rewards icon.">
-        RepSky Rewards icon
+      <message name="IDS_SHOW_BRAVE_REWARDS_ICON_TITLE" desc="Title for preference that hides or shows  Rewards icon.">
+         Rewards icon
       </message>
-      <message name="IDS_SHOW_BRAVE_REWARDS_ICON_SUMMARY" desc="Summary for preference that hides or shows RepSky Rewards icon.">
-        Show RepSky Rewards icon in address bar
+      <message name="IDS_SHOW_BRAVE_REWARDS_ICON_SUMMARY" desc="Summary for preference that hides or shows  Rewards icon.">
+        Show  Rewards icon in address bar
       </message>
       <message name="IDS_BOTTOM_TOOLBAR_TITLE" desc="Menu item for enabling the bottom navigation toolbar.">
         Enable bottom navigation toolbar
@@ -742,7 +742,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         This setting is disabled when the bottom address bar position is selected
       </message>
       <message name="IDS_SETTINGS_REQUIRE_RELAUNCH_NOTICE" desc="Text for message asked about browser relaunch to apply new settings">
-        Your changes will take effect the next time you relaunch RepSky
+        Your changes will take effect the next time you relaunch 
       </message>
       <message name="IDS_SETTINGS_REQUIRE_RELAUNCH_NOW" desc="Text on the button causes relaunch browser now">
         RELAUNCH NOW
@@ -756,37 +756,37 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Privacy. Made simple.
       </message>
       <message name="IDS_ONBOARDING_SET_DEFAULT" desc="Text for set default onboarding">
-        With RepSky as default, every link you tap opens with RepSky's privacy protections.
+        With  as default, every link you tap opens with 's privacy protections.
       </message>
       <message name="IDS_PRIVACY_ONBOARDING_INDIA" desc="Text for privacy onboarding for india">
         Block ads. Save data. Every single day.
       </message>
       <message name="IDS_ONBOARDING_SET_DEFAULT_INDIA" desc="Text for set default onboarding for india">
-        With RepSky as default, every link you tap gets RepSky's ad-block protection. Every page, video, and stream.
+        With  as default, every link you tap gets 's ad-block protection. Every page, video, and stream.
       </message>
       <message name="IDS_P3A_TITLE" desc="Text for p3a title onboarding">
-        Help make RepSky better.
+        Help make  better.
       </message>
       <message name="IDS_P3A_CRASH" desc="Text for p3a crash onboarding">
         Send diagnostic reports if you experience a crash or freeze.
       </message>
       <message name="IDS_P3A_INSIGHTS" desc="Text for p3a insights onboarding">
-        Share private and anonymous product insights about what features are being used by RepSky's users.
+        Share private and anonymous product insights about what features are being used by 's users.
       </message>
         <message name="IDS_WDP_TITLE" desc="Text for WDP title onboarding">
        Post without limits
       </message>
       <message name="IDS_WDP_TEXT" desc="Text for WDP text onboarding">
-       With RepSky, every web page you visit has a wall you can post your thoughts on.<ph name="LEARN_MORE_START">&lt;learn_more&gt;</ph><ph name="LEARN_MORE_END">&lt;/learn_more&gt;</ph>
+       With , every web page you visit has a wall you can post your thoughts on.<ph name="LEARN_MORE_START">&lt;learn_more&gt;</ph><ph name="LEARN_MORE_END">&lt;/learn_more&gt;</ph>
       </message>
       <message name="IDS_SURE_ILL_HELP_ONBOARDING" desc="Text for Sure i'll help button onboarding">
         Continue
       </message>
       <message name="IDS_SHIELD_ONBOARDING" desc="Text for shield tooltip onboarding">
-        Tap to view RepSky Shields
+        Tap to view  Shields
       </message>
       <message name="IDS_SHIELD_TOOLTIP_DESC" desc="Text for shield tooltip description onboarding">
-        See all the bad stuff RepSky blocked, on every page, with Shields.
+        See all the bad stuff  blocked, on every page, with Shields.
       </message>
       <message name="IDS_SHIELD_BIGTECH_TRACKER_BLOCKED" desc="Text for shield tracker big tech blocked tooltip onboarding">
         <ph name="BIG_TECH">%1$s<ex>google</ex></ph> and <ph name="TRACKER">%2$s<ex>1</ex></ph> other ads &amp; trackers blocked
@@ -807,19 +807,19 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Troubleshooting onboarding
       </message>
       <message name="IDS_BRAVE_SHIELDS_ONBOARDING_TITLE" desc="Title for brave shield page">
-        RepSky Shields
+         Shields
       </message>
       <message name="IDS_EARN_TOKENS" desc="Partial Text for brave rewards page">
         Earn <ph name="TOKEN">%1$s<ex>token</ex></ph>s
       </message>
       <message name="IDS_BRAVE_REWARDS_ONBOARDING_TITLE" desc="Title for brave rewards page">
-        RepSky Rewards
+         Rewards
       </message>
       <message name="IDS_BRAVE_REWARDS_ONBOARDING_TEXT" desc="Text for brave rewards page">
         by viewing privacy-respecting ads and support your favorite sites and creators by default.
       </message>
       <message name="IDS_TERMS_TEXT" desc="Text for terms of service page">
-        By tapping Start using RepSky Rewards, you agree to the
+        By tapping Start using  Rewards, you agree to the
       </message>
       <message name="IDS_TERMS_OF_SERVICE" desc="Text for terms of service">
         Terms of Service
@@ -831,16 +831,16 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         I didn&apos;t see an ad
       </message>
       <message name="IDS_BRAVE_ADS_ONBOARDING_TITLE" desc="Title for brave ads page">
-        RepSky will show your first ad in
+         will show your first ad in
       </message>
       <message name="IDS_BRAVE_ADS_ONBOARDING_TEXT" desc="Text for brave ads page">
-        Now you'll earn token from RepSky Ads.
+        Now you'll earn token from  Ads.
       </message>
       <message name="IDS_THIS_IS_YOUR_FIRST_AD" desc="Text brave rewards notification.">
-        This is your first RepSky ad. Tap to learn more.
+        This is your first  ad. Tap to learn more.
       </message>
       <message name="IDS_EARN_AND_GIVE" desc="Button text for rewards onboarding.">
-        Start using RepSky Rewards
+        Start using  Rewards
       </message>
       <message name="IDS_CONTINUE_TO_WALLET" desc="Text for continue to wallet button">
         Continue to wallet
@@ -867,7 +867,7 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         To search by QR Code, align the QR Code in the center of frame.
       </message>
       <message name="IDS_MENU_BRAVE_REWARDS" desc="Title for brave rewards menu item">
-        RepSky Rewards
+         Rewards
       </message>
       <message name="IDS_BRAVE_CANCEL" desc="Set default browser modal button text">
         Cancel
@@ -876,10 +876,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Next
       </message>
       <message name="IDS_BRAVE_PRIVACY_SET_DEFAULT_BROWSER" desc="Set default browser modal title">
-        To improve your privacy, set RepSky as your default Browser
+        To improve your privacy, set  as your default Browser
       </message>
       <message name="IDS_BRAVE_CHOOSE" desc="Set default browser modal text">
-        Choose RepSky on the next screen.
+        Choose  on the next screen.
       </message>
       <message name="IDS_BRAVE_DONT_ASK_AGAIN" desc="Set default browser modal text">
         Don't ask again
@@ -888,10 +888,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Independent search with better privacy
       </message>
       <message name="IDS_BRAVE_OMNIBOX_SEARCH_PROMO_DESC" desc="Omnibox brave search banner promo description">
-        RepSky Search doesn't profile you.
+         Search doesn't profile you.
       </message>
       <message name="IDS_TRY_BRAVE_SEARCH" desc="Omnibox brave search promo button text">
-        Try RepSky Search
+        Try  Search
       </message>
       <message name="IDS_DISMISS_SEARCH_PROMO" desc="Omnibox brave search promo dismiss button text">
         Dismiss
@@ -908,14 +908,14 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_UI_MONTH_OCT" desc="Name of a month">OCTOBER</message>
       <message name="IDS_BRAVE_UI_MONTH_NOV" desc="Name of a month">NOVEMBER</message>
       <message name="IDS_BRAVE_UI_MONTH_DEC" desc="Name of a month">DECEMBER</message>
-      <message name="IDS_BRAVE_UI_BRAVE_REWARDS" desc="Menu item and title for RepSky Rewards Settings. [CHAR-LIMIT=27]">
-        RepSky Rewards
+      <message name="IDS_BRAVE_UI_BRAVE_REWARDS" desc="Menu item and title for  Rewards Settings. [CHAR-LIMIT=27]">
+         Rewards
       </message>
-      <message name="IDS_BRAVE_VPN" desc="Title for RepSky vpn settings">
-        RepSky VPN
+      <message name="IDS_BRAVE_VPN" desc="Title for  vpn settings">
+         VPN
       </message>
-      <message name="IDS_BRAVE_NEWS_TITLE" desc="Title for RepSky news settings">
-        RepSky News
+      <message name="IDS_BRAVE_NEWS_TITLE" desc="Title for  news settings">
+         News
       </message>
       <message name="IDS_CUSTOMIZE_MENU_TITLE" desc="Title for customize menu settings">
         Customize menu
@@ -935,32 +935,32 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_UI_SETTINGS" desc="Settings button text">
         Settings
       </message>
-      <message name="IDS_BRAVE_ADS_EXISTING_USER_OFFER_TITLE" desc="Title for RepSky Ads offer.">
-        RepSky Ads are here!
+      <message name="IDS_BRAVE_ADS_EXISTING_USER_OFFER_TITLE" desc="Title for  Ads offer.">
+         Ads are here!
       </message>
-      <message name="IDS_BRAVE_SYNC_THIS_DEVICE_TEXT" desc="Text for RepSky Sync this device.">
+      <message name="IDS_BRAVE_SYNC_THIS_DEVICE_TEXT" desc="Text for  Sync this device.">
         (this device)
       </message>
-      <message name="IDS_BRAVE_SYNC_DEVICES_TITLE" desc="Text for RepSky Sync devices title.">
+      <message name="IDS_BRAVE_SYNC_DEVICES_TITLE" desc="Text for  Sync devices title.">
         DEVICES ON SYNC CHAIN
       </message>
-      <message name="IDS_BRAVE_SYNC_LOADING_DEVICES_TITLE" desc="Text for RepSky Sync loading devices title.">
+      <message name="IDS_BRAVE_SYNC_LOADING_DEVICES_TITLE" desc="Text for  Sync loading devices title.">
         LOADING DEVICES...
       </message>
-      <message name="IDS_BRAVE_SYNC_LEAVING_SYNC_CHAIN_TITLE" desc="Text for RepSky Sync leaving sync chain (doing reset) title.">
+      <message name="IDS_BRAVE_SYNC_LEAVING_SYNC_CHAIN_TITLE" desc="Text for  Sync leaving sync chain (doing reset) title.">
         LEAVING THE SYNC CHAIN...
       </message>
-      <message name="IDS_BRAVE_SYNC_WORD_COUNT_TEXT" desc="Text for RepSky Sync word count message.">
+      <message name="IDS_BRAVE_SYNC_WORD_COUNT_TEXT" desc="Text for  Sync word count message.">
         Word count: <ph name="WORD_COUNT">%1$d</ph>
       </message>
-      <message name="IDS_BRAVE_SYNC_WRONG_CODE_ERROR" desc="Text for wrong RepSky Sync code error.">
+      <message name="IDS_BRAVE_SYNC_WRONG_CODE_ERROR" desc="Text for wrong  Sync code error.">
         Wrong sync code
       </message>
-      <message name="IDS_BRAVE_SYNC_WRONG_QRCODE_ERROR" desc="Text for wrong RepSky Sync QR code error.">
+      <message name="IDS_BRAVE_SYNC_WRONG_QRCODE_ERROR" desc="Text for wrong  Sync QR code error.">
         Wrong sync QR code
       </message>
       <message name="IDS_BRAVE_SYNC_CODE_FROM_DEPRECATED_VERSION" desc="Text for error when trying to use old version sync code after v1 sunset date.">
-        This code was generated by a deprecated version of RepSky, please upgrade your other device first
+        This code was generated by a deprecated version of , please upgrade your other device first
       </message>
       <message name="IDS_BRAVE_SYNC_CODE_EXPIRED" desc="Text for error when trying to use the sync code which has expired.">
         This code has expired. Please generate a new one on your other device and try again.
@@ -968,19 +968,19 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_SYNC_CODE_VALID_FOR_TOO_LONG" desc="Text for error when trying to use the sync code which is valid till the time too far in the future.">
         This code is invalid. Please check that the time and timezone are set correctly on your device.
       </message>
-      <message name="IDS_BRAVE_SYNC_OFFICIAL" desc="Text for RepSky Sync preference.">
-        RepSky Sync
+      <message name="IDS_BRAVE_SYNC_OFFICIAL" desc="Text for  Sync preference.">
+         Sync
       </message>
-      <message name="IDS_BRAVE_SYNC_DESCRIPTION_PAGE_1" desc="Text for RepSky Sync description.">
-        RepSky Sync allows you to sync bookmarks data privately between your RepSky Browsers on your various devices.\n\nSimply scan the code from your sync chain that you created on another device. Or start a new sync chain.
+      <message name="IDS_BRAVE_SYNC_DESCRIPTION_PAGE_1" desc="Text for  Sync description.">
+         Sync allows you to sync bookmarks data privately between your  Browsers on your various devices.\n\nSimply scan the code from your sync chain that you created on another device. Or start a new sync chain.
       </message>
-      <message name="IDS_BRAVE_SYNC_QRCODE_MESSAGE_V2" desc="Text for RepSky Sync QR code message.">
-        Using existing synced device, open RepSky Settings and navigate to Settings > Sync. Choose "Add New Device" and scan the QR Code displayed on the screen.
+      <message name="IDS_BRAVE_SYNC_QRCODE_MESSAGE_V2" desc="Text for  Sync QR code message.">
+        Using existing synced device, open  Settings and navigate to Settings > Sync. Choose "Add New Device" and scan the QR Code displayed on the screen.
       </message>
-      <message name="IDS_BRAVE_SYNC_COPIED_TEXT" desc="Text for RepSky Sync copied text message.">
+      <message name="IDS_BRAVE_SYNC_COPIED_TEXT" desc="Text for  Sync copied text message.">
         Copied to Clipboard
       </message>
-      <message name="IDS_BRAVE_SYNC_CODE_WORDS_TITLE" desc="Text for RepSky Sync code words title.">
+      <message name="IDS_BRAVE_SYNC_CODE_WORDS_TITLE" desc="Text for  Sync code words title.">
         Pair
       </message>
       <message name="IDS_BRAVE_SYNC_CATEGORIES_TEXT" desc="Text for button to show data types to sync. Renamed from Categories">
@@ -989,8 +989,8 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_TEXT" desc="Text for button which deletes all sync chain data on the server">
         Delete Sync account
       </message>
-      <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_MESSAGE" desc="Text for confirmation message for permanently delete RepSky Sync account">
-        Deleting your account will remove your encrypted data from RepSky servers and disable Sync on all of your connected devices. It will not however delete the data that is stored locally on those devices.\n\nThis deletion is permanent and there is no way to recover the data. Should you decide to start using Sync again, you will need to create a new account and re-add each device one by one.
+      <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_MESSAGE" desc="Text for confirmation message for permanently delete  Sync account">
+        Deleting your account will remove your encrypted data from  servers and disable Sync on all of your connected devices. It will not however delete the data that is stored locally on those devices.\n\nThis deletion is permanent and there is no way to recover the data. Should you decide to start using Sync again, you will need to create a new account and re-add each device one by one.
       </message>
       <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_BUTTON" desc="Text for the confirmation button which deletes all sync chain data on the server">
         Permanently delete account
@@ -1001,70 +1001,70 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_BRAVE_SYNC_DELETE_ACCOUNT_FAILED_TOAST" desc="Text for toast notification for the case when sync account deletion failed">
         Failed to delete sync account
       </message>
-      <message name="IDS_BRAVE_SYNC_REMOVE_DEVICE_TEXT" desc="Text for RepSky Sync remove device message.">
+      <message name="IDS_BRAVE_SYNC_REMOVE_DEVICE_TEXT" desc="Text for  Sync remove device message.">
         Remove device
       </message>
-      <message name="IDS_BRAVE_SYNC_DELETE_DEVICE" desc="Text for RepSky Sync delete device message.">
+      <message name="IDS_BRAVE_SYNC_DELETE_DEVICE" desc="Text for  Sync delete device message.">
         Are you sure you want to delete device '<ph name="DEVICE_NAME">%1$s</ph>'?
       </message>
-      <message name="IDS_BRAVE_SYNC_SCAN_CHAIN_CODE" desc="Text for RepSky Sync chain code message.">
+      <message name="IDS_BRAVE_SYNC_SCAN_CHAIN_CODE" desc="Text for  Sync chain code message.">
         Scan or enter sync code
       </message>
-      <message name="IDS_BRAVE_SYNC_START_NEW_CHAIN" desc="Text for RepSky Sync start new chain message.">
+      <message name="IDS_BRAVE_SYNC_START_NEW_CHAIN" desc="Text for  Sync start new chain message.">
         Start a new sync chain
       </message>
-      <message name="IDS_BRAVE_SYNC_BTN_MOBILE" desc="Text for RepSky Sync add a mobile device button.">
+      <message name="IDS_BRAVE_SYNC_BTN_MOBILE" desc="Text for  Sync add a mobile device button.">
         Add a Mobile Device
       </message>
-      <message name="IDS_BRAVE_SYNC_BTN_LAPTOP" desc="Text for RepSky Sync add a laptop button.">
+      <message name="IDS_BRAVE_SYNC_BTN_LAPTOP" desc="Text for  Sync add a laptop button.">
         Add a Computer
       </message>
-      <message name="IDS_BRAVE_SYNC_ADD_MOBILE_DEVICE_TEXT" desc="Text for RepSky Sync add a mobile device description part 1.">
-        Using a second phone or tablet, navigate to RepSky Settings > Sync > Scan.\n\nOn your mobile device, navigate to RepSky Sync in the Settings panel and click the button "Scan Sync Code". Use your camera to scan the QR Code below.
+      <message name="IDS_BRAVE_SYNC_ADD_MOBILE_DEVICE_TEXT" desc="Text for  Sync add a mobile device description part 1.">
+        Using a second phone or tablet, navigate to  Settings > Sync > Scan.\n\nOn your mobile device, navigate to  Sync in the Settings panel and click the button "Scan Sync Code". Use your camera to scan the QR Code below.
       </message>
-      <message name="IDS_BRAVE_SYNC_ADD_LAPTOP_TEXT" desc="Text for RepSky Sync add a laptop description.">
-        On your computer, navigate to RepSky Settings > Sync. Choose "Enter a Sync Chain Code".\n\nOn your target computer, navigate to RepSky Sync in settings and click the button "I have a Sync Code".\nEnter the sync chain code words shown below.
+      <message name="IDS_BRAVE_SYNC_ADD_LAPTOP_TEXT" desc="Text for  Sync add a laptop description.">
+        On your computer, navigate to  Settings > Sync. Choose "Enter a Sync Chain Code".\n\nOn your target computer, navigate to  Sync in settings and click the button "I have a Sync Code".\nEnter the sync chain code words shown below.
       </message>
-      <message name="IDS_BRAVE_SYNC_SCAN_SYNC_CODE" desc="Text for RepSky Sync scan sync code message.">
+      <message name="IDS_BRAVE_SYNC_SCAN_SYNC_CODE" desc="Text for  Sync scan sync code message.">
         Scan this sync code
       </message>
-      <message name="IDS_BRAVE_SYNC_CODE_WARNING" desc="Text for RepSky Sync code warning message.">
+      <message name="IDS_BRAVE_SYNC_CODE_WARNING" desc="Text for  Sync code warning message.">
         Treat this code like a password. If someone gets hold of it, they can read and modify your synced data.
       </message>
-      <message name="IDS_BRAVE_SYNC_ADD_LAPTOP_TEXT_TITLE" desc="Text for RepSky Sync add laptop title.">
+      <message name="IDS_BRAVE_SYNC_ADD_LAPTOP_TEXT_TITLE" desc="Text for  Sync add laptop title.">
         Enter the sync chain code
       </message>
-      <message name="IDS_BRAVE_SYNC_QR_CODE" desc="Text for RepSky Sync QR code.">
+      <message name="IDS_BRAVE_SYNC_QR_CODE" desc="Text for  Sync QR code.">
         QR Code
       </message>
-      <message name="IDS_BRAVE_SYNC_CODE_WORDS" desc="Text for RepSky Sync code words.">
+      <message name="IDS_BRAVE_SYNC_CODE_WORDS" desc="Text for  Sync code words.">
         Code Words
       </message>
-      <message name="IDS_BRAVE_SYNC_COPY_BUTTON_TEXT" desc="Text for RepSky Sync copy button.">
+      <message name="IDS_BRAVE_SYNC_COPY_BUTTON_TEXT" desc="Text for  Sync copy button.">
         Copy to Clipboard
       </message>
-      <message name="IDS_BRAVE_SYNC_BTN_DONE" desc="Text for RepSky Sync done button.">
+      <message name="IDS_BRAVE_SYNC_BTN_DONE" desc="Text for  Sync done button.">
         Done
       </message>
-      <message name="IDS_BRAVE_SYNC_SETTINGS_TITLE" desc="Text for RepSky Sync settings title.">
+      <message name="IDS_BRAVE_SYNC_SETTINGS_TITLE" desc="Text for  Sync settings title.">
         SYNC ON THIS DEVICE
       </message>
-      <message name="IDS_BRAVE_SYNC_SETTINGS_DESCRIPTION" desc="Text for RepSky Sync settings description.">
+      <message name="IDS_BRAVE_SYNC_SETTINGS_DESCRIPTION" desc="Text for  Sync settings description.">
         Changing settings will only affect data that this device shares with others.
       </message>
-      <message name="IDS_BRAVE_SYNC_ADD_DEVICE_TEXT" desc="Text for RepSky Sync add device message.">
+      <message name="IDS_BRAVE_SYNC_ADD_DEVICE_TEXT" desc="Text for  Sync add device message.">
         Add New Device
       </message>
-      <message name="IDS_ENTER_CODE_WORDS_SYNC" desc="Text for RepSky Sync enter code words message.">
+      <message name="IDS_ENTER_CODE_WORDS_SYNC" desc="Text for  Sync enter code words message.">
         Enter code words
       </message>
-      <message name="IDS_BRAVE_SYNC_CODEWORDS_MESSAGE" desc="Text for RepSky Sync code words message.">
-        Using existing synced device, open RepSky Settings and navigate to Settings > Sync. Choose "Add New Device" then "Display code words instead".
+      <message name="IDS_BRAVE_SYNC_CODEWORDS_MESSAGE" desc="Text for  Sync code words message.">
+        Using existing synced device, open  Settings and navigate to Settings > Sync. Choose "Add New Device" then "Display code words instead".
       </message>
-      <message name="IDS_BRAVE_SYNC_CONFIRM_CODE_WORDS_TEXT" desc="Text for RepSky Sync confirm code words message.">
+      <message name="IDS_BRAVE_SYNC_CONFIRM_CODE_WORDS_TEXT" desc="Text for  Sync confirm code words message.">
         Confirm
       </message>
-      <message name="IDS_BRAVE_SYNC_USE_CAMERA_TEXT" desc="Text for RepSky Sync use camera message.">
+      <message name="IDS_BRAVE_SYNC_USE_CAMERA_TEXT" desc="Text for  Sync use camera message.">
         I'll use my camera...
       </message>
       <message name="IDS_BRAVE_SYNC_DEVICE" desc="Text for sync device message.">
@@ -1082,32 +1082,32 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
       <message name="IDS_SETTINGS_EXIT" desc="Text for Settings exit.">
         Settings exit
       </message>
-      <message name="IDS_BRAVE_ADS_NEW_USER_OFFER_TITLE" desc="Title for RepSky Ads offer.">
-        Enable RepSky Rewards
+      <message name="IDS_BRAVE_ADS_NEW_USER_OFFER_TITLE" desc="Title for  Ads offer.">
+        Enable  Rewards
       </message>
-      <message name="IDS_BRAVE_ADS_OFFER_POSITIVE" desc="Positive button text for RepSky Ads offer.">
+      <message name="IDS_BRAVE_ADS_OFFER_POSITIVE" desc="Positive button text for  Ads offer.">
         I'm in!
       </message>
-      <message name="IDS_BRAVE_ADS_OFFER_TEXT" desc="Text for RepSky Ads offer.">
-        Earn Basic Attention Token for viewing privacy preserving RepSky Rewards ads.
+      <message name="IDS_BRAVE_ADS_OFFER_TEXT" desc="Text for  Ads offer.">
+        Earn Basic Attention Token for viewing privacy preserving  Rewards ads.
       </message>
-      <message name="IDS_RESET_BRAVE_REWARDS_ERROR_TITLE" desc="Title for RepSky Rewards reset error dialog.">
+      <message name="IDS_RESET_BRAVE_REWARDS_ERROR_TITLE" desc="Title for  Rewards reset error dialog.">
         Reset Error
       </message>
-      <message name="IDS_RESET_BRAVE_REWARDS_ERROR_DESCRIPTION" desc="Description for RepSky Rewards reset error dialog.">
-        There was an error resetting RepSky Rewards. Please relaunch RepSky and try again.
+      <message name="IDS_RESET_BRAVE_REWARDS_ERROR_DESCRIPTION" desc="Description for  Rewards reset error dialog.">
+        There was an error resetting  Rewards. Please relaunch  and try again.
       </message>
-      <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_TITLE" desc="Title for Show Ads when RepSky is not in use option in RepSky rewards settings.">
-        RepSky Ads
+      <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_TITLE" desc="Title for Show Ads when  is not in use option in  rewards settings.">
+         Ads
       </message>
-      <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_SUMMARY" desc="Summary for Show Ads when RepSky is not in use option in RepSky rewards settings.">
-        Show notification ads when RepSky is not in use
+      <message name="IDS_SHOW_ADS_WHEN_BRAVE_IS_NOT_IN_USE_SUMMARY" desc="Summary for Show Ads when  is not in use option in  rewards settings.">
+        Show notification ads when  is not in use
       </message>
-      <message name="IDS_RESET_BRAVE_REWARDS_DATA" desc="Description for preference to reset 'RepSky Rewards' data.">
-        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Reset RepSky Rewards data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
+      <message name="IDS_RESET_BRAVE_REWARDS_DATA" desc="Description for preference to reset ' Rewards' data.">
+        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Reset  Rewards data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
       </message>
-      <message name="IDS_CLEAR_BRAVE_ADS_DATA" desc="Description for preference to clear 'RepSky Ads' data.">
-        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Clear RepSky Ads data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
+      <message name="IDS_CLEAR_BRAVE_ADS_DATA" desc="Description for preference to clear ' Ads' data.">
+        <ph name="BEGIN_LINK1">&lt;link1&gt;</ph>Clear  Ads data&#8230;<ph name="END_LINK1">&lt;/link1&gt;</ph>
       </message>
       <message name="IDS_ADD_BOOKMARK_MENU" desc="Add Bookmark menu item text for the bookmark button.">
         Add Bookmark
@@ -1165,10 +1165,10 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Open Settings
       </message>
       <message name="IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_MESSAGE" desc="Message text shown to users who's Sync account was deleted. Is used along with IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_LINK_TEXT">
-        This RepSky Sync account was deleted from another device. If you didn’t mean to disable Sync,<ph name="LINK_TEXT">%1$s<ex>re-create the account</ex></ph>
+        This  Sync account was deleted from another device. If you didn’t mean to disable Sync,<ph name="LINK_TEXT">%1$s<ex>re-create the account</ex></ph>
       </message>
       <message name="IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_LINK_TEXT" desc="Link text shown to users who's Sync account was deleted. When user clicks the link, Sync Setup page is opened. Is used along with IDS_BRAVE_SYNC_ACCOUNT_DELETED_INFOBAR_MESSAGE">
-        <ph name="INFOBAR_TEXT">%1$s<ex>This RepSky Sync account was deleted from another device. If you didn’t mean to disable Sync,</ex></ph>re-create the account
+        <ph name="INFOBAR_TEXT">%1$s<ex>This  Sync account was deleted from another device. If you didn’t mean to disable Sync,</ex></ph>re-create the account
       </message>
       <message name="IDS_BRAVE_SYNC_JOINING_DELETED_ACCOUNT" desc="The error text for the case when trying to connect to the permanently deleted chain">
         Could not join this sync chain. The sync chain was deleted.
@@ -1183,12 +1183,12 @@ This file contains all "about" strings.  It is set to NOT be translated, in tran
         Yes
       </message>
       <message name="IDS_SYNC_FINAL_WARNING_TEXT_QR_CODE" desc="Sync final warning alert dialog text">
-  This will share your RepSky data, including potentially your passwords, with the device that generated this QR code.
+  This will share your  data, including potentially your passwords, with the device that generated this QR code.
 Please double check that this QR code was generated by a device that you own.
 Are you sure you want to do this?
       </message>
       <message name="IDS_SYNC_FINAL_WARNING_TEXT_CODE_WORDS" desc="Sync final warning alert dialog text">
-  This will share your RepSky data, including potentially your passwords, with the device that generated these code words.
+  This will share your  data, including potentially your passwords, with the device that generated these code words.
 Please double check that these code words were generated by a device that you own.
 Are you sure you want to do this?
       </message>
@@ -1207,14 +1207,14 @@ Are you sure you want to do this?
       <message name="IDS_DEVICE_REQUIRE_AUTH_TO_SYNC_PASSWORDS_SUMMARY" desc="Summary displayed on Sync passwords data preference turned off switch to inform user that in order to turn on Passwords sync, device should have enabled lockscreen biometrics/passcode authentication">
         To sync passwords, please enable biometrics/passcode authentication on your Android device. This extra security measure helps keep your passwords safe.
       </message>
-      <message name="IDS_BRAVE_PRIVACY_NOTICE_URL" desc="URL for the RepSky privacy notice" translateable="false">
+      <message name="IDS_BRAVE_PRIVACY_NOTICE_URL" desc="URL for the  privacy notice" translateable="false">
         https://rep.run/privacy/privacy-policy
       </message>
-      <message name="IDS_BRAVE_TERMS_OF_SERVICE_URL" desc="URL for RepSky Terms of Service" translateable="false">
+      <message name="IDS_BRAVE_TERMS_OF_SERVICE_URL" desc="URL for  Terms of Service" translateable="false">
         https://rep.run/privacy/terms-of-service
       </message>
-      <message name="IDS_BRAVE_LICENSE_TEXT" desc="Title for RepSky License">
-        RepSky License
+      <message name="IDS_BRAVE_LICENSE_TEXT" desc="Title for  License">
+         License
       </message>
       <message name="IDS_BRAVE_NEW_PRIVATE_TAB" desc="Text for 'New private tab'">
         New private tab
@@ -1235,16 +1235,16 @@ Are you sure you want to do this?
         Note that, even in private windows, your browsing activity may still be visible to your ISP, network observers, or your employer (if you're using a work device/network).
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN" desc="VPN title shown when a user opens a private tab explaining private mode">
-        RepSky VPN
+         VPN
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN_DESCRIPTION" desc="VPN description shown when a user opens a private tab explaining private mode">
-        RepSky VPN encrypts and protects anything you do online, even outside the RepSky browser.
+         VPN encrypts and protects anything you do online, even outside the  browser.
       </message>
       <message name="IDS_BRAVE_NEW_TAB_PRIVATE_VPN_CTA" desc="VPN call to action text shown when a user opens a private tab explaining private mode">
         Try free for 7 days
       </message>
-      <message name="IDS_NOTIFICATION_CATEGORY_BRAVE_ADS_BACKGROUND" desc="Label for RepSky Ads in background.">
-        RepSky Ads sent when browser is in the background
+      <message name="IDS_NOTIFICATION_CATEGORY_BRAVE_ADS_BACKGROUND" desc="Label for  Ads in background.">
+         Ads sent when browser is in the background
       </message>
       <!-- <message name="IDS_CLEAR_DOWNLOADS_TITLE" desc="Title for Clear download in Clear Browsing Data dialog">
         Download history
@@ -1256,7 +1256,7 @@ Are you sure you want to do this?
         New Tab Page
       </message>
       <message name="IDS_NEW_TAB_TAKEOVER_INFOBAR_MESSAGE" desc="The text of new tab takeover infobar message.">
-        Sponsored background images support RepSky's mission to build an independent, user-first Web. And unlike Big Tech, we measure ad performance anonymously to preserve your privacy.
+        Sponsored background images support 's mission to build an independent, user-first Web. And unlike Big Tech, we measure ad performance anonymously to preserve your privacy.
       </message>
       <message name="IDS_NEW_TAB_TAKEOVER_INFOBAR_LEARN_MORE_OPT_OUT_CHOICES" desc="The text of new tab takeover infobar learn more / opt out choices link.">
         Learn more / opt out choices
@@ -1280,18 +1280,18 @@ Are you sure you want to do this?
         Show Top Sites
       </message>
       <message name="IDS_SHOW_BRAVE_STATS" desc="New tab page settings title">
-        Show RepSky Stats
+        Show  Stats
       </message>
       <message name="IDS_PHOTO_BY" desc="Text for image credit for background images on NTP">
         Photo by <ph name="PHOTO_BY">%1$s</ph>
       </message>
       <message name="IDS_PREFS_USE_CUSTOM_TABS_TITLE" desc="Title for use custom tabs section">
-        Open external links in RepSky
+        Open external links in 
       </message>
       <message name="IDS_PREFS_USE_CUSTOM_TABS_TEXT" desc="Text for use custom tabs section">
-        Opens links from other apps in a RepSky webview. Note: RepSky must be set as your default browser.
+        Opens links from other apps in a  webview. Note:  must be set as your default browser.
       </message>
-      <message name="IDS_BRAVE_UI_WALLET_BUTTON_LOGGED_OUT" desc="RepSky rewards panel logged out state text">
+      <message name="IDS_BRAVE_UI_WALLET_BUTTON_LOGGED_OUT" desc=" rewards panel logged out state text">
         Logged out
       </message>
       <message name="IDS_BRAVE_UI_WALLET_BUTTON_CONNECTED" desc="">
@@ -1301,16 +1301,16 @@ Are you sure you want to do this?
         Not connected
       </message>
       <message name="IDS_BRAVE_DEFAULT" desc="Text for brave default settings option.">
-        RepSky Default
+         Default
       </message>
       <message name="IDS_SHARE_BRAVE_WITH_YOUR_FRIENDS" desc="Title text for share dialog.">
-        Share RepSky with your friends!
+        Share  with your friends!
       </message>
       <message name="IDS_BRAVE_REWARDS_LOCAL_GENERAL_GRANT_ERROR_TITLE" desc="">
         Oops, something is wrong. Please try again later.
       </message>
       <message name="IDS_PREFS_RATE_BRAVE" desc="Title for rate brave settings option.">
-        Rate RepSky
+        Rate 
       </message>
       <message name="IDS_PREFS_SECTION_GENERAL" desc="Title for the general section in settings.">
         General
@@ -1403,10 +1403,10 @@ Are you sure you want to do this?
         Ads and other creepy things blocked
       </message>
       <message name="IDS_SHIELDS_ABOUT_TEXT" desc="About Text for shields option.">
-        Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web, tracking what you do on every site.\n\nRepSky blocks these things so that you can browse without being followed around.
+        Sites often include cookies and scripts which try to identify you and your device. They want to work out who you are and follow you across the web, tracking what you do on every site.\n\n blocks these things so that you can browse without being followed around.
       </message>
       <message name="IDS_ABOUT_BRAVE_SHIELDS_TEXT" desc="About Title for shields option.">
-        About RepSky Shields
+        About  Shields
       </message>
       <message name="IDS_UP" desc="Text for brave shields switch.">
         UP
@@ -1415,7 +1415,7 @@ Are you sure you want to do this?
         DOWN
       </message>
       <message name="IDS_BRAVE_SHIELDS_DOWN_TEXT" desc="Text for brave shields down.">
-        You're browsing this site without RepSky's privacy protections. Does it not work right with Shields up?
+        You're browsing this site without 's privacy protections. Does it not work right with Shields up?
       </message>
       <message name="IDS_BRAVE_ETHEREUM_NETWORKS" desc="Text Ethereum networks label.">
         Ethereum networks
@@ -1439,10 +1439,10 @@ Are you sure you want to do this?
         Report a broken site
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_1" desc="Shields text for broken text warning message.">
-        Let RepSky's developers know that this site doesn't work properly with Shields:
+        Let 's developers know that this site doesn't work properly with Shields:
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_2" desc="Shields text for broken text warning message.">
-        Thank you for helping make RepSky better for all. This report will only contain information necessary for us to fix this site. <ph name="LEARN_MORE">%1$s</ph>
+        Thank you for helping make  better for all. This report will only contain information necessary for us to fix this site. <ph name="LEARN_MORE">%1$s</ph>
       </message>
       <message name="IDS_REPORT_BROKEN_SITE_TEXT_LINK" desc="Text for link to webcompat report wiki page.">
         Learn more.
@@ -1472,7 +1472,7 @@ Are you sure you want to do this?
         Thank you!
       </message>
       <message name="IDS_THANK_YOU_TEXT" desc="Text for thank you UI for shields.">
-        Thanks for letting RepSky's developers know that there's something wrong with this site. We'll do our best to fix it!
+        Thanks for letting 's developers know that there's something wrong with this site. We'll do our best to fix it!
       </message>
       <message name="IDS_ISSUE_CATEGORY_SPINNER_TEXT" desc="Label for a dropdown containing categories of issues on a webpage">
         What's the main issue you're seeing?
@@ -1490,16 +1490,16 @@ Are you sure you want to do this?
         Save Data Online
       </message>
       <message name="IDS_UPDATE_NOTIFICATION_TEXT" desc="Text of notification on application update.">
-        Browse faster and block ads with RepSky
+        Browse faster and block ads with 
       </message>
       <message name="IDS_BRAVE_STATS_SHARE_TEXT" desc="Text sent when sharing the stats">
-        Every day I save data by browsing the Web with RepSky.
+        Every day I save data by browsing the Web with .
       </message>
       <message name="IDS_WATCH_YOUTUBE_NOT_ADS" desc="Open youtube in brave modal title">
         Watch YouTube, not Ads.
       </message>
       <message name="IDS_WATCH_YOUTUBE_NOT_ADS_TEXT" desc="Open youtube in brave modal text">
-        Open YouTube links in RepSky to block ads.
+        Open YouTube links in  to block ads.
       </message>
       <message name="IDS_TURN_ON_NOW" desc="Open youtube in brave modal positive action text">
         Turn on now
@@ -1511,7 +1511,7 @@ Are you sure you want to do this?
         Privacy protection
       </message>
       <message name="IDS_PRIVACY_PROTECTION_TEXT" desc="Text for onboading bottomsheet.">
-        RepSky stops ads &amp; trackers from collecting information about you without your consent.
+         stops ads &amp; trackers from collecting information about you without your consent.
       </message>
       <message name="IDS_SAVE_DATA_AND_BATTERY" desc="Title for onboading bottomsheet.">
         Save data and battery
@@ -1523,13 +1523,13 @@ Are you sure you want to do this?
         Websites load faster
       </message>
       <message name="IDS_WEBSITES_LOAD_FASTER_TEXT" desc="Text for onboading bottomsheet.">
-        Loading less data means websites in RepSky load faster - up to 8x faster than other browsers.
+        Loading less data means websites in  load faster - up to 8x faster than other browsers.
       </message>
       <message name="IDS_GET_WEEKLY_UPDATES" desc="Title for onboading bottomsheet.">
         Get weekly updates
       </message>
       <message name="IDS_GET_WEEKLY_UPDATES_TEXT" desc="Text for onboading bottomsheet.">
-        Be informed about which websites you visit are the most privacy-invasive.\n\nOnly you can see these privacy statistics. No personal data or browsing history ever leaves the RepSky browser on your device.
+        Be informed about which websites you visit are the most privacy-invasive.\n\nOnly you can see these privacy statistics. No personal data or browsing history ever leaves the  browser on your device.
       </message>
       <message name="IDS_TURN_ON_PRIVACY_STATS" desc="Button text for onboading bottomsheet.">
         Turn on privacy reports
@@ -1546,85 +1546,85 @@ Are you sure you want to do this?
       <message name="IDS_MONTHS_3" desc="Tab title text">
         3 Months
       </message>
-      <message name="IDS_BRAVE_STATS" desc="RepSky stats title">
+      <message name="IDS_BRAVE_STATS" desc=" stats title">
         Privacy Report
       </message>
-      <message name="IDS_BRAVE_STATS_NOTIFICATION" desc="RepSky stats title">
+      <message name="IDS_BRAVE_STATS_NOTIFICATION" desc=" stats title">
         Privacy Report Notification
       </message>
-      <message name="IDS_TRACKERS_AND_ADS" desc="RepSky stats title">
+      <message name="IDS_TRACKERS_AND_ADS" desc=" stats title">
         Trackers &amp; Ads Blocked
       </message>
-      <message name="IDS_NO_DATA_TEXT" desc="RepSky stats title">
+      <message name="IDS_NO_DATA_TEXT" desc=" stats title">
         No data to show yet
       </message>
-      <message name="IDS_ADS_TRACKERS_TEXT" desc="RepSky stats text">
+      <message name="IDS_ADS_TRACKERS_TEXT" desc=" stats text">
         Trackers &amp; Ads\nBlocked
       </message>
-      <message name="IDS_DATA_SAVED_TEXT" desc="RepSky stats text">
+      <message name="IDS_DATA_SAVED_TEXT" desc=" stats text">
         Data Saved\n(<ph name="DATA_SAVED">%1$s</ph>)
       </message>
-      <message name="IDS_DATA_SAVED_TABLET_TEXT" desc="RepSky stats text">
+      <message name="IDS_DATA_SAVED_TABLET_TEXT" desc=" stats text">
         Data Saved (<ph name="DATA_SAVED">%1$s</ph>)
       </message>
-      <message name="IDS_TIME_SAVED_TEXT" desc="RepSky stats text">
+      <message name="IDS_TIME_SAVED_TEXT" desc=" stats text">
         Time Saved
       </message>
-      <message name="IDS_WEBSITES" desc="RepSky stats title">
+      <message name="IDS_WEBSITES" desc=" stats title">
         Websites
       </message>
-      <message name="IDS_TRACKERS" desc="RepSky stats title">
+      <message name="IDS_TRACKERS" desc=" stats title">
         Trackers
       </message>
       <message name="IDS_NTP_STAT_TEXT" desc="NTP stat text">
         <ph name="COUNT">%1$s</ph><ph name="COUNT_TEXT">%2$s</ph>
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_1" desc="3_hours notification text">
-        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with RepSky browser in the past 3 hours.
+        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with  browser in the past 3 hours.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_2" desc="3_hours notification text">
-        Browse up to 6x faster on major news sites in RepSky by blocking trackers &amp; ads.
+        Browse up to 6x faster on major news sites in  by blocking trackers &amp; ads.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_3_TEXT_3" desc="3_hours notification text">
         Turn on Privacy Reports to see how many trackers &amp; ads have been blocked in the past 3 hours.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_24_TEXT_1" desc="24_hours notification text">
-        You saved <ph name="DATA">%1$s</ph> <ph name="DATA_TEXT">%2$s</ph> data with RepSky browser.
+        You saved <ph name="DATA">%1$s</ph> <ph name="DATA_TEXT">%2$s</ph> data with  browser.
       </message>
       <message name="IDS_NOTIFICATION_HOUR_24_TEXT_2" desc="24_hours notification text">
         Turn on Privacy Reports to see how much data you've saved.
       </message>
       <message name="IDS_NOTIFICATION_MARKETING" desc="Marketing notification text">
-        RepSky browser uses 40% less battery on average.🔋
+         browser uses 40% less battery on average.🔋
       </message>
       <message name="IDS_NOTIFICATION_WEEKLY_STATS" desc="Weekly stats notification text">
-        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with RepSky browser last week.
+        You blocked <ph name="COUNT">%1$s</ph> trackers &amp; ads with  browser last week.
       </message>
       <message name="IDS_NOTIFICATION_REWARDS" desc="Rewards notification text">
         Earn tokens by viewing privacy-respecting ads and support your favorite websites.
       </message>
-      <message name="IDS_START_BROWSING_TO_SEE" desc="RepSky stats empty text">
+      <message name="IDS_START_BROWSING_TO_SEE" desc=" stats empty text">
         Start browsing to see privacy reporting
       </message>
-      <message name="IDS_ALLOWS_BRAVE_TO_SHOW" desc="RepSky stats pref summary text">
-        Allows RepSky to show your privacy statistics
+      <message name="IDS_ALLOWS_BRAVE_TO_SHOW" desc=" stats pref summary text">
+        Allows  to show your privacy statistics
       </message>
-      <message name="IDS_SENDS_A_WEEKLY" desc="RepSky stats pref summary text">
+      <message name="IDS_SENDS_A_WEEKLY" desc=" stats pref summary text">
         Sends a weekly privacy report
       </message>
-      <message name="IDS_CLEAR_BRAVE_STATS_DATA" desc="RepSky stats pref summary text">
+      <message name="IDS_CLEAR_BRAVE_STATS_DATA" desc=" stats pref summary text">
         Clear all privacy reports data
       </message>
-      <message name="IDS_CLEAR_ON_EXIT" desc="RepSky clear data on exit pref title">
+      <message name="IDS_CLEAR_ON_EXIT" desc=" clear data on exit pref title">
         Clear data on exit
       </message>
-      <message name="IDS_CLEAR_ON_EXIT_SUMMARY" desc="RepSky clear data on exit pref text">
+      <message name="IDS_CLEAR_ON_EXIT_SUMMARY" desc=" clear data on exit pref text">
         Clears all browsing data
       </message>
-      <message name="IDS_RESETS_YOUR_BRAVE_STATS" desc="RepSky stats pref summary text">
+      <message name="IDS_RESETS_YOUR_BRAVE_STATS" desc=" stats pref summary text">
         Resets your privacy reports to zero
       </message>
-      <message name="IDS_DATA_HAS_BEEN_CLEARED" desc="RepSky stats pref summary text">
+      <message name="IDS_DATA_HAS_BEEN_CLEARED" desc=" stats pref summary text">
         Privacy reports data has been cleared.
       </message>
       <message name="IDS_NIGHT_MODE_ENABLE" desc="Menu item for enabling dark mode for webcontent.">
@@ -1645,7 +1645,7 @@ Are you sure you want to do this?
       <message name="IDS_PRIVACY_STATS" desc="Private stats title text.">
         Privacy Stats
       </message>
-      <message name="IDS_PRIVACY_POLICY" desc="RepSky rewards tos text">
+      <message name="IDS_PRIVACY_POLICY" desc=" rewards tos text">
         Privacy Policy
       </message>
       <message name="IDS_GO_BACK" desc="Go back button text">
@@ -1673,7 +1673,7 @@ Are you sure you want to do this?
         Not now
       </message>
       <message name="IDS_SETTINGS_APP_LINKS_LABEL" desc="App Links setting label">
-        Allow app links to open in apps outside of RepSky
+        Allow app links to open in apps outside of 
       </message>
       <message name="IDS_SETTINGS_DEFAULT_ETHEREUM_WALLET_LABEL" desc="Default Ethereum wallet label">
         Default Ethereum wallet
@@ -1684,8 +1684,8 @@ Are you sure you want to do this?
       <message name="IDS_SETTINGS_DEFAULT_WALLET_OPTION_1" desc="None as default wallet">
         None
       </message>
-      <message name="IDS_SETTINGS_DEFAULT_WALLET_OPTION_2" desc="RepSky Wallet as default wallet">
-        RepSky Wallet
+      <message name="IDS_SETTINGS_DEFAULT_WALLET_OPTION_2" desc=" Wallet as default wallet">
+         Wallet
       </message>
       <message name="IDS_SETTINGS_WEBRTC_POLICY_LABEL" desc="WebRTC policy setting label">
         WebRTC IP handling policy
@@ -1702,136 +1702,136 @@ Are you sure you want to do this?
       <message name="IDS_SETTINGS_WEBRTC_POLICY_DISABLE_NON_PROXIED_UDP" desc="Select value">
         Disable non-proxied UDP
       </message>
-    <message name="IDS_SEND" desc="RepSky Wallet send button text">
+    <message name="IDS_SEND" desc=" Wallet send button text">
       Send
     </message>
-    <message name="IDS_SWAP" desc="RepSky Wallet swap button text">
+    <message name="IDS_SWAP" desc=" Wallet swap button text">
       Swap
     </message>
-    <message name="IDS_DEFI_SECURE_STORAGE" desc="RepSky Wallet onboarding text">
+    <message name="IDS_DEFI_SECURE_STORAGE" desc=" Wallet onboarding text">
       Browser native.\nSelf-custody.\nAnd multi-chain.
     </message>
-    <message name="IDS_DEFI_SECURE_STORAGE_TEXT" desc="RepSky Wallet onboarding text">
-      Take control of your crypto and NFTs. RepSky Wallet supports Ethereum, EVM chains, Solana, Filecoin, and more.
+    <message name="IDS_DEFI_SECURE_STORAGE_TEXT" desc=" Wallet onboarding text">
+      Take control of your crypto and NFTs.  Wallet supports Ethereum, EVM chains, Solana, Filecoin, and more.
     </message>
-    <message name="IDS_SETUP_CRYPTO" desc="RepSky Wallet onboarding new wallet title">
+    <message name="IDS_SETUP_CRYPTO" desc=" Wallet onboarding new wallet title">
       Need a new wallet?
     </message>
-    <message name="IDS_SETUP_CRYPTO_DESCRIPTION" desc="RepSky Wallet onboarding new wallet description">
-      Get started with RepSky Wallet within minutes
+    <message name="IDS_SETUP_CRYPTO_DESCRIPTION" desc=" Wallet onboarding new wallet description">
+      Get started with  Wallet within minutes
     </message>
-    <message name="IDS_ENTER_PASSWORD_TO_CONTINUE_TITLE" desc="RepSky Wallet enter password text">
+    <message name="IDS_ENTER_PASSWORD_TO_CONTINUE_TITLE" desc=" Wallet enter password text">
       Enter a password to continue
     </message>
-    <message name="IDS_ENTER_PASSWORD_TO_CONTINUE" desc="RepSky Wallet enter password to back up wallet text">
-      Enter your RepSky Wallet password to start backing up wallet.
+    <message name="IDS_ENTER_PASSWORD_TO_CONTINUE" desc=" Wallet enter password to back up wallet text">
+      Enter your  Wallet password to start backing up wallet.
     </message>
-    <message name="IDS_CONTINUE_TEXT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_CONTINUE_TEXT" desc=" Wallet onboarding text">
       Continue
     </message>
-    <message name="IDS_MESSAGE" desc="RepSky wallet message title text">
+    <message name="IDS_MESSAGE" desc=" wallet message title text">
       Message
     </message>
-    <message name="IDS_WALLET_ACCEPT_ITEMS" desc="RepSky Wallet creation subtitle">
+    <message name="IDS_WALLET_ACCEPT_ITEMS" desc=" Wallet creation subtitle">
       We require that you acknowledge the items below
     </message>
-    <message name="IDS_CHOOSE_BLOCKCHAINS" desc="RepSky Wallet supported networks subtitle">
+    <message name="IDS_CHOOSE_BLOCKCHAINS" desc=" Wallet supported networks subtitle">
       Choose which blockchains to use in your wallet.
     </message>
-    <message name="IDS_UNDERSTAND_SELF_CUSTODY" desc="RepSky Wallet self-custody explaination text">
-      I understand this is a self-custody wallet, and that I alone am responsible for any associated funds, assets, or accounts, and for taking appropriate action to secure, protect and backup my wallet. I understand that RepSky cannot access my wallet or reverse transactions on my behalf, and that my recovery phrase is the ONLY way to regain access in the event of a lost password, stolen device, or similar circumstance.
+    <message name="IDS_UNDERSTAND_SELF_CUSTODY" desc=" Wallet self-custody explaination text">
+      I understand this is a self-custody wallet, and that I alone am responsible for any associated funds, assets, or accounts, and for taking appropriate action to secure, protect and backup my wallet. I understand that  cannot access my wallet or reverse transactions on my behalf, and that my recovery phrase is the ONLY way to regain access in the event of a lost password, stolen device, or similar circumstance.
     </message>
-    <message name="IDS_ACCEPT_TERMS_OF_USE" desc="RepSky Wallet terms of use text">
+    <message name="IDS_ACCEPT_TERMS_OF_USE" desc=" Wallet terms of use text">
       I have read and agree to the <ph name="CLICK_START">%1$s</ph>Terms of Use<ph name="CLICK_END">%2$s</ph>.
     </message>
-    <message name="IDS_RECOVERY_PHRASE_TITLE" desc="RepSky Wallet onboarding title for recovery phrase screen">
+    <message name="IDS_RECOVERY_PHRASE_TITLE" desc=" Wallet onboarding title for recovery phrase screen">
       Save your recovery phrase
     </message>
-    <message name="IDS_RECOVERY_PHRASE_CONTENT" desc="RepSky Wallet onboarding text content for recovery phrase screen">
+    <message name="IDS_RECOVERY_PHRASE_CONTENT" desc=" Wallet onboarding text content for recovery phrase screen">
       Your recovery phrase is the key to access your wallet in case you forget your password or lose your device.
     </message>
-    <message name="IDS_YOUR_RECOVERY_PHRASE_WARNING_TEXT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_YOUR_RECOVERY_PHRASE_WARNING_TEXT" desc=" Wallet onboarding text">
       Keep it in a secure place that is not accessible to others and avoid sharing it with anyone.
     </message>
-    <message name="IDS_ENTER_PASSWORD" desc="RepSky wallet password hint text">
+    <message name="IDS_ENTER_PASSWORD" desc=" wallet password hint text">
       Enter Password
     </message>
-    <message name="IDS_CREATING_WALLET_ONBOARDING_TEXT" desc="Text displayed along with a spinner during RepSky Wallet creation or restoring.">
+    <message name="IDS_CREATING_WALLET_ONBOARDING_TEXT" desc="Text displayed along with a spinner during  Wallet creation or restoring.">
       Creating your wallet…
     </message>
-    <message name="IDS_CREATING_WALLET_SUBTITLE_TEXT" desc="Text displayed along with a spinner during RepSky Wallet creation or restoring.">
+    <message name="IDS_CREATING_WALLET_SUBTITLE_TEXT" desc="Text displayed along with a spinner during  Wallet creation or restoring.">
       It may take a few seconds…
     </message>
-    <message name="IDS_NEW_ACCOUNT_PREFIX" desc="RepSky Wallet new account default name prefix">
+    <message name="IDS_NEW_ACCOUNT_PREFIX" desc=" Wallet new account default name prefix">
       <ph name="ACCOUNT_NAME">%1$s<ex>Ethereum</ex></ph> Account <ph name="ACCOUNT_NUMBER">%2$s<ex>2</ex></ph>
     </message>
-    <message name="IDS_ADD_ACCOUNT" desc="RepSky Wallet account dialog button text">
+    <message name="IDS_ADD_ACCOUNT" desc=" Wallet account dialog button text">
       Add account
     </message>
-    <message name="IDS_UPDATE_ACCOUNT" desc="RepSky Wallet account dialog button text">
+    <message name="IDS_UPDATE_ACCOUNT" desc=" Wallet account dialog button text">
       Update account
     </message>
-    <message name="IDS_RECOVERY_PHRASE_ITEM_TEXT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_RECOVERY_PHRASE_ITEM_TEXT" desc=" Wallet onboarding text">
       #<ph name="NUMBER">%1$s</ph> <ph name="RECOVERY_PHRASE">%2$s</ph>
     </message>
-    <message name="IDS_VIEW_RECOVERY_PHRASE" desc="RepSky Wallet backup later dialog button">
+    <message name="IDS_VIEW_RECOVERY_PHRASE" desc=" Wallet backup later dialog button">
       View my recovery phrase
     </message>
-    <message name="IDS_BACKUP_LATER" desc="RepSky Wallet recovery phrase button text">
+    <message name="IDS_BACKUP_LATER" desc=" Wallet recovery phrase button text">
       I'll back up later
     </message>
-    <message name="IDS_CHECK_WORD" desc="RepSky Wallet verify recovery phrase title">
+    <message name="IDS_CHECK_WORD" desc=" Wallet verify recovery phrase title">
       Let's check
     </message>
-    <message name="IDS_ENTER_WORD" desc="RepSky Wallet verify recovery phrase content">
+    <message name="IDS_ENTER_WORD" desc=" Wallet verify recovery phrase content">
       Enter the word in position <ph name="WORD_POSITION">%1$s</ph> from your recovery phrase.
     </message>
-    <message name="IDS_SKIP_RECOVERY_STEP" desc="RepSky Wallet skip recovery phrase dialog text">
+    <message name="IDS_SKIP_RECOVERY_STEP" desc=" Wallet skip recovery phrase dialog text">
       You can skip this step now, but you still need to back up your recovery phrase to ensure account security.
     </message>
-    <message name="IDS_ENABLE_FINGERPRINT_UNLOCK" desc="RepSky Wallet onboarding text">
+    <message name="IDS_ENABLE_FINGERPRINT_UNLOCK" desc=" Wallet onboarding text">
       Enable fingerprint unlock?
     </message>
-    <message name="IDS_ENABLE_FINGERPRINT_TEXT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_ENABLE_FINGERPRINT_TEXT" desc=" Wallet onboarding text">
       Enable biometrics to quickly unlock your wallet without entering your password.
     </message>
-    <message name="IDS_FINGERPRINT_UNLOCK" desc="RepSky Wallet fingerprint unlock">
+    <message name="IDS_FINGERPRINT_UNLOCK" desc=" Wallet fingerprint unlock">
       Fingerprint unlock
     </message>
-    <message name="IDS_USE_FINGERPRINT_TEXT" desc="RepSky Wallet fingerprint unlock">
+    <message name="IDS_USE_FINGERPRINT_TEXT" desc=" Wallet fingerprint unlock">
       Use biometrics to quickly unlock your wallet without entering your password.
     </message>
-    <message name="IDS_MENU_BRAVE_WALLET" desc="RepSky Wallet menu item text">
+    <message name="IDS_MENU_BRAVE_WALLET" desc=" Wallet menu item text">
       Wallet
     </message>
-    <message name="IDS_RESTORE_CRYPTO_TEXT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_RESTORE_CRYPTO_TEXT" desc=" Wallet onboarding text">
       You can paste your entire recovery phrase into any field.
     </message>
-    <message name="IDS_RESTORE_CRYPTO_ACCOUNT" desc="RepSky Wallet onboarding text">
+    <message name="IDS_RESTORE_CRYPTO_ACCOUNT" desc=" Wallet onboarding text">
       Import an existing wallet
     </message>
-    <message name="IDS_SHOW_RECOVERY_PHRASE" desc="RepSky Wallet onboarding text">
+    <message name="IDS_SHOW_RECOVERY_PHRASE" desc=" Wallet onboarding text">
       Show recovery phrase
     </message>
-    <message name="IDS_RESTORE_LEGACY_WALLET_RECOVERY_PHRASE" desc="RepSky Wallet onboarding legacy import text">
-      Import from legacy RepSky crypto wallets?
+    <message name="IDS_RESTORE_LEGACY_WALLET_RECOVERY_PHRASE" desc=" Wallet onboarding legacy import text">
+      Import from legacy  crypto wallets?
     </message>
-    <message name="IDS_ALREADY_HAVE_A_WALLET" desc="RepSky Wallet onboarding restore title">
+    <message name="IDS_ALREADY_HAVE_A_WALLET" desc=" Wallet onboarding restore title">
       Already have a wallet?
     </message>
-    <message name="IDS_BEFORE_WE_BEGIN" desc="RepSky Wallet term of use screen title">
+    <message name="IDS_BEFORE_WE_BEGIN" desc=" Wallet term of use screen title">
       Before we begin
     </message>
-    <message name="IDS_SUPPORTED_NETWORKS" desc="RepSky Wallet supported networks screen title">
+    <message name="IDS_SUPPORTED_NETWORKS" desc=" Wallet supported networks screen title">
       Supported networks
     </message>
-    <message name="IDS_ADD_NETWORKS" desc="RepSky Wallet add networks text">
+    <message name="IDS_ADD_NETWORKS" desc=" Wallet add networks text">
       You can add networks anytime in Settings.
     </message>
-    <message name="IDS_SEARCH_NETWORKS" desc="RepSky Wallet search networks text">
+    <message name="IDS_SEARCH_NETWORKS" desc=" Wallet search networks text">
       Search networks
     </message>
-    <message name="IDS_SHOW_TESTNETS" desc="RepSky Wallet show testnets button">
+    <message name="IDS_SHOW_TESTNETS" desc=" Wallet show testnets button">
       Show testnets
     </message>
     <message name="IDS_CONTINUE_WITH_NETWORKS" desc="Continue with selected networks">
@@ -1840,10 +1840,10 @@ Are you sure you want to do this?
     <message name="IDS_RECOVERY_PHRASE_WORD_HINT" desc="Recovery phrase word hint on empty items">
       Word #<ph name="NUMBER">%1$s</ph>
     </message>
-    <message name="IDS_CREATE_PASSWORD" desc="RepSky Wallet password creation description">
+    <message name="IDS_CREATE_PASSWORD" desc=" Wallet password creation description">
       Create a password
     </message>
-    <message name="IDS_CREATE_PASSWORD_SUBTITLE" desc="RepSky Wallet password creation screen subtitle">
+    <message name="IDS_CREATE_PASSWORD_SUBTITLE" desc=" Wallet password creation screen subtitle">
       You'll use this password to access your wallet.
     </message>
     <message name="IDS_WALLET_PASSWORD" desc="Wallet password creation screen title">
@@ -1870,72 +1870,72 @@ Are you sure you want to do this?
     <message name="IDS_WALLET_PASSWORD_MATCH" desc="Wallet password match message">
       Match!
     </message>
-    <message name="IDS_ALREADY_HAVE_A_WALLET_DESCRIPTION" desc="RepSky Wallet onboarding restore description">
+    <message name="IDS_ALREADY_HAVE_A_WALLET_DESCRIPTION" desc=" Wallet onboarding restore description">
       Import your existing wallet
     </message>
-    <message name="IDS_UNLOCK" desc="RepSky Wallet onboarding text">
+    <message name="IDS_UNLOCK" desc=" Wallet onboarding text">
       Unlock
     </message>
-    <message name="IDS_PASSWORD" desc="RepSky Wallet onboarding text">
+    <message name="IDS_PASSWORD" desc=" Wallet onboarding text">
       Password
     </message>
-    <message name="IDS_ENTER_YOUR_PASSWORD" desc="RepSky Wallet onboarding password hint">
+    <message name="IDS_ENTER_YOUR_PASSWORD" desc=" Wallet onboarding password hint">
       Enter your password
     </message>
-    <message name="IDS_ACCESSIBILITY_BIOMETRIC_UNLOCK" desc="RepSky Wallet onboarding biometric image accessibility text">
+    <message name="IDS_ACCESSIBILITY_BIOMETRIC_UNLOCK" desc=" Wallet onboarding biometric image accessibility text">
       Biometric unlock
     </message>
-    <message name="IDS_UNLOCK_WALLET_TITLE" desc="RepSky Wallet onboarding text">
+    <message name="IDS_UNLOCK_WALLET_TITLE" desc=" Wallet onboarding text">
       Unlock Wallet
     </message>
-    <message name="IDS_UNLOCK_WALLET_SUBTITLE" desc="RepSky Wallet onboarding subtitle">
+    <message name="IDS_UNLOCK_WALLET_SUBTITLE" desc=" Wallet onboarding subtitle">
       Enter password to unlock wallet
     </message>
     <message name="IDS_BRAVE_SAFE_BROWSING_NO_PROTECTION_SUMMARY" desc="Summary for Safe Browsing no protection mode.">
       Does not protect you against dangerous websites, downloads, and extensions.
     </message>
-    <message name="IDS_PHRASE_DOES_NOT_MATCH" desc="RepSky Wallet error when phrase doesn't match">
+    <message name="IDS_PHRASE_DOES_NOT_MATCH" desc=" Wallet error when phrase doesn't match">
       Recovery phrase doesn't match
     </message>
-    <message name="IDS_ACCOUNT_RECOVERY_FAILED" desc="RepSky Wallet text">
+    <message name="IDS_ACCOUNT_RECOVERY_FAILED" desc=" Wallet text">
       Account recovery failed. Please try again.
     </message>
-    <message name="IDS_MAINNET" desc="RepSky Wallet network selection button text(network name)" translateable="false">
+    <message name="IDS_MAINNET" desc=" Wallet network selection button text(network name)" translateable="false">
       Ethereum Mainnet
     </message>
-    <message name="IDS_ACCOUNTS" desc="RepSky Wallet section text">
+    <message name="IDS_ACCOUNTS" desc=" Wallet section text">
       Accounts
     </message>
     <!-- Stats -->
     <message name="IDS_BRAVE_STATS_USAGE_PING_TITLE" desc="Description that shows in settings for toggling stats usage pings">
-      Automatically send daily usage ping to RepSky
+      Automatically send daily usage ping to 
     </message>
     <message name="IDS_BRAVE_STATS_USAGE_PING_SUMMARY" desc="Description that shows under main toggle setting for usage pings">
-      This private ping lets RepSky estimate active users.
+      This private ping lets  estimate active users.
     </message>
-    <message name="IDS_ACCOUNT_NAME" desc="RepSky wallet accounts text">
+    <message name="IDS_ACCOUNT_NAME" desc=" wallet accounts text">
       Account Name
     </message>
-    <message name="IDS_WALLET_CHANGE_OWNERSHIP_WARNING" desc="RepSky Wallet warning title displayed when requesting a change of ownership">
+    <message name="IDS_WALLET_CHANGE_OWNERSHIP_WARNING" desc=" Wallet warning title displayed when requesting a change of ownership">
       Account ownership change requested
     </message>
-    <message name="IDS_WALLET_CHANGE_OWNERSHIP_DESCRIPTION" desc="RepSky Wallet warning description displayed when requesting a change of ownership">
+    <message name="IDS_WALLET_CHANGE_OWNERSHIP_DESCRIPTION" desc=" Wallet warning description displayed when requesting a change of ownership">
       This transaction will reassign ownership of the account to a new program. This action is irreversible and may result in loss of funds.
     </message>
-    <message name="IDS_ACCOUNT_NAME_TEXT" desc="RepSky wallet accounts text">
+    <message name="IDS_ACCOUNT_NAME_TEXT" desc=" wallet accounts text">
       You can create a secondary account by importing your private key.
     </message>
-    <message name="IDS_IMPORT_ACCOUNT_TEXT" desc="RepSky wallet accounts text">
+    <message name="IDS_IMPORT_ACCOUNT_TEXT" desc=" wallet accounts text">
       Enter, paste, or import your private key string file or JSON.
     </message>
-    <message name="IDS_IMPORT_TEXT" desc="RepSky wallet accounts text">
+    <message name="IDS_IMPORT_TEXT" desc=" wallet accounts text">
       Import...
     </message>
-    <message name="IDS_DETAILS" desc="RepSky wallet accounts text">
+    <message name="IDS_DETAILS" desc=" wallet accounts text">
       Details
     </message>
-    <message name="IDS_BRAVE_UI_BRAVE_WALLET" desc="Title for RepSky Wallet Settings. [CHAR-LIMIT=27]">
-      RepSky Wallet
+    <message name="IDS_BRAVE_UI_BRAVE_WALLET" desc="Title for  Wallet Settings. [CHAR-LIMIT=27]">
+       Wallet
     </message>
     <message name="IDS_BRAVE_WALLET_SHIELDING" desc="Shielding label">
       Shielding
@@ -1947,18 +1947,18 @@ Are you sure you want to do this?
       Help center
     </message>
     <message name="IDS_BRAVE_WALLET_SETTINGS_AUTOLOCK_OPTION" desc="Title for brave wallet automatically lock.">
-      Automatically lock RepSky Wallet
+      Automatically lock  Wallet
     </message>
-    <message name="IDS_BRAVE_WALLET_SETTINGS_AUTOLOCK_HOW_MANY_MINUTES" desc="RepSky wallet autolock dialog text">
-      The number of minutes to wait until the RepSky Wallet is automatically locked
+    <message name="IDS_BRAVE_WALLET_SETTINGS_AUTOLOCK_HOW_MANY_MINUTES" desc=" wallet autolock dialog text">
+      The number of minutes to wait until the  Wallet is automatically locked
     </message>
-    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_OPTION" desc="Title for preference to reset RepSky Wallet.">
+    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_OPTION" desc="Title for preference to reset  Wallet.">
       Reset and clear wallet data
     </message>
-    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION" desc="Confirmation for RepSky Wallet reset.">
-      Are you sure you want to reset your RepSky Wallet? If your wallet is not backed up, resetting will cause you to lose all account data (including any associated funds). Type "<ph name="CONFIRMATION_PHRASE">%1$s<ex>Yes</ex></ph>" to confirm.
+    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION" desc="Confirmation for  Wallet reset.">
+      Are you sure you want to reset your  Wallet? If your wallet is not backed up, resetting will cause you to lose all account data (including any associated funds). Type "<ph name="CONFIRMATION_PHRASE">%1$s<ex>Yes</ex></ph>" to confirm.
     </message>
-    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION_PHRASE" desc="The phrase users should type to reset RepSky Wallet">
+    <message name="IDS_BRAVE_WALLET_RESET_SETTINGS_CONFIRMATION_PHRASE" desc="The phrase users should type to reset  Wallet">
       Yes
     </message>
     <message name="IDS_BRAVE_WALLET_CLEAR_TX_AND_NONCE_SETTING_TITLE" desc="The title of a button that will reset transaction and nonce information. As in to erase the users transaction history and reset nonce value starting from 0x0">
@@ -1970,7 +1970,7 @@ Are you sure you want to do this?
     <message name="IDS_BRAVE_WALLET_CLEAR_TX_AND_NONCE_DIALOG_CONFIRMATION" desc="Confirmation dialog description for transaction and nonce reset.">
       Are you sure you want to reset transaction and nonce information? This option is mostly used by developers running a local test server. Type "<ph name="CONFIRMATION_PHRASE">%1$s<ex>Yes</ex></ph>" to confirm.
     </message>
-    <message name="IDS_BRAVE_WALLET_CONFIRM_TEXT" desc="Text for RepSky Wallet confirm button text.">
+    <message name="IDS_BRAVE_WALLET_CONFIRM_TEXT" desc="Text for  Wallet confirm button text.">
       Confirm
     </message>
     <message name="IDS_TIME_LONG_MINS" desc="Use an unabbreviated word for minute(s). [ICU Syntax]">
@@ -1995,7 +1995,7 @@ Are you sure you want to do this?
       Search for videos
     </message>
     <message name="IDS_BRAVE_FIREWALL_VPN" desc="VPN title text">
-      RepSky Firewall + VPN
+       Firewall + VPN
     </message>
     <message name="IDS_VPN_SETTINGS_CALLOUT_TEXT" desc="Vpn settings callout text">
         Upgrade to a VPN to protect your connection and block invasive trackers everywhere.
@@ -2006,177 +2006,177 @@ Are you sure you want to do this?
     <message name="IDS_POWERED_BY" desc="VPN text">
       Powered by
     </message>
-    <message name="IDS_PLAN_TEXT_1" desc="RepSky VPN plan text">
+    <message name="IDS_PLAN_TEXT_1" desc=" VPN plan text">
       Protect every app &amp; your whole device
     </message>
-    <message name="IDS_PLAN_TEXT_2" desc="RepSky VPN plan text">
+    <message name="IDS_PLAN_TEXT_2" desc=" VPN plan text">
       Safer for home or public Wi-Fi
     </message>
-    <message name="IDS_PLAN_TEXT_3" desc="RepSky VPN plan text">
+    <message name="IDS_PLAN_TEXT_3" desc=" VPN plan text">
       Lightning-fast, up to 100 Mbps
     </message>
-    <message name="IDS_PLAN_TEXT_4" desc="RepSky VPN plan text">
+    <message name="IDS_PLAN_TEXT_4" desc=" VPN plan text">
       Choose your geo/country location
     </message>
-    <message name="IDS_PLAN_TEXT_5" desc="RepSky VPN plan text">
-      RepSky never logs your activity
+    <message name="IDS_PLAN_TEXT_5" desc=" VPN plan text">
+       never logs your activity
     </message>
-    <message name="IDS_PLAN_TEXT_6" desc="RepSky VPN plan text">
+    <message name="IDS_PLAN_TEXT_6" desc=" VPN plan text">
       Protect 5 devices on 1 subscription
     </message>
-    <message name="IDS_VPN_PAYWALL_TEXT_1" desc="RepSky VPN paywall text">
+    <message name="IDS_VPN_PAYWALL_TEXT_1" desc=" VPN paywall text">
       Extra privacy &amp; security online
     </message>
-    <message name="IDS_VPN_PAYWALL_TEXT_2" desc="RepSky VPN paywall text">
+    <message name="IDS_VPN_PAYWALL_TEXT_2" desc=" VPN paywall text">
       Hide your IP &amp; change your location
     </message>
-    <message name="IDS_VPN_PAYWALL_TEXT_3" desc="RepSky VPN paywall text">
+    <message name="IDS_VPN_PAYWALL_TEXT_3" desc=" VPN paywall text">
       Hundreds of servers around the world
     </message>
-    <message name="IDS_VPN_PAYWALL_TEXT_4" desc="RepSky VPN paywall text">
+    <message name="IDS_VPN_PAYWALL_TEXT_4" desc=" VPN paywall text">
       Lightning-fast connection speeds
     </message>
-    <message name="IDS_VPN_PAYWALL_TEXT_5" desc="RepSky VPN paywall text">
+    <message name="IDS_VPN_PAYWALL_TEXT_5" desc=" VPN paywall text">
       Protect up to 10 devices with one plan
     </message>
-    <message name="IDS_TRIAL_TEXT" desc="RepSky VPN plan text">
+    <message name="IDS_TRIAL_TEXT" desc=" VPN plan text">
       All plans include a <ph name="TRIAL_DAYS">%1$s</ph>
     </message>
-    <message name="IDS_DAY_7_TRIAL_TEXT" desc="RepSky VPN plan text">
+    <message name="IDS_DAY_7_TRIAL_TEXT" desc=" VPN plan text">
       free 7-day trial!
     </message>
-    <message name="IDS_MONTHLY_SUBSCRIPTION" desc="RepSky VPN plan text">
+    <message name="IDS_MONTHLY_SUBSCRIPTION" desc=" VPN plan text">
       Monthly subscription <ph name="TRIAL_TEXT">%1$s</ph>
     </message>
-    <message name="IDS_YEARLY_SUBSCRIPTION" desc="RepSky VPN plan text">
+    <message name="IDS_YEARLY_SUBSCRIPTION" desc=" VPN plan text">
       Yearly subscription <ph name="TRIAL_TEXT">%1$s</ph>
     </message>
-    <message name="IDS_RENEWS_MONTHLY" desc="RepSky VPN plan text">
+    <message name="IDS_RENEWS_MONTHLY" desc=" VPN plan text">
       Renews monthly
     </message>
-    <message name="IDS_RENEWS_ANNUALLY" desc="RepSky VPN plan annually renewal text">
+    <message name="IDS_RENEWS_ANNUALLY" desc=" VPN plan annually renewal text">
       Renews annually
     </message>
-    <message name="IDS_MONTHLY_SUBSCRIPTION_AMOUNT" desc="RepSky VPN plan text">
+    <message name="IDS_MONTHLY_SUBSCRIPTION_AMOUNT" desc=" VPN plan text">
       <ph name="MONTHLY_AMOUNT">%1$s</ph> /month
     </message>
-    <message name="IDS_ONE_YEAR" desc="RepSky VPN plan text">
+    <message name="IDS_ONE_YEAR" desc=" VPN plan text">
       One Year
     </message>
-    <message name="IDS_RENEW_YEARLY_SAVE" desc="RepSky VPN plan text">
+    <message name="IDS_RENEW_YEARLY_SAVE" desc=" VPN plan text">
       (<ph name="DISCOUNT_TEXT_START">&lt;discount_text&gt;</ph>save <ph name="PERCENTAGE_AMOUNT">%1$d</ph>%%<ph name="DISCOUNT_TEXT_END">&lt;/discount_text&gt;</ph>)
     </message>
-    <message name="IDS_YEARLY_SUBSCRIPTION_AMOUNT" desc="RepSky VPN plan text">
+    <message name="IDS_YEARLY_SUBSCRIPTION_AMOUNT" desc=" VPN plan text">
       <ph name="YEARLY_AMOUNT">%1$s</ph> /year
     </message>
-    <message name="IDS_BRAVE_SUBSCRIPTION_RENEWAL_TEXT" desc="RepSky subscription renewal text">
-      Subscriptions will be charged via your Google account. Any unused portion of the free trial, if offered, is forfeited when you buy a subscription.\n\nYour subscription will renew automatically unless it is canceled at least 24 hours before the end of the current period.\n\nYou can manage your subscriptions in Settings.\n\nBy using RepSky, you agree to the Terms of Use and Privacy Policy.
+    <message name="IDS_BRAVE_SUBSCRIPTION_RENEWAL_TEXT" desc=" subscription renewal text">
+      Subscriptions will be charged via your Google account. Any unused portion of the free trial, if offered, is forfeited when you buy a subscription.\n\nYour subscription will renew automatically unless it is canceled at least 24 hours before the end of the current period.\n\nYou can manage your subscriptions in Settings.\n\nBy using , you agree to the Terms of Use and Privacy Policy.
     </message>
-    <message name="IDS_ALREADY_PURCHASED" desc="RepSky subscription plan page already purchased text">
+    <message name="IDS_ALREADY_PURCHASED" desc=" subscription plan page already purchased text">
       Already purchased on brave.com?
     </message>
-    <message name="IDS_REFRESH_YOUR_CREDENTIALS" desc="RepSky subscription plan page refresh your credentials action text">
+    <message name="IDS_REFRESH_YOUR_CREDENTIALS" desc=" subscription plan page refresh your credentials action text">
       Refresh your credentials
     </message>
-    <message name="IDS_TRY_FOR_FREE" desc="RepSky VPN plan text">
+    <message name="IDS_TRY_FOR_FREE" desc=" VPN plan text">
       Try for FREE
     </message>
-    <message name="IDS_TRY_7_DAYS_FOR_FREE" desc="RepSky VPN plan action text">
+    <message name="IDS_TRY_7_DAYS_FOR_FREE" desc=" VPN plan action text">
       Try 7 Days Free
     </message>
-    <message name="IDS_INSTALL_VPN" desc="RepSky VPN plan text">
+    <message name="IDS_INSTALL_VPN" desc=" VPN plan text">
       Install VPN
     </message>
-    <message name="IDS_INSTALL_VPN_PROFILE" desc="RepSky VPN plan text">
+    <message name="IDS_INSTALL_VPN_PROFILE" desc=" VPN plan text">
       Install VPN Profile
     </message>
-    <message name="IDS_BRAVE_VPN_PROFILE_TITLE" desc="RepSky VPN plan text">
-      RepSky will now install a VPN profile.
+    <message name="IDS_BRAVE_VPN_PROFILE_TITLE" desc=" VPN plan text">
+       will now install a VPN profile.
     </message>
-    <message name="IDS_BRAVE_VPN_PROFILE_TEXT" desc="RepSky VPN plan text">
+    <message name="IDS_BRAVE_VPN_PROFILE_TEXT" desc=" VPN plan text">
       This profile allows the VPN to automatically connect and secure traffic across your device — in every app, all the time. This VPN connection will be encrypted and routed through Guardian's intelligent firewall to block ads and trackers.
     </message>
-    <message name="IDS_CONTACT_SUPPORT_VPN" desc = "RepSky VPN profile text">
+    <message name="IDS_CONTACT_SUPPORT_VPN" desc = " VPN profile text">
       Contact Technical Support
     </message>
-    <message name="IDS_VPN_IS_ENABLED" desc="RepSky VPN profile text">
+    <message name="IDS_VPN_IS_ENABLED" desc=" VPN profile text">
       VPN is now enabled
     </message>
-    <message name="IDS_SOME_CONTEXT" desc="RepSky VPN profile text">
+    <message name="IDS_SOME_CONTEXT" desc=" VPN profile text">
       Some context...
     </message>
-    <message name="IDS_SOME_CONTEXT_TEXT" desc="RepSky VPN profile text">
+    <message name="IDS_SOME_CONTEXT_TEXT" desc=" VPN profile text">
       Your previous VPN connection was disconnected. To reconnect to VPN, you'll need to accept the connection request.
 
 If you don't accept this request, VPN will not reconnect and your internet connection will not be secured.
     </message>
-    <message name="IDS_ACCEPT_CONNECTION_REQUEST" desc="RepSky VPN profile text">
+    <message name="IDS_ACCEPT_CONNECTION_REQUEST" desc=" VPN profile text">
       Accept connection request
     </message>
-    <message name="IDS_VPN_PROFILE_CREATION_FAILED" desc="RepSky VPN profile text">
+    <message name="IDS_VPN_PROFILE_CREATION_FAILED" desc=" VPN profile text">
       Vpn profile creation failed. Please try again.
     </message>
-    <message name="IDS_PURCHASE_TOKEN_VERIFICATION_FAILED" desc="RepSky VPN profile text">
+    <message name="IDS_PURCHASE_TOKEN_VERIFICATION_FAILED" desc=" VPN profile text">
       Your subscription has expired. You can subscribe again at any time.
     </message>
-    <message name="IDS_SUBSCRIPTION" desc="RepSky VPN settings section title">
+    <message name="IDS_SUBSCRIPTION" desc=" VPN settings section title">
       Subscription
     </message>
-    <message name="IDS_STATUS" desc="RepSky VPN settings section text">
+    <message name="IDS_STATUS" desc=" VPN settings section text">
       Status
     </message>
-    <message name="IDS_EXPIRES" desc="RepSky VPN settings section text">
+    <message name="IDS_EXPIRES" desc=" VPN settings section text">
       Expires
     </message>
-    <message name="IDS_MANAGE_SUBSCRIPTION" desc="RepSky VPN settings section text">
+    <message name="IDS_MANAGE_SUBSCRIPTION" desc=" VPN settings section text">
       Manage Subscription
     </message>
-    <message name="IDS_SERVER" desc="RepSky VPN settings section title">
+    <message name="IDS_SERVER" desc=" VPN settings section title">
       Server
     </message>
-    <message name="IDS_CHANGE_LOCATION" desc="RepSky VPN settings section text">
+    <message name="IDS_CHANGE_LOCATION" desc=" VPN settings section text">
       Location
     </message>
-    <message name="IDS_RESET_CONFIGURATION" desc="RepSky VPN settings section text">
+    <message name="IDS_RESET_CONFIGURATION" desc=" VPN settings section text">
       Reset Configuration
     </message>
-    <message name="IDS_SUPPORT" desc="RepSky VPN settings section text">
+    <message name="IDS_SUPPORT" desc=" VPN settings section text">
       Support
     </message>
-    <message name="IDS_CONTACT_TECHNICAL_SUPPORT" desc="RepSky VPN settings section text">
+    <message name="IDS_CONTACT_TECHNICAL_SUPPORT" desc=" VPN settings section text">
       Contact Technical Support
     </message>
-    <message name="IDS_VPN_SUPPORT" desc="RepSky VPN settings section text">
+    <message name="IDS_VPN_SUPPORT" desc=" VPN settings section text">
       VPN Support
     </message>
-    <message name="IDS_FAIL_TO_GET_SERVER_LOCATIONS" desc="RepSky VPN error text">
+    <message name="IDS_FAIL_TO_GET_SERVER_LOCATIONS" desc=" VPN error text">
       Fail to get server location. Please try again later.
     </message>
-    <message name="IDS_VPN_HOSTNAME" desc="RepSky Vpn support text">
+    <message name="IDS_VPN_HOSTNAME" desc=" Vpn support text">
       VPN Hostname
     </message>
-    <message name="IDS_SUBSCRIPTION_TYPE" desc="RepSky Vpn support text">
+    <message name="IDS_SUBSCRIPTION_TYPE" desc=" Vpn support text">
       Subscription Type
     </message>
-    <message name="IDS_APP_VERSION" desc="RepSky Vpn support text">
+    <message name="IDS_APP_VERSION" desc=" Vpn support text">
       App Version
     </message>
-    <message name="IDS_APP_RECEIPT" desc="RepSky Vpn support text">
+    <message name="IDS_APP_RECEIPT" desc=" Vpn support text">
       App Receipt
     </message>
-    <message name="IDS_TIMEZONE" desc="RepSky Vpn support text">
+    <message name="IDS_TIMEZONE" desc=" Vpn support text">
       Timezone
     </message>
-    <message name="IDS_NETWORK_TYPE" desc="RepSky Vpn support text">
+    <message name="IDS_NETWORK_TYPE" desc=" Vpn support text">
       Network Type
     </message>
-    <message name="IDS_CELLULAR_CARRIER" desc="RepSky Vpn support text">
+    <message name="IDS_CELLULAR_CARRIER" desc=" Vpn support text">
       Cellular Carrier
     </message>
-    <message name="IDS_CONTINUE_TO_EMAIL" desc="RepSky Vpn support text">
+    <message name="IDS_CONTINUE_TO_EMAIL" desc=" Vpn support text">
       Continue to Email
     </message>
-    <message name="IDS_VPN_SUPPORT_TEXT" desc="RepSky Vpn support text">
+    <message name="IDS_VPN_SUPPORT_TEXT" desc=" Vpn support text">
       Support provided with the help of the Guardian team.\n\nPlease select the information you're comfortable sharing with us.\n\nThe more information you initially share with us the easier it will be for our support staff to help you resolve your issue.
     </message>
     <message name="IDS_AUTOMATIC_SERVER_SELECTION_TEXT" desc="Vpn server selection text">
@@ -2212,79 +2212,79 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_REGION_TEXT" desc="Specific region title for vpn server selection page">
       <ph name="REGION_NAME">%1$s<ex>United states</ex></ph> server
     </message>
-    <message name="IDS_OTHER_ISSUES" desc="RepSky Vpn support text">
+    <message name="IDS_OTHER_ISSUES" desc=" Vpn support text">
       Select Issue
     </message>
-    <message name="IDS_CANNOT_CONNECT_TO_VPN" desc="RepSky Vpn support text">
+    <message name="IDS_CANNOT_CONNECT_TO_VPN" desc=" Vpn support text">
       Cannot connect to the VPN (Other error)
     </message>
-    <message name="IDS_NO_INTERNET" desc="RepSky Vpn support text">
+    <message name="IDS_NO_INTERNET" desc=" Vpn support text">
       No internet when connected
     </message>
-    <message name="IDS_SLOW_CONNECTION" desc="RepSky Vpn support text">
+    <message name="IDS_SLOW_CONNECTION" desc=" Vpn support text">
       Slow connection
     </message>
-    <message name="IDS_WEBSITE_DOESNT_WORK" desc="RepSky Vpn support text">
+    <message name="IDS_WEBSITE_DOESNT_WORK" desc=" Vpn support text">
       Website doesn't work
     </message>
-    <message name="IDS_OTHER" desc="RepSky Vpn support text">
+    <message name="IDS_OTHER" desc=" Vpn support text">
       Other
     </message>
-    <message name="IDS_RESET_VPN_CONFIG_DIALOG_TITLE" desc="RepSky Vpn reset configuration dialog title">
+    <message name="IDS_RESET_VPN_CONFIG_DIALOG_TITLE" desc=" Vpn reset configuration dialog title">
       Reset VPN configuration
     </message>
-    <message name="IDS_RESET_VPN_CONFIG_DIALOG_MESSAGE" desc="RepSky Vpn reset configuration dialog message">
+    <message name="IDS_RESET_VPN_CONFIG_DIALOG_MESSAGE" desc=" Vpn reset configuration dialog message">
       Are you sure you want to reset VPN configuration?
     </message>
-    <message name="IDS_AUTOMATIC" desc="RepSky Vpn default server location text">
+    <message name="IDS_AUTOMATIC" desc=" Vpn default server location text">
       Automatic
     </message>
-    <message name="IDS_VPN_CONNECT_TEXT" desc="RepSky Vpn loading text">
+    <message name="IDS_VPN_CONNECT_TEXT" desc=" Vpn loading text">
       Connecting to your server. Should only take a moment...
     </message>
-    <message name="IDS_SUBSCRIPTION_CONSUMED" desc="RepSky Vpn in app purchase message">
+    <message name="IDS_SUBSCRIPTION_CONSUMED" desc=" Vpn in app purchase message">
       Subscription successfully consumed
     </message>
-    <message name="IDS_FAIL_TO_AKNOWLEDGE" desc="RepSky Vpn in app purchase message">
+    <message name="IDS_FAIL_TO_AKNOWLEDGE" desc=" Vpn in app purchase message">
       Failed to acknowledge purchase :
     </message>
-    <message name="IDS_ALREADY_SUBSCRIBED" desc="RepSky Vpn in app purchase message">
+    <message name="IDS_ALREADY_SUBSCRIBED" desc=" Vpn in app purchase message">
       You are already subscribed to the subscription. Try restoring the subscription.
     </message>
-    <message name="IDS_ERROR_CAUSED_BY_USER" desc="RepSky Vpn in app purchase message">
+    <message name="IDS_ERROR_CAUSED_BY_USER" desc=" Vpn in app purchase message">
       You've quit your subscription purchase.
     </message>
-    <message name="IDS_PURCHASED_FAILED" desc="RepSky Vpn in app purchase message">
+    <message name="IDS_PURCHASED_FAILED" desc=" Vpn in app purchase message">
       Purchase failed. Please contact Google Play support.
     </message>
-    <message name="IDS_REJECT" desc="RepSky crypto wallet button reject">
+    <message name="IDS_REJECT" desc=" crypto wallet button reject">
       Reject
     </message>
-    <message name="IDS_APPROVE" desc="RepSky crypto wallet button approve">
+    <message name="IDS_APPROVE" desc=" crypto wallet button approve">
       Approve
     </message>
-    <message name="IDS_GAS_FEE" desc="RepSky crypto wallet gas fee information">
+    <message name="IDS_GAS_FEE" desc=" crypto wallet gas fee information">
       Gas Fee
     </message>
-    <message name="IDS_TOTAL" desc="RepSky crypto wallet total amount for a transaction">
+    <message name="IDS_TOTAL" desc=" crypto wallet total amount for a transaction">
       Total
     </message>
-    <message name="IDS_AMOUNT_PLUS_GAS" desc="RepSky crypto wallet total amount plus gas cost for a transaction">
+    <message name="IDS_AMOUNT_PLUS_GAS" desc=" crypto wallet total amount plus gas cost for a transaction">
       Amount + Gas
     </message>
     <message name="IDS_BRAVE_WALLET_CONFIRM_TRANSACTION_AMOUNT_FEE" desc="Confirm transaction panel total fee label">
       Amount + fee
     </message>
-    <message name="IDS_TRANSACTION" desc="RepSky crypto wallet transaction title">
+    <message name="IDS_TRANSACTION" desc=" crypto wallet transaction title">
       Transaction
     </message>
-    <message name="IDS_BRAVE_WALLET_ADVANCED_SETTINGS" desc="RepSky crypto wallet transaction setting to change nonce">
+    <message name="IDS_BRAVE_WALLET_ADVANCED_SETTINGS" desc=" crypto wallet transaction setting to change nonce">
       Advanced Settings
     </message>
-    <message name="IDS_BRAVE_WALLET_NONCE_LABEL" desc="RepSky crypto wallet nonce label">
+    <message name="IDS_BRAVE_WALLET_NONCE_LABEL" desc=" crypto wallet nonce label">
       Nonce
     </message>
-    <message name="IDS_BRAVE_WALLET_ADVANCED_SETTINGS_NONCE_HINT" desc="RepSky crypto wallet advance setting custom nonce hint">
+    <message name="IDS_BRAVE_WALLET_ADVANCED_SETTINGS_NONCE_HINT" desc=" crypto wallet advance setting custom nonce hint">
       Enter custom nonce value
     </message>
     <message name="IDS_ACTION_SAVE" desc="Text for save action">
@@ -2293,10 +2293,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_WALLET_TX_PROPOGATION_WARNING" desc="Trnsaction warning regarding low gas or invalid nonce etc.">
       Transaction may not be propagated to the network if custom nonce value is non-sequential or has other errors.
     </message>
-    <message name="IDS_TRANSACTION_DETAILS" desc="RepSky crypto wallet transaction details section">
+    <message name="IDS_TRANSACTION_DETAILS" desc=" crypto wallet transaction details section">
       Details
     </message>
-    <!-- <message name="IDS_APPS" desc="RepSky crypto wallet section Apps">
+    <!-- <message name="IDS_APPS" desc=" crypto wallet section Apps">
       Apps
     </message> -->
     <message name="IDS_CRYPTO_WALLET_FROM_TO" desc="From address -> to address" translateable="false">
@@ -2314,61 +2314,61 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_CRYPTO_WALLET_TOTAL_AMOUNT" desc="amount asset + amount gas fee" translateable="false">
       <ph name="AMOUNT">%1$s<ex>0.0015</ex></ph> <ph name="ASSET">%2$s<ex>ETH</ex></ph> + <ph name="GAS_FEE">%3$s<ex>0.00000015</ex></ph> <ph name="CHAIN_ASSET">%4$s<ex>ETH</ex></ph>
     </message>
-    <message name="IDS_GAS_PRICE" desc="RepSky crypto wallet gas limit edit box">
+    <message name="IDS_GAS_PRICE" desc=" crypto wallet gas limit edit box">
       Gas Price (Gwei)
     </message>
-    <message name="IDS_GAS_LIMIT" desc="RepSky crypto wallet gas limit edit box">
+    <message name="IDS_GAS_LIMIT" desc=" crypto wallet gas limit edit box">
       Gas Limit
     </message>
     <message name="IDS_DISABLE_SHARING_HUB" desc="Menu item for disabling sharing hub.">
       Disable Sharing Hub
     </message>
-    <message name="IDS_WALLET_ACCOUNTS_UPDATE" desc="RepSky wallet accounts update text">
+    <message name="IDS_WALLET_ACCOUNTS_UPDATE" desc=" wallet accounts update text">
       Update
     </message>
-    <message name="IDS_ACCOUNT_UPDATE_FAILED" desc="RepSky Wallet account update error text">
+    <message name="IDS_ACCOUNT_UPDATE_FAILED" desc=" Wallet account update error text">
       Account update failed.
     </message>
-    <message name="IDS_ACCOUNT_NAME_EMPTY_ERROR" desc="RepSky Wallet empty account error text">
+    <message name="IDS_ACCOUNT_NAME_EMPTY_ERROR" desc=" Wallet empty account error text">
       Account name can't be empty.
     </message>
-    <message name="IDS_INCORRECT_PASSWORD_ERROR" desc="RepSky Wallet incorrect password error text">
+    <message name="IDS_INCORRECT_PASSWORD_ERROR" desc=" Wallet incorrect password error text">
       Incorrect password
     </message>
-    <message name="IDS_CHOOSE_A_FILE" desc="RepSky wallet accounts text">
+    <message name="IDS_CHOOSE_A_FILE" desc=" wallet accounts text">
       Choose a file
     </message>
     <message name="IDS_ACTIVATE_ERC20" desc="A button to activate an ERC20 token">
       Activate <ph name="TOKEN">%1$s<ex>BAT</ex></ph>
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE" desc="RepSky wallet function type">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE" desc=" wallet function type">
       FUNCTION TYPE: <ph name="FTYPE">%1$s<ex>ERC20Transfer</ex></ph>
     </message>
-    <message name="IDS_WALLET_DETAILS_NO_DATA" desc="RepSky wallet no data to show">
+    <message name="IDS_WALLET_DETAILS_NO_DATA" desc=" wallet no data to show">
       No data
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_OTHER" desc="RepSky wallet function type other">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_OTHER" desc=" wallet function type other">
       Other
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC20TRANSFER" desc="RepSky wallet function type ERC20Transfer" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC20TRANSFER" desc=" wallet function type ERC20Transfer" translateable="false">
       ERC20 Transfer
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC721TRANSFER" desc="RepSky wallet function type ERC721Transfer" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC721TRANSFER" desc=" wallet function type ERC721Transfer" translateable="false">
       ERC721 Transfer
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC20APPROVE" desc="RepSky wallet function type ERC20Approve" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_ERC20APPROVE" desc=" wallet function type ERC20Approve" translateable="false">
       ERC20 Approve
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_SYSTEM_TRANSFER" desc="RepSky wallet function type SOLANA_SYSTEM_TRANSFER" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_SYSTEM_TRANSFER" desc=" wallet function type SOLANA_SYSTEM_TRANSFER" translateable="false">
       Solana System Transfer
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SPL_TOKEN_TRANSFER" desc="RepSky wallet function type SPL_TOKEN_TRANSFER" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SPL_TOKEN_TRANSFER" desc=" wallet function type SPL_TOKEN_TRANSFER" translateable="false">
       SPL Token Transfer
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_SPL_TOKEN_TRANSFER_WITH_ASSOCIATED_TOKEN_ACCOUNT_CREATION" desc="RepSky wallet function type SOLANA_SPL_TOKEN_TRANSFER_WITH_ASSOCIATED_TOKEN_ACCOUNT_CREATION" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_SPL_TOKEN_TRANSFER_WITH_ASSOCIATED_TOKEN_ACCOUNT_CREATION" desc=" wallet function type SOLANA_SPL_TOKEN_TRANSFER_WITH_ASSOCIATED_TOKEN_ACCOUNT_CREATION" translateable="false">
       Solana SPL Token Transfer with Associated Token Account Creation
     </message>
-    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_DAPP_SIGN_AND_SEND" desc="RepSky wallet function type SOLANA_DAPP_SIGN_AND_SEND_TRANSACTION" translateable="false">
+    <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_DAPP_SIGN_AND_SEND" desc=" wallet function type SOLANA_DAPP_SIGN_AND_SEND_TRANSACTION" translateable="false">
       Solana Dapp Sign And Send Transaction
     </message>
     <message name="IDS_WALLET_DETAILS_FUNCTION_TYPE_SOLANA_DAPP_SIGN" desc="Title for solana dapp sign transaction function type">
@@ -2378,28 +2378,28 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Are you using the fastest web browser?
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_1" desc="Dormant users engagement notification body">
-      3x faster internet is already on your phone. Use RepSky for all your web browsing.
+      3x faster internet is already on your phone. Use  for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_1" desc="Dormant users engagement text">
-      RepSky = 3x faster web browsing
+       = 3x faster web browsing
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_TEXT_2" desc="Dormant users engagement notification text">
       Get more battery life on every charge
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_2" desc="Dormant users engagement notification body">
-      Battery savings is just a step away. Use RepSky for all your web browsing.
+      Battery savings is just a step away. Use  for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_2" desc="Dormant users engagement text">
-      RepSky = more life on every charge
+       = more life on every charge
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_TEXT_3" desc="Dormant users engagement notification text">
       Top up your mobile data less often
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_NOTIFICATION_BODY_3" desc="Dormant users engagement notification body">
-      Fewer ads = less data on every page you load. Use RepSky for all your web browsing.
+      Fewer ads = less data on every page you load. Use  for all your web browsing.
     </message>
     <message name="IDS_DORMANT_USERS_ENGAGEMENT_TEXT_3" desc="Dormant users engagement text">
-      RepSky = less mobile data on every page
+       = less mobile data on every page
     </message>
     <message name="IDS_BETTER_PRIVACY" desc="Dormant users engagement bullet text">
       &#8226; Better privacy
@@ -2407,133 +2407,133 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_NO_ANNOYING_ADS" desc="Dormant users engagement bullet text">
       &#8226; No annoying ads
     </message>
-    <message name="IDS_WALLET_EDIT_GAS_TITLE" desc="RepSky wallet edit gas dialog title">
+    <message name="IDS_WALLET_EDIT_GAS_TITLE" desc=" wallet edit gas dialog title">
       Edit gas
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_TITLE" desc="RepSky wallet max priority fee dialog title">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_TITLE" desc=" wallet max priority fee dialog title">
       Max Priority Fee
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_MSG" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_MSG" desc=" wallet msg that appears on max priority fee dialog">
       While not a guarantee, miners will likely prioritize your transaction if you pay a higher fee.
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_LOW" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_LOW" desc=" wallet msg that appears on max priority fee dialog">
       Low
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_OPTIMAL" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_OPTIMAL" desc=" wallet msg that appears on max priority fee dialog">
       Optimal
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_HIGH" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_HIGH" desc=" wallet msg that appears on max priority fee dialog">
       High
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_FEE_CUSTOM" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_FEE_CUSTOM" desc=" wallet msg that appears on max priority fee dialog">
       Custom
     </message>
-    <message name="IDS_WALLET_MAXIMUM_FEE" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAXIMUM_FEE" desc=" wallet msg that appears on max priority fee dialog">
       Maximum fee: ~$<ph name="FIAT_VALUE">%1$s<ex>140.20</ex></ph> (<ph name="ASSET_VALUE">%2$s<ex>0.000025</ex></ph> ETH)
     </message>
-    <message name="IDS_WALLET_CURRENT_BASE_FEE" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_CURRENT_BASE_FEE" desc=" wallet msg that appears on max priority fee dialog">
       Current base fee: <ph name="ASSET_VALUE">%1$s<ex>150</ex></ph> Gwei
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_GAS_AMOUNT_LIMIT" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_GAS_AMOUNT_LIMIT" desc=" wallet msg that appears on max priority fee dialog">
       Gas amount limit
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_PER_GAS_TIP_LIMIT" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_PER_GAS_TIP_LIMIT" desc=" wallet msg that appears on max priority fee dialog">
       Per-gas tip limit (Gwei)
     </message>
-    <message name="IDS_WALLET_MAX_PRIORITY_PER_GAS_PRICE_LIMIT" desc="RepSky wallet msg that appears on max priority fee dialog">
+    <message name="IDS_WALLET_MAX_PRIORITY_PER_GAS_PRICE_LIMIT" desc=" wallet msg that appears on max priority fee dialog">
       Per-gas price limit (Gwei)
     </message>
-    <message name="IDS_WALLET_FAILED_TO_IMPORT_ACCOUNT" desc="RepSky wallet msg that appears when we couldn't import an account">
+    <message name="IDS_WALLET_FAILED_TO_IMPORT_ACCOUNT" desc=" wallet msg that appears when we couldn't import an account">
       Failed to import account, please try again.
     </message>
     <message name="IDS_WALLET_ADD_CUSTOM_ASSET_DECIMALS" desc="Add custom asset dialog Decimals of precision field">
       Decimals of precision
     </message>
-    <message name="IDS_BRAVE_WALLET_NETWORKS_TITLE" desc="RepSky wallet networks pref title text">
+    <message name="IDS_BRAVE_WALLET_NETWORKS_TITLE" desc=" wallet networks pref title text">
       Networks
     </message>
-    <message name="IDS_BRAVE_WALLET_NETWORKS_SUMMARY" desc="RepSky wallet networks pref summary text">
+    <message name="IDS_BRAVE_WALLET_NETWORKS_SUMMARY" desc=" wallet networks pref summary text">
       Wallet networks customization
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK" desc="RepSky wallet networks pref add network button text">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK" desc=" wallet networks pref add network button text">
       Add network
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID" desc=" wallet networks pref add network field name">
       The id of new chain
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID_ERROR" desc="RepSky wallet networks pref add network field name error msg">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID_ERROR" desc=" wallet networks pref add network field name error msg">
       Invalid format, the chain ID is a positive number
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_ID_HINT" desc=" wallet networks pref add network field hint">
       A positive decimal number
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_NAME" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_NAME" desc=" wallet networks pref add network field name">
       The name of new chain
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_NAME_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_NAME_HINT" desc=" wallet networks pref add network field hint">
       Enter chain name
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_EMPTY_ERROR" desc="RepSky wallet networks pref add network field name error msg">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_EMPTY_ERROR" desc=" wallet networks pref add network field name error msg">
       The field cannot be empty
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_NAME" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_NAME" desc=" wallet networks pref add network field name">
       Chain's currency name
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_NAME_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_NAME_HINT" desc=" wallet networks pref add network field hint">
       Enter currency name
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_SYMBOL" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_SYMBOL" desc=" wallet networks pref add network field name">
       Chain's currency symbol
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_SYMBOL_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_SYMBOL_HINT" desc=" wallet networks pref add network field hint">
       Enter currency symbol
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS" desc=" wallet networks pref add network field name">
       Chain's currency decimals
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS_ERROR" desc="RepSky wallet networks pref add network field error">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS_ERROR" desc=" wallet networks pref add network field error">
       Invalid format, the currency decimals is a positive number
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_CHAIN_CURRENCY_DECIMALS_HINT" desc=" wallet networks pref add network field hint">
       Enter currency decimals
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_RPC_URLS" desc="RepSky wallet networks pref add network field name" translateable="false">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_RPC_URLS" desc=" wallet networks pref add network field name" translateable="false">
       RPC URL
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_ICON_URLS" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_ICON_URLS" desc=" wallet networks pref add network field name">
       Icon URL
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_BLOCK_EXPLORER_URLS" desc="RepSky wallet networks pref add network field name">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_BLOCK_EXPLORER_URLS" desc=" wallet networks pref add network field name">
       Block explorer URL
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_URLS_HINT" desc="RepSky wallet networks pref add network field hint">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_URLS_HINT" desc=" wallet networks pref add network field hint">
       Enter URL
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_URLS_ERROR" desc="RepSky wallet networks pref add network field error">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_URLS_ERROR" desc=" wallet networks pref add network field error">
       Invalid address
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_ADD" desc="RepSky wallet networks pref add network add button">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_ADD" desc=" wallet networks pref add network add button">
       Add
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_SET_AS_ACTIVE" desc="RepSky wallet networks pref add network set as active message">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_SET_AS_ACTIVE" desc=" wallet networks pref add network set as active message">
       Set as active
     </message>
-    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_SUBMIT" desc="RepSky wallet networks pref add network submit button">
+    <message name="IDS_BRAVE_WALLET_ADD_NETWORK_SUBMIT" desc=" wallet networks pref add network submit button">
       Submit
     </message>
-    <message name="IDS_BRAVE_WALLET_SELECT_NETWORK_TITLE" desc="RepSky wallet network selection title">
+    <message name="IDS_BRAVE_WALLET_SELECT_NETWORK_TITLE" desc=" wallet network selection title">
       Select Network
     </message>
     <message name="IDS_ACCESSIBILITY_NEW_TAB_PAGE" desc="Accessibility text to read aloud when the user focuses the new tab view.">
       New tab
     </message>
-    <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_WALLET" desc="Content description for the button that allows an access to RepSky Wallet.">
-      Access RepSky Wallet
+    <message name="IDS_ACCESSIBILITY_TOOLBAR_BTN_BRAVE_WALLET" desc="Content description for the button that allows an access to  Wallet.">
+      Access  Wallet
     </message>
-    <message name="IDS_DAPP_WALLET_PANEL_CONNECTIVITY_STATUS" desc="RepSky wallet Dapp wallet connectivity status">
+    <message name="IDS_DAPP_WALLET_PANEL_CONNECTIVITY_STATUS" desc=" wallet Dapp wallet connectivity status">
       Connect
     </message>
-    <message name="IDS_DAPP_WALLET_PANEL_DISCONNECT_STATUS" desc="RepSky wallet Dapp wallet disconnect status">
+    <message name="IDS_DAPP_WALLET_PANEL_DISCONNECT_STATUS" desc=" wallet Dapp wallet disconnect status">
       Disconnected
     </message>
     <message name="IDS_BRAVE_WALLET_SITE_PERMISSIONS_TRUST" desc="Site Permissions panel trust account for connected site">
@@ -2542,29 +2542,29 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_WALLET_SITE_PERMISSIONS_REVOKE" desc="Site Permissions panel revoke account for connected site">
       Revoke
     </message>
-    <message name="IDS_DAPP_WALLET_PANEL_CONNECTIVITY_STATUS_CONNECTED" desc="RepSky wallet Dapp wallet connectivity status">
+    <message name="IDS_DAPP_WALLET_PANEL_CONNECTIVITY_STATUS_CONNECTED" desc=" wallet Dapp wallet connectivity status">
       Connected
     </message>
-    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_ACCOUNT" desc="Content description for account image on RepSky wallet Dapp wallet panel">
+    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_ACCOUNT" desc="Content description for account image on  wallet Dapp wallet panel">
       User account
     </message>
-    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_ACCOUNT_ANCHOR" desc="Content description for anchor account image on RepSky wallet Dapp wallet panel">
+    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_ACCOUNT_ANCHOR" desc="Content description for anchor account image on  wallet Dapp wallet panel">
       Switch account
     </message>
-    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_MENU" desc="Content description for menu options on RepSky wallet Dapp wallet panel">
+    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_MENU" desc="Content description for menu options on  wallet Dapp wallet panel">
       Menu
     </message>
-    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_EXPAND" desc="Content description for expand panel action on RepSky wallet Dapp wallet panel">
+    <message name="IDS_ACCESSIBILITY_WALLET_DAPP_PANEL_EXPAND" desc="Content description for expand panel action on  wallet Dapp wallet panel">
       Expand
     </message>
-    <message name="IDS_BRAVE_WALLET_SIGN_MESSAGE_POSITIVE_BUTTON_ACTION" desc="RepSky wallet Dapp sign farment positive action text">
+    <message name="IDS_BRAVE_WALLET_SIGN_MESSAGE_POSITIVE_BUTTON_ACTION" desc=" wallet Dapp sign farment positive action text">
       Sign
     </message>
-    <message name="IDS_BRAVE_WALLET_SIGN_IN_MESSAGE_POSITIVE_BUTTON_ACTION" desc="RepSky wallet Dapp sign in farment positive action text">
+    <message name="IDS_BRAVE_WALLET_SIGN_IN_MESSAGE_POSITIVE_BUTTON_ACTION" desc=" wallet Dapp sign in farment positive action text">
       Sign in
     </message>
     <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_TITLE" desc="Title text for a request to connect a wallet.">
-      Connect With RepSky Wallet
+      Connect With  Wallet
     </message>
     <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_SUB_TITLE" desc="Sub title text for a request to connect a wallet.">
       Select account(s)
@@ -2572,10 +2572,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_WARNING_TITLE" desc="Title text for a request to connect a wallet for a warning section.">
       Only connect with sites you trust.
     </message>
-    <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_CONNECT_BUTTON_TEXT" desc="Connect button text for RepSky wallet permission dialog.">
+    <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_CONNECT_BUTTON_TEXT" desc="Connect button text for  wallet permission dialog.">
       Connect
     </message>
-    <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_BACK_BUTTON_TEXT" desc="Back button text for RepSky wallet permission dialog.">
+    <message name="IDS_PERMISSIONS_CONNECT_BRAVE_WALLET_BACK_BUTTON_TEXT" desc="Back button text for  wallet permission dialog.">
       Back
     </message>
     <message name="IDS_BRAVE_WALLET_ALLOW_CHANGE_NETWORK_TITLE" desc="Change network panel title">
@@ -2605,8 +2605,8 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_DAPPS_MENU_VIEW_ON_BLOCK_EXPLORER" desc="Menu item view on block explorer on DApps Panel">
       View on block explorer
     </message>
-    <message name="IDS_BRAVE_WALLET_DAPPS_CONNECTION_REQUEST_MSG" desc="A message shown to user when a DApp site request to connect with RepSky wallet">
-    This page wants to interact with RepSky Wallet
+    <message name="IDS_BRAVE_WALLET_DAPPS_CONNECTION_REQUEST_MSG" desc="A message shown to user when a DApp site request to connect with  wallet">
+    This page wants to interact with  Wallet
     </message>
     <message name="IDS_VPN_CONNECTION_ERROR" desc="Vpn connection error message">
       Connection error
@@ -2621,7 +2621,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Unable to set network to <ph name="NETWORK_NAME">'%1$s'</ph>
     </message>
     <message name="IDS_ALWAYS_ON_DIALOG_TEXT" desc="Always on vpn text">
-      It appears you have other VPNs on this device set to “Always on”. To enable RepSky Firewall + VPN, first disable this “Always on” setting for other VPNs before connecting again. If the problem persists, try uninstalling other VPNs.
+      It appears you have other VPNs on this device set to “Always on”. To enable  Firewall + VPN, first disable this “Always on” setting for other VPNs before connecting again. If the problem persists, try uninstalling other VPNs.
     </message>
     <message name="IDS_OPEN_VPN_SETTINGS" desc="Always on vpn text">
       Open VPN Settings
@@ -2684,7 +2684,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Network
     </message>
     <message name="IDS_BRAVE_WALLET_ALLOW_ADD_NETWORK_DESCRIPTION" desc="Add network panel description">
-      This will allow this network to be used within RepSky Wallet. <ph name="CLICK_START">%1$s</ph>Learn more<ph name="CLICK_END">%2$s</ph>.
+      This will allow this network to be used within  Wallet. <ph name="CLICK_START">%1$s</ph>Learn more<ph name="CLICK_END">%2$s</ph>.
     </message>
     <message name="IDS_BRAVE_WALLET_ALLOW_ADD_NETWORK_HEADING" desc="Add network panel title">
       Allow this site to add a network?
@@ -2710,16 +2710,16 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_DB_PROCESSING_IMPORT_ALERT_INFO" desc="Alert dialog description while importing database" translateable="false">
       Importing database, please wait...
     </message>
-    <message name="IDS_BRAVE_BROWSER" desc="RepSky browser title text">
-      RepSky Browser
+    <message name="IDS_BRAVE_BROWSER" desc=" browser title text">
+       Browser
     </message>
-    <message name="IDS_BRAVE_BROWSER_NOTIFICATION_CHANNEL_DESCRIPTION" desc="RepSky broswer notification channel creation information for user">
-      Notification channel for RepSky Browser
+    <message name="IDS_BRAVE_BROWSER_NOTIFICATION_CHANNEL_DESCRIPTION" desc=" broswer notification channel creation information for user">
+      Notification channel for  Browser
     </message>
     <message name="IDS_BRAVE_WALLET_ACCOUNT_SELECTOR_ACTIVITY_TITLE" desc="Account Selector activity toolbar title">
       Change Connected Account
     </message>
-    <message name="IDS_COULDNT_GET_MATCHING_TIMEZONE" desc="RepSky vpn error message">
+    <message name="IDS_COULDNT_GET_MATCHING_TIMEZONE" desc=" vpn error message">
       Couldn't get matching timezone for : <ph name="VALUE">%1$s</ph>
     </message>
     <message name="IDS_SETTINGS_ETHEREUM_TITLE" desc="Title for Ethereum section in site settings" translateable="false">
@@ -2728,50 +2728,50 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_SETTINGS_SOLANA_TITLE" desc="Title for Solana section in site settings" translateable="false">
       Solana
     </message>
-    <message name="IDS_CONNECTED_TO_HOST" desc="RepSky Vpn notification statistics text">
+    <message name="IDS_CONNECTED_TO_HOST" desc=" Vpn notification statistics text">
       Connected to <ph name="VALUE">%1$s</ph>
     </message>
-    <message name="IDS_TRANSFER_BYTES" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_BYTES" desc=" Vpn notification statistics text" translateable="false">
       <ph name="VALUE">%1$s<ex>0.0</ex></ph> B
     </message>
-    <message name="IDS_TRANSFER_GIBIBYTES" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_GIBIBYTES" desc=" Vpn notification statistics text" translateable="false">
       <ph name="VALUE">%1$s<ex>0.0</ex></ph> GB
     </message>
-    <message name="IDS_TRANSFER_KIBIBYTES" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_KIBIBYTES" desc=" Vpn notification statistics text" translateable="false">
       <ph name="VALUE">%1$s<ex>0.0</ex></ph> KB
     </message>
-    <message name="IDS_TRANSFER_MIBIBYTES" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_MIBIBYTES" desc=" Vpn notification statistics text" translateable="false">
       <ph name="VALUE">%1$s<ex>0.0</ex></ph> MB
     </message>
-    <message name="IDS_TRANSFER_RX_TX" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_RX_TX" desc=" Vpn notification statistics text" translateable="false">
       \u2193<ph name="RX">%1$s</ph>, \u2191<ph name="TX">%2$s</ph>
     </message>
-    <message name="IDS_TRANSFER_TIBIBYTES" desc="RepSky Vpn notification statistics text" translateable="false">
+    <message name="IDS_TRANSFER_TIBIBYTES" desc=" Vpn notification statistics text" translateable="false">
       <ph name="VALUE">%1$s<ex>0.0</ex></ph> TB
     </message>
-    <message name="IDS_DISCONNECT" desc="RepSky Vpn notification disconnect text" translateable="false">
+    <message name="IDS_DISCONNECT" desc=" Vpn notification disconnect text" translateable="false">
       Disconnect
     </message>
-    <message name="IDS_TRIAL" desc="RepSky VPN trial text">
+    <message name="IDS_TRIAL" desc=" VPN trial text">
       Trial
     </message>
-    <message name="IDS_DISABLE_BRAVE_VPN" desc="RepSky VPN timer bottom sheet title">
-      Disable RepSky VPN
+    <message name="IDS_DISABLE_BRAVE_VPN" desc=" VPN timer bottom sheet title">
+      Disable  VPN
     </message>
-    <message name="IDS_PAUSE_FOR_15_MINUTES" desc="RepSky VPN timer action text">
+    <message name="IDS_PAUSE_FOR_15_MINUTES" desc=" VPN timer action text">
       Pause for 15 minutes
     </message>
-    <message name="IDS_PAUSE_FOR_1_HOUR" desc="RepSky VPN timer action text">
+    <message name="IDS_PAUSE_FOR_1_HOUR" desc=" VPN timer action text">
       Pause for 1 hour
     </message>
-    <message name="IDS_DISABLE" desc="RepSky VPN timer action text">
+    <message name="IDS_DISABLE" desc=" VPN timer action text">
       Disable
     </message>
-    <message name="IDS_BRAVE_WALLET_SHOW_WEB3_NOTIFICATIONS" desc="RepSky wallet show web3 notifications preference title text">
+    <message name="IDS_BRAVE_WALLET_SHOW_WEB3_NOTIFICATIONS" desc=" wallet show web3 notifications preference title text">
       Display Web3 notifications
     </message>
     <message name="IDS_SUPPORT_EMAIL_TEXT" desc="Vpn support email text">
-      \n\n\n\n#### RepSky doesn’t track you or know how you use our app, so we don’t know how you’ve set up VPN. Please share info about the issue you’re experiencing and we’ll do our best to resolve it as soon as we can. ####\n\n
+      \n\n\n\n####  doesn’t track you or know how you use our app, so we don’t know how you’ve set up VPN. Please share info about the issue you’re experiencing and we’ll do our best to resolve it as soon as we can. ####\n\n
     </message>
     <message name="IDS_VPN_HOST_TEXT" desc="Vpn support email text">
       \n\nVPN Hostname\n <ph name="VALUE">%1$s</ph>
@@ -2858,7 +2858,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Updating VPN Profile ...
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_WARNING" desc="Sign panel warning message">
-      Note that RepSky can't verify what will happen if you sign. A signature could authorize nearly any operation in your account or on your behalf, including (but not limited to) giving total control of your account and crypto assets to the site making the request. Only sign if you're sure you want to take this action, and trust the requesting site.
+      Note that  can't verify what will happen if you sign. A signature could authorize nearly any operation in your account or on your behalf, including (but not limited to) giving total control of your account and crypto assets to the site making the request. Only sign if you're sure you want to take this action, and trust the requesting site.
     </message>
     <message name="IDS_BRAVE_WALLET_SIGN_WARNING_TITLE" desc="Sign panel risk title">
       Sign at your own risk
@@ -2876,10 +2876,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       System Program
     </message>
     <message name="IDS_BRAVE_WALLET_FINGERPRINT_UNLOCK_TITLE" desc="Title for Fingerprint unlock onboarding screen">
-      Unlock RepSky Wallet with biometric authentication
+      Unlock  Wallet with biometric authentication
     </message>
     <message name="IDS_BRAVE_WALLET_FINGERPRINT_UNLOCK_CONTENT" desc="Content for Fingerprint unlock onboarding screen">
-      Would you like to use biometric authentication to unlock your RepSky Wallet?
+      Would you like to use biometric authentication to unlock your  Wallet?
     </message>
     <message name="IDS_BRAVE_WALLET_USE_FINGERPRINT_UNLOCK" desc="Text of Fingerprint unlock onboarding button">
       Use Fingerprint Unlock
@@ -2897,7 +2897,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       You’re all set!
     </message>
     <message name="IDS_BRAVE_WALLET_READY_TO_USE" desc="Text to communicate the Wallet is ready to use">
-      Your RepSky Wallet is ready to use
+      Your  Wallet is ready to use
     </message>
     <message name="IDS_BRAVE_WALLET_SOLANA_CONFIG_PROGRAM" desc="Name of Solana Config program">
       Config Program
@@ -3055,20 +3055,20 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_WIDGET_ADDED_TO_HOME_SCREEN" desc="Toast message to display that widget has been successfully added to the home screen">
       Widget added to the home screen
     </message>
-    <message name="IDS_TRY_BRAVE_SEARCH_WIDGET" desc="Title of RepSky search widget promo">
-      Try the RepSky Search widget
+    <message name="IDS_TRY_BRAVE_SEARCH_WIDGET" desc="Title of  search widget promo">
+      Try the  Search widget
     </message>
-    <message name="IDS_TRY_BRAVE_SEARCH_WIDGET_DESCRIPTION" desc="Description of RepSky search widget promo">
+    <message name="IDS_TRY_BRAVE_SEARCH_WIDGET_DESCRIPTION" desc="Description of  search widget promo">
       Access private, independent search right from your home screen.
     </message>
     <message name="IDS_ADD_WIDGET" desc="Add widget button text">
       Add widget
     </message>
-    <message name="IDS_BRAVE_QUICK_ACTION_SEARCH" desc="Description for RepSky QuickActionSearchAndBookmarkWidget preview">
-      RepSky quick action search
+    <message name="IDS_BRAVE_QUICK_ACTION_SEARCH" desc="Description for  QuickActionSearchAndBookmarkWidget preview">
+       quick action search
     </message>
     <message name="IDS_USE_BRAVE_TRANSLATE" desc="The label of the check-box that enables the prompt to translate a page.">
-      Use RepSky Translate
+      Use  Translate
     </message>
     <message name="IDS_WALLET_NON_ASCII_CHARACTERS" desc="A warning about Non-ASCII characters detected in a message">
       NON-ASCII characters detected!
@@ -3109,32 +3109,32 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_WALLET_SIGN_MESSAGE_DETAILS_DOMAIN_SECTION" desc="A domain section template of sign message details" translateable="false">
       <ph name="BEGIN_BOLD">&lt;b&gt;</ph>Domain:<ph name="END_BOLD">&lt;/b&gt;</ph><ph name="BREAK">&lt;br&gt;</ph><ph name="ESCAPED_DOMAIN_TEXT">%1$s</ph><ph name="BREAK">&lt;br&gt;</ph>
     </message>
-    <message name="IDS_BRAVE_WALLET_SECURITY_RISK_DETECTED" desc="Sign in with RepSky Wallet Error Security risk">
+    <message name="IDS_BRAVE_WALLET_SECURITY_RISK_DETECTED" desc="Sign in with  Wallet Error Security risk">
       Security risk detected
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_TITLE" desc="RepSky vpn link subscription settings title text">
-      Link purchase to your RepSky account
+    <message name="IDS_LINK_SUBSCRIPTION_TITLE" desc=" vpn link subscription settings title text">
+      Link purchase to your  account
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_TEXT" desc="RepSky vpn link subscription settings text">
-      Link your Play Store purchase to your RepSky account to use RepSky VPN on other devices.
+    <message name="IDS_LINK_SUBSCRIPTION_TEXT" desc=" vpn link subscription settings text">
+      Link your Play Store purchase to your  account to use  VPN on other devices.
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_ACTION_TEXT" desc="RepSky vpn link subscription dialog action text">
+    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_ACTION_TEXT" desc=" vpn link subscription dialog action text">
       Link your VPN subscription
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TITLE" desc="RepSky vpn link subscription dialog title">
-      Extend your RepSky Firewall + VPN protection
+    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TITLE" desc=" vpn link subscription dialog title">
+      Extend your  Firewall + VPN protection
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TEXT" desc="RepSky vpn link subscription dialog text">
-      Your RepSky VPN subscription can protect up to 5 devices, across Android, iOS, and desktop. Just link your Google Play subscription to your RepSky account.
+    <message name="IDS_LINK_SUBSCRIPTION_DIALOG_TEXT" desc=" vpn link subscription dialog text">
+      Your  VPN subscription can protect up to 5 devices, across Android, iOS, and desktop. Just link your Google Play subscription to your  account.
     </message>
-    <message name="IDS_SAFE_BROWSING_NO_GOOGLE_PLAY_SERVICES_DIALOG_TITLE" desc="RepSky no Google Play Services dialog title">
+    <message name="IDS_SAFE_BROWSING_NO_GOOGLE_PLAY_SERVICES_DIALOG_TITLE" desc=" no Google Play Services dialog title">
       Cannot enable Safe Browsing
     </message>
-    <message name="IDS_SAFE_BROWSING_NO_GOOGLE_PLAY_SERVICES_DIALOG_MESSAGE" desc="RepSky no Google Play Services dialog message">
+    <message name="IDS_SAFE_BROWSING_NO_GOOGLE_PLAY_SERVICES_DIALOG_MESSAGE" desc=" no Google Play Services dialog message">
       Safe Browsing has been disabled on your device. To enable it, ensure that Google Play Services is installed and that it's up to date.
     </message>
-    <message name="IDS_BRAVE_ADS_TEXT" desc="RepSky ads text">
-      RepSky Ads
+    <message name="IDS_BRAVE_ADS_TEXT" desc=" ads text">
+       Ads
     </message>
     <message name="IDS_BRAVE_WALLET_NETWORK_FILTER_PRIMARY" desc="Network filter title for primary networks">
       Primary Networks
@@ -3160,59 +3160,59 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_WALLET_SELECT_ALL" desc="Action title for select all button">
       Select all
     </message>
-    <message name="IDS_MENU_BRAVE_LEO" desc="RepSky AI menu item text">
+    <message name="IDS_MENU_BRAVE_LEO" desc=" AI menu item text">
       Leo AI
     </message>
-    <message name="IDS_MENU_ORIGIN" desc="RepSky Origin settings menu item text">
+    <message name="IDS_MENU_ORIGIN" desc=" Origin settings menu item text">
       Origin
     </message>
-    <message name="IDS_ORIGIN_REWARDS_TOGGLE" desc="RepSky Origin rewards toggle title">
+    <message name="IDS_ORIGIN_REWARDS_TOGGLE" desc=" Origin rewards toggle title">
       Rewards
     </message>
-    <message name="IDS_ORIGIN_CRASH_REPORTS_TOGGLE" desc="RepSky Origin automatically send crash reports toggle title">
+    <message name="IDS_ORIGIN_CRASH_REPORTS_TOGGLE" desc=" Origin automatically send crash reports toggle title">
       Automatically send crash reports
     </message>
-    <message name="IDS_ORIGIN_PRIVACY_PRESERVING_ANALYTICS_TOGGLE" desc="RepSky Origin privacy preserving analytics toggle title">
+    <message name="IDS_ORIGIN_PRIVACY_PRESERVING_ANALYTICS_TOGGLE" desc=" Origin privacy preserving analytics toggle title">
       Privacy preserving analytics
     </message>
-    <message name="IDS_ORIGIN_EMAIL_ALIASES_TOGGLE" desc="RepSky Origin email aliases toggle title">
+    <message name="IDS_ORIGIN_EMAIL_ALIASES_TOGGLE" desc=" Origin email aliases toggle title">
       Email aliases
     </message>
-    <message name="IDS_ORIGIN_LEO_AI_TOGGLE" desc="RepSky Origin Leo AI toggle title">
+    <message name="IDS_ORIGIN_LEO_AI_TOGGLE" desc=" Origin Leo AI toggle title">
       Leo AI
     </message>
-    <message name="IDS_ORIGIN_NEWS_TOGGLE" desc="RepSky Origin News toggle title">
+    <message name="IDS_ORIGIN_NEWS_TOGGLE" desc=" Origin News toggle title">
       News
     </message>
-    <message name="IDS_ORIGIN_STATISTICS_REPORTING_TOGGLE" desc="RepSky Origin Statistics reporting toggle title">
+    <message name="IDS_ORIGIN_STATISTICS_REPORTING_TOGGLE" desc=" Origin Statistics reporting toggle title">
       Statistics reporting
     </message>
-    <message name="IDS_ORIGIN_VPN_TOGGLE" desc="RepSky Origin VPN toggle title">
+    <message name="IDS_ORIGIN_VPN_TOGGLE" desc=" Origin VPN toggle title">
       VPN
     </message>
-    <message name="IDS_ORIGIN_WALLET_TOGGLE" desc="RepSky Origin Wallet toggle title">
+    <message name="IDS_ORIGIN_WALLET_TOGGLE" desc=" Origin Wallet toggle title">
       Wallet
     </message>
-    <message name="IDS_ORIGIN_WEB_DISCOVERY_PROJECT_TOGGLE" desc="RepSky Origin Web Discovery Project toggle title">
+    <message name="IDS_ORIGIN_WEB_DISCOVERY_PROJECT_TOGGLE" desc=" Origin Web Discovery Project toggle title">
       Web Discovery Project
     </message>
-    <message name="IDS_ORIGIN_RESET_TO_DEFAULTS" desc="RepSky Origin reset to defaults preference title">
+    <message name="IDS_ORIGIN_RESET_TO_DEFAULTS" desc=" Origin reset to defaults preference title">
       Reset to defaults
     </message>
-    <message name="IDS_ORIGIN_TOGGLE_ENABLED_DESCRIPTION" desc="Description shown when a toggle is enabled in RepSky Origin settings">
+    <message name="IDS_ORIGIN_TOGGLE_ENABLED_DESCRIPTION" desc="Description shown when a toggle is enabled in  Origin settings">
       This feature is enabled because you opted into it
     </message>
-    <message name="IDS_ORIGIN_DESCRIPTION_TEXT" desc="RepSky Origin description text explaining the subscription">
-      RepSky Origin is a subscription-based way to disable the revenue-generating features that otherwise support RepSky as a business. RepSky Origin subscribers will continue to benefit from our industry-leading privacy, adblock, and speed (via RepSky Shields), as well as regular software updates, Chromium patches, and security and privacy improvements. They'll also unlock the option to disable features like RepSky Leo, News, Rewards, Wallet, VPN, Web3 domains, and more.&lt;br&gt;&lt;br&gt;Subscribers will see a new control panel in the browser settings menu. Existing features—as well as any new features we ship in the future—would appear here, and be toggled off by default.&lt;br&gt;&lt;br&gt;&lt;b&gt;Note: RepSky Origin will not disable browser features that you currently use, and will not affect RepSky Search features or RepSky Search Ads.&lt;/b&gt;
+    <message name="IDS_ORIGIN_DESCRIPTION_TEXT" desc=" Origin description text explaining the subscription">
+       Origin is a subscription-based way to disable the revenue-generating features that otherwise support  as a business.  Origin subscribers will continue to benefit from our industry-leading privacy, adblock, and speed (via  Shields), as well as regular software updates, Chromium patches, and security and privacy improvements. They'll also unlock the option to disable features like  Leo, News, Rewards, Wallet, VPN, Web3 domains, and more.&lt;br&gt;&lt;br&gt;Subscribers will see a new control panel in the browser settings menu. Existing features—as well as any new features we ship in the future—would appear here, and be toggled off by default.&lt;br&gt;&lt;br&gt;&lt;b&gt;Note:  Origin will not disable browser features that you currently use, and will not affect  Search features or  Search Ads.&lt;/b&gt;
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_TITLE_ORIGIN" desc="RepSky Origin link subscription settings title text">
-      Link purchase to your RepSky account
+    <message name="IDS_LINK_SUBSCRIPTION_TITLE_ORIGIN" desc=" Origin link subscription settings title text">
+      Link purchase to your  account
     </message>
-    <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET" desc="Sign in with RepSky Wallet Title">
-      Sign in with RepSky Wallet
+    <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET" desc="Sign in with  Wallet Title">
+      Sign in with  Wallet
     </message>
-    <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET_MESSAGE" desc="Sign in with RepSky Wallet Message">
-      You are signing into <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>. RepSky wallet will share your wallet address with <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>.
+    <message name="IDS_BRAVE_WALLET_SIGN_IN_WITH_BRAVE_WALLET_MESSAGE" desc="Sign in with  Wallet Message">
+      You are signing into <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>.  wallet will share your wallet address with <ph name="ORIGIN">%1$s<ex>login.xyz</ex></ph>.
     </message>
     <message name="IDS_BRAVE_WALLET_SEE_DETAILS" desc="See details button title">
       See details
@@ -3220,10 +3220,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_RESOURCES" desc="Label for resources action button to view url etc.">
       Resources
     </message>
-    <message name="IDS_BRAVE_WALLET_NOT_BEFORE" desc="Sign in with RepSky Wallet Not before Label">
+    <message name="IDS_BRAVE_WALLET_NOT_BEFORE" desc="Sign in with  Wallet Not before Label">
       Not before
     </message>
-    <message name="IDS_BRAVE_WALLET_REQUEST_ID" desc="Sign in with RepSky Wallet Request ID label">
+    <message name="IDS_BRAVE_WALLET_REQUEST_ID" desc="Sign in with  Wallet Request ID label">
       Request ID
     </message>
     <message name="IDS_LEO_SUMMARY" desc="Title for Leo options.">
@@ -3245,7 +3245,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Delete all Leo AI conversation data
     </message>
     <message name="IDS_BRAVE_LEO_RESET_CONFIRMATION" desc="Title for preference to reset Leo.">
-      Resetting Leo AI will require you to opt-in to use RepSky Leo AI in the future and will also clear your chat history. Clearing your chat history will delete all your previous conversations with RepSky Leo AI. This action can't be undone.
+      Resetting Leo AI will require you to opt-in to use  Leo AI in the future and will also clear your chat history. Clearing your chat history will delete all your previous conversations with  Leo AI. This action can't be undone.
     </message>
     <message name="IDS_LEO_CLEAR_HISTORY_TITLE" desc="Title for confirmation dialog to clear Leo history.">
       Clear chat history
@@ -3256,28 +3256,28 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_LEO_CONFIRM_TEXT" desc="Text for Leo confirm button text.">
       Confirm
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_TITLE_LEO" desc="RepSky Leo link subscription settings title text">
-      Link purchase to your RepSky account
+    <message name="IDS_LINK_SUBSCRIPTION_TITLE_LEO" desc=" Leo link subscription settings title text">
+      Link purchase to your  account
     </message>
-    <message name="IDS_LINK_SUBSCRIPTION_SUMMARY_LEO" desc="RepSky Leo link subscription settings summary">
-      Link your Play Store purchase to your RepSky account to use RepSky Leo on other devices.
+    <message name="IDS_LINK_SUBSCRIPTION_SUMMARY_LEO" desc=" Leo link subscription settings summary">
+      Link your Play Store purchase to your  account to use  Leo on other devices.
     </message>
-    <message name="IDS_MANAGE_SUBSCRIPTION_LEO" desc="RepSky Leo settings section text">
+    <message name="IDS_MANAGE_SUBSCRIPTION_LEO" desc=" Leo settings section text">
       Manage Subscription
     </message>
-    <message name="IDS_BRAVE_LEO_PREMIUM" desc="Title for RepSky Leo plans dialog">
+    <message name="IDS_BRAVE_LEO_PREMIUM" desc="Title for  Leo plans dialog">
       Leo AI Premium
     </message>
-    <message name="IDS_ONE_YEAR_SUBSCRIPTION" desc="RepSky Leo and Origin yearly plan text">
+    <message name="IDS_ONE_YEAR_SUBSCRIPTION" desc=" Leo and Origin yearly plan text">
       One year
     </message>
-    <message name="IDS_YEARLY_SUBSCRIPTION_LEO_BEST_VALUE" desc="RepSky Leo yearly plan best value text">
+    <message name="IDS_YEARLY_SUBSCRIPTION_LEO_BEST_VALUE" desc=" Leo yearly plan best value text">
       BEST VALUE
     </message>
-    <message name="IDS_MONTHLY_SUBSCRIPTION_LEO" desc="RepSky Leo monthly plan text">
+    <message name="IDS_MONTHLY_SUBSCRIPTION_LEO" desc=" Leo monthly plan text">
       Monthly
     </message>
-    <message name="IDS_ASK_LEO_AUTO_SUGGESTION" desc="Omnibox RepSky Leo auto suggestion description">
+    <message name="IDS_ASK_LEO_AUTO_SUGGESTION" desc="Omnibox  Leo auto suggestion description">
       Ask Leo AI
     </message>
     <!-- Start of Playlist strings -->
@@ -3300,7 +3300,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Automatically plays the next items in your playlist
     </message>
     <message name="IDS_BRAVE_PLAYLIST" desc="Playlist menu item text">
-      RepSky Playlist
+       Playlist
     </message>
     <message name="IDS_VIEW_ACTION" desc="View action text">
       View
@@ -3381,7 +3381,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Add media
     </message>
     <message name="IDS_PLAYLIST_ONBOARDING_TITLE_1" desc="Playlist onboarding text">
-      Add videos to RepSky Playlist. Playback anytime. Even offline.
+      Add videos to  Playlist. Playback anytime. Even offline.
     </message>
     <message name="IDS_PLAYLIST_ONBOARDING_TEXT_1" desc="Playlist onboarding text">
       Make playlists of your favorite content. Save mobile data. And playback ad-free.
@@ -3462,40 +3462,40 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Up next
     </message>
     <!-- End of Playlist strings -->
-    <message name="IDS_LEO_UNLEASH_POWER" desc="Title for RepSky Leo subscription purchase">
+    <message name="IDS_LEO_UNLEASH_POWER" desc="Title for  Leo subscription purchase">
       Unleash Leo AI's full powers with Premium:
     </message>
-    <message name="IDS_LEO_TIP_EXPLORE_TITLE" desc="Title for RepSky Leo subscription Explore tip">
+    <message name="IDS_LEO_TIP_EXPLORE_TITLE" desc="Title for  Leo subscription Explore tip">
       Explore different AI models
     </message>
-    <message name="IDS_LEO_TIP_EXPLORE_DESCRIPTION" desc="Description for RepSky Leo subscription Explore tip">
+    <message name="IDS_LEO_TIP_EXPLORE_DESCRIPTION" desc="Description for  Leo subscription Explore tip">
       Priority access to powerful models with different skills.
     </message>
-    <message name="IDS_LEO_TIP_UNLOCK_TITLE" desc="Title for RepSky Leo subscription Unlock tip">
+    <message name="IDS_LEO_TIP_UNLOCK_TITLE" desc="Title for  Leo subscription Unlock tip">
       Unlock your creativity
     </message>
-    <message name="IDS_LEO_TIP_UNLOCK_DESCRIPTION" desc="Description for RepSky Leo subscription Unlock tip">
+    <message name="IDS_LEO_TIP_UNLOCK_DESCRIPTION" desc="Description for  Leo subscription Unlock tip">
       Access models better suited for creative tasks and content generation.
     </message>
-    <message name="IDS_LEO_TIP_STAY_TITLE" desc="Title for RepSky Leo subscription Stay on topic tip">
+    <message name="IDS_LEO_TIP_STAY_TITLE" desc="Title for  Leo subscription Stay on topic tip">
       Stay on topic
     </message>
-    <message name="IDS_LEO_TIP_STAY_DESCRIPTION" desc="Description for RepSky Leo subscription Stay on topic tip">
+    <message name="IDS_LEO_TIP_STAY_DESCRIPTION" desc="Description for  Leo subscription Stay on topic tip">
       Get more accurate answers for more nuanced conversations.
     </message>
-    <message name="IDS_LEO_TIP_CHAT_TITLE" desc="Title for RepSky Leo subscription Chat for longer tip">
+    <message name="IDS_LEO_TIP_CHAT_TITLE" desc="Title for  Leo subscription Chat for longer tip">
       Chat for longer
     </message>
-    <message name="IDS_LEO_TIP_CHAT_DESCRIPTION" desc="Description for RepSky Leo subscription Chat for longer tip">
+    <message name="IDS_LEO_TIP_CHAT_DESCRIPTION" desc="Description for  Leo subscription Chat for longer tip">
       Get higher rate limits for longer conversations.
     </message>
-    <message name="IDS_LEO_SUBSCRIPTION_DISCLAIMER" desc="Disclaimer for RepSky Leo subscription">
+    <message name="IDS_LEO_SUBSCRIPTION_DISCLAIMER" desc="Disclaimer for  Leo subscription">
       All subscriptions are auto-renewed but can be\ncancelled at any time before renewal.
     </message>
-    <message name="IDS_LEO_SUBSCRIPTION_TRY_FREE_TRIAL" desc="Try free trial now button for RepSky Leo subscription">
+    <message name="IDS_LEO_SUBSCRIPTION_TRY_FREE_TRIAL" desc="Try free trial now button for  Leo subscription">
       Try 7 days free
     </message>
-    <message name="IDS_LEO_SUBSCRIPTION_PREF" desc="RepSky Leo Subscription section">
+    <message name="IDS_LEO_SUBSCRIPTION_PREF" desc=" Leo Subscription section">
       Subscription
     </message>
     <message name="IDS_LEO_DEFAULT_MODEL_PREF" desc="Title for Leo Default Model settings.">
@@ -3518,7 +3518,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Use your current service provider or Cloudflare
     </message>
     <message name="IDS_SETTINGS_AUTOMATIC_MODE_DESCRIPTION_FALLBACK" desc="Descriptive text that appears below IDS_SETTINGS_AUTOMATIC_MODE_LABEL.">
-      If your current service provider is insecure, RepSky uses a secure alternative DNS provider
+      If your current service provider is insecure,  uses a secure alternative DNS provider
     </message>
     <!-- End of Secure DNS Settings -->
     <!-- Autofill Service strings -->
@@ -3608,7 +3608,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Multiple windows detected
     </message>
     <message name="IDS_MULTI_WINDOWS_DIALOG_SUMMARY" desc="Summary for multiwindows detected dialog.">
-      Please merge tabs to another RepSky window, or close other RepSky windows, before disabling the multiple-windows feature.
+      Please merge tabs to another  window, or close other  windows, before disabling the multiple-windows feature.
     </message>
     <message name="IDS_MERGE_WINDOWS" desc="Button text of merge windows for multiwindows dialog">
       Merge windows
@@ -3617,7 +3617,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Close windows
     </message>
     <message name="IDS_MERGE_WINDOWS_SNACKBAR" desc="Text for merge windows snackbar">
-      Please merge other tabs to another RepSky window.
+      Please merge other tabs to another  window.
     </message>
     <message name="IDS_AUTO_RECONNECT_VPN" desc="Vpn setting title for auto reconnect vpn">
       Auto re-connect VPN
@@ -3629,7 +3629,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       1. Open your device's settings from your app drawer or tapping the button below.
     </message>
     <message name="IDS_AUTO_RECONNECT_VPN_TUTORIAL_TEXT_2" desc="Vpn auto reconnect tutorial text">
-      2. Find RepSky VPN and tap on the settings icon to the right.
+      2. Find  VPN and tap on the settings icon to the right.
     </message>
     <message name="IDS_AUTO_RECONNECT_VPN_TUTORIAL_TEXT_3" desc="Vpn auto reconnect tutorial text">
       3. Toggle <ph name="AUTO_RECONNECT_VPN_TUTORIAL_START">&lt;auto_reconnect_vpn_tutorial&gt;</ph>Always-on VPN<ph name="AUTO_RECONNECT_VPN_TUTORIAL_END">&lt;/auto_reconnect_vpn_tutorial&gt;</ph> to enable it.
@@ -3652,8 +3652,8 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_SHOW_UNDO_WHEN_TABS_CLOSED" desc="Menu item to show undo button when tabs are closed">
       Show undo button when tabs are closed
     </message>
-    <message name="IDS_BRAVE_EXIT_CONFIRMATION" desc="A confirmation shown on Exit RepSky">
-      Are you sure you want to exit RepSky?
+    <message name="IDS_BRAVE_EXIT_CONFIRMATION" desc="A confirmation shown on Exit ">
+      Are you sure you want to exit ?
     </message>
     <message name="IDS_BRAVE_CLEAR_AI_HISTORY_TITLE" desc="A title to delete Leo AI history">
       Leo AI
@@ -3676,31 +3676,31 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_BRAVE_ORIGIN_PREMIUM" desc="Title for Origin Premium">
       Origin
     </message>
-    <message name="IDS_YEARLY_SUBSCRIPTION_AMOUNT_ORIGIN" desc="RepSky Origin plan text">
+    <message name="IDS_YEARLY_SUBSCRIPTION_AMOUNT_ORIGIN" desc=" Origin plan text">
       <ph name="YEARLY_AMOUNT">%1$s</ph> /year
     </message>
-    <message name="IDS_MONTHLY_SUBSCRIPTION_AMOUNT_ORIGIN" desc="RepSky Origin plan text">
+    <message name="IDS_MONTHLY_SUBSCRIPTION_AMOUNT_ORIGIN" desc=" Origin plan text">
       <ph name="MONTHLY_AMOUNT">%1$s</ph> /month
     </message>
-    <message name="IDS_ORIGIN_SUBSCRIPTION_TRY_FREE_TRIAL" desc="Try free trial now button for RepSky Origin subscription">
+    <message name="IDS_ORIGIN_SUBSCRIPTION_TRY_FREE_TRIAL" desc="Try free trial now button for  Origin subscription">
       Try 7 days free
     </message>
-    <message name="IDS_ORIGIN_PAYWALL_TEXT_1" desc="RepSky Origin paywall text">
+    <message name="IDS_ORIGIN_PAYWALL_TEXT_1" desc=" Origin paywall text">
       Support our mission &amp; open-source work
     </message>
-    <message name="IDS_ORIGIN_PAYWALL_TEXT_2" desc="RepSky Origin paywall text">
+    <message name="IDS_ORIGIN_PAYWALL_TEXT_2" desc=" Origin paywall text">
       Minimal browser UI centered on Shields
     </message>
-    <message name="IDS_ORIGIN_PAYWALL_TEXT_3" desc="RepSky Origin paywall text">
+    <message name="IDS_ORIGIN_PAYWALL_TEXT_3" desc=" Origin paywall text">
       Maintain core adblock, privacy, &amp; speed
     </message>
-    <message name="IDS_YEARLY_SUBSCRIPTION_BEST_VALUE" desc="RepSky Origin yearly plan best value text">
+    <message name="IDS_YEARLY_SUBSCRIPTION_BEST_VALUE" desc=" Origin yearly plan best value text">
       best value
     </message>
-    <message name="IDS_MONTHLY_SUBSCRIPTION_ORIGIN" desc="RepSky Origin monthly subscription text">
+    <message name="IDS_MONTHLY_SUBSCRIPTION_ORIGIN" desc=" Origin monthly subscription text">
       Monthly subscription
     </message>
-    <message name="IDS_LEARN_MORE_ABOUT_ORIGIN" desc="RepSky Origin learn more about text">
+    <message name="IDS_LEARN_MORE_ABOUT_ORIGIN" desc=" Origin learn more about text">
       Learn more about Origin
     </message>
     <!-- Password Manager backport -->
@@ -3723,7 +3723,7 @@ If you don't accept this request, VPN will not reconnect and your internet conne
       Export passwords…
     </message>
     <message name="IDS_PASSWORD_SETTINGS_EXPORT_ACTION_DESCRIPTION" desc="The description of a menu item to trigger exporting passwords from the password settings.">
-      Export passwords stored with RepSky
+      Export passwords stored with 
     </message>
     <message name="IDS_SETTINGS_PASSWORDS_PREPARING_EXPORT" desc="Text shown to the user above a progress bar, informing the user that passwords are being prepared for export.">
       Preparing passwords…
@@ -3778,10 +3778,10 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     <message name="IDS_PASSWORD_SETTINGS_MANAGER_NOT_AVAILABLE" desc="The message to display if the app is not able to get an instance of the PasswordManager class.">
       Password manager not available.
     </message>
-    <message name="IDS_LOCKSCREEN_DESCRIPTION_EXPORT" desc="When a user attempts to export saved passwords in RepSky's settings, RepSky launches a lock screen to verify the user's identity and displays the following explanation.">
+    <message name="IDS_LOCKSCREEN_DESCRIPTION_EXPORT" desc="When a user attempts to export saved passwords in 's settings,  launches a lock screen to verify the user's identity and displays the following explanation.">
       Unlock to export your passwords
     </message>
-    <message name="IDS_HELP_CONTEXT_PASSWORDS" desc="When a user attempts to export saved passwords in RepSky's settings, RepSky launches a lock screen to verify the user's identity and displays the following explanation.">
+    <message name="IDS_HELP_CONTEXT_PASSWORDS" desc="When a user attempts to export saved passwords in 's settings,  launches a lock screen to verify the user's identity and displays the following explanation.">
       passwords
     </message>
     <message name="IDS_SECTION_SAVED_PASSWORDS_EXCEPTIONS" desc="Header for the list of websites for which user selected to never save passwords. [CHAR_LIMIT=32]">
@@ -3849,13 +3849,13 @@ If you don't accept this request, VPN will not reconnect and your internet conne
     </message>
 
     <!-- Lock Screen Fragment -->
-    <message name="IDS_LOCKSCREEN_DESCRIPTION_COPY" desc="When a user attempts to copy a password for a particular website into clipboard in RepSky's settings, RepSky launches a lock screen to verify the user's identity and displays the following explanation.">
+    <message name="IDS_LOCKSCREEN_DESCRIPTION_COPY" desc="When a user attempts to copy a password for a particular website into clipboard in 's settings,  launches a lock screen to verify the user's identity and displays the following explanation.">
       Unlock to copy your password
     </message>
-    <message name="IDS_LOCKSCREEN_DESCRIPTION_VIEW" desc="When a user attempts to view a password for a particular website in RepSky's settings, RepSky launches a lock screen to verify the user's identity and displays the following explanation.">
+    <message name="IDS_LOCKSCREEN_DESCRIPTION_VIEW" desc="When a user attempts to view a password for a particular website in 's settings,  launches a lock screen to verify the user's identity and displays the following explanation.">
       Unlock to view your password
     </message>
-    <message name="IDS_LOCKSCREEN_DESCRIPTION_EDIT" desc="When a user attempts to edit a password for a particular website in RepSky's settings, RepSky launches a lock screen to verify the user's identity and displays the following explanation.">
+    <message name="IDS_LOCKSCREEN_DESCRIPTION_EDIT" desc="When a user attempts to edit a password for a particular website in 's settings,  launches a lock screen to verify the user's identity and displays the following explanation.">
       Unlock to edit your password
     </message>
     <message name="IDS_PASSWORD_ENTRY_COPY_SET_SCREEN_LOCK" desc="Text prompting user to set up screen lock on their device in order to copy passwords">

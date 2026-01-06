@@ -1791,7 +1791,7 @@ Your  account may have other forms of browsing history like searches and activit
         Languages
       </message>
       <message name="IDS_APP_LANGUAGE_TITLE" desc="Title of Language settings section to change ’s user interface language. [CHAR_LIMIT=32]">
-        <ph name="APP_NAME">%1$s<ex></ex></ph>’s language
+        <ph name="APP_NAME">%1$s<ex>Freedom</ex></ph>’s language
       </message>
       <message name="IDS_DEFAULT_LANG_SUBTITLE" desc="Subtitle to use for the device’s current language. [CHAR_LIMIT=42]">
         Current device language
@@ -1842,7 +1842,7 @@ Your  account may have other forms of browsing history like searches and activit
         <ph name="LANG">%1$s<ex>हिन्दी</ex></ph> - Downloading…
       </message>
       <message name="IDS_LANGUAGES_SPLIT_READY" desc="Text to display next to the native name of a language when it has been downloaded to use as 's UI language. The dash separates the native name from the description.">
-        <ph name="LANG">%1$s<ex>हिन्दी</ex></ph> - Language ready, restart <ph name="APP_NAME">%2$s<ex></ex></ph>.
+        <ph name="LANG">%1$s<ex>हिन्दी</ex></ph> - Language ready, restart <ph name="APP_NAME">%2$s<ex>Brave</ex></ph>.
       </message>
       <message name="IDS_LANGUAGES_SPLIT_FAILED" desc="Text to display next to the native name of a language when a language pack has failed to download. The dash separates the native name from the description. The message asks the user to try again.">
         <ph name="LANG">%1$s<ex>हिन्दी</ex></ph> - This language couldn't be downloaded. Try again later.
@@ -2250,7 +2250,7 @@ Your  account may have other forms of browsing history like searches and activit
         Sign in to managed account
       </message>
       <message name="IDS_MANAGED_SIGNIN_WITH_USER_POLICY_SUBTITLE" desc="The subtitle of the Sign in with a managed account dialog when user policies are enabled.">
-        Your organization, <ph name="MANAGED_DOMAIN">%1$s<ex></ex></ph>, manages the account you're signing in to and how  can be used. Your administrator can set up or restrict certain features.
+        Your organization, <ph name="MANAGED_DOMAIN">%1$s<ex>Brave</ex></ph>, manages the account you're signing in to and how  can be used. Your administrator can set up or restrict certain features.
       </message>
       <message name="IDS_SYNC_YOUR_BOOKMARKS" desc="Title for the prompt to signin and enable sync to sync their bookmarks">
         Sync your bookmarks
@@ -2565,7 +2565,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Try signing in again
       </message>
       <message name="IDS_HINT_CLIENT_OUT_OF_DATE" desc="Hint message to resolve sync protocol error for out-of-date client.">
-        Update <ph name="PRODUCT_NAME">%1$s<ex></ex></ph> to start sync
+        Update <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph> to start sync
       </message>
       <message name="IDS_SYNC_ERROR_CARD_OUTDATED_GMS" desc="Error message to update Google Play services to continue syncing passwords.">
         To save and use new passwords in your  sync chain, update Google Play services
@@ -2573,7 +2573,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
 
       <!-- Sync error card button strings -->
       <message name="IDS_CLIENT_OUT_OF_DATE_ERROR_CARD_BUTTON" desc="Button text for client out of date error in sync error cards.">
-          Update <ph name="PRODUCT_NAME">%1$s<ex></ex></ph>
+          Update <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_PASSPHRASE_REQUIRED_ERROR_CARD_BUTTON" desc="Button text for passphrase required error in sync error cards.">
         Enter passphrase
@@ -2596,7 +2596,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Could not connect to the sync server.
       </message>
       <message name="IDS_SYNC_ERROR_UPGRADE_CLIENT" desc="Sync error string for out-of-date client. [CHAR_LIMIT=80]">
-        <ph name="PRODUCT_NAME">%1$s<ex></ex></ph> is out of date.
+        <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph> is out of date.
       </message>
       <message name="IDS_SYNC_ERROR_SERVICE_UNAVAILABLE" desc="Sync error string for service unavailable. [CHAR_LIMIT=80]">
         The service is not available; try again later.
@@ -2908,7 +2908,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Shop image with Google Lens <ph name="BEGIN_NEW">&lt;new&gt;</ph>New<ph name="END_NEW">&lt;/new&gt;</ph>
       </message>
       <message name="IDS_CONTEXTMENU_SEARCH_WEB_FOR_IMAGE" desc="Context sensitive menu item for search-for-Image command in a new tab. [CHAR_LIMIT=30]">
-        Search <ph name="SEARCH_ENGINE">%1$s<ex></ex></ph> for this image
+        Search <ph name="SEARCH_ENGINE">%1$s<ex>Brave</ex></ph> for this image
       </message>
       <message name="IDS_CONTEXTMENU_SHARE_IMAGE" desc="Context sensitive menu item for sharing an image via the Android system share action. [CHAR_LIMIT=30]">
         Share image
@@ -3362,7 +3362,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         You can see the pages you’ve visited or delete them from your history
       </message>
       <message name="IDS_HISTORY_MANAGER_NO_RESULTS" desc="Text explaining that no browsing history items match a search query.">
-        Can’t find that page. Check your spelling or try a search on <ph name="SEARCH_ENGINE">%1$s<ex></ex></ph>.
+        Can’t find that page. Check your spelling or try a search on <ph name="SEARCH_ENGINE">%1$s<ex>Brave</ex></ph>.
       </message>
       <message name="IDS_HISTORY_MANAGER_NO_RESULTS_NO_DSE" desc="Text explaining that no browsing history items match a search query when the default search engine is not set.">
         Can’t find that page. Check your spelling or try a web search.
@@ -4271,7 +4271,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
           other {<ph name="BOOKMARKS_COUNT_MANY">%1$d<ex>8</ex></ph> bookmarks}}
       </message>
       <message name="IDS_BOOKMARK_PAGE_SAVED" desc="App-based message shown after user adds a new bookmark. [CHAR_LIMIT=32]">
-        Bookmarked in <ph name="PRODUCT_NAME">%1$s<ex></ex></ph>
+        Bookmarked in <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_BOOKMARK_PAGE_SAVED_DEFAULT" desc="Default message shown after user adds a new bookmark. [CHAR_LIMIT=32]">
         Bookmarked
@@ -4352,7 +4352,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Bookmark save flow closed
       </message>
       <message name="IDS_BOOKMARK_PAGE_SAVED_LOCATION" desc="App-based message shown after user adds a new bookmark to specify the location of a bookmark. [CHAR_LIMIT=32]">
-        in <ph name="PRODUCT_NAME">%1$s<ex></ex></ph>
+        in <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_BOOKMARK_PAGE_MOVED_LOCATION" desc="App-based message shown after user moves a bookmark to specify the location of a bookmark. [CHAR_LIMIT=32]">
         to <ph name="PRODUCT_NAME">%1$s<ex>Reading List</ex></ph>
@@ -4646,7 +4646,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Open in Private 
       </message>
       <message name="IDS_MENU_OPEN_IN_PRODUCT" desc="App menu item for opening link in the browser. [CHAR_LIMIT=40]">
-        Open in <ph name="PRODUCT_NAME">%1$s<ex></ex></ph> browser
+        Open in <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph> browser
       </message>
       <message name="IDS_MENU_OPEN_IN_PRODUCT_DEFAULT" desc="Default title for menu item for opening link in browser. [CHAR_LIMIT=30]">
         Open in browser
@@ -4844,7 +4844,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         <ph name="TAB_TITLE">%1$s<ex>Welcome to Facebook</ex></ph>, New or Updated Tab
       </message>
       <message name="IDS_ACCESSIBILITY_TABSTRIP_BTN_CLOSE_TAB" desc="Content description for the close tab button.">
-        Close <ph name="TAB_TITLE">%1$s<ex></ex></ph> tab
+        Close <ph name="TAB_TITLE">%1$s<ex>Brave</ex></ph> tab
       </message>
 
       <!-- Accessibility strings for omnibox -->
@@ -5068,7 +5068,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         You can find all open tabs in the tab switcher
       </message>
       <message name="IDS_TAB_CANNOT_BE_MOVED" desc="Toast that appears when attempting to move a tab group containing an MHTML tab into another window.">
-        Tab <ph name="TAB_TITLE">%1$s<ex></ex></ph> can't be moved
+        Tab <ph name="TAB_TITLE">%1$s<ex>Brave</ex></ph> can't be moved
       </message>
 
       <message name="IDS_CLOSE_TAB" desc="Context menu option that allows the user to close the selected tab.">
@@ -5077,7 +5077,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
 
       <!-- Overscroll Navigation -->
       <message name="IDS_OVERSCROLL_NAVIGATION_CLOSE_CHROME" desc="Message displayed on overscroll navigation UI widget when the back navigation is attempted at the beginning of navigation history stack. The widget only has an arrow icon but expands to display this message next to it.">
-        Close <ph name="APP_NAME">%1$s<ex></ex></ph>
+        Close <ph name="APP_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_OVERSCROLL_NAVIGATION_CLOSE_TAB" desc="Message displayed on overscroll navigation UI widget when the back navigation is attempted at the beginning of navigation history stack. The widget only has an arrow icon but expands to display this message next to it.">
         Close tab
@@ -5224,7 +5224,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
 
       <!-- Storage Preference UI strings for clearing storage. -->
       <message name="IDS_STORAGE_MANAGEMENT_ACTIVITY_LABEL" desc="Title for 's Manage Space Activity.">
-          <ph name="APP_NAME">%1$s<ex></ex></ph> storage
+          <ph name="APP_NAME">%1$s<ex>Brave</ex></ph> storage
       </message>
       <message name="IDS_STORAGE_MANAGEMENT_UNIMPORTANT_SITE_DATA_DESCRIPTION" desc="Text to describe the data stored by unimportant or infrequent sites.">
         Stored data that  doesn't think is important (e.g. sites with no saved settings or that you don't visit often)
@@ -5313,7 +5313,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
 
       <!-- AuthTab -->
       <message name="IDS_AUTH_TAB_SECURED_BY_CHROME_TEMPLATE" desc="Message template that used to indicating that the Auth Tab is securely running on . [CHAR_LIMIT=32]">
-        Secured by <ph name="APP_NAME">%1$s<ex></ex></ph>
+        Secured by <ph name="APP_NAME">%1$s<ex>Brave</ex></ph>
       </message>
 
       <!-- WebAPK/TWA related strings -->
@@ -5321,7 +5321,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Running in 
       </message>
       <message name="IDS_TWA_RUNNING_IN_CHROME_TEMPLATE" desc="Message template that used to indicating that the current Activity may use  data (the rest of the app may not be). [CHAR_LIMIT=32]">
-        Running in <ph name="APP_NAME">%1$s<ex></ex></ph>
+        Running in <ph name="APP_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_TWA_RUNNING_IN_CHROME_V2" desc="Updated message on a snackbar indicating that the current Activity may use  data (the rest of the app may not be).">
         You'll see your <ph name="SITE_NAME">%1$s<ex>www.youtube.com</ex></ph> sign-in status, browsing data, and site data in 
@@ -5687,7 +5687,7 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the  data in
         Search
       </message>
       <message name="IDS_SEARCH_WITH_PRODUCT" desc="Text for search widget with a search engine name">
-        Search with <ph name="PRODUCT_NAME">%1$s<ex></ex></ph>
+        Search with <ph name="PRODUCT_NAME">%1$s<ex>Brave</ex></ph>
       </message>
       <message name="IDS_IPH_DOWNLOAD_SETTINGS_TEXT" desc="The in-product-help message to open download settings in download home.">
         Change the default download location any time

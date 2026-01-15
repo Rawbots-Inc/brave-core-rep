@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.2cc87926.css",
-    "main.js": "/static/js/main.b078b548.js",
+    "main.js": "/static/js/main.0bab9440.js",
     "static/js/328.9b17ddfc.chunk.js": "/static/js/328.9b17ddfc.chunk.js",
     "static/js/777.5dc94dab.chunk.js": "/static/js/777.5dc94dab.chunk.js",
     "static/js/251.fef02797.chunk.js": "/static/js/251.fef02797.chunk.js",
@@ -63,7 +63,7 @@
     "serve.json": "/serve.json",
     "vercel.json": "/vercel.json",
     "main.2cc87926.css.map": "/static/css/main.2cc87926.css.map",
-    "main.b078b548.js.map": "/static/js/main.b078b548.js.map",
+    "main.0bab9440.js.map": "/static/js/main.0bab9440.js.map",
     "328.9b17ddfc.chunk.js.map": "/static/js/328.9b17ddfc.chunk.js.map",
     "777.5dc94dab.chunk.js.map": "/static/js/777.5dc94dab.chunk.js.map",
     "251.fef02797.chunk.js.map": "/static/js/251.fef02797.chunk.js.map",
@@ -111,6 +111,6 @@
   "entrypoints": [
     "static/js/213.d173dc74.js",
     "static/css/main.2cc87926.css",
-    "static/js/main.b078b548.js"
+    "static/js/main.0bab9440.js"
   ]
 }

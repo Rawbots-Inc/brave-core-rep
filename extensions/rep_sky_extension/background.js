@@ -42,6 +42,8 @@ const callMap = new Set();
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
+    console.log("message", message);
+
     if (message.type === "open_side_panel") {
       try {
         await chrome.sidePanel.open({ tabId: sender.tab.id });
@@ -78,8 +80,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.action === "openNewTab") {
-    console.log("message", message);
-
     const newUrl = message.newUrl;
     const isOpenCallTab = newUrl.startsWith(
       "https://video-call-sdk-ui.vercel.app/room/"

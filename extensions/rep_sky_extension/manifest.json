@@ -26,7 +26,6 @@
     "storage",
     "tabs",
     "contextMenus",
-    "offscreen",
     "windows",
     "runtime"
   ],

@@ -4,7 +4,7 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/. */
 
 import * as React from 'react'
-import Icon from '@brave/leo/react/icon'
+// import Icon from '@brave/leo/react/icon'
 
 import { SearchBox } from './search/search_box'
 import { Background } from './background/background'
@@ -12,7 +12,7 @@ import { BackgroundClickRegion } from './background/background_click_region'
 import { BackgroundCaption } from './background/background_caption'
 import { SettingsModal, SettingsView } from './settings/settings_modal'
 import { TopSites } from './top_sites/top_sites'
-import { Clock } from './common/clock'
+// import { Clock } from './common/clock'
 import { LazyNewsFeed } from './news/lazy_news_feed'
 import { WidgetStack } from './widgets/widget_stack'
 import { useSearchLayoutReady, useWidgetLayoutReady } from './app_layout_ready'
@@ -46,18 +46,18 @@ export function App() {
       <Background />
       <div className='background-filter allow-background-pointer-events' />
       <main className='allow-background-pointer-events'>
-        <button
+        {/* <button
           className='clock'
           onClick={() => setSettingsView('clock')}
         >
           <Clock />
-        </button>
-        <button
+        </button> */}
+        {/* <button
           className='settings'
           onClick={() => setSettingsView('background')}
         >
           <Icon name='settings' />
-        </button>
+        </button> */}
         <div className='topsites-container'>
           <TopSites />
         </div>

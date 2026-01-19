@@ -283,8 +283,8 @@ copy("copy_rep_sky_static_js") {
     "$rep_sky_src_root/static/js/977.e03d87e1.chunk.js.map",
     "$rep_sky_src_root/static/js/982.954570c0.chunk.js",
     "$rep_sky_src_root/static/js/982.954570c0.chunk.js.map",
-    "$rep_sky_src_root/static/js/main.0bab9440",
-    "$rep_sky_src_root/static/js/main.0bab9440.map",
+    "$rep_sky_src_root/static/js/main.0bab9440.js",
+    "$rep_sky_src_root/static/js/main.0bab9440.js.map",
   ]
 
   outputs = [ "$rep_sky_resources_dir/static/js/{{source_file_part}}" ]

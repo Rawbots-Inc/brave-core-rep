@@ -65,9 +65,10 @@ class BraveActionsContainerTest : public InProcessBrowserTest {
 };
 
 IN_PROC_BROWSER_TEST_F(BraveActionsContainerTest, HideBraveRewardsAction) {
-  // By default the action should be shown.
-  EXPECT_TRUE(prefs_->GetBoolean(brave_rewards::prefs::kShowLocationBarButton));
-  CheckBraveRewardsActionShown(true);
+  // Rewards location bar icon is hidden.
+  EXPECT_FALSE(
+      prefs_->GetBoolean(brave_rewards::prefs::kShowLocationBarButton));
+  CheckBraveRewardsActionShown(false);
 
   // Set to hide.
   prefs_->SetBoolean(brave_rewards::prefs::kShowLocationBarButton, false);
@@ -75,14 +76,15 @@ IN_PROC_BROWSER_TEST_F(BraveActionsContainerTest, HideBraveRewardsAction) {
 
   // Set to show.
   prefs_->SetBoolean(brave_rewards::prefs::kShowLocationBarButton, true);
-  CheckBraveRewardsActionShown(true);
+  CheckBraveRewardsActionShown(false);
 }
 
 IN_PROC_BROWSER_TEST_F(BraveActionsContainerTest,
                        BraveRewardsActionHiddenInGuestSession) {
-  // By default the action should be shown.
-  EXPECT_TRUE(prefs_->GetBoolean(brave_rewards::prefs::kShowLocationBarButton));
-  CheckBraveRewardsActionShown(true);
+  // Rewards location bar icon is hidden.
+  EXPECT_FALSE(
+      prefs_->GetBoolean(brave_rewards::prefs::kShowLocationBarButton));
+  CheckBraveRewardsActionShown(false);
 
   // Open a Guest window.
   EXPECT_EQ(1U, BrowserList::GetInstance()->size());

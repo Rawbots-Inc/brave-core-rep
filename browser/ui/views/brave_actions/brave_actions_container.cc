@@ -69,13 +69,8 @@ void BraveActionsContainer::Init() {
 }
 
 bool BraveActionsContainer::ShouldShowBraveRewardsAction() const {
-  if (!brave_rewards::IsSupportedForProfile(
-          browser_window_interface_->GetProfile())) {
-    return false;
-  }
-  const PrefService* prefs =
-      browser_window_interface_->GetProfile()->GetPrefs();
-  return prefs->GetBoolean(brave_rewards::prefs::kShowLocationBarButton);
+  // Keep Rewards functionality intact, but never show the location bar icon.
+  return false;
 }
 
 void BraveActionsContainer::AddActionViewForShields() {

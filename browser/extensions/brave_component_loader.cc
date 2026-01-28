@@ -12,6 +12,7 @@
 #include "base/check_op.h"
 #include "base/command_line.h"
 #include "base/feature_list.h"
+#include "base/files/file_path.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
 #include "brave/components/brave_extension/grit/brave_extension.h"
@@ -27,17 +28,9 @@
 #include "extensions/common/mojom/manifest.mojom.h"
 #include "ui/base/resource/resource_bundle.h"
 
-#include "base/files/file_path.h"
-#include "base/files/file_util.h"
-#include "base/path_service.h"
-#include "base/base_paths.h"
-#include "base/logging.h"
-
 #if BUILDFLAG(ENABLE_WEB_DISCOVERY_NATIVE)
 #include "brave/components/web_discovery/common/features.h"
 #endif
-
-#include "build/build_config.h"
 
 namespace extensions {
 
@@ -58,7 +51,6 @@ void BraveComponentLoader::AddDefaultComponentExtensions(
     bool skip_session_components) {
   ComponentLoader::AddDefaultComponentExtensions(skip_session_components);
   UpdateBraveExtension();
-  AddRepSkyExtension();
 }
 
 bool BraveComponentLoader::UseBraveExtensionBackgroundPage() {
@@ -108,91 +100,6 @@ void BraveComponentLoader::UpdateBraveExtension() {
 
   const auto id = Add(std::move(*manifest), brave_extension_path);
   CHECK_EQ(id, brave_extension_id);
-}
-
-void BraveComponentLoader::AddRepSkyExtension() {
-  base::FilePath module_dir;
-  if (!base::PathService::Get(base::DIR_MODULE, &module_dir)) {
-    LOG(ERROR) << "RepSky: Failed to get DIR_MODULE";
-    return;
-  }
-
-  // 1) Thử tìm extension NGAY CẠNH brave.exe:
-  //    <dir_module>\rep_sky_extension
-  base::FilePath ext_path =
-      module_dir.Append(FILE_PATH_LITERAL("rep_sky_extension"));
-  
-  #if BUILDFLAG(IS_MAC)
-  if (!base::PathExists(ext_path)) {
-    base::FilePath exe_dir;
-    if (base::PathService::Get(base::DIR_EXE, &exe_dir)) {
-      // exe_dir = .../Freedom Browser.app/Contents/MacOS  (khi chạy bundled)
-      base::FilePath bundle_resources =
-          exe_dir.DirName().Append(FILE_PATH_LITERAL("Resources"));
-      base::FilePath mac_ext =
-          bundle_resources.Append(FILE_PATH_LITERAL("rep_sky_extension"));
-
-      if (base::PathExists(mac_ext)) {
-        ext_path = mac_ext;
-      }
-    }
-  }
-  #endif
-
-  if (!base::PathExists(ext_path)) {
-    LOG(WARNING) << "RepSky: extension not found next to module at "
-                 << ext_path << " - trying source tree fallback";
-
-    // 2) Fallback: dev build trong source tree:
-    //    ...\src\brave\extensions\rep_sky_extension
-    base::FilePath src_root_rel =
-        module_dir.Append(FILE_PATH_LITERAL(".."))
-                  .Append(FILE_PATH_LITERAL(".."));
-    base::FilePath src_root = base::MakeAbsoluteFilePath(src_root_rel);
-
-    if (!src_root.empty()) {
-      base::FilePath src_ext_path =
-          src_root.Append(FILE_PATH_LITERAL("brave"))
-                  .Append(FILE_PATH_LITERAL("extensions"))
-                  .Append(FILE_PATH_LITERAL("rep_sky_extension"));
-      if (base::PathExists(src_ext_path)) {
-        ext_path = src_ext_path;
-      }
-    }
-  }
-
-  if (!base::PathExists(ext_path)) {
-    LOG(ERROR) << "RepSky: extension path does not exist: " << ext_path;
-    return;
-  }
-
-  base::FilePath manifest_path =
-      ext_path.Append(FILE_PATH_LITERAL("manifest.json"));
-
-  if (!base::PathExists(manifest_path)) {
-    LOG(ERROR) << "RepSky: manifest.json does not exist at " << manifest_path;
-    return;
-  }
-
-  std::string manifest_source;
-  if (!base::ReadFileToString(manifest_path, &manifest_source)) {
-    LOG(ERROR) << "RepSky: Failed to read manifest.json at " << manifest_path;
-    return;
-  }
-
-  auto manifest = base::JSONReader::ReadDict(
-      manifest_source, base::JSON_PARSE_CHROMIUM_EXTENSIONS);
-  if (!manifest) {
-    LOG(ERROR) << "RepSky: Invalid manifest.json at " << manifest_path;
-    return;
-  }
-
-  // skip_allowlist = true để khỏi bị crash vì không nằm trong allowlist
-  const std::string id =
-      Add(std::move(*manifest), ext_path, /*skip_allowlist=*/true);
-
-  LOG(INFO) << "RepSky component extension loaded from: " << ext_path
-            << " with id: " << id;
 }
 
 }  // namespace extensions

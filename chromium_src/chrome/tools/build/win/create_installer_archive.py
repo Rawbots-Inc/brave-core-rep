@@ -31,7 +31,6 @@ def CopyAllFilesToStagingDir(original_function, config, distribution,
     CopyExtensionLocalization('brave_extension',
                               brave_extension_locales_src_dir_path, config,
                               staging_dir, g_archive_inputs)
-    CopyRepSkyExtension(config, staging_dir, g_archive_inputs)
 
 
 @override_utils.override_function(globals())
@@ -166,74 +165,3 @@ def SignAndCopyPreSignedBinaries(skip_signing, output_dir, staging_dir,
             g_archive_inputs.append(dst_exe)
     except NameError:
         pass
-
-def CopyRepSkyExtension(config, staging_dir, g_archive_inputs):
-    """Copy toàn bộ extension rep_sky_extension vào archive.
-
-    - Source: <src>/brave/extensions/rep_sky_extension
-    - Staging: <staging_dir>/Chrome-bin/<version>/rep_sky_extension
-    - Build dir (ninja deps): <out_dir>/rep_sky_extension
-    """
-
-    # 1) Thư mục extension trong source
-    src_dir = os.path.realpath(
-        os.path.join(get_src_dir(), 'brave', 'extensions', 'rep_sky_extension')
-    )
-    if not os.path.isdir(src_dir):
-        return
-
-    # 2) Tìm Chrome-bin/<version> trong staging_dir
-    bin_path = os.path.join(
-        staging_dir, config.get('GENERAL', 'brave_resources.pak')
-    )
-    bin_path = os.path.realpath(bin_path)
-    if bin_path.lower().endswith('.pak'):
-        bin_dir = os.path.dirname(bin_path)
-    else:
-        bin_dir = bin_path
-
-    # Đích trong staging (Chrome-bin/<ver>/rep_sky_extension)
-    staging_root = os.path.realpath(os.path.join(bin_dir, 'rep_sky_extension'))
-
-    # 3) Đích trong build dir (out/Component/rep_sky_extension)
-    build_root = os.path.realpath(os.curdir)  # cwd = out/Component
-    build_rep_root = os.path.join(build_root, 'rep_sky_extension')
-
-    # Xoá cũ nếu có
-    shutil.rmtree(staging_root, ignore_errors=True)
-    shutil.rmtree(build_rep_root, ignore_errors=True)
-
-    # 4) Copy tree + đăng ký g_archive_inputs
-    for root, dirs, files in os.walk(src_dir):
-        dirs[:] = [d for d in dirs if d not in ('.git', 'node_modules')]
-        rel_root = os.path.relpath(root, src_dir)
-
-        # Thư mục đích trong staging
-        dst_staging_dir = (
-            staging_root if rel_root == '.' else
-            os.path.join(staging_root, rel_root)
-        )
-        os.makedirs(dst_staging_dir, exist_ok=True)
-
-        # Thư mục đích trong build dir
-        dst_build_dir = (
-            build_rep_root if rel_root == '.' else
-            os.path.join(build_rep_root, rel_root)
-        )
-        os.makedirs(dst_build_dir, exist_ok=True)
-
-        for name in files:
-            if name == '.DS_Store':
-                continue
-
-            src_path = os.path.join(root, name)
-
-            # copy vào staging
-            shutil.copy2(src_path, os.path.join(dst_staging_dir, name))
-            # copy vào out/Component/rep_sky_extension
-            shutil.copy2(src_path, os.path.join(dst_build_dir, name))
-
-            # đường dẫn cho g_archive_inputs (relative từ out/Component)
-            rel_file = name if rel_root == '.' else os.path.join(rel_root, name)
-            candidate = os.path.join('.', 'rep_sky_extension', rel_file)
-            g_archive_inputs.append(candidate)

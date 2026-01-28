@@ -11,7 +11,7 @@
 namespace brave_rewards {
 
 void RegisterProfilePrefs(PrefRegistrySimple* registry) {
-  registry->RegisterBooleanPref(prefs::kShowLocationBarButton, true);
+  registry->RegisterBooleanPref(prefs::kShowLocationBarButton, false);
   registry->RegisterStringPref(prefs::kNotifications, "");
   registry->RegisterTimeDeltaPref(prefs::kNotificationTimerInterval,
                                   base::Days(1));
